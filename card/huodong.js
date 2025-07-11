@@ -1020,6 +1020,9 @@ game.import("card", function () {
 					},
 					result: {
 						target(player, target) {
+							if (get.mode() == "identity" && player.hasUnknown(2)) {
+								return 0;
+							}
 							if (get.attitude(player, target) <= 0) {
 								return 0;
 							}
@@ -1272,7 +1275,14 @@ game.import("card", function () {
 					order: 1,
 					useful: 4,
 					value: 6,
-					result: { target: 1 },
+					result: {
+						target(player, target) {
+							if (get.mode() == "identity" && player.identity != "zhong" && player.identity != "fan") {
+								return 0;
+							}
+							return 1;
+						},
+					},
 					tag: { recover: 2 },
 				},
 			},

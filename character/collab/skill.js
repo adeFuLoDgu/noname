@@ -5775,7 +5775,7 @@ const skills = {
 		ai: {
 			effect: {
 				player_use(card, player, target) {
-					if (player !== target && get.type2(card) === "trick") {
+					if (player !== target && get.type2(card) === "trick" && !get.tag(card, "recover")) {
 						let tars = [target];
 						if (ui.selected.targets.length) {
 							tars.addArray(ui.selected.targets.filter(i => i !== player && i !== target));
