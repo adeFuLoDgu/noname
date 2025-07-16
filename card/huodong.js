@@ -220,9 +220,7 @@ game.import("card", function () {
 					player.line(targets);
 					const chooseEvent = player
 						.chooseCardOL(targets, "烈火：请选择一张手牌", true)
-						.set("ai", function (card) {
-							return Math.random();
-						})
+						.set("ai", get.unuseful)
 						.set("source", player);
 					chooseEvent.aiCard = function (target) {
 						const hs = target.getCards("h");
@@ -263,7 +261,24 @@ game.import("card", function () {
 					useful: 2,
 					value: 6.5,
 					result: {
-						target: -1,
+						player(player) {
+							if (player.countCards("h") <= 1) {
+								return 0;
+							}
+							if (get.mode() === "identity") {
+								let list = player.getFriends();
+								if (player.isZhu && player.countCards("he") > 2) {
+									for (let i = 0; i < list.length; i++) {
+										if (list[i].hp <= 1 && list[i].countCards("h") > 0 && get.damageEffect(list[i], player, player, "fire") < 0) return 0;
+									}
+								}
+							}
+							let list = player.getEnemies();
+							for (let i = 0; i < list.length; i++) {
+								if (list[i].countCards("h") > 0 && get.damageEffect(list[i], player, player, "fire") > 0) return 1;
+							}
+							return 0;
+						},
 					},
 					tag: {
 						damage: 1,
@@ -339,13 +354,16 @@ game.import("card", function () {
 					result: {
 						player(player, target) {
 							for (var i = 0; i < game.players.length; i++) {
-								if (get.attitude(player, game.players[i]) <= 0 && game.players[i].hasSkill('dclaoyan')) return 0;
+								if (get.attitude(player, game.players[i]) <= 0) {
+									if (game.players[i].hasSkill("dclaoyan")) return 0;
+									if (game.players[i].hasSkillTag("rejudge")) return 0;
+								}
 							}
 							if (game.players.length>2){
-								if (target.hasSkill('sphuangen')&&target.hp>0) return 0;
+								if (target.hasSkill("sphuangen")&&target.hp>0) return 0;
 								var list=target.getFriends(true);
 								for (var i=0;i<list.length;i++){
-									if (list[i].hasSkill('sphuangen')&&list[i].hp>1) return 0;
+									if (list[i].hasSkill("sphuangen")&&list[i].hp>1) return 0;
 								}
 							}
 							return 1;
@@ -551,7 +569,18 @@ game.import("card", function () {
 					useful: 0.5,
 					value: 5,
 					result: {
-						target: 1,
+						target(player, target) {
+							if (player.isTurnedOver()) {
+								return 1;
+							}
+							let active_skills = player.getStockSkills(false);
+							for (var skill of active_skills) {
+								if (get.skillRank(skill, "in") > 1) {
+									return 0;
+								}
+							}
+							return 1;
+						},
 					},
 				},
 			},
@@ -760,6 +789,13 @@ game.import("card", function () {
 					result: {
 						player(player) {
 							if (player.countCards("h") - 1 == 0) {
+								return 0;
+							}
+							if (player.hasSkill("quanjiu") ||
+								player.hasSkill("jinjiu") ||
+								player.hasSkill("sbjinjiu") ||
+								player.hasSkill("rejinjiu") ||
+								player.hasSkill("decadejinjiu")) {
 								return 0;
 							}
 							let players = game.filterPlayer().sortBySeat();
@@ -1117,13 +1153,13 @@ game.import("card", function () {
 					result: {
 						player(player, target) {
 							for (var i = 0; i < game.players.length; i++) {
-								if (get.attitude(player, game.players[i]) <= 0 && game.players[i].hasSkill('dclaoyan')) return 0;
+								if (get.attitude(player, game.players[i]) <= 0 && game.players[i].hasSkill("dclaoyan")) return 0;
 							}
 							if (game.players.length>2){
-								if (target.hasSkill('sphuangen')&&target.hp>0) return 0;
+								if (target.hasSkill("sphuangen")&&target.hp>0) return 0;
 								var list=target.getFriends(true);
 								for (var i=0;i<list.length;i++){
-									if (list[i].hasSkill('sphuangen')&&list[i].hp>1) return 0;
+									if (list[i].hasSkill("sphuangen")&&list[i].hp>1) return 0;
 								}
 							}
 							let res = 0,
@@ -1133,13 +1169,13 @@ game.import("card", function () {
 						},
 						target(player, target) {
 							for (var i = 0; i < game.players.length; i++) {
-								if (get.attitude(player, game.players[i]) <= 0 && game.players[i].hasSkill('dclaoyan')) return 0;
+								if (get.attitude(player, game.players[i]) <= 0 && game.players[i].hasSkill("dclaoyan")) return 0;
 							}
 							if (game.players.length>2){
-								if (target.hasSkill('sphuangen')&&target.hp>0) return 0;
+								if (target.hasSkill("sphuangen")&&target.hp>0) return 0;
 								var list=target.getFriends(true);
 								for (var i=0;i<list.length;i++){
-									if (list[i].hasSkill('sphuangen')&&list[i].hp>1) return 0;
+									if (list[i].hasSkill("sphuangen")&&list[i].hp>1) return 0;
 								}
 							}
 							return -1;
@@ -1338,13 +1374,13 @@ game.import("card", function () {
 					result: {
 						target(player, target) {
 							for (var i = 0; i < game.players.length; i++) {
-								if (get.attitude(player, game.players[i]) <= 0 && game.players[i].hasSkill('dclaoyan')) return 0;
+								if (get.attitude(player, game.players[i]) <= 0 && game.players[i].hasSkill("dclaoyan")) return 0;
 							}
 							if (game.players.length>2){
-								if (target.hasSkill('sphuangen')&&target.hp>0) return 0;
+								if (target.hasSkill("sphuangen")&&target.hp>0) return 0;
 								var list=target.getFriends(true);
 								for (var i=0;i<list.length;i++){
-									if (list[i].hasSkill('sphuangen')&&list[i].hp>1) return 0;
+									if (list[i].hasSkill("sphuangen")&&list[i].hp>1) return 0;
 								}
 							}
 							if (target.hasSkill("dctianji")) return 3 * game.players.length;
@@ -1397,7 +1433,7 @@ game.import("card", function () {
 							if (game.players.length>2){
 								var list=player.getEnemies();
 								for (var i=0;i<list.length;i++){
-									if (list[i].hasSkill('sphuangen')&&list[i].hp>1) return 0;
+									if (list[i].hasSkill("sphuangen")&&list[i].hp>1) return 0;
 								}
 							}
 							if (target.hasSkillTag("link") || target.hasSkillTag("noLink")) {

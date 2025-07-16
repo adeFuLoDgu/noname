@@ -2603,7 +2603,7 @@ const skills = {
 				targets: [target],
 			} = event;
 			if (target.countCards("h")) {
-				const { result } = target.countCards("h") == 1 ? { bool: true, cards: target.getcards("h") } : await target.chooseCard(true, "h", `选择一张手牌赠予${get.translation(player)}`);
+				const { result } = target.countCards("h") == 1 ? { bool: true, cards: target.getCards("h") } : await target.chooseCard(true, "h", `选择一张手牌赠予${get.translation(player)}`);
 				if (result?.bool && result?.cards?.length) {
 					await target.gift(result.cards, player);
 				}
