@@ -4395,6 +4395,9 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 						case "lose_muniu":
 							tagText = "木牛流马流失";
 							break;
+						case "lose_jinhe":
+							tagText = "锦盒掉落";
+							break;
 						case 'discard':
 							tagText = "弃置";
 							break;

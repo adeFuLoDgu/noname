@@ -38865,22 +38865,6 @@ const skills = {
 					return 0;
 				},
 			},
-			effect: {
-				player(card, player, target) {
-					if (
-						player != target &&
-						get.tag(card, "damage") &&
-						target &&
-						target.hasMark("xinfu_xionghuo") &&
-						!target.hasSkillTag("filterDamage", null, {
-							player: player,
-							card: card,
-						})
-					) {
-						return [1, 0, 1, -2];
-					}
-				},
-			},
 			threaten: 1.6,
 		},
 		marktext: "戾",

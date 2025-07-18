@@ -496,7 +496,7 @@ game.import("card", function () {
 				toself: false,
 				skills: ["wufengjian_skill"],
 				ai: {
-					order: 9,
+					order: 5,
 					equipValue(card, player) {
 						if (card.constructor.name == "VCard" && card?.cards?.[0]) card = card.cards[0];
 						if (get.position(card) == "e") return -2;
@@ -540,7 +540,7 @@ game.import("card", function () {
 				toself: false,
 				distance: { attackFrom: 1 },
 				ai: {
-					order: 9,
+					order: 5,
 					equipValue(card, player) {
 						if (card.constructor.name == "VCard" && card?.cards?.[0]) card = card.cards[0];
 						if (get.position(card) == "e") return -2;
