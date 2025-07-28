@@ -11,20 +11,24 @@ game.import("card", function () {
 				content() {},
 				ai: {
 					value: function(card,player,i) {
-						if (player.hp<=1&&_status.currentPhase==player&&_status.event.getParent('phaseUse').name=='phaseUse'
-						&&_status.event.name!='chooseButton'&&_status.event.name!='chooseCard'&&_status.event.name!='chooseToGive'){
-							return 100;
+						if (!player.hasSkillTag("nodu")) {
+							if (player.hp<=1&&_status.currentPhase==player&&_status.event.getParent('phaseUse').name=='phaseUse'
+							&&_status.event.name!='chooseButton'&&_status.event.name!='chooseCard'&&_status.event.name!='chooseToGive'){
+								return 100;
+							}
+							for (var i=0;i<10;i++){
+								if (_status.event.getParent(i)&&_status.event.getParent(i).name=='chooseToCompare') return 100;
+							}
+							if (_status.currentPhase==player&&_status.event.name=='chooseCard') return 100;
 						}
-						for (var i=0;i<10;i++){
-							if (_status.event.getParent(i)&&_status.event.getParent(i).name=='chooseToCompare') return 100;
-						}
-						if (_status.currentPhase==player&&_status.event.name=='chooseCard') return 100;
 						return -5;
 					},
 					useful: function(card,i) {
 						var player=_status.event.player
-						if (player.hp<=1&&_status.currentPhase==player&&_status.event.getParent('phaseDiscard').name=='phaseDiscard'&&player.countCards('h','tao')+player.countCards('h','jiu')<=0){
-							return 11;
+						if (!player.hasSkillTag("nodu")) {
+							if (player.hp<=1&&_status.currentPhase==player&&_status.event.getParent('phaseDiscard').name=='phaseDiscard'&&player.countCards('h','tao')+player.countCards('h','jiu')<=0){
+								return 11;
+							}
 						}
 						return 6;
 					},

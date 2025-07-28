@@ -128,7 +128,7 @@ game.import("card", function () {
 					useful: 3.5,
 					value: 6.5,
 					result: {
-						player: 1,
+						target: -1,
 					},
 				},
 			},
