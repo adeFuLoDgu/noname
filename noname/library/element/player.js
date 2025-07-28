@@ -1176,7 +1176,7 @@ export class Player extends HTMLDivElement {
 			return get.effect(target, card, target, target);
 		}
 		if (card.name == "du") {
-			if (player.hasSkillTag("nodu")) {
+			if (this.hasSkillTag("nodu")) {
 				return -1;
 			}
 			return this.hp > target.hp ? -1 : 0;
