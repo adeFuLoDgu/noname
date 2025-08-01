@@ -126,7 +126,6 @@ window.noname_source_list = [
 	"card/hearth.js",
 	"card/huanlekapai.js",
 	"card/huodong.js",
-	"card/kaiheiji.js",
 	"card/mtg.js",
 	"card/sp.js",
 	"card/standard.js",
