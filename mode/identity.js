@@ -148,7 +148,7 @@ export default () => {
 						}
 					}
 					if (window.decadeUI) ui.arena.classList.remove("menupaused");
-					yield new Promise(resolve => ui.controls[0].replace("如果你感到游戏较卡，在选中-通用中可以开启流畅模式", resolve));
+					yield new Promise(resolve => ui.controls[0].replace("如果你感到游戏较卡，在选项-通用中可以开启流畅模式", resolve));
 					ui.click.menuTab("选项");
 					for (let i = 0; i < left_menu_button.length; i++) {
 						if (left_menu_button[i].innerHTML == "技能") {
@@ -177,14 +177,16 @@ export default () => {
 					}
 					if (window.decadeUI) ui.arena.classList.remove("menupaused");
 					yield new Promise(resolve => ui.controls[0].replace("在其它-录像管理录像", resolve));
-					ui.click.menuTab("其它");
-					for (let i = 0; i < left_menu_button.length; i++) {
-						if (left_menu_button[i].innerHTML == "更新") {
-							left_menu_button[i].click();
+					if (game.download) {
+						ui.click.menuTab("其它");
+						for (let i = 0; i < left_menu_button.length; i++) {
+							if (left_menu_button[i].innerHTML == "更新") {
+								left_menu_button[i].click();
+							}
 						}
+						if (window.decadeUI) ui.arena.classList.remove("menupaused");
+						yield new Promise(resolve => ui.controls[0].replace("在其它-更新中，可以检查更新和下载素材", resolve));
 					}
-					if (window.decadeUI) ui.arena.classList.remove("menupaused");
-					yield new Promise(resolve => ui.controls[0].replace("在其它-更新中，可以检查更新和下载素材", resolve));
 					ui.click.configMenu();
 					ui.window.classList.remove("noclick_important");
 					ui.control.classList.remove("noclick_click_important");
