@@ -564,7 +564,7 @@ table {
 	z-index: 20;
 }
 
-#arena.only_dialog > div:not(.dialog):not(#control) {
+#arena.only_dialog > div:not(.dialog):not(#control):not(#dui-controls) {
 	opacity: 0 !important;
 	pointer-events: none !important;
 }

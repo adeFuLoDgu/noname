@@ -183,7 +183,7 @@ const skills = {
 					}
 					const ranks = target.getSkills(null, false, false).reduce((sum, name) => {
 						_status.event.skillRankPlayer = target;
-						sum += get.skillRank(name, true);
+						sum += get.skillRank(name);
 						delete _status.event.skillRankPlayer;
 						return sum;
 					}, 1);
