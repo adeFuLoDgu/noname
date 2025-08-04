@@ -101,7 +101,7 @@ export default () => {
 					ui.create.control("继续", step2);
 				};
 				var step2 = function () {
-					if (!lib.config.phonelayout) {
+					if (!lib.config.phonelayout && !window.decadeUI) {
 						clear();
 						ui.create.dialog("如果你在使用手机，可能会觉得按钮有点小" + "，将布局改成移动可以使按钮变大");
 						ui.dialog.add('<div class="text center">你可以在选项-外观-布局中更改此设置');
@@ -132,6 +132,30 @@ export default () => {
 					}
 				};
 				var step4 = lib.genAsync(function* () {
+					let Click_Left_Menu = function (html_text) {
+						let left_menu_button = document.querySelectorAll('.menu-content .menubutton');
+						for (let i = 0; i < left_menu_button.length; i++) {
+							if (left_menu_button[i].innerHTML == html_text) {
+								if (lib.config.touchscreen) {
+									var e1 = new Event('touchstart');
+									var e2 = new Event('touchend'); 
+									left_menu_button[i].dispatchEvent(e1);
+									left_menu_button[i].dispatchEvent(e2);
+								} else {
+									left_menu_button[i].click();
+								}
+							}
+						}
+					}
+					game.documentZoom = (game.deviceZoom * 100) / 100;
+					ui.updatez();
+					if (Array.isArray(lib.onresize)) {
+						lib.onresize.forEach(fun => {
+							if (typeof fun === "function") {
+								fun();
+							}
+						});
+					}
 					clear();
 					ui.window.classList.add("noclick_important");
 					ui.click.configMenu();
@@ -141,50 +165,22 @@ export default () => {
 					ui.control.style.top = "calc(100% - 105px)";
 					yield new Promise(resolve => ui.create.control("在菜单中，可以进行各项设置", resolve));
 					ui.click.menuTab("选项");
-					var left_menu_button = document.querySelectorAll('.menu-content .menubutton');
-					for (let i = 0; i < left_menu_button.length; i++) {
-						if (left_menu_button[i].innerHTML == "通用") {
-							left_menu_button[i].click();
-						}
-					}
-					if (window.decadeUI) ui.arena.classList.remove("menupaused");
+					Click_Left_Menu("通用");
 					yield new Promise(resolve => ui.controls[0].replace("如果你感到游戏较卡，在选项-通用中可以开启流畅模式", resolve));
 					ui.click.menuTab("选项");
-					for (let i = 0; i < left_menu_button.length; i++) {
-						if (left_menu_button[i].innerHTML == "技能") {
-							left_menu_button[i].click();
-						}
-					}
-					if (window.decadeUI) ui.arena.classList.remove("menupaused");
+					Click_Left_Menu("技能");
 					yield new Promise(resolve => ui.controls[0].replace("在选项-技能中，可以设置自动发动或双将禁配的技能", resolve));
 					ui.click.menuTab("武将");
-					if (window.decadeUI) ui.arena.classList.remove("menupaused");
 					yield new Promise(resolve => ui.controls[0].replace("在武将/卡牌中，单击武将/卡牌可以将其禁用", resolve));
 					ui.click.menuTab("其它");
-					var left_menu_button = document.querySelectorAll('.menu-content .menubutton');
-					for (let i = 0; i < left_menu_button.length; i++) {
-						if (left_menu_button[i].innerHTML == "命令") {
-							left_menu_button[i].click();
-						}
-					}
-					if (window.decadeUI) ui.arena.classList.remove("menupaused");
+					Click_Left_Menu("命令");
 					yield new Promise(resolve => ui.controls[0].replace("在其它-命令中可以输入游戏命令", resolve));
 					ui.click.menuTab("其它");
-					for (let i = 0; i < left_menu_button.length; i++) {
-						if (left_menu_button[i].innerHTML == "录像") {
-							left_menu_button[i].click();
-						}
-					}
-					if (window.decadeUI) ui.arena.classList.remove("menupaused");
+					Click_Left_Menu("录像");
 					yield new Promise(resolve => ui.controls[0].replace("在其它-录像管理录像", resolve));
 					if (game.download) {
 						ui.click.menuTab("其它");
-						for (let i = 0; i < left_menu_button.length; i++) {
-							if (left_menu_button[i].innerHTML == "更新") {
-								left_menu_button[i].click();
-							}
-						}
-						if (window.decadeUI) ui.arena.classList.remove("menupaused");
+						Click_Left_Menu("更新");
 						yield new Promise(resolve => ui.controls[0].replace("在其它-更新中，可以检查更新和下载素材", resolve));
 					}
 					ui.click.configMenu();
