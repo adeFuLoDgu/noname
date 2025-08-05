@@ -36,6 +36,8 @@
 	opacity: 0;
 	background-image: url('assets/image/sprites_glow_blue.png');
 	background-repeat: no-repeat;
+	/* background-size does not work in @keyframes on iOS Safari. */
+	background-size: 2300px	100%;
 	animation-name: kf-sprites-glow;
 	animation-duration: 0s;
 	animation-delay: 0s;
@@ -80,6 +82,8 @@
 	opacity: 0;
 	background-image: url('assets/image/sprites_glow_red.png');
 	background-repeat: no-repeat;
+	/* background-size does not work in @keyframes on iOS Safari. */
+	background-size: 2300px	100%;
 	animation-name: kf-sprites-glow;
 	animation-duration: 0s;
 	animation-delay: 0s;

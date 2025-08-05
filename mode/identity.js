@@ -96,6 +96,7 @@ export default () => {
 						clear();
 						clear2();
 						game.resume();
+						if (window.decadeUI) game.reload();
 						// lib.cheat.cfg(); // owidgets
 					});
 					ui.create.control("继续", step2);

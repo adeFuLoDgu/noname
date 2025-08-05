@@ -182,45 +182,47 @@
 
 @keyframes kf-sprites-glow {
 	0% {
-        background-size: 2300px 100%;
+		/* background-size does not work in @keyframes on iOS Safari. */
+		/* background-size: 2300px	100%; */
 		background-position: 0px 0px;
-    }
+	}
 
-    10.00% {
-        background-position: -230px 0px;
-    }
+	10.00% {
+		background-position: -230px	0px;
+	}
 
-    20.00% {
-        background-position: -460px 0px;
-    }
+	20.00% {
+		background-position: -460px	0px;
+	}
 
-    30.00% {
-        background-position: -690px 0px;
-    }
+	30.00% {
+		background-position: -690px	0px;
+	}
 
-    40.00% {
-        background-position: -920px 0px;
-    }
+	40.00% {
+		background-position: -920px	0px;
+	}
 
-    50.00% {
-        background-position: -1150px 0px;
-    }
+	50.00% {
+		background-position: -1150px 0px;
+	}
 
-    60.00% {
-        background-position: -1380px 0px;
-    }
+	60.00% {
+		background-position: -1380px 0px;
+	}
 
-    70.00% {
-        background-position: -1610px 0px;
-    }
+	70.00% {
+		background-position: -1610px 0px;
+	}
 
-    80.00% {
-        background-position: -1840px 0px;
-    }
-	
-    90.00%,
-    100% {
-        background-size: 2300px 100%;
+	80.00% {
+		background-position: -1840px 0px;
+	}
+
+	90.00%,
+	100% {
+		/* background-size does not work in @keyframes on iOS Safari. */
+		/* background-size: 2300px	100%; */
 		background-position: -2070px 0px;
-    }
+	}
 }
