@@ -408,8 +408,12 @@ game.import("card", function () {
 					},
 					result: {
 						target(player, target) {
+							if (player.hp <= 1 && player.countCards("h", "tao") + player.countCards("h", "jiu") <= 0) {
+								return 0;
+							}
+							let yidugongdu_num = player.countCards("h", "yidugongdu"), du_num = player.countCards("h", "du");
 							const bool = current => current.getKnownCards(player).some(card => get.name(card, current) == "du");
-							if (bool(player) && bool(target)) {
+							if (bool(player) && bool(target) && (yidugongdu_num > 0 || (player.hasSkill("dragduyi") && yidugongdu_num == 0 && du_num > 1))) {
 								let eff1 = current => (current.hasSkillTag("usedu") ? 5 : current.hasSkillTag("nodu") ? 0 : get.effect(current, { name: "losehp" }, current, player)),
 									eff = Math.max(eff1(player), eff1(target));
 								return 4 + eff;
