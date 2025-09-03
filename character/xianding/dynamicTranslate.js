@@ -1,6 +1,19 @@
 import { lib, game, ui, get, ai, _status } from "../../noname.js";
 
 const dynamicTranslates = {
+	dcsbjunmou(player) {
+		const bool = player.storage.dcsbjunmou;
+		let yang = "此牌视为无次数限制的火【杀】",
+			yin = "重铸此牌并横置一名角色";
+		if (bool) {
+			yin = `<span class="bluetext">${yin}</span>`;
+		} else {
+			yang = `<span class="firetext">${yang}</span>`;
+		}
+		const start = `转换技，游戏开始时可自选阴阳状态。若你成为牌的目标，此牌结算后你可摸一张牌并选择一张手牌，`,
+			end = "。";
+		return `${start}阳：${yang}；阴：${yin}${end}`;
+	},
 	y_dc_dianhua(player) {
 		let num = get.cnNumber(1 + player.countMark("y_dc_zhenyi"));
 		return `准备阶段或结束阶段，你可以观看牌堆顶${num}张牌，然后获得其中一张牌，将其余牌以任意顺序放回牌堆顶。`;
@@ -19,11 +32,11 @@ const dynamicTranslates = {
 		return `${start}阳：${yang}；阴：${yin}${end}`;
 	},
 	dcyuzhi(player) {
-		let str = `1.弃置一张装备区内的牌并失去此选项至本轮结束；`;
+		let str = `1.弃置一张装备区内的牌，于下次需要使用【闪】响应此【杀】时视为使用之并失去此选项至你的回合开始；`;
 		if (player.hasSkill("dcyuzhi_delete")) {
 			str = `<span style="text-decoration:line-through;">${str}</span>`;
 		}
-		return `锁定技，当你成为【杀】的目标时，需选择一项执行：${str}2.此【杀】伤害增加你装备区非装备牌数。`;
+		return `锁定技，当你成为【杀】的目标时，需选择一项执行：${str}2.此【杀】伤害+1。`;
 	},
 	dcdianlun(player) {
 		let str = lib.translate["dcdianlun_info"];

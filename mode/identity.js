@@ -396,7 +396,7 @@ export default () => {
 							skill = "hengzheng";
 							break;
 						case "sunquan":
-							skill = "batu";
+							skill = "batu"; // 英雄杀技能
 							break;
 						case "sp_zhangjiao":
 							skill = "tiangong";
@@ -404,6 +404,7 @@ export default () => {
 						case "liushan":
 							skill = "shengxi";
 							break;
+						/** 玩点论杀技能 */
 						case "sunce":
 							skill = "ciqiu";
 							break;
@@ -414,7 +415,7 @@ export default () => {
 							skill = "geju";
 							break;
 						case "re_caocao":
-							skill = "dangping";
+							skill = "dangping"; // 古剑奇谭技能
 							break;
 						case "caopi":
 							skill = "junxing";

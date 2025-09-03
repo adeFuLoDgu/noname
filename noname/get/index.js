@@ -13,6 +13,7 @@ import security from "../util/security.js";
 import { CodeSnippet, ErrorManager } from "../util/error.js";
 
 import { GetCompatible } from "./compatible.js";
+import { HTMLPoptipElement } from "../library/poptip.js";
 
 // 用于标识Map、Set等对象在序列化中的类型
 // 使用了md5("__noname_type")的值作为键
@@ -1476,6 +1477,14 @@ export class Get extends GetCompatible {
 			}
 			const parser = new DOMParser(),
 				doc = parser.parseFromString(htmlContent || "", "text/html");
+
+			// 初始化poptip名称
+			doc.querySelectorAll("noname-poptip").forEach(poptip => {
+				Object.setPrototypeOf(poptip, HTMLPoptipElement.prototype);
+				//@ts-expect-error ignore
+				poptip.createdCallback();
+			});
+
 			const text = doc.body.textContent || doc.body.innerText;
 			this.plainTextMap.set(htmlContent, text);
 			return text;
@@ -1554,6 +1563,7 @@ export class Get extends GetCompatible {
 				continue;
 			}
 			if ((type.startsWith("equip") && type.length == 6) || (type.startsWith("hslingjian") && type.length == 11) || type.startsWith("spell_")) {
+				// hslingjian 是『轩辕剑』里面的
 				if (get.subtype(i) == type) {
 					list.push(i);
 				}
@@ -2554,10 +2564,7 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 		const info = {};
 
 		for (const [key, value] of map.entries()) {
-			Array.prototype.push.call(info, [
-				get.stringifiedResult(key, level, nomore),
-				get.stringifiedResult(value, level, nomore),
-			]);
+			Array.prototype.push.call(info, [get.stringifiedResult(key, level, nomore), get.stringifiedResult(value, level, nomore)]);
 		}
 
 		info[TYPE_KEY] = "map";
@@ -2572,8 +2579,7 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 		const info = {};
 
 		for (const value of set) {
-			Array.prototype.push.call(info,
-				get.stringifiedResult(value, level, nomore));
+			Array.prototype.push.call(info, get.stringifiedResult(value, level, nomore));
 		}
 
 		info[TYPE_KEY] = "set";
@@ -2593,10 +2599,7 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 				continue;
 			}
 
-			map.set(
-				get.parsedResult(pair[0]),
-				get.parsedResult(pair[1])
-			);
+			map.set(get.parsedResult(pair[0]), get.parsedResult(pair[1]));
 		}
 
 		return map;
@@ -2659,7 +2662,7 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 
 						const type = Object.prototype.toString.call(item).slice(8, -1);
 
-						switch(type) {
+						switch (type) {
 							case "Map":
 								return get.mapInfoOL(item, level - 1, nomore);
 							case "Set":
@@ -4724,6 +4727,7 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 	}
 	nodeintro(node, simple, evt) {
 		var uiintro = ui.create.dialog("hidden", "notouchscroll");
+		uiintro.setAttribute("id", "nodeintro");
 		if (node.classList.contains("player") && !node.name) {
 			return uiintro;
 		}
@@ -4907,6 +4911,7 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 							intronode.link = node;
 							intronode.func = lib.skill[skills[i]].clickable;
 							intronode.classList.add("pointerdiv");
+							intronode.listen(() => uiintro.close());
 							intronode.listen(ui.click.skillbutton);
 						}
 					} else {
@@ -5290,8 +5295,16 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 				}
 			}
 			if (typeof info.mark == "function") {
-				var stint = info.mark(uiintro, player.storage[node.skill], player);
-				if (stint) {
+				var stint = info.mark(uiintro, player.storage[node.skill], player, evt, node.skill);
+				if (stint instanceof Promise) {
+					uiintro.hide();
+					stint.then(() => {
+						uiintro.show();
+						if (evt) {
+							lib.placePoppedDialog(uiintro, evt);
+						}
+					});
+				} else if (stint) {
 					var placetext = uiintro.add('<div class="text" style="display:inline">' + stint + "</div>");
 					if (!stint.startsWith('<div class="skill"')) {
 						uiintro._place_text = placetext;
@@ -5303,6 +5316,9 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 					// 	uiintro.add('<div class="text">'+stint+'</div>');
 					// }
 				}
+				/*if (evt) {
+					lib.placePoppedDialog(uiintro, evt);
+				}*/
 			} else {
 				var stint = get.storageintro(info.content, player.storage[node.skill], player, uiintro, node.skill);
 				if (stint) {
@@ -5903,6 +5919,128 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 		if (list.length) {
 			dialog.add(list, true, true);
 		}
+	}
+	/**
+	 *
+	 * 弹出特殊名词的解释窗口
+	 * @param {string} info 对应解释在lib.poptip的值
+	 * @param {PointerEvent|TouchEvent} event 点击事件
+	 */
+	poptipIntro(info, event) {
+		const uiintro = ui.create.dialog("hidden", "notouchscroll");
+		uiintro.style.zIndex = "21";
+		uiintro.setAttribute("id", "poptip");
+		uiintro._place_text = uiintro.add(`<div class = "text">${info}</div>`);
+		uiintro.classList.add("popped");
+		uiintro.classList.add("static");
+		ui.window.appendChild(uiintro);
+
+		if (lib.config.touchscreen) {
+			lib.setScroll(uiintro.contentContainer);
+		}
+
+		lib.placePoppedDialog(uiintro, event);
+		const layer = ui.create.div(".poplayer", ui.window);
+		_status.poptip = [uiintro, layer];
+		const clicklayer = function (e) {
+			uiintro.delete();
+			this.remove();
+			delete _status.poptip;
+			if (e?.stopPropagation) {
+				e.stopPropagation();
+			}
+			if (uiintro._onclose) {
+				uiintro._onclose();
+			}
+		};
+		layer.addEventListener(lib.config.touchscreen ? "touchend" : "click", clicklayer);
+
+		const clickintro = function (e) {
+			layer.remove();
+			this.delete();
+			/*if (e?.stopPropagation) {
+				e.stopPropagation();
+			}*/
+			if (uiintro._onclose) {
+				uiintro._onclose();
+			}
+		};
+		if (uiintro.clickintro) {
+			uiintro.listen(function () {
+				_status.clicked = true;
+			});
+			uiintro._clickintro = clicklayer;
+		} else if (!lib.config.touchscreen) {
+			uiintro.addEventListener("mouseleave", clickintro);
+			uiintro.addEventListener("click", clickintro);
+		} else if (uiintro.touchclose) {
+			uiintro.listen(clickintro);
+		}
+		uiintro._close = clicklayer;
+
+		const adjust = function () {
+			const margin = 8; //上下最小间距
+			uiintro.style.maxHeight = "none";
+			uiintro.style.overflowY = "";
+			if (uiintro._poptipOriginalTransform === undefined) {
+				uiintro._poptipOriginalTransform = uiintro.style.transform || "";
+			}
+			const rect = uiintro.getBoundingClientRect();
+			const top = rect.top;
+			const naturalHeight = uiintro.scrollHeight;
+			const winH = window.innerHeight;
+			const availableBelow = winH - top - margin;
+			const allowedFull = winH - margin * 2;
+			if (naturalHeight <= availableBelow) {
+				uiintro.style.transform = uiintro._poptipOriginalTransform || "";
+				uiintro.style.maxHeight = "none";
+				uiintro.style.overflowY = "";
+				uiintro._poptipTranslate = 0;
+				return;
+			}
+			const desiredTop = Math.max(margin, Math.min(top, winH - margin - naturalHeight));
+			const lift = top - desiredTop;
+			const baseTransform = uiintro._poptipOriginalTransform || "";
+			uiintro._poptipTranslate = lift;
+			uiintro.style.transform = baseTransform + ` translateY(${-lift}px)`;
+			if (naturalHeight > allowedFull) {
+				uiintro.style.maxHeight = allowedFull + "px";
+				uiintro.style.overflowY = "auto";
+			} else {
+				uiintro.style.maxHeight = "none";
+				uiintro.style.overflowY = "";
+			}
+		};
+		if (uiintro._poptipAdjust) {
+			window.removeEventListener("resize", uiintro._poptipAdjust);
+			if (uiintro._poptipObserver) {
+				uiintro._poptipObserver.disconnect();
+			}
+			if (uiintro._poptipRemoveObserver) {
+				uiintro._poptipRemoveObserver.disconnect();
+			}
+		}
+		uiintro._poptipAdjust = adjust;
+		window.addEventListener("resize", adjust);
+		const mo = new MutationObserver(adjust);
+		mo.observe(uiintro, { childList: true, subtree: true, characterData: true });
+		uiintro._poptipObserver = mo;
+		const removeObserver = new MutationObserver(mutations => {
+			for (const m of mutations) {
+				for (const node of m.removedNodes) {
+					if (node === uiintro) {
+						window.removeEventListener("resize", adjust);
+						mo.disconnect();
+						removeObserver.disconnect();
+						return;
+					}
+				}
+			}
+		});
+		removeObserver.observe(document.body, { childList: true, subtree: true });
+		uiintro._poptipRemoveObserver = removeObserver;
+		requestAnimationFrame(adjust);
+		return uiintro;
 	}
 	groups() {
 		return ["wei", "shu", "wu", "qun", "jin", "western", "key"];
@@ -6915,6 +7053,44 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 			return parseInt(zhuanhuanLimit);
 		}
 		return 2;
+	}
+	// /**
+	//  *
+	//  * 根据id获取一个特殊名词的翻译
+	//  * @param {string} id 特殊名词在lib.poptipMap的id
+	//  * @returns {string}
+	//  */
+	// poptipName(id) {
+	// 	return lib.poptip.getName(id);
+	// }
+	// /**
+	//  *
+	//  * 根据id获取一个特殊名词的解释
+	//  * @param {string} id 特殊名词在lib.poptipMap的id
+	//  * @returns {string}
+	//  */
+	// poptipInfo(id) {
+	// 	return lib.poptip.getInfo(id);
+	// }
+	/**
+	 * @overload
+	 * @param {string} poptip 特殊名词的id/技能id/卡牌id
+	 * @returns {string}
+	 */
+	/**
+	 * @overload
+	 * @param {object} poptip
+	 * @param {string} poptip.name 特殊名词
+	 * @param {string} poptip.info 对应解释
+	 * @returns {string}
+	 */
+	/**
+	 * 生成一个超链接格式用于查看特殊名词的解释
+	 * @param {string | object} poptip
+	 * @returns {string}
+	 */
+	poptip(poptip) {
+		return lib.poptip.getElement(poptip);
 	}
 	/**
 	 * 将URL转换成相对于无名杀根目录的路径

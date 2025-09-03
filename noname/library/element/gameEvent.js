@@ -209,7 +209,7 @@ export class GameEvent {
 	 */
 	includeOut;
 	/**
-	 * @type { function[] }
+	 * @type { Function[] }
 	 */
 	targetprompt2 = [];
 	/**
@@ -645,6 +645,7 @@ export class GameEvent {
 			forced: this.forced,
 			fakeforce: this.fakeforce,
 			_aiexclude: this._aiexclude,
+			allowChooseAll: this.allowChooseAll,
 			complexSelect: this.complexSelect,
 			complexCard: this.complexCard,
 			complexTarget: this.complexTarget,
@@ -712,6 +713,9 @@ export class GameEvent {
 					this.position = info.position;
 				}
 				//if(info.forced!=undefined) this.forced=info.forced;
+				if (info.allowChooseAll != undefined) {
+					this.allowChooseAll = info.allowChooseAll;
+				}
 				if (info.complexSelect != undefined) {
 					this.complexSelect = info.complexSelect;
 				}
@@ -736,6 +740,7 @@ export class GameEvent {
 				this.selectCard = info.selectCard;
 				this.position = info.position;
 				//this.forced=info.forced;
+				this.allowChooseAll = info.allowChooseAll;
 				this.complexSelect = info.complexSelect;
 				this.complexCard = info.complexCard;
 				this.complexTarget = info.complexTarget;
@@ -767,6 +772,7 @@ export class GameEvent {
 			this.forced = this._backup.forced;
 			this.fakeforce = this._backup.fakeforce;
 			this._aiexclude = this._backup._aiexclude;
+			this.allowChooseAll = this._backup.allowChooseAll;
 			this.complexSelect = this._backup.complexSelect;
 			this.complexCard = this._backup.complexCard;
 			this.complexTarget = this._backup.complexTarget;
@@ -784,10 +790,10 @@ export class GameEvent {
 		return this;
 	}
 	isMine() {
-		return this.player && this.player == game.me && !_status.auto && !this.player.isMad() && !game.notMe;
+		return this.player?.isMine();
 	}
 	isOnline() {
-		return this.player && this.player.isOnline();
+		return this.player?.isOnline();
 	}
 	notLink() {
 		return this.getParent().name != "_lianhuan" && this.getParent().name != "_lianhuan2";
@@ -1065,6 +1071,8 @@ export class GameEvent {
 				});
 
 			if (lib.config.compatiblemode) {
+				const map = lib.relatedTrigger,
+					names = Object.keys(map);
 				doing.addList(
 					game.expandSkills(player.getSkills("invisible").concat(lib.skill.global)).filter(skill => {
 						const info = get.info(skill);
@@ -1072,12 +1080,29 @@ export class GameEvent {
 							return false;
 						}
 						return roles.some(role => {
-							if (info.trigger[role] === name) {
+							const list = [];
+							if (typeof info.trigger[role] == "string") {
+								list.add(info.trigger[role]);
+							} else if (Array.isArray(info.trigger[role])) {
+								list.addArray(info.trigger[role]);
+							}
+							if (list.includes(name)) {
+								return true;
+							}
+							for (const trigger of list.slice()) {
+								for (const name of names) {
+									if (trigger.startsWith(name)) {
+										list.addArray(map[name].map(i => i + trigger.slice(name.length)));
+									}
+								}
+							}
+							return list.includes(name);
+							/*if (info.trigger[role] === name) {
 								return true;
 							}
 							if (Array.isArray(info.trigger[role]) && info.trigger[role].includes(name)) {
 								return true;
-							}
+							}*/
 						});
 					})
 				);

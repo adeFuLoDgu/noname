@@ -25,6 +25,7 @@ import { Check } from "./check.js";
 import security from "../util/security.js";
 import { GameCompatible } from "./compatible.js";
 import { save } from "../util/config.js";
+import { debounce } from "../util/utils.js";
 
 export class Game extends GameCompatible {
 	documentZoom;
@@ -44,6 +45,12 @@ export class Game extends GameCompatible {
 	 * @type { { [key: string]: Player } }
 	 */
 	playerMap = {};
+	/**
+	 * 当主机返回结果时，客机应该根据此Map的数据寻找回调函数喵
+	 * 
+	 * @type { { [key: string]: function } }
+	 */
+	dataRequestMap = {};
 	phaseNumber = 0;
 	roundNumber = 0;
 	shuffleNumber = 0;
@@ -143,7 +150,7 @@ export class Game extends GameCompatible {
 	 * @param { boolean } [filter] 筛选逻辑：false跳过移除逻辑，否则执行默认移除逻辑
 	 * @returns { string[] }
 	 */
-	initCharactertList(filter) {
+	initCharacterList(filter) {
 		let list;
 		if (_status.connectMode) {
 			list = get.charactersOL();
@@ -227,75 +234,382 @@ export class Game extends GameCompatible {
 		});
 	}
 	/**
-	 * 元素去到某个父元素的某个位置，附带过度动画
-	 * @param {HTMLDivElement} element
-	 * @param {HTMLDivElement} Parent
+	 * 交换两个元素的位置，并附带动画
+	 * 封装了game.$elementGoto函数，特化对于两个元素交换位置的情况喵
+	 *
+	 * @param {HTMLElement} elementA
+	 * @param {HTMLElement} elementB
+	 * @param {number} duration
+	 * @param {'linear'|'ease-in-out'} timefun
+	 * @returns {Promise<void>}
+	 */
+	async $elementSwap(elementA, elementB, duration = 400, timefun = "linear") {
+		if (!document.contains(elementA) || !document.contains(elementB)) {
+			throw new Error("元素未添加到页面喵"); // AI说话也带喵哦
+		}
+
+		const parentA = elementA.parentElement;
+		const parentB = elementB.parentElement;
+
+		if (!parentA || !parentB) {
+			throw new Error("元素未添加到页面喵");
+		}
+
+		if (parentA === parentB && elementB.compareDocumentPosition(elementA) & Node.DOCUMENT_POSITION_FOLLOWING) {
+			// 如果A元素是B元素的后面的元素喵
+			// 此时需要特殊处理喵，是的交换顺序就好哦喵
+			await game.$elementSwap(elementB, elementA, duration, timefun);
+		} else {
+			// 否则我们直接入队交换就好哦喵
+			await Promise.all([game.$elementGoto(elementA, parentB, elementB.nextElementSibling || "last", duration, timefun), game.$elementGoto(elementB, parentA, elementA.nextElementSibling || "last", duration, timefun)]);
+		}
+	}
+	/**
+	 * 用于保存$elementGoto的状态信息喵
+	 */
+	$elementGotoAnimData = {
+		/**
+		 * 给定元素动画的Promise的resolve函数
+		 */
+		animationResolver: new Map(),
+		/**
+		 * 给定元素的移动起始位置
+		 */
+		startPosition: new Map(),
+		/**
+		 * 给定元素的移动结束位置
+		 */
+		endPosition: new Map(),
+		/**
+		 * 给定元素的移动动画
+		 */
+		invertingAnimations: new Map(),
+	};
+	/**
+	 * 带动画的将元素移动到某个父元素的某个位置喵
+	 * 允许元素附带变换（位移旋转什么的都可以），甚至本身还处于上一次$elementGoto的动画中也可以喵（不过我没测试哦）
+	 *
+	 * @param {HTMLElement} element
+	 * @param {HTMLElement} parent
 	 * @param {number|'first'|'last'|Node} position 新的父容器中元素去的位置
-	 * @param {number} duration 动画完成的时间 ms
-	 * @param {'linear'|'ease-in-out'} timefun 动画过度的时间曲线,很多，这里只列举两个
+	 * @param {number} [duration=500] 动画完成的时间 ms
+	 * @param {'linear'|'ease-in-out'} [timefun="linear"] 动画过度的时间曲线,很多，这里只列举两个
 	 * @returns {Promise<void>}
 	 * @author Curpond
 	 */
-	$elementGoto(element, Parent, position = "last", duration = 400, timefun = "linear") {
-		return new Promise(resolve => {
-			let e1p = element.parentElement;
-			let e2p = Parent;
-			let old1_overflow = e1p.style.overflow;
-			let old2_overflow = e2p.style.overflow;
-			/**@type {HTMLDivElement[]} */
-			let watchedElements = [...e1p.children, ...e2p.children].unique();
+	async $elementGoto(element, parent, position = "last", duration = 500, timefun = "linear") {
+		if (!document.contains(element) || !document.contains(parent)) {
+			throw new Error("无效的参数或者元素没有添加到页面喵");
+		}
 
-			//first
-			let originalPosition = new Map(watchedElements.map(e => [e, e.getBoundingClientRect()]));
-			//last
-			if (position == "first") {
-				e2p.insertBefore(element, e2p.firstChild);
-			} else if (position == "last") {
-				e2p.appendChild(element);
-			} else if (typeof position == "number") {
-				e2p.insertBefore(element, e2p.children[position]);
-			} else if (e2p.contains(position)) {
-				e2p.insertBefore(element, position);
+		/**
+		 * 从element的transform字符串中解析位移喵
+		 *
+		 * @param {HTMLElement} element
+		 * @returns {[number, number]} 当前元素实际变换的坐标喵
+		 */
+		function parseTranslate(element) {
+			const matrix = getComputedStyle(element).transform;
+
+			if (matrix.startsWith("matrix(")) {
+				// @ts-expect-error 样式计算结果给出的值一定包含x与y喵
+				return matrix.slice(7, -1).split(",").slice(4, 6).map(Number);
+			} else if (matrix.startsWith("matrix3d(")) {
+				// @ts-expect-error 样式计算结果给出的值一定包含x与y喵
+				return matrix.slice(9, -1).split(",").slice(12, 14).map(Number);
 			} else {
-				e2p.appendChild(element);
+				return [0, 0];
 			}
-			let newPosition = new Map(watchedElements.map(e => [e, e.getBoundingClientRect()]));
-			let change = new Map(
-				watchedElements.map(e => {
-					return [
-						e,
+		}
+
+		/**
+		 * 计算element当前的位置喵
+		 * 包括变换效果和动画效果当前的位置哦喵
+		 *
+		 * @param {HTMLElement} element
+		 * @returns {[number, number]} 当前元素相对于视口的实际位置喵
+		 */
+		function getCurrentPosition(element) {
+			const { x, y } = element.getBoundingClientRect();
+			const animation = game.$elementGotoAnimData.invertingAnimations.get(element);
+
+			if (animation) {
+				let fx, fy;
+
+				if (animation.actualVisual) {
+					// 如果动画是使用了复制节点喵
+					const actualVisual = animation.actualVisual;
+					animation.commitStyles(); // 我们要获取动画当前的位置喵
+					animation.cancel();
+					[fx, fy] = parseTranslate(element);
+				} else {
+					// 否则我们要保存原来的样式哦喵
+					const oldTransform = element.style.transform;
+					animation.commitStyles(); // 我们要获取动画当前的位置喵
+					animation.cancel();
+					[fx, fy] = parseTranslate(element);
+					element.style.transform = oldTransform;
+				}
+
+				return [x + fx, y + fy];
+			}
+
+			const [tx, ty] = parseTranslate(element);
+			return [x + tx, y + ty];
+		}
+
+		/**
+		 * 将元素当前位置记录为开始位置
+		 *
+		 * @param {HTMLElement} element
+		 */
+		function recordAsFirstPosition(element) {
+			const startPosition = game.$elementGotoAnimData.startPosition;
+
+			if (startPosition.has(element)) {
+				return; // 元素开始位置以最早的为主喵
+			}
+
+			const position = getCurrentPosition(element);
+			startPosition.set(element, position);
+		}
+
+		/**
+		 * 将元素当前位置记录为结束位置
+		 *
+		 * @param {HTMLElement} element
+		 */
+		function recordAsLastPosition(element) {
+			const position = getCurrentPosition(element);
+			game.$elementGotoAnimData.endPosition.set(element, position); // 元素结束位置以最晚的为主喵
+		}
+
+		// 首先是FIRST喵，记录起始位置哦喵
+		const parentFrom = element.parentElement;
+		const parentTo = parent;
+
+		if (!parentFrom) {
+			throw new Error("要移动的元素没有父元素");
+		}
+
+		// @ts-expect-error childNodes是可迭代的
+		const elements = new Set(parentFrom.childNodes).union(parentTo.childNodes);
+
+		for (const element of elements) {
+			recordAsFirstPosition(element);
+		}
+
+		// 我们等待所有动画入队再更改节点结构喵
+		// 这样对于多重动画我们可以同时处理而不会导致节点位置异常喵
+		// 啊如果你await了这个函数那就没有作用了喵
+		// 如果你需要并发多个动画应该**同步的**调用多次然后使用Promise.all()一起等待哦喵
+		await new Promise(resolve => resolve(null));
+
+		// 依照参数选择添加的位置喵
+		// 此时将更改实际的DOM结构喵
+		if (position === "first") {
+			parent.insertBefore(element, parent.firstChild);
+		} else if (position === "last") {
+			parent.appendChild(element);
+		} else if (typeof position == "number") {
+			parent.insertBefore(element, parent.children[position]);
+		} else if (parent.contains(position)) {
+			parent.insertBefore(element, position);
+		} else {
+			parent.appendChild(element);
+		}
+
+		// 我们再次等待所有节点结构调整完毕喵
+		await new Promise(resolve => resolve(null));
+
+		// 然后是LAST喵，记录结束位置哦喵
+		// @ts-expect-error childNodes是可迭代的
+		const elements2 = new Set(parentFrom.childNodes).union(parentTo.childNodes);
+
+		for (const element of elements2) {
+			recordAsLastPosition(element);
+		}
+
+		/**
+		 * 获取元素的动画起始和结束位置
+		 *
+		 * @param {HTMLElement} element
+		 * @returns {[number, number, number, number] | null} [起始位置X, 起始位置Y, 结束位置X, 结束位置Y]
+		 */
+		function getAnimationPosition(element) {
+			const start = game.$elementGotoAnimData.startPosition.get(element);
+			const end = game.$elementGotoAnimData.endPosition.get(element);
+			game.$elementGotoAnimData.startPosition.delete(element);
+			game.$elementGotoAnimData.endPosition.delete(element);
+
+			if (!start || !end) {
+				return null;
+			}
+
+			const [sx, sy] = start;
+			const [ex, ey] = end;
+
+			if (Math.abs(sx - ex) < 2 && Math.abs(sy - ey) < 2) {
+				return null;
+			}
+
+			return [sx, sy, ex, ey];
+		}
+
+		/**
+		 * 克隆可视动画元素
+		 * 将克隆整个element以及所有不包含id的连续的祖先节点
+		 *
+		 * @param {HTMLElement} element
+		 * @returns {[HTMLElement, HTMLElement]} [subject, clonedRoot] 复制的主元素与复制树的根节点喵
+		 */
+		function cloneVisualElement(element) {
+			if (!document.body.contains(element) || document.body === element) {
+				throw new Error("被复制的节点必须是body的子元素喵");
+			}
+
+			/** @type {HTMLElement} */
+			// @ts-expect-error 忽略类型检查喵
+			const clone = element.cloneNode(true);
+			clone.classList.add("visual-subject");
+			let current = clone;
+			let target = element.parentElement;
+
+			// 这是不可能出现的情况喵，但是eslint会报错喵
+			if (!target) {
+				throw "impossible";
+			}
+
+			while (!target.id && target !== document.body) {
+				/** @type {HTMLElement} */
+				// @ts-expect-error 忽略类型检查喵
+				const clonedTarget = target.cloneNode(false);
+				clonedTarget.classList.add("cloned-visual");
+				clonedTarget.appendChild(current);
+				current = clonedTarget;
+				target = target.parentElement;
+
+				if (!target) {
+					throw "impossible";
+				}
+			}
+
+			target.appendChild(current);
+			return [clone, current];
+		}
+
+		/**
+		 * 执行所有记录了起始和结束位置的动画喵（发射函数）
+		 */
+		function emitAllPendingAnimations() {
+			const elements = game.$elementGotoAnimData.startPosition.keys();
+
+			for (const element of elements) {
+				const position = getAnimationPosition(element);
+				const parent = element.parentElement;
+
+				if (!position || !parent) {
+					continue;
+				}
+
+				const [sx, sy, ex, ey] = position;
+				const canOverflow = getComputedStyle(parent).overflow === "visible";
+				let animation;
+
+				if (canOverflow) {
+					// 如果允许overflow的情况下，我们直接播放动画就好哦喵
+					// 接下来是INVERT喵，我们要计算偏移量并将其作为动画参数喵
+					const invertingX = sx - ex;
+					const invertingY = sy - ey;
+
+					// 最后是PLAY喵，开始动画并等待结束喵
+					animation = element.animate(
+						[
+							{
+								transform: `translate(${invertingX}px, ${invertingY}px)`,
+							},
+							{
+								transform: `translate(0px, 0px)`,
+							},
+						],
 						{
-							dx: originalPosition.get(e).x - newPosition.get(e).x,
-							dy: originalPosition.get(e).y - newPosition.get(e).y,
-						},
-					];
-				})
-			);
+							duration: duration,
+							easing: timefun,
+							composite: "accumulate",
+						}
+					);
+				} else {
+					// 否则我们需要复制动画元素喵
+					const [subject, stage] = cloneVisualElement(element);
+					const bounds = subject.getBoundingClientRect();
+					const startX = sx - bounds.x;
+					const startY = sy - bounds.y;
+					const endX = ex - bounds.x;
+					const endY = ey - bounds.y;
 
-			//invert
-			e2p.style.overflow = "visible";
-			e1p.style.overflow = "visible";
-			change.forEach(({ dx, dy }, e) => {
-				e.style.transition = `none`;
-				e.style.transform = `translate(${dx / game.documentZoom}px, ${dy / game.documentZoom}px)`;
-			});
-			element.offsetHeight;
+					// 隐藏原来的元素喵
+					element.classList.add("facade-replacing");
 
-			//play
-			requestAnimationFrame(() => {
-				change.forEach(({ dx, dy }, e) => {
-					e.style.transition = `${duration}ms ${timefun}`;
-					e.style.removeProperty("transform");
-				});
-				let transitionEndHandler = () => {
-					change.forEach(({ dx, dy }, e) => e.removeEventListener("transitionend", transitionEndHandler));
-					e1p.style.overflow = old1_overflow;
-					e2p.style.overflow = old2_overflow;
-					resolve();
-				};
-				change.forEach(({ dx, dy }, e) => e.addEventListener("transitionend", transitionEndHandler, { once: true }));
-			});
-		});
+					animation = subject.animate(
+						[
+							{
+								transform: `translate(${startX}px, ${startY}px)`,
+							},
+							{
+								transform: `translate(${endX}px, ${endY}px)`,
+							},
+						],
+						{
+							duration: duration,
+							easing: timefun,
+							composite: "accumulate",
+							fill: "forwards",
+						}
+					);
+					// @ts-expect-error 我们需要给Animation添加一个属性喵
+					animation.actualVisual = subject; // 标记实际节点喵
+
+					// 清理复制的元素并显示原来的元素喵
+					function onAnimationEnd() {
+						element.classList.remove("facade-replacing");
+						stage.remove();
+					}
+
+					animation.addEventListener("finish", onAnimationEnd);
+					animation.addEventListener("cancel", onAnimationEnd);
+				}
+
+				// game.$elementGoto占用单独的动画通道喵
+				animation.persist();
+
+				// 如果可能，我们要尝试resolve动画的等待者喵
+				const resolve = game.$elementGotoAnimData.animationResolver.get(element);
+
+				if (resolve) {
+					game.$elementGotoAnimData.animationResolver.delete(element);
+				}
+
+				function onAnimationEnd() {
+					if (typeof resolve == "function") {
+						resolve();
+					}
+
+					game.$elementGotoAnimData.invertingAnimations.delete(element);
+				}
+
+				animation.addEventListener("finish", onAnimationEnd);
+				animation.addEventListener("cancel", onAnimationEnd);
+
+				// 标记当前节点的动画喵
+				game.$elementGotoAnimData.invertingAnimations.set(element, animation);
+			}
+		}
+
+		// 剩下的东西交给发射函数就好哦喵
+		const { promise, resolve } = Promise.withResolvers();
+		game.$elementGotoAnimData.animationResolver.set(element, resolve);
+		requestAnimationFrame(emitAllPendingAnimations);
+		await promise;
 	}
 	//Stratagem
 	//谋攻
@@ -1785,6 +2099,213 @@ export class Game extends GameCompatible {
 			}
 			game.ws.send(JSON.stringify(get.stringifiedResult(args)));
 		}
+	}
+	/**
+	 * 对于客户端syncSkillData使用防抖函数喵
+	 * 
+	 * 用Map存储特定sync函数的防抖版本喵
+	 * 
+	 * @type {{ [key: string]: { [key: string]: Function } }}
+	 */
+	#skillSyncDebounceMap = {};
+	/**
+	 * 对于客户端requestSkillData使用防抖函数喵
+	 * 
+	 * 用Map存储特定sync函数的防抖版本喵
+	 * 
+	 * @type {{ [key: string]: { [key: string]: Function } }}
+	 */
+	#skillRequestDebounceMap = {};
+	/**
+	 * 对于技能请求我们应该记录每个lib.skill.xxx.sync函数上次的调用时间，间隔500ms内的重复调用主机应该拒绝喵
+	 * 
+	 * @type { WeakMap<Player, { [skill: string]: { [sync: string]: number } }> }
+	 */
+	#skillSyncTicks = new WeakMap();
+	/**
+	 * ```plain
+	 * 在客机发出同步信号，要求主机通过广播或单播更新数据喵
+	 * 此函数会要求主机调用指定的`get.info(skill).sync[sync]`函数但不会等待结果返回喵
+	 * 
+	 * 具体调用请参考@see requestSkillData 函数的文档喵
+	 * ```
+	 * 
+	 * @param { string } skill 
+	 * @param { string } sync 
+	 * @param  { ...any } args 
+	 * @returns 
+	 */
+	syncSkillData(skill, sync, ...args) {
+		if ("observe" in game && game.observe) {
+			return;
+		}
+
+		// 也许客机检查是不必要的喵
+		// // @ts-expect-error 重载函数可以接受所有类型参数喵
+		// const info = get.info(name);
+
+		// if (!info) {
+		// 	throw new Error("没有在客机上找到对应的牌或技能，syncSkillData应该用在双方拥有的牌或技能上，或者由主机另行注册喵");
+		// }
+
+		game.#skillSyncDebounceMap[skill] ??= {};
+
+		(game.#skillSyncDebounceMap[skill][sync] ??= debounce((...args) => {
+			game.send("dataSync", { type: "skill", name: skill, key: sync, args }, null);
+		}))(...args);
+	}
+	/**
+	 * ```plain
+	 * 在客机发出请求，要求主机响应并返回特定的数据
+	 * 此函数会要求主机调用指定的`get.info(skill).sync[sync]`函数
+	 * 并通过Promise返回主机的给出的数据
+	 * 
+	 * 具体调用例子:
+	 * ```
+	 * ```js
+	 * lib.skill["testSkill"] = {
+	 *     async content() {
+	 *         if (player.isOnline()) {
+	 *             // 如果是客机玩家喵
+	 *             player.send(() => {
+	 *                 // 调用主机的lib.skill.testSkill.iWannaTopCards(game.me, 3, 5000);
+	 *                 const cards = game.requestSkillData("testSkill", "iWannaTopCards", 5000, 3);
+	 *                 // 调用主机的lib.skill.testSkill.iWannaTopCards2(game.me, 3, 5, 5000);
+	 *                 const cards2 = game.requestSkillData("testSkill", "iWannaTopCards2", 5000, 3, 5);
+	 *                 console.log(cards);
+	 *                 console.log(cards2);
+	 *             });
+	 *         } else {
+	 *             // 托管、AI或主机玩家的处理喵
+	 *         }
+	 *     },
+	 *     sync: {
+	 *         // 函数分别获得参数: 请求的客机玩家、参数、超时时间，对应player、3、5000
+	 *         async iWannaTopCards(player, num, timeout) { // 可以是async喵，但是请在超时时间前完成喵
+	 *             return Array.prototype.slice.call(ui.cardPile.childNodes, 0, num);
+	 *         },
+	 *         // 函数分别获得参数: 请求的客机玩家、参数、超时时间，对应player、3与5、5000
+	 *         async iWannaTopCards2(player, start, end, timeout) {
+	 *             return Array.prototype.slice.call(ui.cardPile.childNodes, start, end);
+	 *         },
+	 *     },
+	 * }
+	 * ```
+	 * 
+	 * @param { string } skill 
+	 * @param { string } sync 
+	 * @param { number | null } timeout 
+	 * @param  { ...any } args 
+	 * @returns { Promise<[boolean, any]> } 请求是否成功和返回的数据
+	 */
+	requestSkillData(skill, sync, timeout, ...args) {
+		if ("observe" in game && game.observe) {
+			return Promise.resolve([false, null]);
+		}
+		
+		if (!timeout || !Number.isFinite(timeout) || timeout <= 0) {
+			timeout = 5000;
+		}
+
+		// 也许客机检查是不必要的喵
+		// // @ts-expect-error 重载函数可以接受所有类型参数喵
+		// const info = get.info(name);
+
+		// if (!info) {
+		// 	throw new Error("没有在客机上找到对应的牌或技能，requestSkillData应该用在双方拥有的牌或技能上，或者由主机另行注册喵");
+		// }
+
+		game.#skillRequestDebounceMap[skill] ??= {};
+
+		return (game.#skillRequestDebounceMap[skill][sync] ??= debounce((timeout, ...args) => {
+			const id = (function () {
+				while (true) {
+					const id = Math.random().toString(36).slice(2);
+					if (!(id in game.dataRequestMap)) {
+						return id;
+					}
+				}
+			})();
+			const { promise, resolve } = Promise.withResolvers();
+
+			game.dataRequestMap[id] = (ok, result) => resolve([ok, result]);
+			game.send("dataSync", { type: "skill", name: skill, key: sync, args, timeout }, id);
+
+			const timeoutPromise = new Promise((resolve) => {
+				setTimeout(() => {
+					delete game.dataRequestMap[id];
+					resolve([false, game.SKILL_SYNC_RESULTS.REQUEST_TIMEOUT]);
+				}, timeout);
+			});
+
+			return Promise.any([promise, timeoutPromise]);
+		}, {
+			delay: 500,
+			failResult: [false, game.SKILL_SYNC_RESULTS.TOO_MANY_CALLS],
+		}))(timeout, ...args);
+	}
+	/**
+	 * 失败结果常量表喵
+	 */
+	SKILL_SYNC_RESULTS = Object.freeze({
+		INVALID_ARGUMENT: "参数不符合要求喵",
+		MISSING_SKILL: "技能没有找到喵",
+		SKILL_NOT_GRANTED: "请求的技能不被许可喵",
+		MISSING_SKILL_SYNC: "请求的sync函数没有找到喵",
+		TOO_MANY_REQUESTS: "请求过于频繁了喵",
+		TOO_MANY_CALLS: "调用请求次数过于频繁喵",
+		REQUEST_TIMEOUT: "请求超时喵",
+	});
+	/**
+	 * 由联机接口调用来处理客机请求逻辑喵
+	 * 请不要手动调用此函数喵！！！
+	 * 
+	 * @param {string} id 
+	 * @param {Player} player 
+	 * @param {*} subject
+	 * @returns { Promise<[boolean, any] | undefined> }
+	 */
+	async respondSkillData(id, player, { name: skill, key: sync, args, timeout }) {
+		// 检查合法性喵
+		if (typeof skill !== "string" || typeof sync !== "string" || !Array.isArray(args) || typeof timeout !== "number") {
+			return [false, game.SKILL_SYNC_RESULTS.INVALID_ARGUMENT];
+		}
+
+		const info = get.info(skill);
+
+		if (!info) {
+			return [false, game.SKILL_SYNC_RESULTS.MISSING_SKILL];
+		}
+		
+		// 函数调用权限检查喵
+		if (!lib.skill.global.includes(skill) && !player.hasSkill(skill, true, true, false)) { // 失效技能也有技权喵
+			return [false, game.SKILL_SYNC_RESULTS.SKILL_NOT_GRANTED];
+		}
+
+		const syncList = info.sync;
+		const targetFunction = syncList?.[sync];
+
+		if (typeof targetFunction !== "function") {
+			return [false, game.SKILL_SYNC_RESULTS.MISSING_SKILL_SYNC];
+		}
+
+		// 请求频率的简单校验喵
+		const ticksMap = game.#skillSyncTicks.get(player);
+		const lastTicks = ticksMap?.[skill]?.[sync] ?? NaN;
+
+		if (!isNaN(lastTicks)) {
+			if (lastTicks > Date.now() - 500) {
+				return [false, game.SKILL_SYNC_RESULTS.TOO_MANY_REQUESTS];
+			}
+		}
+
+		const newTicksMap = ticksMap ?? {};
+		const newSkillTicks = newTicksMap[skill] ?? (newTicksMap[skill] = {});
+		newSkillTicks[sync] ??= Date.now();
+		game.#skillSyncTicks.set(player, newTicksMap);
+
+		// 执行并返回喵
+		return [true, await targetFunction.call(syncList, player, ...args, timeout)];
 	}
 	/**
 	 * @param { string } id
@@ -5992,14 +6513,26 @@ export class Game extends GameCompatible {
 				lib.hook.globalskill[name].add(skill);
 				lib.hookmap[evt] = true;
 			};
+			const map = lib.relatedTrigger,
+				names = Object.keys(map);
 			for (let i in info.trigger) {
+				const evts = [];
 				if (typeof info.trigger[i] == "string") {
-					setTrigger(i, info.trigger[i]);
+					evts.add(info.trigger[i]);
 				} else if (Array.isArray(info.trigger[i])) {
-					for (let j = 0; j < info.trigger[i].length; j++) {
-						setTrigger(i, info.trigger[i][j]);
-					}
+					evts.addArray(info.trigger[i]);
 				}
+				evts.forEach(evt => {
+					names
+						.reduce((list, name) => {
+							if (evt.startsWith(name)) {
+								return list.addArray(map[name].map(j => j + evt.slice(name.length)));
+							}
+							return list;
+						}, [])
+						.forEach(evtx => setTrigger(i, evtx));
+					setTrigger(i, evt);
+				});
 			}
 		}
 		return true;
@@ -7072,11 +7605,10 @@ export class Game extends GameCompatible {
 				}
 			}
 		}
-		const eventinfo = get.info(get.card() || {}) || skillinfo;
-		if (_status.event.name == "chooseToUse" && eventinfo?.manualConfirm === true) {
+		const cardinfo = get.info(get.card()) || {};
+		if (_status.event.name == "chooseToUse" && (skillinfo?.manualConfirm === true || cardinfo?.manualConfirm === true)) {
 			auto_confirm = false;
 		}
-
 		player.node.equips.classList.remove("popequip");
 		if (event.filterCard && lib.config.popequip && !_status.nopopequip && get.is.phoneLayout() && typeof event.position === "string" && event.position.includes("e") && player.node.equips.querySelector(".card.selectable")) {
 			player.node.equips.classList.add("popequip");
@@ -7115,6 +7647,16 @@ export class Game extends GameCompatible {
 		}
 		if (event.isMine()) {
 			game.Check.confirm(event, confirm);
+
+			const cardChooseAll = event.cardChooseAll;
+			if (cardChooseAll instanceof HTMLDivElement) {
+				cardChooseAll.firstElementChild.innerHTML = ui.selected.cards.length ? "反选" : "全选";
+			}
+
+			const buttonChooseAll = event.buttonChooseAll;
+			if (buttonChooseAll instanceof HTMLDivElement) {
+				buttonChooseAll.innerHTML = ui.selected.buttons.length ? "反选" : "全选";
+			}
 		}
 
 		game.callHook("checkEnd", [event, { ok, auto, auto_confirm, autoConfirm: auto_confirm }]);
@@ -7421,27 +7963,34 @@ export class Game extends GameCompatible {
 	loadModeAsync(name, callback, onerror = e => console.error(e)) {
 		let promise = (async () => {
 			window.game = game;
-			const exports = await import(`../../mode/${name}.js`);
-			// esm模式
-			if (Object.keys(exports).length > 0) {
-				if (typeof exports.default !== "function") {
+			let exports;
+			let isESM = true;
+			try {
+				exports = await import(`../../mode/${name}/index.js`);
+			} catch (e1) {
+				try {
+					exports = await import(`../../mode/${name}.js`);
+				} catch (e2) {
+					isESM = false;
+					await lib.init.promises.js(`${lib.assetURL}mode`, name);
+					// await new Promise((resolve, reject) => {
+					// 	let script = lib.init.js(
+					// 		`${lib.assetURL}mode`,
+					// 		name,
+					// 		() => {
+					// 			script?.remove();
+					// 			resolve(null);
+					// 		},
+					// 		e => reject(e.error)
+					// 	);
+					// });
+				}
+			}
+			if (isESM) {
+				if (!["object", "function"].includes(typeof exports.default)) {
 					throw new Error(`导入的模式[${name}]格式不正确！`);
 				}
 				game.import("mode", exports.default);
-			}
-			// 普通模式
-			else {
-				await new Promise((resolve, reject) => {
-					let script = lib.init.js(
-						`${lib.assetURL}mode`,
-						name,
-						() => {
-							script?.remove();
-							resolve(null);
-						},
-						e => reject(e.error)
-					);
-				});
 			}
 			await Promise.allSettled(_status.importing.mode);
 			if (!lib.config.dev) {
@@ -10027,6 +10576,26 @@ export class Game extends GameCompatible {
 			}
 		}
 		return other;
+	}
+	// /**
+	//  * 用于向lib.poptipMap添加名词解释便于调用
+	//  *
+	//  * @param { string } id 该poptip的在map中的id
+	//  * @param { string } name 该poptip的id的翻译，最终显示在tip上的文字
+	//  * @param { string } info 该poptip的名词解释
+	//  */
+	// addPoptip(id, name, info) {
+	// 	return lib.poptip.add({id, name, info});
+	// }
+	/**
+	 * 删除当前的poptip对话框
+	 */
+	closePoptipDialog() {
+		if (_status.poptip?.length) {
+			_status.poptip[0].delete();
+			_status.poptip[1].remove();
+			delete _status.poptip;
+		}
 	}
 }
 
