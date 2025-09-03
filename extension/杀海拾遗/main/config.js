@@ -28,17 +28,17 @@ const config = {
 	},
 	mtg: {
 		name: "万智牌",
-		init: true,
+		init: false,
 		intro: "包含12种地图牌和3张武将牌，首次引入“随从”概念",
 	},
 	zhenfa: {
 		name: "阵法牌",
-		init: true,
+		init: false,
 		intro: "国战模式专属卡牌扩展包",
 	},
 	gwent: {
 		name: "昆特牌（<span style='color:rgb(8, 228, 107)'>建议开启</span>）",
-		init: true,
+		init: false,
 		intro: "包含32种法术牌和52张武将牌，并引入“天气牌”",
 	},
 	yunchou: {

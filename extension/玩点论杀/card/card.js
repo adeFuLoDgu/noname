@@ -44,6 +44,15 @@ const card = {
 			dialog.videoId = lib.status.videoId++;
 			game.addVideo("cardDialog", null, ["调兵遣将", get.cardsInfo(cards), dialog.videoId]);
 			event.getParent().preResult = dialog.videoId;
+			game.broadcast(
+				function (cards, id) {
+					var dialog = ui.create.dialog("调兵遣将", cards, true);
+					_status.dieClose.push(dialog);
+					dialog.videoId = id;
+				},
+				cards,
+				dialog.videoId
+			);
 		},
 		content() {
 			"step 0";
@@ -66,6 +75,10 @@ const card = {
 				event.dialog.setCaption("选择一张牌并用一张手牌替换之");
 			}
 			var next = target.chooseButton(function (button) {
+				var list=target.getEnemies();
+				for (var i=0;i<list.length;i++){
+					if (list[i].getEquip('shanrangzhaoshu')) return 0;
+				}
 				return get.value(button.link, _status.event.player) - minValue;
 			});
 			next.set("dialog", event.preResult);
@@ -92,6 +105,26 @@ const card = {
 				event.dialog.buttons.remove(event.button);
 				event.dialog.buttons.push(ui.create.button(result.cards[0], "card", event.button.parentNode));
 				event.button.remove();
+				game.broadcast(
+					function (removed_card, added_card, id) {
+						let dialog = get.idDialog(id);
+						if (dialog) {
+							for (var i = 0; i < dialog.buttons.length; i++) {
+								if (dialog.buttons[i].link == removed_card) {
+									let removed_card_button = dialog.buttons[i];
+									dialog.buttons.remove(dialog.buttons[i]);
+									dialog.buttons.push(
+										ui.create.button(added_card, "card", removed_card_button.parentNode)
+									);
+									removed_card_button.remove();
+								}
+							}
+						}
+					},
+					event.button.link,
+					result.cards[0],
+					event.dialog.videoId
+				);
 			}
 			"step 3";
 			game.delay(2);
@@ -138,6 +171,13 @@ const card = {
 			var dialog = event.dialog;
 			dialog.close();
 			_status.dieClose.remove(dialog);
+			game.broadcast(function (id) {
+				var dialog = get.idDialog(id);
+				if (dialog) {
+					dialog.close();
+					_status.dieClose.remove(dialog);
+				}
+			}, event.preResult);
 			game.addVideo("cardDialog", null, event.preResult);
 		},
 		ai: {
@@ -151,11 +191,23 @@ const card = {
 			},
 			result: {
 				player: (player, target) => {
+					if (game.players.length>2&&player.hasFriend()){
+						var list=player.getEnemies();
+						for (var i=0;i<list.length;i++){
+							if (list[i].getEquip('shanrangzhaoshu')) return 0;
+						}
+					}
 					return 1 / game.countPlayer();
 				},
 				target(player, target) {
 					if (target.countCards("h") === 0) {
 						return 0;
+					}
+					if (game.players.length>2&&player.hasFriend()){
+						var list=player.getEnemies();
+						for (var i=0;i<list.length;i++){
+							if (list[i].getEquip('shanrangzhaoshu')) return 0;
+						}
 					}
 					return (Math.sqrt(target.countCards("h")) - get.distance(player, target, "absolute") / game.countPlayer() / 3) / 2;
 				},

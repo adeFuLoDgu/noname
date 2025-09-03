@@ -9,8 +9,8 @@ const skill = {
 		},
 		audio: "ext:欢乐卡牌/audio/skill:true",
 		filter(event, player) {
-			var card = player.getEquip(5);
-			if (card) {
+			var cards = player.getEquips(5);
+			for (var card of cards) {
 				var name = card.name;
 				if (name && name.indexOf("monkey") !== -1 && event.name === "tao" && event.player !== player && event.cards.filterInD().length > 0) {
 					return true;
@@ -25,7 +25,7 @@ const skill = {
 			player.$fullscreenpop("猴子偷桃", "fire");
 			trigger.untrigger();
 			trigger.finish();
-			await player.discard(player.getEquip(5));
+			await player.discard(player.getEquips(5));
 			await player.gain(trigger.cards.filterInD(), "gain2", "log");
 		},
 	},

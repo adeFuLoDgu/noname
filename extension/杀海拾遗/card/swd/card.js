@@ -201,12 +201,16 @@ const card = {
 			if (target.countCards("h", "shan") === 0 || target.countCards("h", "sha") === 0 || target.hp <= 1) {
 				choice = "basic";
 			} else {
-				var e2 = target.getEquip(2);
-				var e3 = target.getEquip(3);
-				if ((e2 && e3) || ((e2 || e3) && target.needsToDiscard() <= 1) || Math.random() < 0.5) {
-					choice = "trick";
-				} else {
-					choice = "equip";
+				var e2s = target.getEquips(2);
+				var e3s = target.getEquips(3);
+				for (var e2 of e2s) {
+					for (var e3 of e3s) {
+						if ((e2 && e3) || ((e2 || e3) && target.needsToDiscard() <= 1) || Math.random() < 0.5) {
+							choice = "trick";
+						} else {
+							choice = "equip";
+						}
+					}
 				}
 			}
 			target
