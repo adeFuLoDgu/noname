@@ -1,6 +1,7 @@
 import { ui } from "../../main/utils.js";
 
 const characterIntro = {
+	/*
 	caocao: ui.joint`
 		曹操（155年—220年3月15日），字孟德，一名吉利，小字阿瞒，一说本姓夏侯，沛国谯县（今安徽亳州）人，
 			东汉末年丞相、权臣、政治家、军事家、文学家、诗人、书法家，魏王，曹魏政权奠基者。
@@ -39,6 +40,7 @@ const characterIntro = {
 		<br><br>周瑜文武兼备，有雄才大略，是东吴势力取得军事成功和割据地位的主要功臣之一。被赞誉为“世间豪杰英雄士，江左风流美丈夫”。
 	`,
 	diy_lukang: "字幼节，吴郡吴县（今江苏苏州）人。三国时期吴国名将，丞相陆逊次子。",
+	*/
 };
 
 export default characterIntro;

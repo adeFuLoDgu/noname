@@ -113,7 +113,8 @@ let Character_bannedList = [
 	"old_xiaoqiao",
 	"old_gaoshun",
 	"jsp_liubei",
-	"old_caochong"
+	"old_caochong",
+	"diy_weiyan",
 ];
 window.config = {
 	extension_sources: {
@@ -134,7 +135,7 @@ window.config = {
 	connect_zhinang_tricks: ["guohe", "wuxie", "wuzhong", "dongzhuxianji"],
 	all: {
 		sgscharacters: ["standard", "shenhua", "refresh", "yijiang", "newjiang", "sixiang", "sp", "sp2", "xianding", "huicui", "extra", "old", "mobile", "shiji", "tw", "yingbian", "offline", "jsrg", "sxrm", "sb", "clan", "collab", "onlyOL"],
-		sgscards: ["standard", "extra", "sp", "guozhan", "zhulu", "yingbian", "yongjian", "yunchou"],
+		sgscards: ["standard", "extra", "sp", "guozhan", "zhulu", "yingbian", "yongjian"],
 		sgsmodes: ["identity", "guozhan", "versus", "doudizhu", "single", "brawl", "connect"],
 		stockmode: ["identity", "guozhan", "versus", "boss", "doudizhu", "single", "chess", "stone", "connect", "brawl", "tafang"],
 		stockextension: ["boss", "cardpile", "coin"],
@@ -247,14 +248,17 @@ window.config = {
 	right_click: "pause",
 	sort: "type_sort",
 
-	cards: ["standard", "extra", "sp", "zhulu", "yingbian", "yongjian", "yunchou", "xianxia", "huodong"],
-	characters: ["standard", "shenhua", "sp", "sp2", "yijiang", "newjiang", "sixiang", "refresh", "mobile", "extra", "yingbian", "sb", "tw", "offline", "clan", "collab", "xianding", "huicui", "shiji", "jsrg", "sxrm", "onlyOL", "old"],
+	cards: ["standard", "extra", "sp", "zhulu", "yingbian", "yongjian", "yunchou", "xianxia", "huodong", "wandian"],
+	characters: ["standard", "shenhua", "sp", "sp2", "yijiang", "newjiang", "sixiang", "refresh", "mobile", "extra", "yingbian", "sb", "tw", "offline", "clan", "collab", "xianding", "huicui", "shiji", "jsrg", "sxrm", "onlyOL", "old", "wandian", "yunchou"],
 	moderned_chracters: ["standard", "shenhua", "sp", "sp2", "yijiang", "newjiang", "sixiang", "refresh", "mobile", "extra", "yingbian", "sb", "tw", "offline", "clan", "collab", "xianding", "huicui", "shiji", "onlyOL", "jsrg", "sxrm", "old", "diy", "key"],
 	moderned_modes: ["guozhan"],
 	connect_characters: ["diy", "ddd", "key"],
 	connect_cards: ["huanlekapai", "guozhan"],
 	plays: [],
-	extensions: ["十周年UI", "MVP扩展", "挑战卡牌", "补应变卡"],
+	extensions: ["3D精选", "杀海拾遗", "欢乐卡牌", "玩点论杀", "英雄杀", "十周年UI", "MVP扩展", "挑战卡牌", "补应变卡"],
+	extension_3D精选_enable: false,
+	extension_欢乐卡牌_enable: false,
+	extension_英雄杀_enable: false,
 	banned: [],
 	bannedcards: [],
 	forbidlist: [],

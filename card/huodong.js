@@ -120,7 +120,12 @@ game.import("card", function () {
 						},
 					},
 					result: {
-						target: 1,
+						target(player, target) {
+							if (target.countCards("h", { suit: "club" }) > 0 && target.isDamaged()) {
+								return target.countCards("h", { suit: "club" });
+							}
+							return 0;
+						},
 					},
 				},
 			},
@@ -177,8 +182,8 @@ game.import("card", function () {
 					result: {
 						target(player, target) {
 							const card = get.autoViewAs({ name: "sha", nature: "fire", isCard: true });
-							if (target.getDamagedHp() > 2 && target.hasValueTarget(card, true, false)) {
-								return target.getDamagedHp();
+							if (target.hp == 1 && target.getDamagedHp() > 0 && target.hasValueTarget(card, true, false)) {
+								return 1;
 							}
 							return 0;
 						},
@@ -280,7 +285,22 @@ game.import("card", function () {
 					useful: 2.5,
 					value: 7.5,
 					result: {
-						target: 1,
+						target(player, target) {
+							for (var i = 0; i < game.players.length; i++) {
+								if (get.attitude(player, game.players[i]) <= 0 && game.players[i].hasSkill("dclaoyan")) return 0;
+							}
+							if (game.players.length>2){
+								if (target.hasSkill("sphuangen")&&target.hp>0) return 0;
+								var list=target.getFriends(true);
+								for (var i=0;i<list.length;i++){
+									if (list[i].hasSkill("sphuangen")&&list[i].hp>1) return 0;
+								}
+							}
+							if (target.countCards("h", card => get.tag(card, "damage") && card.name == "sha")) {
+								return 1;
+							}
+							return target.countCards("h", card => get.tag(card, "damage") && get.type2(card) == "trick") * 2;
+						},
 					},
 				},
 			},
@@ -2268,7 +2288,7 @@ game.import("card", function () {
 		translate: {
 			jianhao: "见好就收",
 			jianhao_bg: "收",
-			jianhao_info: "出牌阶段，对你使用。你展示牌堆顶一张牌，猜测牌堆顶的下张牌点数大于或小于此牌并展示。若猜对，你可选择一项：1.获得所有展示牌;2.再次猜测",
+			jianhao_info: "出牌阶段，对你使用。你展示牌堆顶一张牌，猜测牌堆顶的下张牌点数大于或小于此牌并展示。若猜对，你可选择一项：1.获得所有展示牌；2.再次猜测。",
 			wangmei: "望梅止渴",
 			wangmei_bg: "梅",
 			wangmei_skill: "望梅止渴",
