@@ -6,6 +6,10 @@ export function precontent(config, pack) {
 		.then(() => {
 			lib.translate.wandian_card_config = "玩点论杀";
 			lib.translate.wandian_character_config = "玩点论杀";
+			lib.config.all.cards.push("wandian");
+			if (!lib.config.cards.includes("wandian")) {
+				lib.config.cards.push("wandian");
+			}
 		})
 		.catch(err => {
 			console.error("Failed to import extension 『玩点论杀』: ", err);

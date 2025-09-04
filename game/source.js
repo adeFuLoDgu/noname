@@ -432,6 +432,7 @@ window.noname_source_list = [
 	"game/compiler-sfc.esm-browser.js",
 	"game/config.js",
 	"game/core-js-bundle.js",
+	"game/dedent.js",
 	"game/directory.js",
 	"game/entry.js",
 	"game/fallback.js",

@@ -7,6 +7,7 @@ import translate from "./translate.js";
 game.import("card", function () {
 	return {
 		name: "yunchou",
+		connect: true,
 		card,
 		skill,
 		translate,

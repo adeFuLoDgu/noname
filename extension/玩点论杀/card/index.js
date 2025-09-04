@@ -7,7 +7,7 @@ import translate from "./translate.js";
 game.import("card", function () {
 	return {
 		name: "wandian",
-		connect: false, // 【调兵遣将】无法联机
+		connect: true,
 		card,
 		skill,
 		translate,

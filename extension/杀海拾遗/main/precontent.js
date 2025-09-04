@@ -54,6 +54,10 @@ export async function precontent(config, pack) {
 		}
 	} else if (lib.config.extension_杀海拾遗_yunchou) {
 		await loadPack("yunchou", "运筹帷幄", ["card", "character"]);
+		lib.config.all.cards.push("yunchou");
+		if (!lib.config.cards.includes("yunchou")) {
+			lib.config.cards.push("yunchou");
+		}
 	}
 	if (lib.config.extension_杀海拾遗_mtg) {
 		// 适用于多模块、无依赖、并发场景，一个加载失败其余仍正常加载
