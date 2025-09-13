@@ -19,7 +19,12 @@ export class Control extends HTMLDivElement {
 		 * @type {this}
 		 */
 		// @ts-expect-error ignore
-		const control = ui.create.div(".control");
+		const control = !window.decadeUI ? ui.create.div(".control") : document.createElement('div');
+		if (window.decadeUI) {
+			control.className = "control";
+			control.style.opacity = 1;
+			Object.entries(lib.element.Control).forEach(entry => control[entry[0]] = entry[1]);
+		}
 		Object.setPrototypeOf(control, (lib.element.Control || Control).prototype);
 		ui.control.insertBefore(control, _status.createControl || ui.confirm);
 		controls.forEach(argument => {
@@ -36,39 +41,43 @@ export class Control extends HTMLDivElement {
 			}
 		});
 		ui.controls.unshift(control);
-		if (nc) {
-			ui.control.addTempClass("nozoom", 100);
-		}
-		if (control.childNodes.length) {
-			control.style.transition = "opacity 0.5s";
-			control.addTempClass("controlpressdownx", 500);
-			ui.refresh(control);
-			if (!control.stayleft) {
-				control.style.transform = `translateX(-${control.offsetWidth / 2}px)`;
+		if (!window.decadeUI) {
+			if (nc) {
+				ui.control.addTempClass("nozoom", 100);
 			}
-			control.style.opacity = 1;
-			ui.refresh(control);
-			control.style.transition = "";
+			if (control.childNodes.length) {
+				control.style.transition = "opacity 0.5s";
+				control.addTempClass("controlpressdownx", 500);
+				ui.refresh(control);
+				if (!control.stayleft) {
+					control.style.transform = `translateX(-${control.offsetWidth / 2}px)`;
+				}
+				control.style.opacity = 1;
+				ui.refresh(control);
+				control.style.transition = "";
+			}
 		}
 
 		control.addEventListener(lib.config.touchscreen ? "touchend" : "click", ui.click.control2);
 
-		if (lib.config.button_press) {
-			control.addEventListener(lib.config.touchscreen ? "touchstart" : "mousedown", function () {
-				if (this.classList.contains("disabled")) {
-					return;
-				}
-				this.classList.add("controlpressdown");
-				if (typeof this._offset == "number") {
-					this.style.transform = `translateX(${this._offset}px) scale(0.97)`;
-				}
-			});
-			control.addEventListener(lib.config.touchscreen ? "touchend" : "mouseup", function () {
-				this.classList.remove("controlpressdown");
-				if (typeof this._offset == "number") {
-					this.style.transform = `translateX(${this._offset}px)`;
-				}
-			});
+		if (!window.decadeUI) {
+			if (lib.config.button_press) {
+				control.addEventListener(lib.config.touchscreen ? "touchstart" : "mousedown", function () {
+					if (this.classList.contains("disabled")) {
+						return;
+					}
+					this.classList.add("controlpressdown");
+					if (typeof this._offset == "number") {
+						this.style.transform = `translateX(${this._offset}px) scale(0.97)`;
+					}
+				});
+				control.addEventListener(lib.config.touchscreen ? "touchend" : "mouseup", function () {
+					this.classList.remove("controlpressdown");
+					if (typeof this._offset == "number") {
+						this.style.transform = `translateX(${this._offset}px)`;
+					}
+				});
+			}
 		}
 
 		ui.updatec();

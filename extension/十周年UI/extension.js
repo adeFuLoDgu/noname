@@ -855,37 +855,6 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 								}
 							},
 
-							control:function(){
-								var i, controls;
-								var nozoom = false;
-								if (Array.isArray(arguments[0])) {
-									controls = arguments[0];
-								} else {
-									controls = arguments;
-								}
-
-								var control = document.createElement('div');
-								control.className = 'control';
-								control.style.opacity = 1;
-								Object.entries(lib.element.control).forEach(entry => control[entry[0]] = entry[1]);
-								for (i = 0; i < controls.length; i++) {
-									if (typeof controls[i] == 'function') {
-										control.custom = controls[i];
-									} else if (controls[i] == 'nozoom') {
-										nozoom = true;
-									} else if (controls[i] == 'stayleft') {
-										control.stayleft = true;
-										control.classList.add('stayleft');
-									} else {
-										control.add(controls[i]);
-									}
-								}
-								ui.controls.unshift(control);
-								ui.control.insertBefore(control, _status.createControl || ui.confirm);
-								control.addEventListener(lib.config.touchscreen ? 'touchend': 'click', ui.click.control2);
-								return control;
-							},
-
 							selectlist:function(list, init, position, onchange){
 								var select = document.createElement('select');
 								for (var i = 0; i < list.length; i++) {
