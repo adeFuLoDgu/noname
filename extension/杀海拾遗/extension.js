@@ -10,6 +10,7 @@ let extensionPackage = {
 	package: {},
 	precontent,
 	files: { character: [], card: [], skill: [], audio: [] },
+	editable:false,
 };
 
 Object.keys(extensionInfo)
@@ -18,5 +19,6 @@ Object.keys(extensionInfo)
 		extensionPackage.package[key] = extensionInfo[key];
 	});
 
-export let type = "extension";
-export default extensionPackage;
+game.import("extension", function(lib, game, ui, get, ai, _status) {
+	return extensionPackage;
+});
