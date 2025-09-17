@@ -6689,15 +6689,15 @@ player.removeVirtualEquip(card);
 			const target = event.target;
 			event.result.num1[event.iiwhile] = event.num1;
 			event.result.num2[event.iiwhile] = event.num2;
-			if (window.decadeUI) var result;
+			if (window.decadeUI) event.chooseToCompareMultiple_result = null;
 			if (event.forceWinner === player || (event.forceWinner !== target && event.num1 > event.num2)) {
-				if (window.decadeUI) result = true;
+				if (window.decadeUI) event.chooseToCompareMultiple_result = true;
 				event.winner = player;
 				event.str = get.translation(player) + "拼点成功";
 				player.popup("胜");
 				target.popup("负");
 			} else {
-				if (window.decadeUI) result = false;
+				if (window.decadeUI) event.chooseToCompareMultiple_result = false;
 				event.str = get.translation(player) + "拼点失败";
 				if (event.forceWinner !== target && event.num1 == event.num2) {
 					player.popup("平");
@@ -6730,7 +6730,7 @@ player.removeVirtualEquip(card);
 						}, 180, dialog);
 					}, 1400, dialog, eventName);
 
-				}, str, event.compareName, result);
+				}, event.str, event.compareName, event.chooseToCompareMultiple_result);
 				decadeUI.delay(1800);
 			}
 		},
