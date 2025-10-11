@@ -39,7 +39,7 @@ const skills = {
 			return get.mode() === "guozhan" && event.player.isFriendOf(player);
 		},
 		forced: true,
-		async content() {
+		async content(event, trigger, player) {
 			game.broadcastAll(
 				function (target, group) {
 					if (get.mode() === "identity") {

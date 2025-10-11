@@ -634,13 +634,9 @@ game.import("card", function () {
 							if (player.countCards("h") <= 1) {
 								return 0;
 							}
-							if (get.mode() === "identity") {
-								let list = player.getFriends();
-								if (player.isZhu && player.countCards("he") > 2) {
-									for (let i = 0; i < list.length; i++) {
-										if (list[i].hp <= 1 && list[i].countCards("h") > 0 && get.damageEffect(list[i], player, player, "fire") < 0) return 0;
-									}
-								}
+							let friend_list = player.getFriends();
+							for (let i = 0; i < friend_list.length; i++) {
+								if (friend_list[i].hp <= 1 && friend_list[i].countCards("h") > 0 && get.damageEffect(friend_list[i], player, player, "fire") < 0) return 0;
 							}
 							let list = player.getEnemies();
 							for (let i = 0; i < list.length; i++) {
@@ -798,7 +794,20 @@ game.import("card", function () {
 					useful: 2.5,
 					value: 8.5,
 					result: {
-						target: 1,
+						target(player, target) {
+							let has_enemy = false;
+							for (var i = 0; i < game.players.length; i++) {
+								if (get.attitude(player, game.players[i]) <= 0) {
+									has_enemy = true;
+									break;
+								}
+							}
+							if (!has_enemy) {
+								return 0;
+							}
+							if (get.attitude(player, player.nextSeat) <= 0 && player.countCards("h") < 3) return 0;
+							return 1;
+						},
 					},
 				},
 			},
@@ -1179,7 +1188,7 @@ game.import("card", function () {
 							}
 							for (var i = 0; i < players.length; i++) {
 								let att = get.attitude(player, players[i]);
-								let hs = players[i].countCards("h");
+								let hs = player == players[i] ? players[i].countCards("h") - 1 : players[i].countCards("h");
 								if (att > 0 && hs == 0) {
 									return 0;
 								}
@@ -1422,7 +1431,7 @@ game.import("card", function () {
 							if (get.mode() == "identity" && player.hasUnknown(2)) {
 								return 0;
 							}
-							if (get.attitude(player, target) <= 0) {
+							if (get.attitude(player, target) <= 2) {
 								return 0;
 							}
 							return 1 + target.countCards("h");
@@ -1515,6 +1524,9 @@ game.import("card", function () {
 					},
 					result: {
 						player(player, target) {
+							if (player.hp == 1 && player.countCards("h", card => {
+								return (get.name(card) == "jiu" || get.number(card) == 9) && player.canUse(card, target, false);
+							}) <= 0) return "zeroplayertarget";
 							for (var i = 0; i < game.players.length; i++) {
 								if (get.attitude(player, game.players[i]) <= 0 && game.players[i].hasSkill("dclaoyan")) return 0;
 							}
@@ -1531,6 +1543,9 @@ game.import("card", function () {
 							return res;
 						},
 						target(player, target) {
+							if (player.hp == 1 && player.countCards("h", card => {
+								return (get.name(card) == "jiu" || get.number(card) == 9) && player.canUse(card, target, false);
+							}) <= 0) return "zeroplayertarget";
 							for (var i = 0; i < game.players.length; i++) {
 								if (get.attitude(player, game.players[i]) <= 0 && game.players[i].hasSkill("dclaoyan")) return 0;
 							}

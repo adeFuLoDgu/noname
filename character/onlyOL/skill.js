@@ -671,6 +671,9 @@ const skills = {
 		mark: true,
 		marktext: "牌",
 		intro: {
+			markcount(storage = 0, player) {
+				return Math.max(1, 7 - storage);
+			},
 			mark(dialog, count = 0, player, event, skill) {
 				const intronode = ui.create.div(".menubutton.pointerdiv", "点击发动", function () {
 					if (!this.classList.contains("disabled")) {
@@ -760,11 +763,7 @@ const skills = {
 				forced: true,
 				priority: 9,
 				filter(event, player) {
-					if (player !== _status.currentPhase) {
-						return false;
-					}
-					const index = get.info("olsbwujing_draw").getEvents().indexOf(event);
-					return index >= 0 && index < 2;
+					return get.info("olsbwujing_draw").getEvents().indexOf(event) == 0;
 				},
 				getEvents() {
 					return game.getGlobalHistory("cardMove", event => {
@@ -827,7 +826,7 @@ const skills = {
 		},
 	},
 	olsbzhijue: {
-		audio: 2,
+		audio: 5,
 		zhuanhuanji: true,
 		marktext: "☯",
 		mark: true,
@@ -878,16 +877,19 @@ const skills = {
 				if (button.link == "huogong") {
 					return true;
 				}
+				const player = get.player();
 				return 114514 - player.countCards("h", card => get.color(card, player) == button.link);
 			},
 			backup(links, player) {
 				const bool = player.storage.olsbzhijue;
+				const backup = get.copy(lib.skill[`olsbzhijue_${!bool ? "yang" : "yin"}`]);
 				if (bool) {
-					game.broadcastAll(link => {
-						lib.skill.olsbzhijue_yin.link = link;
-					}, links[0]);
+					backup.filterCard = function (card, player) {
+						return get.color(card, player) == links[0];
+					};
+					backup.link = links[0];
 				}
-				return get.copy(lib.skill[`olsbzhijue_${!bool ? "yang" : "yin"}`]);
+				return backup;
 			},
 			prompt(links, player) {
 				const link = links[0];
@@ -915,6 +917,7 @@ const skills = {
 			backup: {},
 			yang: {
 				audio: "olsbzhijue",
+				logAudio: () => ["olsbzhijue", 3],
 				filterCard: () => false,
 				selectCard: -1,
 				viewAs(cards, player) {
@@ -938,10 +941,8 @@ const skills = {
 			},
 			yin: {
 				audio: "olsbzhijue",
+				logAudio: () => ["olsbzhijue4.mp3", "olsbzhijue5.mp3"],
 				position: "h",
-				filterCard(card, player) {
-					return get.color(card, player) == lib.skill.olsbzhijue_yin.link;
-				},
 				selectCard: -1,
 				lose: false,
 				discard: false,
@@ -949,11 +950,11 @@ const skills = {
 				async content(event, trigger, player) {
 					player.changeZhuanhuanji("olsbzhijue");
 					player.addTempSkill("olsbzhijue_used");
-					player.markAuto("olsbzhijue_used", lib.skill.olsbzhijue_yin.link);
+					player.markAuto("olsbzhijue_used", get.info(event.name).link);
 					const { cards } = event;
 					await player.loseToDiscardpile(cards);
 					let noDamage = true;
-					const viewAs = card => get.autoViewAs({ name: card.name, nature: card.nature, isCard: true });
+					const viewAs = card => new lib.element.VCard({ name: card.name, nature: card.nature, isCard: true });
 					const cardsx = cards.filter(card => ["basic", "trick"].includes(get.type(card)) && player.hasUseTarget(viewAs(card)));
 					if (cardsx.length) {
 						const result = await player
@@ -970,23 +971,37 @@ const skills = {
 							const card = viewAs(result.links[0]);
 							const next = player.chooseUseTarget(card, true);
 							await next;
-							if (game.hasPlayer2(target => target.hasHistory("damage", evt => evt.card == next.card))) {
+							if (
+								game.hasPlayer2(
+									target =>
+										target.hasHistory("damage", evt => {
+											return evt.getParent("useCard", true)?.getParent() == next;
+										}),
+									true
+								)
+							) {
 								noDamage = false;
 							}
 						}
 					}
-					if (noDamage && player.countMark("olsbzhitian") < 7) {
-						player.addMark("olsbzhitian", 1, false);
-						await player.draw(2);
+					if (noDamage && player.countMark("olsbzhitian") < 6) {
+						await player.useResult({ skill: "olsbzhijue_effect" }, event);
 					}
 				},
 			},
 			effect: {
 				audio: "olsbzhijue",
+				logAudio(event, player) {
+					const bool = player.getStorage("olsbzhijue", false);
+					if (bool) {
+						return ["olsbzhijue4.mp3", "olsbzhijue5.mp3"];
+					}
+					return ["olsbzhijue", 3];
+				},
 				forced: true,
 				trigger: { player: "useCardAfter" },
 				filter(event, player) {
-					return event.skill == "olsbzhijue_backup" && !game.hasPlayer2(target => target.hasHistory("damage", evt => evt.card == event.card)) && player.countMark("olsbzhitian") < 7;
+					return event.skill == "olsbzhijue_backup" && !game.hasPlayer2(target => target.hasHistory("damage", evt => evt.card == event.card), true) && player.countMark("olsbzhitian") < 6;
 				},
 				async content(event, trigger, player) {
 					player.addMark("olsbzhitian", 1, false);
