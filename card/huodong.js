@@ -805,7 +805,7 @@ game.import("card", function () {
 							if (!has_enemy) {
 								return 0;
 							}
-							if (get.attitude(player, player.nextSeat) <= 0 && player.countCards("h") < 3) return 0;
+							if (get.attitude(player, player.nextSeat) <= 0) return 0;
 							return 1;
 						},
 					},
