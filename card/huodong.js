@@ -286,6 +286,16 @@ game.import("card", function () {
 					value: 7.5,
 					result: {
 						target(player, target) {
+							let has_enemy = false;
+							for (var i = 0; i < game.players.length; i++) {
+								if (get.attitude(player, game.players[i]) < 0) {
+									has_enemy = true;
+									break;
+								}
+							}
+							if (!has_enemy) {
+								return 0;
+							}
 							for (var i = 0; i < game.players.length; i++) {
 								if (get.attitude(player, game.players[i]) <= 0 && game.players[i].hasSkill("dclaoyan")) return 0;
 							}
@@ -797,7 +807,7 @@ game.import("card", function () {
 						target(player, target) {
 							let has_enemy = false;
 							for (var i = 0; i < game.players.length; i++) {
-								if (get.attitude(player, game.players[i]) <= 0) {
+								if (get.attitude(player, game.players[i]) < 0) {
 									has_enemy = true;
 									break;
 								}
