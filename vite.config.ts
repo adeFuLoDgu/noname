@@ -7,6 +7,7 @@ const port = {
 };
 
 export default defineConfig({
+	base: "",
 	root: ".",
 	resolve: {
 		alias: {

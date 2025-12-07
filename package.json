@@ -4,9 +4,10 @@
     "description": "",
     "version": "1.10.17.4",
     "license": "GPL-3.0-only",
+    "homepage": "https://adefulodgu.github.io/noname",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/libnoname/noname.git"
+        "url": "git+https://github.com/adeFuLoDgu/noname.git"
     },
     "type": "module",
     "scripts": {
