@@ -1,4 +1,10 @@
 const characters = {
+	mamiao: {
+		sex: "male",
+		group: "shu",
+		hp: 4,
+		skills: ["dczhangguan", "dccongfeng"],
+	},
 	jimiaojimu: {
 		sex: "male",
 		group: "qun",
@@ -176,7 +182,7 @@ const characters = {
 	pangshanmin: {
 		sex: "male",
 		group: "wei",
-		hp: 3,
+		hp: 4,
 		skills: ["dccaisi", "dczhuoli"],
 	},
 	dc_jiachong: {

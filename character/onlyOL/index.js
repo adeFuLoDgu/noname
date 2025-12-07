@@ -4,6 +4,7 @@ import cards from "./card.js";
 import pinyins from "./pinyin.js";
 import skills from "./skill.js";
 import translates from "./translate.js";
+import characterTitles from "./characterTitle.js";
 import characterIntros from "./intro.js";
 import characterFilters from "./characterFilter.js";
 import dynamicTranslates from "./dynamicTranslate.js";
@@ -19,7 +20,7 @@ game.import("character", function () {
 			onlyOL: characterSort,
 		},
 		characterFilter: { ...characterFilters },
-		characterTitle: {},
+		characterTitle: { ...characterTitles },
 		dynamicTranslate: { ...dynamicTranslates },
 		characterIntro: { ...characterIntros },
 		characterSubstitute: {
@@ -28,6 +29,7 @@ game.import("character", function () {
 				["ol_sb_dongzhuo_shadow1", ["die:ol_sb_dongzhuo", "tempname:ol_sb_dongzhuo"]],
 				["ol_sb_dongzhuo_shadow2", ["die:ol_sb_dongzhuo", "tempname:ol_sb_dongzhuo"]],
 			],
+			ol_sb_zhangrang: [["ol_sb_zhangrang_shadow", ["die:ol_sb_zhangrang"]]],
 		},
 		card: { ...cards },
 		skill: { ...skills },

@@ -262,6 +262,7 @@ game.import("card", function () {
 				fullskin: true,
 				type: "equip",
 				subtype: "equip1",
+				bingzhu: ["黄盖"],
 				distance: { attackFrom: -2 },
 				ai: {
 					basic: {
@@ -329,6 +330,7 @@ game.import("card", function () {
 				fullskin: true,
 				type: "equip",
 				subtype: "equip5",
+				bingzhu: ["姜尚"],
 				cardcolor: "spade",
 				ai: {
 					basic: {
@@ -337,8 +339,37 @@ game.import("card", function () {
 				},
 				skills: ["taigongyinfu_skill", "taigongyinfu_link"],
 			},
+			baipidao: {
+				audio: true,
+				fullskin: true,
+				type: "equip",
+				subtype: "equip1",
+				bingzhu: ["曹操"],
+				distance: { attackFrom: -1 },
+				ai: {
+					basic: {
+						equipValue: 4,
+					},
+				},
+				skills: ["baipidao_skill"],
+			},
 		},
 		skill: {
+			baipidao_skill: {
+				audio: true,
+				equipSkill: true,
+				trigger: {
+					source: "damageSource",
+				},
+				filter(event, player) {
+					return event.card?.name == "sha" && event.notLink() && event.player?.isIn() && event.player.countGainableCards(player, "h");
+				},
+				prompt2: "获得其一张手牌",
+				logTarget: "player",
+				async content(event, trigger, player) {
+					await player.gainPlayerCard(trigger.player, "h", true);
+				},
+			},
 			suijiyingbian_skill: {
 				mod: {
 					cardname(card, player) {
@@ -784,6 +815,9 @@ game.import("card", function () {
 								range = select;
 							} else if (typeof select === "function") {
 								range = select(card, player);
+								if (typeof range == "number") {
+									range = [range, range];
+								}
 							}
 							if (info.singleCard) {
 								range = [1, 1];
@@ -839,6 +873,9 @@ game.import("card", function () {
 			tianjitu_info: "锁定技，当此牌进入你的装备区时，你弃置一张不为此【天机图】的牌。当此牌离开你的装备区时，你将手牌摸至五张。",
 			taigongyinfu: "太公阴符",
 			taigongyinfu_info: "出牌阶段开始时，你可以横置或重置一名角色。出牌阶段结束时，你可以重铸一张手牌。",
+			baipidao: "百辟刀",
+			baipidao_skill: "百辟刀",
+			baipidao_info: "当你使用【杀】对目标角色造成伤害后，可以获得其一张手牌。",
 			taigongyinfu_skill: "太公阴符",
 			taigongyinfu_link: "太公阴符",
 			yingbian_zhuzhan_tag: "助战",

@@ -6,6 +6,7 @@ import skills from "./skill.js";
 import translates from "./translate.js";
 import characterIntros from "./intro.js";
 import characterFilters from "./characterFilter.js";
+import characterTitles from "./characterTitle.js";
 import dynamicTranslates from "./dynamicTranslate.js";
 import perfectPairs from "./perfectPairs.js";
 import voices from "./voices.js";
@@ -20,7 +21,7 @@ game.import("character", function () {
 			mobile: characterSort,
 		},
 		characterFilter: { ...characterFilters },
-		characterTitle: {},
+		characterTitle: { ...characterTitles },
 		dynamicTranslate: { ...dynamicTranslates },
 		characterIntro: { ...characterIntros },
 		characterSubstitute: {
@@ -49,12 +50,23 @@ game.import("character", function () {
 				["pot_weiyan_achieve", []],
 				["pot_weiyan_fail", []],
 			],
-			mb_simazhao: [["mb_simazhao_shadow", ["die:jin_jsrg_simazhao", "tempname:jin_jsrg_simazhao"]]],
+			mb_simazhao: [["jin_jsrg_simazhao", []]],
 			pot_yuji: [["pot_yuji_shadow", []]],
 			mb_zerong: [
-				["mb_zerong_red", []],
-				["mb_zerong_black", []],
-				["mb_zerong_all", []],
+				["mb_zerong_red", ["die:mb_zerong"]],
+				["mb_zerong_black", ["die:mb_zerong"]],
+				["mb_zerong_all", ["die:mb_zerong"]],
+			],
+			mb_cuilingyi: [
+				["mb_cuilingyi_guidian1", ["character:mb_cuilingyi", "die:mb_cuilingyi"]],
+				["mb_cuilingyi_guidian2", ["die:mb_cuilingyi"]],
+				["mb_cuilingyi_guidian3", ["die:mb_cuilingyi"]],
+				["mb_cuilingyi_dongjiao1", ["die:mb_cuilingyi"]],
+				["mb_cuilingyi_dongjiao2", ["die:mb_cuilingyi"]],
+				["mb_cuilingyi_dongjiao3", ["die:mb_cuilingyi"]],
+				["mb_cuilingyi_xiuge1", ["die:mb_cuilingyi"]],
+				["mb_cuilingyi_xiuge2", ["die:mb_cuilingyi"]],
+				["mb_cuilingyi_xiuge3", ["die:mb_cuilingyi"]],
 			],
 		},
 		card: { ...cards },

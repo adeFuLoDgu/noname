@@ -133,7 +133,7 @@ const characters = {
 		sex: "female",
 		group: "qun",
 		hp: 3,
-		skills: ["spmingxuan", "spxianchou"],
+		skills: ["spmingxuan", "new_spxianchou"],
 	},
 	sb_huangzhong: {
 		sex: "male",

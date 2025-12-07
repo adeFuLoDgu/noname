@@ -1,9 +1,4 @@
-import { get } from "../../get/index.js";
-import { game } from "../../game/index.js";
-import { lib } from "../index.js";
-import { _status } from "../../status/index.js";
-import { ui } from "../../ui/index.js";
-
+import { _status, get, lib } from "noname";
 export class Character {
 	/**
 	 * 武将牌的性别
@@ -171,6 +166,16 @@ export class Character {
 	 */
 	tempname = [];
 	/**
+	 * 武将牌在国战下对应的君主武将id
+	 * @type {string | undefined}
+	 */
+	junName;
+	/**
+	 * 武将牌的使用的皮肤路径
+	 * @type {string | undefined}
+	 */
+	skinPath;
+	/**
 	 * 武将牌是否存在(get.character未找到武将使用)
 	 * @type { boolean }
 	 */
@@ -296,6 +301,8 @@ export class Character {
 				this.tempname = item.slice(9).split(":");
 			} else if (item.startsWith("junName:")) {
 				this.junName = item.slice(8);
+			} else if (item.startsWith("skinPath:")) {
+				this.skinPath = item.slice(9);
 			} else {
 				keptTrashes.push(item);
 			}
@@ -363,6 +370,9 @@ export class Character {
 		}
 		if (character.junName) {
 			trashes.push(`junName:${character.junName}`);
+		}
+		if (character.skinPath) {
+			trashes.push(`skinPath:${character.skinPath}`);
 		}
 		if (character.isZhugong) {
 			trashes.push("zhu");

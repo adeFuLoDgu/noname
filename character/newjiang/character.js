@@ -1,4 +1,44 @@
 const characters = {
+	yj_fazheng: {
+		sex: "male",
+		group: "qun",
+		hp: 3,
+		skills: ["youtan", "ciren", "zhancai"]
+	},
+	yj_hanbing: {
+		sex: "female",
+		group: "qun",
+		hp: 3,
+		skills: ["bingling"],
+		names: "null|null",
+	},
+	yj_tengjia: {
+		sex: "male",
+		group: "qun",
+		hp: 1,
+		maxHp: 4,
+		skills: ["tenggu", "dunyong"],
+		names: "null|null",
+	},
+	yj_puyuan: {
+		sex: "male",
+		group: "shu",
+		hp: 4,
+		skills: ["biancai", "cuiren", "shenfeng"],
+	},
+
+	v_sunce: {
+		sex: "male",
+		group: "wu",
+		hp: 4,
+		skills: ["dczhifeng", "dcweijing"],
+	},
+	yao_yuanshu: {
+		sex: "male",
+		group: "qun",
+		hp: 4,
+		skills: ["dcwangyao", "dczengua", "dckanghui"],
+	},
 	yj_zhanghuan: {
 		sex: "male",
 		group: "qun",
@@ -14,7 +54,7 @@ const characters = {
 	wufu: {
 		sex: "male",
 		group: "qun",
-		hp: 4,
+		hp: 3,
 		skills: ["dczhonge", "dcjuekai"],
 	},
 	yj_sb_guojia: {
@@ -209,7 +249,7 @@ const characters = {
 		sex: "male",
 		group: "qun",
 		hp: 3,
-		maxHp: 4,
+		maxHp: 5,
 		skills: ["xiongjin", "zhenbian", "baoxi"],
 	},
 	fj_peixiu: {

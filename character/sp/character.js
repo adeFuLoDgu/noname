@@ -1,4 +1,28 @@
 const characters = {
+	ol_cuiyan: {
+		sex: "male",
+		group: "wei",
+		hp: 3,
+		skills: ["olshutong", "olzhijie"],
+	},
+	ol_lvlingqi: {
+		sex: "female",
+		group: "qun",
+		hp: 4,
+		skills: ["olqiwu", "olzhuangrong"],
+	},
+	huanshujun: {
+		sex: "female",
+		group: "wei",
+		hp :3,
+		skills: ["olhuanpei", "olwenyi", "olmiaoxin"],
+	},
+	sunyuan: {
+		sex: "female",
+		group: "wu",
+		hp: 4,
+		skills: ["olsaying", "oltongxin"],
+	},
 	ol_fanyufeng: {
 		sex: "female",
 		group: "qun",
@@ -17,7 +41,7 @@ const characters = {
 		sex: "female",
 		group: "qun",
 		hp: 3,
-		skills: ["xinfu_falu", "xinfu_dianhua", "xinfu_zhenyi"],
+		skills: ["xinfu_falu", "xinfu_dianhua", "zhenyi"],
 	},
 	ol_qiaoxuan: {
 		sex: "male",
@@ -85,7 +109,7 @@ const characters = {
 		sex: "male",
 		group: "qun",
 		hp: 4,
-		skills: ["oljiawei"],
+		skills: ["oljiawei", "olqujia"],
 	},
 	ol_yuanhuan: {
 		sex: "male",
@@ -160,6 +184,7 @@ const characters = {
 		group: "qun",
 		hp: 4,
 		skills: ["olshuzi", "olkuangshou"],
+		clans: ["颍川韩氏"],
 	},
 	ol_niufu: {
 		sex: "male",

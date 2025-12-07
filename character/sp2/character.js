@@ -1,4 +1,28 @@
 const characters = {
+	dc_yanxiang: {
+		sex: "male",
+		group: "qun",
+		hp: 3,
+		skills: ["dcyuzheng", "dcyxsuishi"],
+	},
+	cuilie: {
+		sex: "male",
+		group: "qun",
+		hp: 3,
+		skills: ["dczijue", "dcchibi"],
+	},
+	star_jiangwan: {
+		sex: "male",
+		group: "shu",
+		hp: 3,
+		skills: ["starzhenting", "starchiguo"],
+	},
+	star_taishici: {
+		sex: "male",
+		group: "qun",
+		hp: 4,
+		skills: ["starchongwei", "starchongzu"],
+	},
 	star_zhangrang: {
 		sex: "male",
 		group: "qun",
@@ -10,6 +34,12 @@ const characters = {
 		group: "qun",
 		hp: 4,
 		skills: ["starlianzhan", "starweiming"],
+	},
+	star_yanliang: {
+		sex: "male",
+		group: "qun",
+		hp: 4,
+		skills: ["starjizhan", "starcuxia"],
 	},
 	star_dingfeng: {
 		sex: "male",
@@ -392,6 +422,7 @@ const characters = {
 		group: "qun",
 		hp: 4,
 		skills: ["hfjieying", "weipo"],
+		clans: ["颍川韩氏"],
 	},
 	re_quyi: {
 		sex: "male",

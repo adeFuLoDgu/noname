@@ -5482,7 +5482,7 @@ export default () => {
 					},
 				},
 			},
-			zhiming: {
+			zhimingx: {
 				trigger: { source: "damageBegin1" },
 				filter: function (event, player) {
 					return get.distance(event.player, player, "attack") > 1 && event.card && event.card.name == "sha";
@@ -6072,8 +6072,8 @@ export default () => {
 			lingdong_info: "结束阶段，你可以移动至多X格（X为你本回合内使用【杀】的次数）。",
 			lianshe: "箭舞",
 			lianshe_info: "当你于一回合内首次使用【杀】时，你可以摸一张牌；你的回合内，当你使用一张不为【杀】的牌时，你令本回合内使用【杀】的次数上限+1。",
-			zhiming: "穿杨",
-			zhiming_info: "锁定技，当你使用【杀】造成伤害时，若你不在目标角色的攻击范围内，此伤害+1。",
+			zhimingx: "穿杨",
+			zhimingx_info: "锁定技，当你使用【杀】造成伤害时，若你不在目标角色的攻击范围内，此伤害+1。",
 			sanjiansheji: "散箭",
 			sanjiansheji_info: "你可以将两张【杀】当做【杀】使用，你以此法使用的【杀】可以指定距离5格内的角色为目标。",
 			guanchuan: "强弩",
@@ -6515,7 +6515,7 @@ export default () => {
 					sex: "male",
 					group: "wei",
 					hp: 4,
-					skills: ["gongji", "zhiming"],
+					skills: ["gongji", "zhimingx"],
 				},
 				chess_huangzhong: {
 					sex: "male",

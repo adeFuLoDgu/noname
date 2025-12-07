@@ -105,7 +105,7 @@ const translates = {
 	mashu_info: "锁定技，你计算与其他角色的距离时-1。",
 	feiying_info: "锁定技，其他角色计算与你的距离时+1。",
 	tieji_info: "当你使用【杀】指定目标后，你可以进行判定。若结果为红色，则此【杀】不可被闪避。",
-	jizhi_info: "当你使用非转化的普通锦囊牌时，你可以摸一张牌。",
+	jizhi_info: "当你使用普通锦囊牌时，你可以摸一张牌。",
 	qicai_info: "锁定技，你使用锦囊牌无距离限制。",
 	zhiheng_info: "出牌阶段限一次，你可以弃置任意张牌，然后摸等量的牌。",
 	jiuyuan_info: "主公技，锁定技，其他吴势力角色对你使用的【桃】的回复值+1。",
@@ -160,6 +160,8 @@ const translates = {
 	std_yuejin_prefix: "标",
 	stdxiaoguo: "骁果",
 	stdxiaoguo_info: "其他角色的结束阶段开始时，你可以弃置一张基本牌，令该角色选择一项：1.弃置一张装备牌；2.受到你对其造成的1点伤害。",
+	stdqingjiao: "轻狡",
+	stdqingjiao_info: "主公技，锁定技，结束阶段，若你本回合对其他群势力角色造成过伤害，你摸一张牌。",
 };
 
 export default translates;

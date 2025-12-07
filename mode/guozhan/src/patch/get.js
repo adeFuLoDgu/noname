@@ -249,11 +249,11 @@ export class GetGuozhan extends Get {
 		} else {
 			from_p = game.countPlayer(function (current) {
 				return current.isFriendOf(from);
-			});
+			}, true);
 		}
 		var to_p = game.countPlayer(function (current) {
 			return current.isFriendOf(to);
-		});
+		}, true);
 		if (to.identity == "ye") {
 			to_p += 1.5;
 		}

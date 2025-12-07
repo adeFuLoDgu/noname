@@ -1,9 +1,4 @@
-import { ui } from "../index.js";
-import { lib } from "../../library/index.js";
-import { game } from "../../game/index.js";
-import { get } from "../../get/index.js";
-import { _status } from "../../status/index.js";
-import { ai } from "../../ai/index.js";
+import { lib, game, get, _status, ai, ui } from "noname";
 import { menu } from "./menu/index.js";
 import { cardPackMenu } from "./menu/pages/cardPackMenu.js";
 import { characterPackMenu } from "./menu/pages/characterPackMenu.js";
@@ -11,7 +6,7 @@ import { extensionMenu } from "./menu/pages/exetensionMenu.js";
 import { optionsMenu } from "./menu/pages/optionsMenu.js";
 import { otherMenu } from "./menu/pages/otherMenu.js";
 import { startMenu } from "./menu/pages/startMenu.js";
-import { Pagination } from "../../util/pagination.js";
+import { Pagination } from "@/util/pagination.js";
 
 export class Create {
 	/**
@@ -370,7 +365,7 @@ export class Create {
 
 		if (language === "javascript" || language === "typescript") {
 			const { javascript, scopeCompletionSource, javascriptLanguage, esLint } = await import("@codemirror/lang-javascript");
-			const { default: security } = await import("@/noname/util/security.js");
+			const { default: security } = await import("@/util/security.js");
 			let proxyWindow = Object.assign({}, window, {
 				_status: _status,
 				lib: lib,
@@ -435,7 +430,7 @@ export class Create {
 				})
 			);
 			if (language === "javascript") {
-				const { Linter } = await import("@/game/eslint-linter-browserify.js");
+				const { Linter } = await import("eslint-linter-browserify");
 				extensions.push(
 					linter(
 						esLint(new Linter(), {
@@ -629,19 +624,28 @@ export class Create {
 			node.classList.add("tempimage");
 			let img = get.dynamicVariable(lib.card[cardName].image, card);
 			if (img) {
-				if (img.startsWith("db:")) {
-					img = img.slice(3);
-				} else if (!img.startsWith("ext:")) {
+				if (typeof img != "string") {
 					img = null;
+				} else {
+					if (img.startsWith("ext:")) {
+						img = img.replace(/^ext:/, "extension/");
+					} else if (["character:"].some(prefix => img.startsWith(prefix)) || ["background", "card"].includes(img)) {
+						img = null;
+					}
 				}
 			}
 			if (lib.card[cardName].fullskin) {
 				if (img) {
-					if (img.startsWith("ext:")) {
+					if (img.startsWith("db:")) {
+						bg.setBackgroundDB(img.slice(3));
+					} else if (typeof img == "string") {
+						bg.setBackgroundImage(img);
+					}
+					/*if (img.startsWith("ext:")) {
 						bg.setBackgroundImage(img.replace(/^ext:/, "extension/"));
 					} else {
 						bg.setBackgroundDB(img);
-					}
+					}*/
 				} else {
 					if (lib.card[cardName].modeimage) {
 						bg.setBackgroundImage("image/mode/" + lib.card[cardName].modeimage + "/card/" + cardName + ".png");
@@ -661,12 +665,18 @@ export class Create {
 				}
 			} else if (lib.card[cardName].fullimage) {
 				if (img) {
-					if (img.startsWith("ext:")) {
+					if (img.startsWith("db:")) {
+						bg.setBackgroundDB(img.slice(3));
+					} else if (typeof img == "string") {
+						bg.setBackgroundImage(img);
+						bg.style.backgroundSize = "cover";
+					}
+					/*if (img.startsWith("ext:")) {
 						bg.setBackgroundImage(img.replace(/^ext:/, "extension/"));
 						bg.style.backgroundSize = "cover";
 					} else {
 						bg.setBackgroundDB(img);
-					}
+					}*/
 				} else if (get.dynamicVariable(lib.card[cardName].image, card)) {
 					if (get.dynamicVariable(lib.card[cardName].image, card).startsWith("character:")) {
 						bg.setBackground(get.dynamicVariable(lib.card[cardName].image, card).slice(10), "character");
@@ -689,12 +699,18 @@ export class Create {
 				}
 			} else if (typeof get.dynamicVariable(lib.card[cardName].image, card) == "string" && !lib.card[cardName].fullskin) {
 				if (img) {
-					if (img.startsWith("ext:")) {
+					if (img.startsWith("db:")) {
+						bg.setBackgroundDB(img.slice(3));
+					} else if (typeof img == "string") {
+						bg.setBackgroundImage(img);
+						bg.style.backgroundSize = "cover";
+					}
+					/*if (img.startsWith("ext:")) {
 						bg.setBackgroundImage(img.replace(/^ext:/, "extension/"));
 						bg.style.backgroundSize = "cover";
 					} else {
 						bg.setBackgroundDB(img);
-					}
+					}*/
 				} else {
 					bg.setBackground(get.dynamicVariable(lib.card[cardName].image, card));
 				}
@@ -2223,7 +2239,7 @@ export class Create {
 		}
 		ui.skills = ui.create.control(skills.concat([ui.click.skill]));
 		for (var i = 0; i < ui.skills.childNodes.length; i++) {
-			ui.skills.childNodes[i].innerHTML = get.skillTranslation(ui.skills.childNodes[i].link, _status.event.player);
+			ui.skills.childNodes[i].innerHTML = get.skillTranslation(ui.skills.childNodes[i].link, _status.event.player, true);
 		}
 		if (!_status.event.isMine()) {
 			ui.skills.style.display = "none";
@@ -2260,7 +2276,7 @@ export class Create {
 		}
 		ui.skills2 = ui.create.control(skills.concat([ui.click.skill]));
 		for (var i = 0; i < ui.skills2.childNodes.length; i++) {
-			ui.skills2.childNodes[i].innerHTML = get.skillTranslation(ui.skills2.childNodes[i].link, _status.event.player);
+			ui.skills2.childNodes[i].innerHTML = get.skillTranslation(ui.skills2.childNodes[i].link, _status.event.player, true);
 		}
 		if (!_status.event.isMine()) {
 			ui.skills2.style.display = "none";
@@ -2297,7 +2313,7 @@ export class Create {
 		}
 		ui.skills3 = ui.create.control(skills.concat([ui.click.skill]));
 		for (var i = 0; i < ui.skills3.childNodes.length; i++) {
-			ui.skills3.childNodes[i].innerHTML = get.skillTranslation(ui.skills3.childNodes[i].link, _status.event.player);
+			ui.skills3.childNodes[i].innerHTML = get.skillTranslation(ui.skills3.childNodes[i].link, _status.event.player, true);
 		}
 		if (!_status.event.isMine()) {
 			ui.skills3.style.display = "none";
@@ -2320,14 +2336,14 @@ export class Create {
 		}
 		// 这里的条件用的是“AI代选”按钮的条件喵
 		const selectCard = event.selectCard;
-		if (typeof selectCard == "function") {
+		/* if (typeof selectCard == "function") {
 			return null;
-		}
+		} */
 		const range = get.select(selectCard);
 		if (range[1] <= 1) {
 			return null; // 只选一张牌就不使用全选哦喵
 		}
-		return event.cardChooseAll = ui.create.control("全选", function () {
+		return (event.cardChooseAll = ui.create.control("全选", function () {
 			// 这个反选要封装喵？
 			// 好像就只有这里用哦
 			const event = get.event();
@@ -2340,7 +2356,7 @@ export class Create {
 			const selectables = get.selectableCards();
 			// @ts-expect-error 啊至少垫片函数是接受数组的喵
 			const cards = selecteds.length ? [...new Set(selectables).difference(selecteds)] : selectables;
-			
+
 			if (cards.length <= range[1]) {
 				// 如果可以就全选喵
 				ui.selected.cards.push(...cards);
@@ -2362,7 +2378,7 @@ export class Create {
 			if (typeof event.custom?.add?.card == "function") {
 				_status.event.custom.add.card();
 			}
-		});
+		}));
 	}
 	/**
 	 * 向当前事件注入按钮的全选/反选按钮喵
@@ -2375,9 +2391,9 @@ export class Create {
 		}
 		// 这里的条件用的是“AI代选”按钮的条件喵
 		const selectButton = event.selectButton;
-		if (typeof selectButton == "function") {
+		/* if (typeof selectButton == "function") {
 			return null;
-		}
+		} */
 		const range = get.select(selectButton);
 		if (range[1] <= 1) {
 			return null; // 只选一个按钮就不使用全选哦喵
@@ -2397,11 +2413,11 @@ export class Create {
 			// 清空选择的按钮喵
 			ui.selected.buttons.length = 0;
 			game.check();
-			
+
 			const selectables = get.selectableButtons();
 			// @ts-expect-error 啊至少垫片函数是接受数组的喵
 			const buttons = selecteds.length ? [...new Set(selectables).difference(selecteds)] : selectables;
-			
+
 			if (buttons.length <= range[1]) {
 				// 如果可以就全选喵
 				ui.selected.buttons.push(...buttons);
@@ -2546,7 +2562,7 @@ export class Create {
 			if (window.plugins && window.plugins.insomnia) {
 				window.plugins.insomnia.keepAwake();
 			} else {
-				lib.init.js(lib.assetURL + "game", "NoSleep", function () {
+				import("nosleep.js").then(function ({default: NoSleep}) {
 					var noSleep = new NoSleep();
 					document.addEventListener(
 						lib.config.touchscreen ? "touchend" : "click",
@@ -2766,7 +2782,7 @@ export class Create {
 				game.saveConfig("choice_fan", 3, "doudizhu");
 			}
 		}
-		
+
 		// 根据157的要求移除掉本体的五行扩展哦喵
 		if (game.hasExtension("wuxing")) {
 			game.removeExtension("wuxing");
@@ -2792,6 +2808,9 @@ export class Create {
 		ui.cardPileButton = ui.create.system("牌堆", null, true);
 		ui.cardPileButton.style.display = "none";
 		lib.setPopped(ui.cardPileButton, ui.click.cardPileButton, 220);
+		ui.commonCardPileButton = ui.create.system("公共区域", null, true);
+		ui.commonCardPileButton.style.display = "none";
+		lib.setPopped(ui.commonCardPileButton, ui.click.commonCardPileButton, 220);
 		ui.wuxie = ui.create.system("不询问无懈", ui.click.wuxie, true);
 		if (!lib.config.touchscreen) {
 			lib.setPopped(ui.config2, ui.click.pauseconfig, 170);
@@ -3451,6 +3470,8 @@ export class Create {
 				position.appendChild(node);
 			}
 			node.link = item;
+			// 复制标记信息
+			node.node.gaintag.innerHTML = item.node.gaintag.innerHTML;
 			if (item.style.backgroundImage) {
 				node.style.backgroundImage = item.style.backgroundImage;
 				node.style.backgroundSize = "cover";
@@ -3505,7 +3526,6 @@ export class Create {
 				}
 			}
 			node.link = item;
-
 			var double = get.is.double(node._link, true);
 			if (double) {
 				node._changeGroup = true;
@@ -3598,6 +3618,7 @@ export class Create {
 					lib.setIntro(node);
 				}
 				if (infoitem[1]) {
+					var double = get.is.double(item, true);
 					if (double) {
 						node.node.group.innerHTML = double.reduce((previousValue, currentValue) => `${previousValue}<div data-nature="${get.groupnature(currentValue)}">${get.translation(currentValue)}</div>`, "");
 						if (double.length > 4) {
@@ -3686,12 +3707,18 @@ export class Create {
 		skill: (item, type, position, noclick, node) => {
 			//搜索拥有这个技能的角色
 			let characterName;
-			if (Array.isArray(item)) {
-				characterName = item[1] || _status.skillOwner[item[0]];
-				item = item[0];
-			} else {
-				characterName = _status.skillOwner[item] || "shibing";
+			if (!Array.isArray(item)) {
+				item = [item, null];
 			}
+			let defaultName = _status.skillOwner[item[0]] || "shibing";
+			if ("clanSkill" in get.info(item[0]) && get.player()) {
+				let name = get.nameList(get.player()).find(name => {
+					return get.character(name, 3).includes(item[0]);
+				});
+				defaultName = name || defaultName;
+			}
+			characterName = item[1] || defaultName;
+			item = item[0];
 			const info = get.character(characterName);
 			//创建这张vcard并重新赋值link
 			node = ui.create.buttonPresets.vcard(item, "vcard", position, noclick);
@@ -3707,7 +3734,7 @@ export class Create {
 				const skill = node.link;
 				uiintro.add(get.translation(skill));
 				if (lib.translate[skill + "_info"]) {
-					uiintro.add(`<div class="text">${get.skillInfoTranslation(skill)}</div>`);
+					uiintro.add(`<div class="text">${get.skillInfoTranslation(skill, null, false)}</div>`);
 					if (lib.translate[skill + "_append"]) {
 						uiintro._place_text = uiintro.add('<div class="text">' + lib.translate[skill + "_append"] + "</div>");
 					}

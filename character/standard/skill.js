@@ -2,6 +2,23 @@ import { lib, game, ui, get, ai, _status } from "../../noname.js";
 
 /** @type { importCharacterConfig['skill'] } */
 const skills = {
+	//主公吕布
+	stdqingjiao: {
+		audio: 2,
+		trigger: {
+			player: "phaseJieshuBegin",
+		},
+		zhuSkill: true,
+		filter(event, player) {
+			return player.hasHistory("sourceDamage", evt => {
+				return evt.player != player && evt.player?.group == "qun";
+			});
+		},
+		forced: true,
+		async content(event, trigger, player) {
+			await player.draw();
+		},
+	},
 	//标准版乐进
 	stdxiaoguo: {
 		audio: "xiaoguo",
@@ -342,20 +359,16 @@ const skills = {
 	},
 	guicai: {
 		audio: 2,
-		audioname2: {
-			xin_simayi: "jilue_guicai",
-		},
+		audioname2: { xin_simayi: "jilue_guicai" },
 		trigger: { global: "judge" },
 		preHidden: true,
 		filter(event, player) {
 			return player.countCards(get.mode() == "guozhan" ? "hes" : "hs") > 0;
 		},
 		async cost(event, trigger, player) {
-			const {
-				result: { bool, cards },
-			} = await player
-				.chooseCard(get.translation(trigger.player) + "的" + (trigger.judgestr || "") + "判定为" + get.translation(trigger.player.judging[0]) + "，" + get.prompt(event.skill), get.mode() == "guozhan" ? "hes" : "hs", card => {
-					const player = _status.event.player;
+			event.result = await player
+				.chooseCard(`${get.translation(trigger.player)}的${trigger.judgestr || ""}判定为${get.translation(trigger.player.judging[0])}，${get.prompt(event.skill)}`, get.mode() == "guozhan" ? "hes" : "hs", card => {
+					const player = get.player();
 					const mod2 = game.checkMod(card, player, "unchanged", "cardEnabled2", player);
 					if (mod2 != "unchanged") {
 						return mod2;
@@ -367,9 +380,8 @@ const skills = {
 					return true;
 				})
 				.set("ai", card => {
-					const trigger = _status.event.getTrigger();
-					const player = _status.event.player;
-					const judging = _status.event.judging;
+					const trigger = get.event().getTrigger();
+					const { player, judging } = get.event();
 					const result = trigger.judge(card) - trigger.judge(judging);
 					const attitude = get.attitude(player, trigger.player);
 					let val = get.value(card);
@@ -387,36 +399,33 @@ const skills = {
 					return -result - val;
 				})
 				.set("judging", trigger.player.judging[0])
-				.setHiddenSkill(event.skill);
-			if (bool) {
-				event.result = { bool, cost_data: { cards } };
-			}
+				.setHiddenSkill(event.skill)
+				.forResult();
 		},
 		//技能的logSkill跟着打出牌走 不进行logSkill
 		popup: false,
 		async content(event, trigger, player) {
-			const chooseCardResultCards = event.cost_data.cards;
-			await player.respond(chooseCardResultCards, "guicai", "highlight", "noOrdering");
-			if (trigger.player.judging[0].clone) {
-				trigger.player.judging[0].clone.classList.remove("thrownhighlight");
-				game.broadcast(function (card) {
-					if (card.clone) {
-						card.clone.classList.remove("thrownhighlight");
-					}
-				}, trigger.player.judging[0]);
-				game.addVideo("deletenode", player, get.cardsInfo([trigger.player.judging[0].clone]));
+			const { cards } = await player.respond(event.cards, event.name, "highlight", "noOrdering");
+			if (cards?.length) {
+				if (trigger.player.judging[0].clone) {
+					trigger.player.judging[0].clone.classList.remove("thrownhighlight");
+					game.broadcast(function (card) {
+						if (card.clone) {
+							card.clone.classList.remove("thrownhighlight");
+						}
+					}, trigger.player.judging[0]);
+					game.addVideo("deletenode", player, get.cardsInfo([trigger.player.judging[0].clone]));
+				}
+				await game.cardsDiscard(trigger.player.judging[0]);
+				trigger.player.judging[0] = cards[0];
+				trigger.orderingCards.addArray(cards);
+				game.log(trigger.player, "的判定牌改为", cards);
+				await game.delay(2);
 			}
-			game.cardsDiscard(trigger.player.judging[0]);
-			trigger.player.judging[0] = chooseCardResultCards[0];
-			trigger.orderingCards.addArray(chooseCardResultCards);
-			game.log(trigger.player, "的判定牌改为", chooseCardResultCards[0]);
-			await game.delay(2);
 		},
 		ai: {
 			rejudge: true,
-			tag: {
-				rejudge: 1,
-			},
+			tag: { rejudge: 1 },
 		},
 	},
 	ganglie: {
@@ -1425,10 +1434,10 @@ const skills = {
 		frequent: true,
 		preHidden: true,
 		filter(event) {
-			return get.type(event.card) == "trick" && event.card.isCard;
+			return get.type(event.card) == "trick";
 		},
 		async content(event, trigger, player) {
-			player.draw();
+			player.draw("nodelay");
 		},
 		ai: {
 			threaten: 1.4,
@@ -1558,9 +1567,10 @@ const skills = {
 		audio: 2,
 		enable: "phaseUse",
 		prompt: "失去1点体力并摸两张牌",
+		delay: false,
 		async content(event, trigger, player) {
 			player.loseHp(1);
-			player.draw(2);
+			player.draw(2, "nodelay");
 		},
 		ai: {
 			basic: {
@@ -2161,22 +2171,16 @@ const skills = {
 	},
 	yaowu: {
 		trigger: { player: "damageBegin3" },
-		//priority:1,
 		audio: 2,
-		filter(event) {
-			if (event.card && event.card.name == "sha") {
-				if (get.color(event.card) == "red") {
-					return true;
-				}
-			}
-			return false;
+		filter(event, player) {
+			return event.card?.name == "sha" && get.color(event.card) == "red" && event.source?.isIn();
 		},
 		forced: true,
 		check() {
 			return false;
 		},
 		async content(event, trigger, player) {
-			trigger.source.chooseDrawRecover(true);
+			await trigger.source.chooseDrawRecover(true);
 		},
 		ai: {
 			neg: true,

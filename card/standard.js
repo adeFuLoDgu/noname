@@ -189,11 +189,11 @@ game.import("card", function () {
 								if (event.baseDamage + event.extraDamage <= 0 && !game.hasNature(event.card, "ice")) {
 									return false;
 								}
+								if (!game.hasNature(event.card, "ice") && !player.hasSkillTag("jueqing", false, target) && !target.hasSkill("gangzhi") && get.damageEffect(target, player, target, get.nature(event.card)) >= 0) {
+									return false;
+								}
 								if (event.baseDamage + event.extraDamage >= target.hp + (player.hasSkillTag("jueqing", false, target) || target.hasSkill("gangzhi") ? 0 : target.hujia)) {
 									return true;
-								}
-								if (!game.hasNature(event.card, "ice") && get.damageEffect(target, player, target, get.nature(event.card)) >= 0) {
-									return false;
 								}
 								if (
 									event.shanRequired > 1 &&
@@ -567,15 +567,15 @@ game.import("card", function () {
 				cardcolor: "red",
 				toself: true,
 				enable(card, player) {
-					return player.hp < player.maxHp;
+					return player.isDamaged();
 				},
 				savable: true,
 				selectTarget: -1,
 				filterTarget(card, player, target) {
-					return target === player && target.hp < target.maxHp;
+					return target === player && target.isDamaged();
 				},
 				modTarget(card, player, target) {
-					return target.hp < target.maxHp;
+					return target.isDamaged();
 				},
 				content() {
 					target.recover();
@@ -799,6 +799,7 @@ game.import("card", function () {
 				fullskin: true,
 				type: "equip",
 				subtype: "equip2",
+				bingzhu: ["诸葛亮", "黄月英", "黄承彦"],
 				ai: {
 					basic: {
 						equipValue: 7.5,
@@ -810,6 +811,7 @@ game.import("card", function () {
 				fullskin: true,
 				type: "equip",
 				subtype: "equip3",
+				bingzhu: ["曹操"],
 				distance: { globalTo: 1 },
 				battleOfWancheng() {
 					// 宛城之战
@@ -832,36 +834,42 @@ game.import("card", function () {
 				fullskin: true,
 				type: "equip",
 				subtype: "equip3",
+				bingzhu: ["刘备"],
 				distance: { globalTo: 1 },
 			},
 			zhuahuang: {
 				fullskin: true,
 				type: "equip",
 				subtype: "equip3",
+				bingzhu: ["曹操"],
 				distance: { globalTo: 1 },
 			},
 			chitu: {
 				fullskin: true,
 				type: "equip",
 				subtype: "equip4",
+				bingzhu: ["吕布", "关羽"],
 				distance: { globalFrom: -1 },
 			},
 			dawan: {
 				fullskin: true,
 				type: "equip",
 				subtype: "equip4",
+				bingzhu: ["曹操"],
 				distance: { globalFrom: -1 },
 			},
 			zixin: {
 				fullskin: true,
 				type: "equip",
 				subtype: "equip4",
+				bingzhu: ["曹操"],
 				distance: { globalFrom: -1 },
 			},
 			zhuge: {
 				fullskin: true,
 				type: "equip",
 				subtype: "equip1",
+				bingzhu: ["诸葛亮", "马钧"],
 				ai: {
 					order() {
 						return get.order({ name: "sha" }) - 0.1;
@@ -906,6 +914,7 @@ game.import("card", function () {
 				fullskin: true,
 				type: "equip",
 				subtype: "equip1",
+				bingzhu: ["刘备"],
 				distance: { attackFrom: -1 },
 				ai: {
 					basic: {
@@ -918,6 +927,7 @@ game.import("card", function () {
 				fullskin: true,
 				type: "equip",
 				subtype: "equip1",
+				bingzhu: ["赵云", "曹操"],
 				distance: { attackFrom: -1 },
 				ai: {
 					basic: {
@@ -930,6 +940,7 @@ game.import("card", function () {
 				fullskin: true,
 				type: "equip",
 				subtype: "equip1",
+				bingzhu: ["关羽", "关兴", "张苞", "关银屏"],
 				distance: { attackFrom: -2 },
 				ai: {
 					equipValue(card, player) {
@@ -945,6 +956,7 @@ game.import("card", function () {
 				fullskin: true,
 				type: "equip",
 				subtype: "equip1",
+				bingzhu: ["张飞", "关兴", "张苞", "张星彩"],
 				distance: { attackFrom: -2 },
 				ai: {
 					equipValue(card, player) {
@@ -961,6 +973,7 @@ game.import("card", function () {
 				fullskin: true,
 				type: "equip",
 				subtype: "equip1",
+				bingzhu: ["徐晃"],
 				distance: { attackFrom: -2 },
 				ai: {
 					equipValue(card, player) {
@@ -977,6 +990,7 @@ game.import("card", function () {
 				fullskin: true,
 				type: "equip",
 				subtype: "equip1",
+				bingzhu: ["吕布"],
 				distance: { attackFrom: -3 },
 				ai: {
 					basic: {
@@ -989,6 +1003,7 @@ game.import("card", function () {
 				fullskin: true,
 				type: "equip",
 				subtype: "equip1",
+				bingzhu: ["吕布"],
 				distance: { attackFrom: -4 },
 				ai: {
 					basic: {
@@ -1148,16 +1163,8 @@ game.import("card", function () {
 					for (var i = 0; i < dialog.buttons.length; i++) {
 						if (dialog.buttons[i].link === card) {
 							button = dialog.buttons[i];
-							button.querySelector(".info").innerHTML = (function (target) {
-								if (target._tempTranslate) {
-									return target._tempTranslate;
-								}
-								var name = target.name;
-								if (lib.translate[name + "_ab"]) {
-									return lib.translate[name + "_ab"];
-								}
-								return get.translation(name);
-							})(target);
+							const innerHTML = target.getName(true);
+							game.createButtonCardsetion(innerHTML, button);
 							dialog.buttons.remove(button);
 							break;
 						}
@@ -1173,7 +1180,7 @@ game.import("card", function () {
 									dialog.content.firstChild.innerHTML = capt;
 									for (var i = 0; i < dialog.buttons.length; i++) {
 										if (dialog.buttons[i].link === card) {
-											dialog.buttons[i].querySelector(".info").innerHTML = name;
+											game.createButtonCardsetion(name, dialog.buttons[i]);
 											dialog.buttons.splice(i--, 1);
 											break;
 										}
@@ -1182,16 +1189,7 @@ game.import("card", function () {
 							},
 							card,
 							dialog.videoId,
-							(function (target) {
-								if (target._tempTranslate) {
-									return target._tempTranslate;
-								}
-								var name = target.name;
-								if (lib.translate[name + "_ab"]) {
-									return lib.translate[name + "_ab"];
-								}
-								return get.translation(name);
-							})(target),
+							target.getName(true),
 							capt
 						);
 					}
@@ -1394,7 +1392,7 @@ game.import("card", function () {
 							next.autochoose = lib.filter.autoRespondSha;
 							result = await next.forResult();
 						}
-						if (result.bool === false) {
+						if (!result?.bool) {
 							await target.damage();
 							break;
 						} else {
@@ -1801,7 +1799,7 @@ game.import("card", function () {
 							next.autochoose = lib.filter.autoRespondShan;
 							result = await next.forResult();
 						}
-						if (result.bool === false) {
+						if (!result?.bool) {
 							await target.damage();
 							break;
 						} else {
@@ -3119,7 +3117,7 @@ game.import("card", function () {
 					}
 					"step 1";
 					if (event.directfalse || result.bool === false) {
-						var cards = target.getEquips(1);
+						const cards = target.getGainableCards(player, "e", card => get.subtypes(card)?.includes("equip1"));
 						if (cards.length) {
 							player.gain(cards, target, "give", "bySelf");
 						}
@@ -3709,7 +3707,7 @@ game.import("card", function () {
 				},
 				mod: {
 					cardUsable(card, player, num) {
-						var cards = player.getEquips("zhuge");
+						var cards = player.getCards("e", card => get.name(card) == "zhuge");
 						if (card.name === "sha") {
 							if (!cards.length || player.hasSkill("zhuge_skill", null, false) || cards.some(card => card !== _status.zhuge_temp && !ui.selected.cards.includes(card))) {
 								if (get.is.versus() || get.is.changban()) {
@@ -3723,7 +3721,7 @@ game.import("card", function () {
 						if (!_status.event.addCount_extra || player.hasSkill("zhuge_skill", null, false)) {
 							return;
 						}
-						var cards = player.getEquips("zhuge");
+						var cards = player.getCards("e", card => get.name(card) == "zhuge");
 						if (card && cards.includes(card)) {
 							try {
 								var cardz = get.card();
@@ -3886,6 +3884,7 @@ game.import("card", function () {
 				intro: { content: "当前防具技能已失效" },
 			},
 			qinglong_skill: {
+				audio: true,
 				equipSkill: true,
 				trigger: { player: ["shaMiss", "eventNeutralized"] },
 				direct: true,
@@ -3905,7 +3904,7 @@ game.import("card", function () {
 									return false;
 								}
 								if (!player.hasSkill("qinglong_skill", null, false)) {
-									var cards = player.getEquips("qinglong");
+									var cards = player.getCards("e", card => get.name(card) == "qinglong");
 									if (!cards.some(card2 => card2 !== card && !ui.selected.cards.includes(card2))) {
 										return false;
 									}
@@ -3919,6 +3918,7 @@ game.import("card", function () {
 				},
 			},
 			zhangba_skill: {
+				audio: true,
 				equipSkill: true,
 				enable: ["chooseToUse", "chooseToRespond"],
 				filterCard: true,
@@ -3929,7 +3929,6 @@ game.import("card", function () {
 				filter(event, player) {
 					return player.countCards("hs") >= 2;
 				},
-				audio: true,
 				prompt: "将两张手牌当杀使用或打出",
 				check(card) {
 					let player = _status.event.player;
@@ -3972,7 +3971,7 @@ game.import("card", function () {
 					}
 					var min = 2;
 					if (!player.hasSkill("guanshi_skill", null, false)) {
-						min += get.sgn(player.getEquips("guanshi").length);
+						min += get.sgn(player.getCards("e", card => get.name(card) == "guanshi").length);
 					}
 					return player.countCards("he") >= min;
 				},
@@ -3984,7 +3983,7 @@ game.import("card", function () {
 							if (_status.event.ignoreCard) {
 								return true;
 							}
-							var cards = player.getEquips("guanshi");
+							var cards = player.getCards("e", card => get.name(card) == "guanshi");
 							if (!cards.includes(card)) {
 								return true;
 							}
@@ -4061,6 +4060,9 @@ game.import("card", function () {
 						range = select;
 					} else if (typeof select === "function") {
 						range = select(card, player);
+						if (typeof range == "number") {
+							range = [range, range];
+						}
 					}
 					game.checkMod(card, player, range, "selectTarget", player);
 					return range[1] !== -1 && event.targets.length > range[1];

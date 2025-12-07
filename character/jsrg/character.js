@@ -24,7 +24,7 @@ const characters = {
 		group: "qun",
 		hp: 4,
 		names: "皇甫|嵩",
-		skills: ["jsrgguanhuo", "jsrgjuxia"],
+		skills: ["jsrgguanhuo", "jsrg_new_juxia"],
 	},
 	jsrg_xushao: {
 		sex: "male",
@@ -36,13 +36,13 @@ const characters = {
 		sex: "female",
 		group: "qun",
 		hp: 3,
-		skills: ["jsrgshichong", "jsrglianzhu"],
+		skills: ["jsrgshichong", "jsrg_new_lianzhu"],
 	},
 	jsrg_qiaoxuan: {
 		sex: "male",
 		group: "qun",
 		hp: 3,
-		skills: ["jsrgjuezhi", "jsrgjizhao"],
+		skills: ["jsrg_new_juezhi", "jsrgjizhao"],
 	},
 	jsrg_yangbiao: {
 		sex: "male",
@@ -57,7 +57,7 @@ const characters = {
 		sex: "male",
 		group: "qun",
 		hp: 3,
-		skills: ["jsrglirang", "jsrgzhengyi"],
+		skills: ["jsrg_new_lirang", "jsrg_new_zhengyi"],
 		dieAudios: ["kongrong"],
 	},
 	jsrg_zhujun: {

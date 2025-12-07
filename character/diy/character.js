@@ -55,6 +55,7 @@ const characters = {
 		group: "wei",
 		hp: 4,
 		skills: ["nsweiyuan", "nsjuxian"],
+		clans: ["颍川陈氏"],
 	},
 	ns_zhangning: {
 		sex: "female",

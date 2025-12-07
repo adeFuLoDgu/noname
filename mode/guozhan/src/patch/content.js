@@ -110,11 +110,22 @@ export const chooseCharacterContent = async (event, _trigger, _player) => {
 
 			/** @type {Partial<Result>?} */
 			let result2 = null;
+			const selectGroup = ["ye", ...lib.selectGroup];
 
 			// @ts-expect-error 祖宗之法就是这么写的
 			if (get.is.double(name1, true)) {
 				// @ts-expect-error 祖宗之法就是这么写的
-				if (!get.is.double(name2, true)) {
+				if (selectGroup.includes(lib.character[name2][1])) {
+					const next = game.me
+						// @ts-expect-error 祖宗之法就是这么写的
+						.chooseControl(get.is.double(name1, true));
+
+					next.set("prompt", "请选择主将代表的势力");
+					// @ts-expect-error 祖宗之法就是这么写的
+					next.set("ai", () => _status.event.controls.randomGet());
+
+					result2 = await next.forResult();
+				} else if (!get.is.double(name2, true)) {
 					result2 = { control: lib.character[name2][1] };
 				}
 				// 仙人之兮列如麻
@@ -137,7 +148,7 @@ export const chooseCharacterContent = async (event, _trigger, _player) => {
 				}
 			}
 			// @ts-expect-error 祖宗之法就是这么写的
-			else if (lib.character[name1][1] == "ye" && get.is.double(name2, true)) {
+			else if (selectGroup.includes(lib.character[name1][1]) && get.is.double(name2, true)) {
 				const next = game.me
 					// @ts-expect-error 祖宗之法就是这么写的
 					.chooseControl(get.is.double(name2, true));
@@ -353,6 +364,7 @@ export const chooseCharacterContent = async (event, _trigger, _player) => {
 		 */
 		function filterButton(button) {
 			if (ui.dialog.buttons.length <= 10) {
+				let perfectPairs = [];
 				for (var i = 0; i < ui.dialog.buttons.length; i++) {
 					if (ui.dialog.buttons[i] != button) {
 						if (
@@ -368,8 +380,16 @@ export const chooseCharacterContent = async (event, _trigger, _player) => {
 							)
 						) {
 							button.classList.add("glow2");
+							perfectPairs.add(ui.dialog.buttons[i]);
 						}
 					}
+				}
+				if (!button.perfectPairs?.length) {
+					const perfectPairStr = perfectPairs.map(i => `[${get.translation(i.link)}]`).join("<br>");
+					const perfectPairNode = ui.create.caption(`<div class="text" data-nature=shenmm style="font-family: yuanli; font-size: 12px">${perfectPairStr}</div>`, button);
+					perfectPairNode.style.left = "1px";
+					perfectPairNode.style.bottom = "1px";
+					button.perfectPairs = perfectPairs;
 				}
 			}
 			// @ts-expect-error 祖宗之法就是这么写的
@@ -393,9 +413,9 @@ export const chooseCharacterContent = async (event, _trigger, _player) => {
 						return doublex.some(group => double.includes(group));
 					}
 					// @ts-expect-error 祖宗之法就是这么写的
-					return doublex.includes(group2);
+					return doublex.includes(group2) || lib.selectGroup.includes(group2);
 				} else {
-					if (group1 == "ye") {
+					if (group1 == "ye" || lib.selectGroup.includes(group1)) {
 						return group2 != "ye";
 					}
 					// @ts-expect-error 祖宗之法就是这么写的
@@ -404,7 +424,7 @@ export const chooseCharacterContent = async (event, _trigger, _player) => {
 					if (double) {
 						return double.includes(group1);
 					}
-					return group1 == group2;
+					return group1 == group2 || lib.selectGroup.includes(group2);
 				}
 			};
 			if (!ui.selected.buttons.length) {
@@ -607,6 +627,7 @@ export const chooseCharacterOLContent = async (event, _trigger, _player) => {
 	let sort = true;
 	const chosen = [];
 	const chosenCharacter = [];
+	const selectGroup = ["ye", ...lib.selectGroup];
 
 	for (const i in chooseCharacterResult) {
 		if (chooseCharacterResult[i] && chooseCharacterResult[i].links) {
@@ -639,7 +660,10 @@ export const chooseCharacterOLContent = async (event, _trigger, _player) => {
 		// @ts-expect-error 祖宗之法就是这么写的
 		if (get.is.double(name1, true)) {
 			// @ts-expect-error 祖宗之法就是这么写的
-			if (!get.is.double(name2, true)) {
+			if (selectGroup.includes(lib.character[name2][1])) {
+				chosen.push(lib.playerOL[i]);
+				chosenCharacter.push([name1, name2]);
+			} else if (!get.is.double(name2, true)) {
 				// @ts-expect-error 祖宗之法就是这么写的
 				lib.playerOL[i].trueIdentity = lib.character[name2][1];
 				// @ts-expect-error 祖宗之法就是这么写的
@@ -651,7 +675,7 @@ export const chooseCharacterOLContent = async (event, _trigger, _player) => {
 				lib.playerOL[i].trueIdentity = get.is.double(name1, true).find(group => get.is.double(name2, true).includes(group));
 			}
 			// @ts-expect-error 祖宗之法就是这么写的
-		} else if (lib.character[name1][1] == "ye" && get.is.double(name2, true)) {
+		} else if (selectGroup.includes(lib.character[name1][1]) && get.is.double(name2, true)) {
 			chosen.push(lib.playerOL[i]);
 			chosenCharacter.push([name1, name2]);
 		}
@@ -668,9 +692,13 @@ export const chooseCharacterOLContent = async (event, _trigger, _player) => {
 			if (get.is.double(name1, true)) {
 				str = "请选择你代表的势力";
 				// @ts-expect-error 祖宗之法就是这么写的
-				choice = get.is.double(name2, true).filter(group => get.is.double(name1, true).includes(group));
+				if (selectGroup.includes(lib.character[name2][1])) {
+					choice = get.is.double(name1, true);
+				} else {
+					choice = get.is.double(name2, true).filter(group => get.is.double(name1, true).includes(group));
+				}
 			}
-			if (lib.character[name1][1] == "ye") {
+			if (selectGroup.includes(lib.character[name1][1])) {
 				str = "请选择你的副将代表的势力";
 				// @ts-expect-error 祖宗之法就是这么写的
 				choice = get.is.double(name2, true);
@@ -759,6 +787,7 @@ export const chooseCharacterOLContent = async (event, _trigger, _player) => {
 	function filterButton(button) {
 		if (ui.dialog) {
 			if (ui.dialog.buttons.length <= 10) {
+				let perfectPairs = [];
 				for (const btn of ui.dialog.buttons) {
 					if (btn !== button) {
 						if (
@@ -773,8 +802,16 @@ export const chooseCharacterOLContent = async (event, _trigger, _player) => {
 							)
 						) {
 							button.classList.add("glow2");
+							perfectPairs.add(btn);
 						}
 					}
+				}
+				if (!button.perfectPairs?.length) {
+					const perfectPairStr = perfectPairs.map(i => `[${get.translation(i.link)}]`).join("<br>");
+					const perfectPairNode = ui.create.caption(`<div class="text" data-nature=shenmm style="font-family: yuanli; font-size: 12px">${perfectPairStr}</div>`, button);
+					perfectPairNode.style.left = "1px";
+					perfectPairNode.style.bottom = "1px";
+					button.perfectPairs = perfectPairs;
 				}
 			}
 		}
@@ -795,9 +832,9 @@ export const chooseCharacterOLContent = async (event, _trigger, _player) => {
 					return doublex.some(group => double.includes(group));
 				}
 				// @ts-expect-error 祖宗之法就是这么写的
-				return doublex.includes(group2);
+				return doublex.includes(group2) || lib.selectGroup.includes(group2);
 			} else {
-				if (group1 === "ye") {
+				if (group1 === "ye" || lib.selectGroup.includes(group1)) {
 					return group2 !== "ye";
 				}
 				// @ts-expect-error 祖宗之法就是这么写的
@@ -806,7 +843,7 @@ export const chooseCharacterOLContent = async (event, _trigger, _player) => {
 				if (double) {
 					return double.includes(group1);
 				}
-				return group1 === group2;
+				return group1 === group2 || lib.selectGroup.includes(group2);
 			}
 		};
 		if (!ui.selected.buttons.length) {
@@ -843,9 +880,9 @@ export const chooseCharacterOLContent = async (event, _trigger, _player) => {
 					return doublex.some(group => double.includes(group));
 				}
 				// @ts-expect-error 祖宗之法就是这么写的
-				return doublex.includes(group2);
+				return doublex.includes(group2) || lib.selectGroup.includes(group2);
 			} else {
-				if (group1 === "ye") {
+				if (group1 === "ye" || lib.selectGroup.includes(group1)) {
 					return group2 !== "ye";
 				}
 				// @ts-expect-error 祖宗之法就是这么写的
@@ -854,7 +891,7 @@ export const chooseCharacterOLContent = async (event, _trigger, _player) => {
 				if (double) {
 					return double.includes(group1);
 				}
-				return group1 === group2;
+				return group1 === group2 || lib.selectGroup.includes(group2);
 			}
 		};
 
@@ -1553,6 +1590,89 @@ export const mayChangeVice = async (event, _trigger, player) => {
 }
 
 /**
+ * @param {GameEvent} event
+ * @param {GameEvent} _trigger
+ * @param {Player} player
+ */
+export const transCharacter = async (event, _trigger, player) => {
+	// @ts-expect-error 祖宗之法就是这么做的
+	const { target, num1, num2 } = event;
+	const str = [num1, num2].map(i => i == 1 ? "主" : "副").toUniqued();
+	game.log(player, "与", target, `进行了${str}将易位`);
+	const name1 = player[`name${num1}`],
+		name2 = target[`name${num2}`];
+	const getSkills = (current, name) => {
+		return get.character(name, 3).filter(skill => {
+			if (!current.hasSkill(skill, null, null, false)) {
+				return false;
+			}
+			const info = lib.skill[skill];
+			return info && !info.charlotte && get.skillInfoTranslation(skill, current).length > 0;
+		});
+	};
+	const map1 = new Map();
+	const skills1 = getSkills(player, name1);
+	if (skills1?.length) {
+		const func = async skill => {
+			const cards = player.getExpansions(skill);
+			if (!cards?.length) {
+				return;
+			}
+			map1.set(skill, cards);
+			await player.lose(cards, ui.special).set("getlx", false);
+		}
+		// @ts-expect-error 祖宗之法就是这么做的
+		await game.doAsyncInOrder(skills1, func, () => 1);
+	}
+	const map2 = new Map();
+	const skills2 = getSkills(target, name2);
+	if (skills2?.length) {
+		const func = async skill => {
+			const cards = target.getExpansions(skill);
+			if (!cards?.length) {
+				return;
+			}
+			map2.set(skill, cards);
+			await target.lose(cards, ui.special).set("getlx", false);
+		}
+		// @ts-expect-error 祖宗之法就是这么做的
+		await game.doAsyncInOrder(skills2, func, () => 1);
+	}
+	for (const skill of skills1) {
+		if (player.awakenedSkills?.includes(skill)) {
+			player.restoreSkill(skill);
+			target.awakenSkill(skill);
+		}
+	}
+	for (const skill of skills2) {
+		if (target.awakenedSkills?.includes(skill)) {
+			target.restoreSkill(skill);
+			player.awakenSkill(skill);
+		}
+	}
+	await player.reinitCharacter(name1, name2, false);
+	await target.reinitCharacter(name2, name1, false);
+	for (const key of map1.keys()) {
+		if (target.hasSkill(key, null, null, false)) {
+			const cards = map1.get(key);
+			if (cards?.length) {
+				target.$addToExpansion(cards, null, key);
+				target.markSkill(key);
+			}
+		}
+	}
+	for (const key of map2.keys()) {
+		if (player.hasSkill(key, null, null, false)) {
+			const cards = map2.get(key);
+			if (cards?.length) {
+				player.$addToExpansion(cards, null, key);
+				player.markSkill(key);
+			}
+		}
+	}
+}
+
+/**
  *
  * @param {GameEvent} _event
  * @param {GameEvent} _trigger
@@ -1574,5 +1694,6 @@ export default {
 	changeViceOnline,
 	changeVice,
 	mayChangeVice,
+	transCharacter,
 	zhulian,
 };

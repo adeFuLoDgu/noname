@@ -1,31 +1,26 @@
 /**
  * @typedef {{
- * 	cardMove: GameEventPromise[],
- * 	custom: GameEventPromise[],
- * 	useCard: GameEventPromise[],
- * 	changeHp: GameEventPromise[],
- * 	everything: GameEventPromise[]
+ * 	cardMove: GameEvent[],
+ * 	custom: GameEvent[],
+ * 	useCard: GameEvent[],
+ * 	changeHp: GameEvent[],
+ * 	everything: GameEvent[]
  * }} GameHistory
  * @typedef { { name?: string, type: string, player?: string, content?: string | any[], delay: number } } Video
  * @typedef { { mode: string, name: string[], name1: string, name2?: string, time: number, video: Video, win: boolean } } Videos
  */
 
-import { ai } from "../ai/index.js";
-import { get } from "../get/index.js";
-import { lib } from "../library/index.js";
-import { _status } from "../status/index.js";
-import { ui } from "../ui/index.js";
-import { gnc } from "../gnc/index.js";
-import { isClass, userAgentLowerCase, Uninstantable, GeneratorFunction, AsyncFunction, delay, nonameInitialized } from "../util/index.js";
+import { _status, lib, get, ai, ui, gnc } from "noname";
+import { isClass, userAgentLowerCase, Uninstantable, GeneratorFunction, AsyncFunction, delay, nonameInitialized } from "@/util/index.js";
 
 import { DynamicStyle } from "./dynamic-style/index.js";
 import { GamePromises } from "./promises.js";
 import { Check } from "./check.js";
 
-import security from "../util/security.js";
+import security from "@/util/security.js";
 import { GameCompatible } from "./compatible.js";
-import { save } from "../util/config.js";
-import { debounce } from "../util/utils.js";
+import { save } from "@/util/config.js";
+import { debounce } from "@/util/utils.js";
 
 export class Game extends GameCompatible {
 	documentZoom;
@@ -47,7 +42,7 @@ export class Game extends GameCompatible {
 	playerMap = {};
 	/**
 	 * 当主机返回结果时，客机应该根据此Map的数据寻找回调函数喵
-	 * 
+	 *
 	 * @type { { [key: string]: function } }
 	 */
 	dataRequestMap = {};
@@ -143,6 +138,19 @@ export class Game extends GameCompatible {
 			});
 		}
 	})();
+	/**
+	 * 在指定节点（button）内部创建一个卡片内容区域（.cardsetion），并根据当前结构设置节点状态，用于五谷此类须多人选择的牌的执行过程中显示每张卡牌对应的选择角色
+	 * @param {string} innerHTML 要插入到.cardsetion中的HTML内容
+	 * @param {HTMLElement} button 目标节点
+	 */
+	createButtonCardsetion(innerHTML, button) {
+		const next = ui.create.div(".cardsetion", innerHTML, button);
+		next.style.setProperty("display", "block", "important");
+		if (!button.querySelector(".info")) {
+			button.classList.add("infoflip");
+			button.classList.add("infohidden");
+		}
+	}
 	/**
 	 * 初始化角色列表
 	 *
@@ -322,6 +330,15 @@ export class Game extends GameCompatible {
 			}
 		}
 
+		function getScaledBound(element) {
+			let { x, y, width, height } = element.getBoundingClientRect();
+			x /= game.documentZoom;
+			y /= game.documentZoom;
+			width /= game.documentZoom;
+			height /= game.documentZoom;
+			return { x, y, width, height };
+		}
+
 		/**
 		 * 计算element当前的位置喵
 		 * 包括变换效果和动画效果当前的位置哦喵
@@ -330,7 +347,7 @@ export class Game extends GameCompatible {
 		 * @returns {[number, number]} 当前元素相对于视口的实际位置喵
 		 */
 		function getCurrentPosition(element) {
-			const { x, y } = element.getBoundingClientRect();
+			const { x, y } = getScaledBound(element);
 			const animation = game.$elementGotoAnimData.invertingAnimations.get(element);
 
 			if (animation) {
@@ -384,12 +401,54 @@ export class Game extends GameCompatible {
 			game.$elementGotoAnimData.endPosition.set(element, position); // 元素结束位置以最晚的为主喵
 		}
 
+		function updateDOM() {
+			// 依照参数选择添加的位置喵
+			if (position === "first") {
+				parent.insertBefore(element, parent.firstChild);
+			} else if (position === "last") {
+				parent.appendChild(element);
+			} else if (typeof position == "number") {
+				parent.insertBefore(element, parent.children[position]);
+			} else if (parent.contains(position)) {
+				parent.insertBefore(element, position);
+			} else {
+				parent.appendChild(element);
+			}
+		}
+
 		// 首先是FIRST喵，记录起始位置哦喵
 		const parentFrom = element.parentElement;
 		const parentTo = parent;
 
 		if (!parentFrom) {
 			throw new Error("要移动的元素没有父元素");
+		}
+
+		// 补丁喵，对于没有移动的操作我们直接返回FULFILLED喵
+		if (parentFrom === parentTo) {
+			let notMoved = false;
+
+			if (position === "first") {
+				notMoved = parentTo.firstChild === element;
+			} else if (position === "last") {
+				notMoved = parentTo.lastChild === element;
+			} else if (typeof position == "number") {
+				notMoved = parentTo.childNodes[position] === element;
+			} else if (parent.contains(position)) {
+				notMoved = position === element;
+			} else {
+				notMoved = parentTo.lastChild === element;
+			}
+
+			if (notMoved) {
+				return Promise.resolve();
+			}
+		}
+
+		// 额外增强喵，对于duration == 0的情况跳过动画喵
+		if (duration == 0) {
+			updateDOM();
+			return Promise.resolve();
 		}
 
 		// @ts-expect-error childNodes是可迭代的
@@ -405,19 +464,8 @@ export class Game extends GameCompatible {
 		// 如果你需要并发多个动画应该**同步的**调用多次然后使用Promise.all()一起等待哦喵
 		await new Promise(resolve => resolve(null));
 
-		// 依照参数选择添加的位置喵
 		// 此时将更改实际的DOM结构喵
-		if (position === "first") {
-			parent.insertBefore(element, parent.firstChild);
-		} else if (position === "last") {
-			parent.appendChild(element);
-		} else if (typeof position == "number") {
-			parent.insertBefore(element, parent.children[position]);
-		} else if (parent.contains(position)) {
-			parent.insertBefore(element, position);
-		} else {
-			parent.appendChild(element);
-		}
+		updateDOM();
 
 		// 我们再次等待所有节点结构调整完毕喵
 		await new Promise(resolve => resolve(null));
@@ -541,7 +589,7 @@ export class Game extends GameCompatible {
 				} else {
 					// 否则我们需要复制动画元素喵
 					const [subject, stage] = cloneVisualElement(element);
-					const bounds = subject.getBoundingClientRect();
+					const bounds = getScaledBound(subject);
 					const startX = sx - bounds.x;
 					const startY = sy - bounds.y;
 					const endX = ex - bounds.x;
@@ -621,6 +669,37 @@ export class Game extends GameCompatible {
 	}
 	setStratagemBuffPrompt(cardName, prompt) {
 		return game.broadcastAll((clientCardName, clientPrompt) => lib.stratagemBuff.cost.set(clientCardName, clientPrompt), cardName, prompt);
+	}
+	/**
+	 * 添加游戏内生成使用的临时tag
+	 *
+	 * @param {string} id tag对应id
+	 * @param {string} translation tag对应翻译
+	 * @returns {string}
+	 */
+	addTempTag(id, translation) {
+		game.addVideo("addTempTag", null, [id, translation]);
+		game.broadcastAll(
+			// @ts-expect-error ignore
+			(id, translation) => {
+				if (!lib.translate[id]) {
+					lib.translate[id] = translation;
+					_status.postReconnect.addTempTag ??= [
+						list => {
+							for (const args of list) {
+								// @ts-expect-error ignore
+								game.addTempTag(...args);
+							}
+						},
+						[],
+					];
+					_status.postReconnect.addTempTag[1].push([id, translation]);
+				}
+			},
+			id,
+			translation
+		);
+		return id;
 	}
 	/**
 	 * 添加新的属性杀
@@ -707,7 +786,7 @@ export class Game extends GameCompatible {
 	/**
 	 * 基于钩子的添加势力方法
 	 */
-	addGroup(id, short, name, config) {
+	addGroup(id, short, name, config, type = "default") {
 		if (!id) {
 			throw new TypeError();
 		}
@@ -722,7 +801,12 @@ export class Game extends GameCompatible {
 		if (!lib.comparator.typeEquals(short, "string") && short) {
 			name = short;
 		}
-		lib.group.add(id);
+		if (["default", "all"].includes(type)) {
+			lib.group.add(id);
+		}
+		if (["select", "all"].includes(type)) {
+			lib.selectGroup.add(id);
+		}
 		if (short) {
 			lib.translate[id] = short;
 		}
@@ -1086,8 +1170,8 @@ export class Game extends GameCompatible {
 	/**
 	 * @template { keyof GameHistory } T
 	 * @param { T } key
-	 * @param { (event: GameEventPromise) => boolean } filter
-	 * @param { GameEventPromise } [last]
+	 * @param { (event: GameEvent) => boolean } filter
+	 * @param { GameEvent } [last]
 	 * @returns { boolean }
 	 */
 	hasGlobalHistory(key, filter, last) {
@@ -1112,8 +1196,8 @@ export class Game extends GameCompatible {
 	/**
 	 * @template { keyof GameHistory } T
 	 * @param { T } key
-	 * @param { (event: GameEventPromise) => boolean } filter
-	 * @param { GameEventPromise } [last]
+	 * @param { (event: GameEvent) => boolean } filter
+	 * @param { GameEvent } [last]
 	 * @returns { void }
 	 */
 	checkGlobalHistory(key, filter, last) {
@@ -1143,8 +1227,8 @@ export class Game extends GameCompatible {
 	 * @template { keyof GameHistory } T
 	 * @overload
 	 * @param { T } key
-	 * @param { (event: GameEventPromise) => boolean } [filter]
-	 * @param { GameEventPromise } [last]
+	 * @param { (event: GameEvent) => boolean } [filter]
+	 * @param { GameEvent } [last]
 	 * @returns { GameHistory[T] }
 	 */
 	getGlobalHistory(key, filter, last) {
@@ -1170,8 +1254,8 @@ export class Game extends GameCompatible {
 	/**
 	 * @template { keyof GameHistory } T
 	 * @param { T } key
-	 * @param { (event: GameEventPromise) => boolean } filter
-	 * @param { GameEventPromise } [last]
+	 * @param { (event: GameEvent) => boolean } filter
+	 * @param { GameEvent } [last]
 	 * @returns { boolean }
 	 */
 	hasAllGlobalHistory(key, filter, last) {
@@ -1203,8 +1287,8 @@ export class Game extends GameCompatible {
 	/**
 	 * @template { keyof GameHistory } T
 	 * @param { T } key
-	 * @param { (event: GameEventPromise) => boolean } filter
-	 * @param { GameEventPromise } [last]
+	 * @param { (event: GameEvent) => boolean } filter
+	 * @param { GameEvent } [last]
 	 * @returns { void }
 	 */
 	checkAllGlobalHistory(key, filter, last) {
@@ -1237,8 +1321,8 @@ export class Game extends GameCompatible {
 	 * @template { keyof GameHistory } T
 	 * @overload
 	 * @param { T } key
-	 * @param { (event: GameEventPromise) => boolean } [filter]
-	 * @param { GameEventPromise } [last]
+	 * @param { (event: GameEvent) => boolean } [filter]
+	 * @param { GameEvent } [last]
 	 * @returns { GameHistory[T] }
 	 */
 	getAllGlobalHistory(key, filter, last) {
@@ -1268,10 +1352,10 @@ export class Game extends GameCompatible {
 	 * 快速获取当前轮次/倒数第X轮次游戏的历史
 	 * @template { keyof GameHistory } T
 	 * @param {T} key
-	 * @param {(event:GameEventPromise)=>boolean} filter 筛选条件，不填写默认为lib.filter.all
+	 * @param {(event:GameEvent)=>boolean} filter 筛选条件，不填写默认为lib.filter.all
 	 * @param {number} [num] 获取倒数第num轮的历史，默认为0，表示当前轮
 	 * @param {boolean} [keep] 若为true,则获取倒数第num轮到现在的所有历史
-	 * @param {GameEventPromise} last 代表最后一个事件，获取该事件之前的历史
+	 * @param {GameEvent} last 代表最后一个事件，获取该事件之前的历史
 	 * @returns { GameHistory[T] }
 	 */
 	getRoundHistory(key, filter = lib.filter.all, num = 0, keep, last) {
@@ -1313,12 +1397,12 @@ export class Game extends GameCompatible {
 	/**
 	 * @overload
 	 * @param { Card } cards
-	 * @returns { GameEventPromise }
+	 * @returns { GameEvent }
 	 */
 	/**
 	 * @overload
 	 * @param {Card[]} cards
-	 * @returns { GameEventPromise }
+	 * @returns { GameEvent }
 	 */
 	cardsDiscard(cards) {
 		/** @type { 'cards' | 'card' | void } */
@@ -1375,7 +1459,7 @@ export class Game extends GameCompatible {
 	/**
 	 * 将cards移动到处理区
 	 * @param { Card[] | Card } cards
-	 * @returns { GameEventPromise }
+	 * @returns { GameEvent }
 	 */
 	cardsGotoOrdering(cards) {
 		/** @type { 'cards' | 'card' | void } */
@@ -1397,13 +1481,13 @@ export class Game extends GameCompatible {
 	 * @overload
 	 * @param { Card } cards
 	 * @param { 'toRenku' | false } [bool] 为false时不触发trigger，为'toRenku'时牌放到仁库
-	 * @returns { GameEventPromise }
+	 * @returns { GameEvent }
 	 */
 	/**
 	 * @overload
 	 * @param {Card[]} cards
 	 * @param { 'toRenku' | false } [bool] 为false时不触发trigger，为'toRenku'时牌放到仁库
-	 * @returns { GameEventPromise }
+	 * @returns { GameEvent }
 	 */
 	cardsGotoSpecial(cards, bool) {
 		/** @type { 'cards' | 'card' | void } */
@@ -1414,8 +1498,8 @@ export class Game extends GameCompatible {
 		}
 		var next = game.createEvent("cardsGotoSpecial");
 		next.cards = type == "cards" ? cards.slice(0) : [cards];
-		if (bool == "toRenku") {
-			next.toRenku = true;
+		if (typeof bool == "string" && Array.from(lib.commonArea.keys()).some(area => lib.commonArea.get(area)?.toName == bool)) {
+			next[bool] = true;
 		} else if (bool === false) {
 			next.notrigger = true;
 		}
@@ -1473,7 +1557,7 @@ export class Game extends GameCompatible {
 		return next;
 	}
 	/**
-	 * @param { GameEventPromise } event
+	 * @param { GameEvent } event
 	 */
 	$cardsGotoPile(event) {
 		const cards = event.cards;
@@ -1600,51 +1684,23 @@ export class Game extends GameCompatible {
 	}
 	/**
 	 * @param { string[] } updates
-	 * @param { Function } proceed
+	 * @param { () => void | Promise<void> } proceed
 	 */
-	checkFileList(updates, proceed) {
-		if (!Array.isArray(updates) || !updates.length) {
-			proceed();
-		}
-		let n = updates.length,
-			list = updates.slice(0);
-		for (let i = 0; i < list.length; i++) {
-			if (lib.node && lib.node.fs) {
-				lib.node.fs.access(__dirname + "/" + list[i], err => {
-					if (!err) {
-						let stat = lib.node.fs.statSync(__dirname + "/" + list[i]);
-						// @ts-expect-error ignore
-						if (stat.size == 0) {
-							err = true;
-						}
-					}
-					n--;
-					if (!err) {
-						updates.remove(list[i]);
-					}
-					if (n == 0) {
-						proceed();
-					}
-				});
-			} else {
-				window.resolveLocalFileSystemURL(
-					nonameInitialized + list[i],
-					() => {
-						n--;
-						updates.remove(list[i]);
-						if (n == 0) {
-							proceed();
-						}
-					},
-					() => {
-						n--;
-						if (n == 0) {
-							proceed();
-						}
-					}
-				);
+	async checkFileList(updates, proceed) {
+		let list = updates.slice(0);
+		for (const file of list) {
+			const result = await game.promises.checkFile(file);
+			// if (!err) {
+			// 	let stat = lib.node.fs.statSync(__dirname + "/" + list[i]);
+			// 	if (stat.size == 0) {
+			// 		err = true;
+			// 	}
+			// }
+			if (result > 0) {
+				updates.remove(file);
 			}
 		}
+		await proceed();
 	}
 	/**
 	 * @overload
@@ -2102,23 +2158,23 @@ export class Game extends GameCompatible {
 	}
 	/**
 	 * 对于客户端syncSkillData使用防抖函数喵
-	 * 
+	 *
 	 * 用Map存储特定sync函数的防抖版本喵
-	 * 
+	 *
 	 * @type {{ [key: string]: { [key: string]: Function } }}
 	 */
 	#skillSyncDebounceMap = {};
 	/**
 	 * 对于客户端requestSkillData使用防抖函数喵
-	 * 
+	 *
 	 * 用Map存储特定sync函数的防抖版本喵
-	 * 
+	 *
 	 * @type {{ [key: string]: { [key: string]: Function } }}
 	 */
 	#skillRequestDebounceMap = {};
 	/**
 	 * 对于技能请求我们应该记录每个lib.skill.xxx.sync函数上次的调用时间，间隔500ms内的重复调用主机应该拒绝喵
-	 * 
+	 *
 	 * @type { WeakMap<Player, { [skill: string]: { [sync: string]: number } }> }
 	 */
 	#skillSyncTicks = new WeakMap();
@@ -2126,14 +2182,14 @@ export class Game extends GameCompatible {
 	 * ```plain
 	 * 在客机发出同步信号，要求主机通过广播或单播更新数据喵
 	 * 此函数会要求主机调用指定的`get.info(skill).sync[sync]`函数但不会等待结果返回喵
-	 * 
+	 *
 	 * 具体调用请参考@see requestSkillData 函数的文档喵
 	 * ```
-	 * 
-	 * @param { string } skill 
-	 * @param { string } sync 
-	 * @param  { ...any } args 
-	 * @returns 
+	 *
+	 * @param { string } skill
+	 * @param { string } sync
+	 * @param  { ...any } args
+	 * @returns
 	 */
 	syncSkillData(skill, sync, ...args) {
 		if ("observe" in game && game.observe) {
@@ -2159,7 +2215,7 @@ export class Game extends GameCompatible {
 	 * 在客机发出请求，要求主机响应并返回特定的数据
 	 * 此函数会要求主机调用指定的`get.info(skill).sync[sync]`函数
 	 * 并通过Promise返回主机的给出的数据
-	 * 
+	 *
 	 * 具体调用例子:
 	 * ```
 	 * ```js
@@ -2191,18 +2247,18 @@ export class Game extends GameCompatible {
 	 *     },
 	 * }
 	 * ```
-	 * 
-	 * @param { string } skill 
-	 * @param { string } sync 
-	 * @param { number | null } timeout 
-	 * @param  { ...any } args 
+	 *
+	 * @param { string } skill
+	 * @param { string } sync
+	 * @param { number | null } timeout
+	 * @param  { ...any } args
 	 * @returns { Promise<[boolean, any]> } 请求是否成功和返回的数据
 	 */
 	requestSkillData(skill, sync, timeout, ...args) {
 		if ("observe" in game && game.observe) {
 			return Promise.resolve([false, null]);
 		}
-		
+
 		if (!timeout || !Number.isFinite(timeout) || timeout <= 0) {
 			timeout = 5000;
 		}
@@ -2217,32 +2273,35 @@ export class Game extends GameCompatible {
 
 		game.#skillRequestDebounceMap[skill] ??= {};
 
-		return (game.#skillRequestDebounceMap[skill][sync] ??= debounce((timeout, ...args) => {
-			const id = (function () {
-				while (true) {
-					const id = Math.random().toString(36).slice(2);
-					if (!(id in game.dataRequestMap)) {
-						return id;
+		return (game.#skillRequestDebounceMap[skill][sync] ??= debounce(
+			(timeout, ...args) => {
+				const id = (function () {
+					while (true) {
+						const id = Math.random().toString(36).slice(2);
+						if (!(id in game.dataRequestMap)) {
+							return id;
+						}
 					}
-				}
-			})();
-			const { promise, resolve } = Promise.withResolvers();
+				})();
+				const { promise, resolve } = Promise.withResolvers();
 
-			game.dataRequestMap[id] = (ok, result) => resolve([ok, result]);
-			game.send("dataSync", { type: "skill", name: skill, key: sync, args, timeout }, id);
+				game.dataRequestMap[id] = (ok, result) => resolve([ok, result]);
+				game.send("dataSync", { type: "skill", name: skill, key: sync, args, timeout }, id);
 
-			const timeoutPromise = new Promise((resolve) => {
-				setTimeout(() => {
-					delete game.dataRequestMap[id];
-					resolve([false, game.SKILL_SYNC_RESULTS.REQUEST_TIMEOUT]);
-				}, timeout);
-			});
+				const timeoutPromise = new Promise(resolve => {
+					setTimeout(() => {
+						delete game.dataRequestMap[id];
+						resolve([false, game.SKILL_SYNC_RESULTS.REQUEST_TIMEOUT]);
+					}, timeout);
+				});
 
-			return Promise.any([promise, timeoutPromise]);
-		}, {
-			delay: 500,
-			failResult: [false, game.SKILL_SYNC_RESULTS.TOO_MANY_CALLS],
-		}))(timeout, ...args);
+				return Promise.any([promise, timeoutPromise]);
+			},
+			{
+				delay: 500,
+				failResult: [false, game.SKILL_SYNC_RESULTS.TOO_MANY_CALLS],
+			}
+		))(timeout, ...args);
 	}
 	/**
 	 * 失败结果常量表喵
@@ -2259,9 +2318,9 @@ export class Game extends GameCompatible {
 	/**
 	 * 由联机接口调用来处理客机请求逻辑喵
 	 * 请不要手动调用此函数喵！！！
-	 * 
-	 * @param {string} id 
-	 * @param {Player} player 
+	 *
+	 * @param {string} id
+	 * @param {Player} player
 	 * @param {*} subject
 	 * @returns { Promise<[boolean, any] | undefined> }
 	 */
@@ -2276,9 +2335,10 @@ export class Game extends GameCompatible {
 		if (!info) {
 			return [false, game.SKILL_SYNC_RESULTS.MISSING_SKILL];
 		}
-		
+
 		// 函数调用权限检查喵
-		if (!lib.skill.global.includes(skill) && !player.hasSkill(skill, true, true, false)) { // 失效技能也有技权喵
+		if (!lib.skill.global.includes(skill) && !player.hasSkill(skill, true, true, false)) {
+			// 失效技能也有技权喵
 			return [false, game.SKILL_SYNC_RESULTS.SKILL_NOT_GRANTED];
 		}
 
@@ -2361,7 +2421,7 @@ export class Game extends GameCompatible {
 				: {
 						path: args.filter(arg => typeof arg === "string" || typeof arg === "number").join("/"),
 						onError: args.find(arg => typeof arg === "function"),
-				  };
+					};
 
 		const {
 			path = "",
@@ -2485,9 +2545,7 @@ export class Game extends GameCompatible {
 		 */
 		const play = () => {
 			// @ts-expect-error ignore
-			if (!check()) {
-				return;
-			}
+			if (!check()) return;
 			// @ts-expect-error ignore
 			audio = random ? list.randomRemove() : list.shift();
 			return game.playAudio({
@@ -2869,7 +2927,6 @@ export class Game extends GameCompatible {
 				if (gnc.is.generator(content)) {
 					promise = gnc.of(content)(lib, game, ui, get, ai, _status);
 				} else {
-					// @ts-expect-error no `Promise.try` type info
 					promise = Promise.try(content, lib, game, ui, get, ai, _status);
 				}
 			} else {
@@ -3039,18 +3096,10 @@ export class Game extends GameCompatible {
 				extensionPack = lib.extensionPack[name] = objectPackage;
 				objectPackage.files = object.files ?? {};
 				const extensionPackFiles = objectPackage.files;
-				if (!extensionPackFiles.character) {
-					extensionPackFiles.character = [];
-				}
-				if (!extensionPackFiles.card) {
-					extensionPackFiles.card = [];
-				}
-				if (!extensionPackFiles.skill) {
-					extensionPackFiles.skill = [];
-				}
-				if (!extensionPackFiles.audio) {
-					extensionPackFiles.audio = [];
-				}
+				extensionPackFiles.character ??= [];
+				extensionPackFiles.card ??= [];
+				extensionPackFiles.skill ??= [];
+				extensionPackFiles.audio ??= [];
 			} else {
 				extensionPack = lib.extensionPack[name] = {};
 			}
@@ -3284,7 +3333,6 @@ export class Game extends GameCompatible {
 				isTsFile = true;
 			}
 			/** @type { string } */
-			// @ts-expect-error ignore
 			let str = extensionFile.asText();
 			if (str === "" || str === undefined) {
 				throw "你导入的不是扩展！请选择正确的文件";
@@ -3292,7 +3340,7 @@ export class Game extends GameCompatible {
 			// 编译ts扩展
 			if (isTsFile) {
 				if (typeof globalThis.ts === "undefined") {
-					await lib.init.promises.js("game", "typescript");
+					globalThis.ts = await import("typescript");
 				}
 				/**
 				 * @type {typeof import('typescript')}
@@ -3483,7 +3531,7 @@ export class Game extends GameCompatible {
 							const fileReader = new FileReader();
 							fileReader.onerror = reject;
 							fileReader.onload = resolve;
-							fileReader.readAsDataURL(blob, "UTF-8");
+							fileReader.readAsDataURL(blob);
 						}).then(fileLoadedEvent => game.putDB("image", `extension-${extensionName}:${filePath}`, fileLoadedEvent.target.result));
 					});
 				}
@@ -4163,10 +4211,11 @@ export class Game extends GameCompatible {
 			player.skin[name] = map.to;
 			const goon = !lib.character[map.to];
 			if (goon) {
-				lib.character[map.to] = ["", "", 0, [], (map.list.find(i => i[0] == map.to) || [map.to, []])[1]];
+				lib.character[map.to] = get.convertedCharacter(["", "", 0, [], (map.list.find(i => i[0] == map.to) || [map.to, []])[1]]);
 			}
 			player.smoothAvatar(map.avatar2);
-			player.node["avatar" + map.name.slice(4)].setBackground(map.to, "character");
+			const skinImg = !lib.config.skin[map.to] && lib.character[map.to]?.img;
+			skinImg ? player.node["avatar" + map.name.slice(4)].setBackgroundImage(skinImg) : player.node["avatar" + name.slice(4)].setBackground(map.to, "character");
 			player.node["avatar" + map.name.slice(4)].show();
 			if (goon) {
 				delete lib.character[map.to];
@@ -4190,6 +4239,11 @@ export class Game extends GameCompatible {
 				}
 			} else {
 				console.log(player, content);
+			}
+		},
+		addTempTag: function (content) {
+			if (!lib.translate[content[0]]) {
+				lib.translate[content[0]] = content[1];
 			}
 		},
 		addFellow: function (content) {
@@ -5967,10 +6021,13 @@ export class Game extends GameCompatible {
 					div.style.transform += " translateX(" + -(Math.pow(Math.pow(x1 - x0, 2) + Math.pow(y1 - y0, 2), 0.5) + 2) + "px)";
 					div2.style.transform = "rotate(" + getAngle(x0, y0, x1, y1) + "deg) scaleX(1)";
 				}, 50);
-				setTimeout(function () {
-					div2.style.transition = "all " + (timeS * 2) / 3 + "s";
-					div2.style.transform = "rotate(" + getAngle(x0, y0, x1, y1) + "deg) translateX(" + (Math.pow(Math.pow(x1 - x0, 2) + Math.pow(y1 - y0, 2), 0.5) + 2 - Math.pow(Math.pow(div.offsetHeight / 2, 2) + Math.pow(div.offsetWidth / 2, 2), 0.5)) + "px) scaleX(0.01)";
-				}, 50 + ((timeS * 4) / 3) * 1000);
+				setTimeout(
+					function () {
+						div2.style.transition = "all " + (timeS * 2) / 3 + "s";
+						div2.style.transform = "rotate(" + getAngle(x0, y0, x1, y1) + "deg) translateX(" + (Math.pow(Math.pow(x1 - x0, 2) + Math.pow(y1 - y0, 2), 0.5) + 2 - Math.pow(Math.pow(div.offsetHeight / 2, 2) + Math.pow(div.offsetWidth / 2, 2), 0.5)) + "px) scaleX(0.01)";
+					},
+					50 + ((timeS * 4) / 3) * 1000
+				);
 				node.appendChild(div2);
 			}
 			if (animation.time <= 100000) {
@@ -6178,8 +6235,8 @@ export class Game extends GameCompatible {
 	 * @param { string } name
 	 * @param { string } skill
 	 * @param { Player } player
-	 * @param { GameEventPromise } event
-	 * @returns { GameEventPromise }
+	 * @param { GameEvent } event
+	 * @returns { GameEvent }
 	 */
 	createTrigger(name, skill, player, event, indexedData) {
 		let info = get.info(skill);
@@ -7760,7 +7817,7 @@ export class Game extends GameCompatible {
 				}
 			}
 			if (prompt != false) {
-				game.log(player1, "将座位移至", player2, "后");
+				game.log(player1, "将座位移至", player2, "前");
 			}
 		} else {
 			game.addVideo("swapSeat", null, [player1.dataset.position, player2.dataset.position]);
@@ -7966,10 +8023,10 @@ export class Game extends GameCompatible {
 			let exports;
 			let isESM = true;
 			try {
-				exports = await import(`../../mode/${name}/index.js`);
+				exports = await import(/* @vite-ignore */ `../../mode/${name}/index.js`);
 			} catch (e1) {
 				try {
-					exports = await import(`../../mode/${name}.js`);
+					exports = await import(/* @vite-ignore */ `../../mode/${name}.js`);
 				} catch (e2) {
 					isESM = false;
 					await lib.init.promises.js(`${lib.assetURL}mode`, name);
@@ -8298,488 +8355,495 @@ export class Game extends GameCompatible {
 		}
 		next.config = config;
 		next.list = list;
-		next.setContent(function () {
-			"step 0";
-			event.nodes = [];
-			event.avatars = [];
-			event.friend = [];
-			event.enemy = [];
-			event.blank = [];
-			for (let i = 0; i < event.config.size; i++) {
-				event.nodes.push(ui.create.div(".shadowed.reduce_radius.choosedouble"));
-			}
-			event.moveAvatar = function (node, i) {
-				if (!node.classList.contains("moved")) {
-					event.blank.push(node.index);
-				}
-				event.nodes[node.index].style.display = "";
-				event.nodes[node.index].show();
-				clearTimeout(event.nodes[node.index].choosetimeout);
-				event.moveNode(node, i);
-				let nodex = event.nodes[node.index];
-				nodex.choosetimeout = setTimeout(function () {
-					nodex.hide();
-					nodex.choosetimeout = setTimeout(function () {
-						nodex.show();
-						nodex.style.display = "none";
-					}, 300);
-				}, 400);
-			};
-			event.aiMove = function (friend) {
-				let list = [];
-				for (let i = 0; i < event.avatars.length; i++) {
-					if (!event.avatars[i].classList.contains("moved")) {
-						list.push(event.avatars[i]);
-					}
-				}
-				for (let i = 0; i < list.length; i++) {
-					if (Math.random() < 0.7 || i == list.length - 1) {
-						if (friend) {
-							event.moveAvatar(list[i], event.friend.length + event.config.width * (event.config.height - 1));
-							event.friend.push(list[i]);
-						} else {
-							event.moveAvatar(list[i], event.enemy.length);
-							event.enemy.push(list[i]);
-						}
-						list[i].classList.add("moved");
-						break;
-					}
-				}
-			};
-			event.promptbar = ui.create.div(".hidden", ui.window);
-			event.promptbar.style.width = "100%";
-			event.promptbar.style.left = 0;
-			if (get.is.phoneLayout()) {
-				event.promptbar.style.top = "20px";
-			} else {
-				event.promptbar.style.top = "58px";
-			}
-			event.promptbar.style.pointerEvents = "none";
-			event.promptbar.style.textAlign = "center";
-			event.promptbar.style.zIndex = "2";
-			ui.create.div(".shadowed.reduce_radius", event.promptbar);
-			event.promptbar.firstChild.style.fontSize = "18px";
-			event.promptbar.firstChild.style.padding = "6px 10px";
-			event.promptbar.firstChild.style.position = "relative";
-			event.prompt = function (str) {
-				event.promptbar.firstChild.innerHTML = str;
-				event.promptbar.show();
-			};
-			event.moveNode = function (node, i) {
-				let width = event.width,
-					height = event.height,
-					margin = event.margin;
-				let left = (-(width + 10) * event.config.width) / 2 + 5 + (i % event.config.width) * (width + 10);
-				let top = (-(height + 10) * event.config.height) / 2 + 5 + Math.floor(i / event.config.width) * (height + 10) + margin / 2;
-				node.style.transform = "translate(" + left + "px," + top + "px)";
-				node.index = i;
-			};
-			event.resize = function () {
-				let margin = 0;
-				if (!get.is.phoneLayout()) {
-					margin = 38;
-				}
-				let height = (ui.window.offsetHeight - 10 * (event.config.height + 1) - margin) / event.config.height;
-				let width = (ui.window.offsetWidth - 10 * (event.config.width + 1)) / event.config.width;
-				if (width * event.config.ratio < height) {
-					height = width * event.config.ratio;
-				} else {
-					width = height / event.config.ratio;
-				}
-				event.width = width;
-				event.height = height;
-				event.margin = margin;
+		next.setContent([
+			event => {
+				event.nodes = [];
+				event.avatars = [];
+				event.friend = [];
+				event.enemy = [];
+				event.blank = [];
 				for (let i = 0; i < event.config.size; i++) {
-					event.moveNode(event.nodes[i], i);
-					event.nodes[i].style.width = width + "px";
-					event.nodes[i].style.height = height + "px";
-					if (event.avatars[i]) {
-						event.moveNode(event.avatars[i], event.avatars[i].index);
-						event.avatars[i].style.width = width + "px";
-						event.avatars[i].style.height = height + "px";
-						event.avatars[i].nodename.style.fontSize = Math.max(14, Math.round(width / 5.6)) + "px";
-					}
+					event.nodes.push(ui.create.div(".shadowed.reduce_radius.choosedouble"));
 				}
-				if (event.deciding) {
-					let str = "px," + (event.margin / 2 - event.height * 0.5) + "px)";
-					for (let i = 0; i < event.friendlist.length; i++) {
-						event.friendlist[i].style.transform = "scale(1.2) translate(" + ((-(event.width + 14) * event.friendlist.length) / 2 + 7 + i * (event.width + 14)) + str;
+				event.moveAvatar = function (node, i) {
+					if (!node.classList.contains("moved")) {
+						event.blank.push(node.index);
 					}
-				}
-			};
-			lib.onresize.push(event.resize);
-			event.clickAvatar = function () {
-				if (event.deciding) {
-					if (this.index < event.config.width) {
-						return;
-					}
-					if (event.friendlist.includes(this)) {
-						event.friendlist.remove(this);
-						event.moveNode(this, this.index);
-						this.nodename.innerHTML = get.slimName(this.link);
-					} else {
-						event.friendlist.push(this);
-					}
-					if (event.friendlist.length == event.config.num) {
-						event.deciding = false;
-						event.prompt("比赛即将开始");
-						setTimeout(game.resume, 1000);
-					}
-					if (event.config.update) {
-						for (let i = 0; i < event.friendlist.length; i++) {
-							event.friendlist[i].nodename.innerHTML = event.config.update(i, event.friendlist.length) || event.friendlist[i].nodename.innerHTML;
+					event.nodes[node.index].style.display = "";
+					event.nodes[node.index].show();
+					clearTimeout(event.nodes[node.index].choosetimeout);
+					event.moveNode(node, i);
+					let nodex = event.nodes[node.index];
+					nodex.choosetimeout = setTimeout(function () {
+						nodex.hide();
+						nodex.choosetimeout = setTimeout(function () {
+							nodex.show();
+							nodex.style.display = "none";
+						}, 300);
+					}, 400);
+				};
+				event.aiMove = function (friend) {
+					let list = [];
+					for (let i = 0; i < event.avatars.length; i++) {
+						if (!event.avatars[i].classList.contains("moved")) {
+							list.push(event.avatars[i]);
 						}
 					}
-					let str = "px," + (event.margin / 2 - event.height * 0.5) + "px)";
-					for (let i = 0; i < event.friendlist.length; i++) {
-						event.friendlist[i].style.transform = "scale(1.2) translate(" + ((-(event.width + 14) * event.friendlist.length) / 2 + 7 + i * (event.width + 14)) + str;
+					for (let i = 0; i < list.length; i++) {
+						if (Math.random() < 0.7 || i == list.length - 1) {
+							if (friend) {
+								event.moveAvatar(list[i], event.friend.length + event.config.width * (event.config.height - 1));
+								event.friend.push(list[i]);
+							} else {
+								event.moveAvatar(list[i], event.enemy.length);
+								event.enemy.push(list[i]);
+							}
+							list[i].classList.add("moved");
+							break;
+						}
 					}
+				};
+				event.promptbar = ui.create.div(".hidden", ui.window);
+				event.promptbar.style.width = "100%";
+				event.promptbar.style.left = 0;
+				if (get.is.phoneLayout()) {
+					event.promptbar.style.top = "20px";
 				} else {
-					if (!event.imchoosing) {
-						return;
-					}
-					if (event.replacing) {
-						this.link = event.replacing;
-						this.setBackground(event.replacing, "character");
-
-						this.nodename.innerHTML = get.slimName(event.replacing);
-						this.nodename.dataset.nature = get.groupnature(lib.character[event.replacing][1]);
-
-						delete event.replacing;
-						if (this.classList.contains("moved")) {
-							event.custom.add.window();
-						}
-					}
-					if (this.classList.contains("moved")) {
-						return;
-					}
-					event.moveAvatar(this, event.friend.length + event.config.width * (event.config.height - 1));
-					event.friend.push(this.link);
-					this.classList.add("moved");
-					game.resume();
+					event.promptbar.style.top = "58px";
 				}
-			};
-			event.skipnode = ui.create.system("跳过", function () {
-				this.remove();
-				event._skiprest = true;
-				if (event.imchoosing) {
-					game.resume();
-				}
-			});
-			if (get.config("change_choice")) {
-				event.replacenode = ui.create.system(
-					"换将",
-					function () {
-						event.promptbar.hide();
-						while (event.avatars.length) {
-							event.avatars.shift().remove();
+				event.promptbar.style.pointerEvents = "none";
+				event.promptbar.style.textAlign = "center";
+				event.promptbar.style.zIndex = "2";
+				ui.create.div(".shadowed.reduce_radius", event.promptbar);
+				event.promptbar.firstChild.style.fontSize = "18px";
+				event.promptbar.firstChild.style.padding = "6px 10px";
+				event.promptbar.firstChild.style.position = "relative";
+				event.prompt = function (str) {
+					event.promptbar.firstChild.innerHTML = str;
+					event.promptbar.show();
+				};
+				event.moveNode = function (node, i) {
+					let width = event.width,
+						height = event.height,
+						margin = event.margin;
+					let left = (-(width + 10) * event.config.width) / 2 + 5 + (i % event.config.width) * (width + 10);
+					let top = (-(height + 10) * event.config.height) / 2 + 5 + Math.floor(i / event.config.width) * (height + 10) + margin / 2;
+					node.style.transform = "translate(" + left + "px," + top + "px)";
+					node.index = i;
+				};
+				event.resize = function () {
+					let margin = 0;
+					if (!get.is.phoneLayout()) {
+						margin = 38;
+					}
+					let height = (ui.window.offsetHeight - 10 * (event.config.height + 1) - margin) / event.config.height;
+					let width = (ui.window.offsetWidth - 10 * (event.config.width + 1)) / event.config.width;
+					if (width * event.config.ratio < height) {
+						height = width * event.config.ratio;
+					} else {
+						width = height / event.config.ratio;
+					}
+					event.width = width;
+					event.height = height;
+					event.margin = margin;
+					for (let i = 0; i < event.config.size; i++) {
+						event.moveNode(event.nodes[i], i);
+						event.nodes[i].style.width = width + "px";
+						event.nodes[i].style.height = height + "px";
+						if (event.avatars[i]) {
+							event.moveNode(event.avatars[i], event.avatars[i].index);
+							event.avatars[i].style.width = width + "px";
+							event.avatars[i].style.height = height + "px";
+							event.avatars[i].nodename.style.fontSize = Math.max(14, Math.round(width / 5.6)) + "px";
 						}
-						for (let i = 0; i < event.config.size; i++) {
-							event.nodes[i].show();
-							event.nodes[i].style.display = "";
-							clearTimeout(event.nodes[i].choosetimeout);
+					}
+					if (event.deciding) {
+						let str = "px," + (event.margin / 2 - event.height * 0.5) + "px)";
+						for (let i = 0; i < event.friendlist.length; i++) {
+							event.friendlist[i].style.transform = "scale(1.2) translate(" + ((-(event.width + 14) * event.friendlist.length) / 2 + 7 + i * (event.width + 14)) + str;
 						}
-						delete event.list2;
-						event.friend.length = 0;
-						event.enemy.length = 0;
-						event.blank.length = 0;
-						event.redoing = true;
-						if (event.imchoosing) {
-							game.resume();
+					}
+				};
+				lib.onresize.push(event.resize);
+				event.clickAvatar = function () {
+					if (event.deciding) {
+						if (this.index < event.config.width) {
+							return;
 						}
-					},
-					true
-				);
-			}
-			if (get.config("change_choice")) {
-				event.reselectnode = ui.create.system(
-					"重选",
-					function () {
-						event.promptbar.hide();
-						event.list2 = event.list2.concat(event.friend).concat(event.enemy);
-						event.friend.length = 0;
-						event.enemy.length = 0;
-						for (let i = 0; i < event.avatars.length; i++) {
-							if (event.avatars[i].classList.contains("moved")) {
-								event.moveAvatar(event.avatars[i], event.blank.randomRemove());
-								event.avatars[i].classList.remove("moved");
+						if (event.friendlist.includes(this)) {
+							event.friendlist.remove(this);
+							event.moveNode(this, this.index);
+							this.nodename.innerHTML = get.slimName(this.link);
+						} else {
+							event.friendlist.push(this);
+						}
+						if (event.friendlist.length == event.config.num) {
+							event.deciding = false;
+							event.prompt("比赛即将开始");
+							setTimeout(game.resume, 1000);
+						}
+						if (event.config.update) {
+							for (let i = 0; i < event.friendlist.length; i++) {
+								event.friendlist[i].nodename.innerHTML = event.config.update(i, event.friendlist.length) || event.friendlist[i].nodename.innerHTML;
 							}
 						}
-						event.redoing = true;
-						if (event.imchoosing) {
-							game.resume();
+						let str = "px," + (event.margin / 2 - event.height * 0.5) + "px)";
+						for (let i = 0; i < event.friendlist.length; i++) {
+							event.friendlist[i].style.transform = "scale(1.2) translate(" + ((-(event.width + 14) * event.friendlist.length) / 2 + 7 + i * (event.width + 14)) + str;
 						}
-					},
-					true
-				);
-			}
-			if (get.config("free_choose")) {
-				let createCharacterDialog = function () {
-					event.freechoosedialog = ui.create.characterDialog();
-					event.freechoosedialog.style.height = "80%";
-					event.freechoosedialog.style.top = "10%";
-					event.freechoosedialog.style.transform = "scale(0.8)";
-					event.freechoosedialog.style.transition = "all 0.3s";
-					event.freechoosedialog.listen(function (e) {
-						if (!event.replacing) {
-							event.dialoglayer.clicked = true;
-						}
-					});
-					event.freechoosedialog.classList.add("pointerdialog");
-					event.dialoglayer = ui.create.div(".popup-container.hidden", function (e) {
-						if (this.classList.contains("removing")) {
+					} else {
+						if (!event.imchoosing) {
 							return;
 						}
-						if (this.clicked) {
-							this.clicked = false;
-							return;
-						}
-						ui.window.classList.remove("modepaused");
-						this.delete();
-						e.stopPropagation();
-						event.freechoosedialog.style.transform = "scale(0.8)";
 						if (event.replacing) {
-							event.prompt("用" + get.translation(event.replacing) + "替换一名武将");
-						} else {
+							this.link = event.replacing;
+							this.setBackground(event.replacing, "character");
+
+							this.nodename.innerHTML = get.slimName(event.replacing);
+							this.nodename.dataset.nature = get.groupnature(lib.character[event.replacing][1]);
+
+							delete event.replacing;
+							if (this.classList.contains("moved")) {
+								event.custom.add.window();
+							}
+						}
+						if (this.classList.contains("moved")) {
+							return;
+						}
+						event.moveAvatar(this, event.friend.length + event.config.width * (event.config.height - 1));
+						event.friend.push(this.link);
+						this.classList.add("moved");
+						game.resume();
+					}
+				};
+				event.skipnode = ui.create.system("跳过", function () {
+					this.remove();
+					event._skiprest = true;
+					if (event.imchoosing) {
+						game.resume();
+					}
+				});
+				if (get.config("change_choice")) {
+					event.replacenode = ui.create.system(
+						"换将",
+						function () {
+							event.promptbar.hide();
+							while (event.avatars.length) {
+								event.avatars.shift().remove();
+							}
+							for (let i = 0; i < event.config.size; i++) {
+								event.nodes[i].show();
+								event.nodes[i].style.display = "";
+								clearTimeout(event.nodes[i].choosetimeout);
+							}
+							delete event.list2;
+							event.friend.length = 0;
+							event.enemy.length = 0;
+							event.blank.length = 0;
+							event.redoing = true;
+							if (event.imchoosing) {
+								game.resume();
+							}
+						},
+						true
+					);
+				}
+				if (get.config("change_choice")) {
+					event.reselectnode = ui.create.system(
+						"重选",
+						function () {
+							event.promptbar.hide();
+							event.list2 = event.list2.concat(event.friend).concat(event.enemy);
+							event.friend.length = 0;
+							event.enemy.length = 0;
+							for (let i = 0; i < event.avatars.length; i++) {
+								if (event.avatars[i].classList.contains("moved")) {
+									event.moveAvatar(event.avatars[i], event.blank.randomRemove());
+									event.avatars[i].classList.remove("moved");
+								}
+							}
+							event.redoing = true;
+							if (event.imchoosing) {
+								game.resume();
+							}
+						},
+						true
+					);
+				}
+				if (get.config("free_choose")) {
+					let createCharacterDialog = function () {
+						event.freechoosedialog = ui.create.characterDialog();
+						event.freechoosedialog.style.height = "80%";
+						event.freechoosedialog.style.top = "10%";
+						event.freechoosedialog.style.transform = "scale(0.8)";
+						event.freechoosedialog.style.transition = "all 0.3s";
+						event.freechoosedialog.listen(function (e) {
+							if (!event.replacing) {
+								event.dialoglayer.clicked = true;
+							}
+						});
+						event.freechoosedialog.classList.add("pointerdialog");
+						event.dialoglayer = ui.create.div(".popup-container.hidden", function (e) {
+							if (this.classList.contains("removing")) {
+								return;
+							}
+							if (this.clicked) {
+								this.clicked = false;
+								return;
+							}
+							ui.window.classList.remove("modepaused");
+							this.delete();
+							e.stopPropagation();
+							event.freechoosedialog.style.transform = "scale(0.8)";
+							if (event.replacing) {
+								event.prompt("用" + get.translation(event.replacing) + "替换一名武将");
+							} else {
+								if (event.side == 0) {
+									event.prompt("请选择两名武将");
+								} else {
+									event.prompt("请选择一名武将");
+								}
+							}
+						});
+						event.dialoglayer.classList.add("modenopause");
+						event.dialoglayer.appendChild(event.freechoosedialog);
+						event.freechoosenode.classList.remove("hidden");
+					};
+
+					event.custom.replace.button = function (button) {
+						event.replacing = button.link;
+					};
+					event.custom.add.window = function () {
+						if (event.replacing) {
+							delete event.replacing;
 							if (event.side == 0) {
 								event.prompt("请选择两名武将");
 							} else {
 								event.prompt("请选择一名武将");
 							}
 						}
-					});
-					event.dialoglayer.classList.add("modenopause");
-					event.dialoglayer.appendChild(event.freechoosedialog);
-					event.freechoosenode.classList.remove("hidden");
-				};
-
-				event.custom.replace.button = function (button) {
-					event.replacing = button.link;
-				};
-				event.custom.add.window = function () {
-					if (event.replacing) {
-						delete event.replacing;
-						if (event.side == 0) {
-							event.prompt("请选择两名武将");
-						} else {
-							event.prompt("请选择一名武将");
-						}
+					};
+					event.freechoosenode = ui.create.system(
+						"自由选将",
+						function () {
+							if (this.classList.contains("hidden")) {
+								return;
+							}
+							if (!event.imchoosing) {
+								event.prompt("请等待敌方选将");
+								return;
+							}
+							delete event.replacing;
+							ui.window.classList.add("modepaused");
+							ui.window.appendChild(event.dialoglayer);
+							ui.refresh(event.dialoglayer);
+							event.dialoglayer.show();
+							event.freechoosedialog.style.transform = "scale(1)";
+							event.promptbar.hide();
+						},
+						true
+					);
+					if (lib.onfree) {
+						event.freechoosenode.classList.add("hidden");
+						lib.onfree.push(createCharacterDialog);
+					} else {
+						createCharacterDialog();
+					}
+				}
+				event.checkredo = function () {
+					if (event.redoing) {
+						event.goto(1);
+						delete event.redoing;
+						return true;
 					}
 				};
-				event.freechoosenode = ui.create.system(
-					"自由选将",
-					function () {
-						if (this.classList.contains("hidden")) {
-							return;
-						}
-						if (!event.imchoosing) {
-							event.prompt("请等待敌方选将");
-							return;
-						}
-						delete event.replacing;
-						ui.window.classList.add("modepaused");
-						ui.window.appendChild(event.dialoglayer);
-						ui.refresh(event.dialoglayer);
-						event.dialoglayer.show();
-						event.freechoosedialog.style.transform = "scale(1)";
-						event.promptbar.hide();
-					},
-					true
-				);
-				if (lib.onfree) {
-					event.freechoosenode.classList.add("hidden");
-					lib.onfree.push(createCharacterDialog);
-				} else {
-					createCharacterDialog();
-				}
-			}
-			event.checkredo = function () {
-				if (event.redoing) {
-					event.goto(1);
-					delete event.redoing;
-					return true;
-				}
-			};
-			// if(ui.cardPileButton) ui.cardPileButton.style.display='none';
-			ui.auto.hide();
-			ui.wuxie.hide();
-			event.resize();
-			for (let i = 0; i < event.config.size; i++) {
-				ui.window.appendChild(event.nodes[i]);
-			}
-			"step 1";
-			let rand1 = event.config.first;
-			if (rand1 == "rand") {
-				rand1 = Math.random() < 0.5;
-			}
-			if (rand1) {
-				_status.color = true;
-				event.side = 1;
-			} else {
-				_status.color = false;
-				event.side = 3;
-			}
-			if (!event.list2) {
-				event.list2 = event.list.randomGets(event.config.width * 2);
-				for (let i = 0; i < event.config.width * 2; i++) {
-					event.avatars.push(ui.create.div(".shadowed.shadowed2.reduce_radius.character.choosedouble", event.clickAvatar));
-					let name = event.list2[i];
-					event.avatars[i].setBackground(name, "character");
-					event.avatars[i].link = name;
-					event.avatars[i].nodename = ui.create.div(".name", event.avatars[i], get.slimName(name));
-					event.avatars[i].nodename.style.fontFamily = lib.config.name_font;
-					event.avatars[i].index = i + event.config.width;
-					event.avatars[i].addTempClass("start");
-					event.nodes[event.avatars[i].index].style.display = "none";
-					event.avatars[i].nodename.dataset.nature = get.groupnature(lib.character[name][1]);
-					lib.setIntro(event.avatars[i]);
-				}
+				// if(ui.cardPileButton) ui.cardPileButton.style.display='none';
+				ui.auto.hide();
+				ui.wuxie.hide();
 				event.resize();
-				for (let i = 0; i < event.avatars.length; i++) {
-					ui.window.appendChild(event.avatars[i]);
+				for (let i = 0; i < event.config.size; i++) {
+					ui.window.appendChild(event.nodes[i]);
 				}
-				event.avatars.sort(function (a, b) {
-					return get.rank(b.link, true) - get.rank(a.link, true);
-				});
-			}
-			game.delay();
-			lib.init.onfree();
-			"step 2";
-			if (event.checkredo()) {
-				return;
-			}
-			if (event._skiprest) {
-				return;
-			}
-			if (event.side < 2) {
-				event.imchoosing = true;
-				if (event.side == 0) {
-					event.prompt("请选择两名武将");
+			},
+			event => {
+				let rand1 = event.config.first;
+				if (rand1 == "rand") {
+					rand1 = Math.random() < 0.5;
+				}
+				if (rand1) {
+					_status.color = true;
+					event.side = 1;
 				} else {
-					event.prompt("请选择一名武将");
-					event.fast = get.time();
+					_status.color = false;
+					event.side = 3;
 				}
-				game.pause();
-			} else {
-				event.aiMove();
+				if (!event.list2) {
+					event.list2 = event.list.randomGets(event.config.width * 2);
+					for (let i = 0; i < event.config.width * 2; i++) {
+						event.avatars.push(ui.create.div(".shadowed.shadowed2.reduce_radius.character.choosedouble", event.clickAvatar));
+						let name = event.list2[i];
+						event.avatars[i].setBackground(name, "character");
+						event.avatars[i].link = name;
+						event.avatars[i].nodename = ui.create.div(".name", event.avatars[i], get.slimName(name));
+						event.avatars[i].nodename.style.fontFamily = lib.config.name_font;
+						event.avatars[i].index = i + event.config.width;
+						event.avatars[i].addTempClass("start");
+						event.nodes[event.avatars[i].index].style.display = "none";
+						event.avatars[i].nodename.dataset.nature = get.groupnature(lib.character[name][1]);
+						lib.setIntro(event.avatars[i]);
+					}
+					event.resize();
+					for (let i = 0; i < event.avatars.length; i++) {
+						ui.window.appendChild(event.avatars[i]);
+					}
+					event.avatars.sort(function (a, b) {
+						return get.rank(b.link, true) - get.rank(a.link, true);
+					});
+				}
 				game.delay();
-			}
-			"step 3";
-			if (typeof event.fast == "number" && get.time() - event.fast <= 1000) {
-				event.fast = true;
-			} else {
-				event.fast = false;
-			}
-			delete event.imchoosing;
-			if (event.checkredo()) {
-				return;
-			}
-			if (event._skiprest) {
-				while (event.enemy.length < event.config.width) {
+				lib.init.onfree();
+			},
+			event => {
+				if (event.checkredo()) {
+					return;
+				}
+				if (event._skiprest) {
+					return;
+				}
+				if (event.side < 2) {
+					event.imchoosing = true;
+					if (event.side == 0) {
+						event.prompt("请选择两名武将");
+					} else {
+						event.prompt("请选择一名武将");
+						event.fast = get.time();
+					}
+					game.pause();
+				} else {
 					event.aiMove();
-				}
-				while (event.friend.length < event.config.width) {
-					event.aiMove(true);
-				}
-			} else if (event.friend.length + event.enemy.length < event.config.width * 2 - 1) {
-				if (event.side == 1) {
-					game.delay(event.fast ? 1 : 2);
-					event.promptbar.hide();
-				}
-				event.side++;
-				if (event.side > 3) {
-					event.side = 0;
-				}
-				event.goto(2);
-			} else {
-				event.promptbar.hide();
-				event.side++;
-				if (event.side > 3) {
-					event.side = 0;
-				}
-				if (event.side >= 2) {
 					game.delay();
 				}
-			}
-			"step 4";
-			if (event.checkredo()) {
-				return;
-			}
-			if (event.skipnode) {
-				event.skipnode.delete();
-			}
-			if (event.replacenode) {
-				event.replacenode.delete();
-			}
-			if (event.reselectnode) {
-				event.reselectnode.delete();
-			}
-			if (event.freechoosenode) {
-				event.freechoosenode.delete();
-			}
-			for (let i = 0; i < event.avatars.length; i++) {
-				if (!event.avatars[i].classList.contains("moved")) {
-					if (event.side < 2) {
-						event.moveAvatar(event.avatars[i], event.friend.length + event.config.width * (event.config.height - 1));
-						event.friend.push(event.avatars[i]);
-					} else {
-						event.moveAvatar(event.avatars[i], event.enemy.length);
-						event.enemy.push(event.avatars[i]);
+			},
+			event => {
+				if (typeof event.fast == "number" && get.time() - event.fast <= 1000) {
+					event.fast = true;
+				} else {
+					event.fast = false;
+				}
+				delete event.imchoosing;
+				if (event.checkredo()) {
+					return;
+				}
+				if (event._skiprest) {
+					while (event.enemy.length < event.config.width) {
+						event.aiMove();
 					}
-					event.avatars[i].classList.add("moved");
-				}
-			}
-			game.delay();
-			"step 5";
-			event.prompt("选择" + get.cnNumber(event.config.num) + "名出场武将");
-			event.enemylist = [];
-			for (let i = 0; i < event.avatars.length; i++) {
-				if (event.avatars[i].index > event.config.width) {
-					event.avatars[i].classList.add("selecting");
-				}
-			}
-			let rand = [];
-			for (let i = 0; i < event.config.width; i++) {
-				for (let j = 0; j < event.config.width - i; j++) {
-					rand.push(i);
-				}
-			}
-			for (let i = 0; i < event.config.num; i++) {
-				let rand2 = rand.randomGet();
-				for (let j = 0; j < rand.length; j++) {
-					if (rand[j] == rand2) {
-						rand.splice(j--, 1);
+					while (event.friend.length < event.config.width) {
+						event.aiMove(true);
+					}
+				} else if (event.friend.length + event.enemy.length < event.config.width * 2 - 1) {
+					if (event.side == 1) {
+						game.delay(event.fast ? 1 : 2);
+						event.promptbar.hide();
+					}
+					event.side++;
+					if (event.side > 3) {
+						event.side = 0;
+					}
+					event.goto(2);
+				} else {
+					event.promptbar.hide();
+					event.side++;
+					if (event.side > 3) {
+						event.side = 0;
+					}
+					if (event.side >= 2) {
+						game.delay();
 					}
 				}
-				event.enemylist.push(event.enemy[rand2]);
-			}
-			event.enemylist.randomSort();
-			event.friendlist = [];
-			event.deciding = true;
-			for (let i = 0; i < event.config.size; i++) {
-				event.nodes[i].hide();
-			}
-			game.pause();
-			"step 6";
-			event.promptbar.delete();
-			if (ui.cardPileButton) {
-				ui.cardPileButton.style.display = "";
-			}
-			lib.onresize.remove(event.resize);
-			ui.wuxie.show();
-			ui.auto.show();
-			for (let i = 0; i < event.avatars.length; i++) {
-				event.avatars[i].delete();
-			}
-			for (let i = 0; i < event.nodes.length; i++) {
-				event.nodes[i].delete();
-			}
-			event.result = { friend: [], enemy: [] };
-			for (let i = 0; i < event.config.num; i++) {
-				event.result.friend[i] = event.friendlist[i].link;
-				event.result.enemy[i] = event.enemylist[i].link;
-			}
-		});
+			},
+			event => {
+				if (event.checkredo()) {
+					return;
+				}
+				if (event.skipnode) {
+					event.skipnode.delete();
+				}
+				if (event.replacenode) {
+					event.replacenode.delete();
+				}
+				if (event.reselectnode) {
+					event.reselectnode.delete();
+				}
+				if (event.freechoosenode) {
+					event.freechoosenode.delete();
+				}
+				for (let i = 0; i < event.avatars.length; i++) {
+					if (!event.avatars[i].classList.contains("moved")) {
+						if (event.side < 2) {
+							event.moveAvatar(event.avatars[i], event.friend.length + event.config.width * (event.config.height - 1));
+							event.friend.push(event.avatars[i]);
+						} else {
+							event.moveAvatar(event.avatars[i], event.enemy.length);
+							event.enemy.push(event.avatars[i]);
+						}
+						event.avatars[i].classList.add("moved");
+					}
+				}
+				game.delay();
+			},
+			event => {
+				event.prompt("选择" + get.cnNumber(event.config.num) + "名出场武将");
+				event.enemylist = [];
+				for (let i = 0; i < event.avatars.length; i++) {
+					if (event.avatars[i].index > event.config.width) {
+						event.avatars[i].classList.add("selecting");
+					}
+				}
+				let rand = [];
+				for (let i = 0; i < event.config.width; i++) {
+					for (let j = 0; j < event.config.width - i; j++) {
+						rand.push(i);
+					}
+				}
+				for (let i = 0; i < event.config.num; i++) {
+					let rand2 = rand.randomGet();
+					for (let j = 0; j < rand.length; j++) {
+						if (rand[j] == rand2) {
+							rand.splice(j--, 1);
+						}
+					}
+					event.enemylist.push(event.enemy[rand2]);
+				}
+				event.enemylist.randomSort();
+				event.friendlist = [];
+				event.deciding = true;
+				for (let i = 0; i < event.config.size; i++) {
+					event.nodes[i].hide();
+				}
+				game.pause();
+			},
+			event => {
+				event.promptbar.delete();
+				if (ui.cardPileButton) {
+					ui.cardPileButton.style.display = "";
+				}
+				lib.onresize.remove(event.resize);
+				ui.wuxie.show();
+				ui.auto.show();
+				for (let i = 0; i < event.avatars.length; i++) {
+					event.avatars[i].delete();
+				}
+				for (let i = 0; i < event.nodes.length; i++) {
+					event.nodes[i].delete();
+				}
+				event.result = { friend: [], enemy: [] };
+				for (let i = 0; i < event.config.num; i++) {
+					event.result.friend[i] = event.friendlist[i].link;
+					event.result.enemy[i] = event.enemylist[i].link;
+				}
+			},
+		]);
 	}
 	updateRoundNumber() {
 		game.broadcastAll(
@@ -8862,25 +8926,30 @@ export class Game extends GameCompatible {
 		} else if (lib.translate[`${iInfo}_combat`] && get.is.versus()) {
 			lib.translate[iInfo] = lib.translate[`${iInfo}_combat`];
 		}
+		info.skill_id ??= i;
 		let deleteSkill = function (skill, iInfo) {
-			let skillx = {},
-				info = get.info(skill);
-			if (info) {
-				["audio", "audioname", "audioname2"].forEach(name => {
-					if (info[name]) {
-						skillx[name] = info[name];
+			let { audio, audioname, audioname2, skillID } = lib.skill[skill] || {};
+			lib.skill[skill] = { audio, audioname, audioname2, skillID };
+			lib.translate[iInfo] &&= "此模式下不可用";
+			lib.dynamicTranslate[skill] &&= () => "此模式下不可用";
+		};
+		if (info.inherit) {
+			const skill = lib.skill[info.inherit];
+			if (skill) {
+				Object.keys(skill).forEach(value => {
+					if (info[value] == undefined) {
+						if (value == "audio" && (typeof info[value] == "number" || typeof info[value] == "boolean")) {
+							info[value] = info.inherit;
+						} else {
+							info[value] = skill[value];
+						}
 					}
 				});
 			}
-			lib.skill[skill] = skillx;
-			if (lib.translate[iInfo]) {
-				lib.translate[iInfo] = "此模式下不可用";
-			}
-			if (lib.dynamicTranslate[skill]) {
-				lib.dynamicTranslate[skill] = () => "此模式下不可用";
-			}
-		};
-		if ((info.forbid && info.forbid.includes(mode)) || (info.mode && info.mode.includes(mode) == false) || (info.available && info.available(mode) == false)) {
+			lib.translate[i] ??= lib.translate[info.inherit];
+			lib.translate[iInfo] ??= lib.translate[`${info.inherit}_info`];
+		}
+		if (info.forbid?.includes(mode) || info.mode?.includes(mode) == false || info.available?.(mode) == false) {
 			deleteSkill(i, iInfo);
 			return;
 		}
@@ -8913,50 +8982,19 @@ export class Game extends GameCompatible {
 				});
 			}
 		}
-		if (info.inherit) {
-			const skill = lib.skill[info.inherit];
-			if (skill) {
-				Object.keys(skill).forEach(value => {
-					if (info[value] != undefined) {
-						return;
-					}
-					if (value == "audio" && (typeof info[value] == "number" || typeof info[value] == "boolean")) {
-						info[value] = info.inherit;
-					} else {
-						info[value] = skill[value];
-					}
-				});
-			}
-			if (lib.translate[i] == undefined) {
-				lib.translate[i] = lib.translate[info.inherit];
-			}
-			if (lib.translate[iInfo] == undefined) {
-				lib.translate[iInfo] = lib.translate[`${info.inherit}_info`];
-			}
-		}
 		if (info.limited) {
-			if (info.mark === undefined) {
-				info.mark = true;
-			}
-			if (!info.intro) {
-				info.intro = {};
-			}
-			if (info.intro.content === undefined) {
-				info.intro.content = "limited";
-			}
-			if (info.skillAnimation === undefined) {
-				info.skillAnimation = true;
-			}
-			if (info.init === undefined) {
-				info.init = (player, skill) => (player.storage[skill] = false);
-			}
+			info.mark ??= true;
+			info.intro ??= {};
+			info.intro.content ??= "limited";
+			info.skillAnimation ??= true;
+			info.init ??= (player, skill) => (player.storage[skill] = false);
 		}
 		if (info.subSkill && !sub) {
 			Object.keys(info.subSkill).forEach(value => {
 				const iValue = `${i}_${value}`;
 				lib.skill[iValue] = info.subSkill[value];
 				lib.skill[iValue].sub = true;
-				if (info.subSkill[value].sourceSkill !== false) {
+				if (info.subSkill[value].sourceSkill === undefined) {
 					lib.skill[iValue].sourceSkill = i;
 				}
 				if (info.subSkill[value].name) {
@@ -9009,7 +9047,7 @@ export class Game extends GameCompatible {
 				forced: true,
 				popup: false,
 				silent: true,
-				content: () => {
+				content: async (event, trigger, player) => {
 					if (lib.skill[event.name.slice(0, event.name.indexOf("_roundcount"))].round - (game.roundNumber - player.storage[event.name]) > 0) {
 						player.updateMarks();
 					} else {
@@ -9395,7 +9433,7 @@ export class Game extends GameCompatible {
 	 * @param { Player } player
 	 * @param { string | Card[] } card
 	 * @param { Player[] } [targets]
-	 * @param { GameEventPromise } [event]
+	 * @param { GameEvent } [event]
 	 * @param { boolean } [forced]
 	 * @param { string } [logvid]
 	 */
@@ -9700,7 +9738,7 @@ export class Game extends GameCompatible {
 							game.reload2();
 							resolve(result);
 						};
-				  }
+					}
 				: (resolve, reject) => {
 						lib.status.reload++;
 						const idbRequest = lib.db.transaction([storeName], "readwrite").objectStore(storeName).openCursor(),
@@ -9730,7 +9768,7 @@ export class Game extends GameCompatible {
 							game.reload2();
 							resolve(object);
 						};
-				  }
+					}
 		);
 	}
 	/**
@@ -9794,7 +9832,7 @@ export class Game extends GameCompatible {
 						game.reload2();
 						resolve(event);
 					};
-			  })
+				})
 			: game.getDB(storeName).then(object => {
 					const keys = Object.keys(object);
 					lib.status.reload += keys.length;
@@ -9815,7 +9853,7 @@ export class Game extends GameCompatible {
 								})
 						)
 					);
-			  });
+				});
 	}
 	/**
 	 * @param { string } key
@@ -9913,29 +9951,64 @@ export class Game extends GameCompatible {
 				}
 			});
 		}
-		game.saveConfig("version", lib.version);
-		if (_status.extensionChangeLog) {
-			Object.keys(_status.extensionChangeLog).forEach(value => {
-				const li = document.createElement("li");
-				li.innerHTML = `${value}：${_status.extensionChangeLog[value]}`;
-				ul.appendChild(li);
-			});
+		const dialog = ui.create.dialog(caption, "hidden");
+		if (lib.version != lib.config.version) {
+			const lic = ui.create.div(dialog.content);
+			lic.style.display = "block";
+			lic.appendChild(ul);
 		}
-		const dialog = ui.create.dialog(caption, "hidden"),
-			lic = ui.create.div(dialog.content);
-		lic.style.display = "block";
-		ul.style.display = "inline-block";
-		ul.style.marginLeft = "-40px";
-		lic.appendChild(ul);
-		if (players && players.length) {
+		game.saveConfig("version", lib.version);
+		if (players?.length) {
 			dialog.addSmall([players, "character"]);
 			dialog.classList.add("forcebutton");
 			dialog.classList.add("withbg");
 		}
-		if (cards && cards.length) {
+		if (cards?.length) {
 			dialog.addSmall([cards.map(value => [get.translation(get.type(value)), "", value]), "vcard"]);
 			dialog.classList.add("forcebutton");
 			dialog.classList.add("withbg");
+		}
+		if (_status.extensionChangeLog) {
+			Object.keys(_status.extensionChangeLog).forEach(extname => {
+				dialog.add(ui.create.div(".placeholder"));
+				dialog.add(`${extname} ${lib.extensionPack[extname].version} 更新内容`);
+				dialog.add(ui.create.div(".placeholder"));
+				const changeLogList = _status.extensionChangeLog[extname];
+				changeLogList.forEach(item => {
+					switch (item.type) {
+						case "text": {
+							const list = Array.isArray(item.data) ? item.data : [item.data];
+							if (item.addText) {
+								list.forEach(value => {
+									dialog.addText(value);
+								});
+							} else {
+								list.forEach(value => {
+									const li = document.createElement("li");
+									li.innerHTML = value;
+									li.style.textAlign = item.textAlign || "center";
+									dialog.content.appendChild(li);
+								});
+							}
+							break;
+						}
+						case "players": {
+							dialog.addSmall([item.data, "character"]);
+							dialog.classList.add("forcebutton");
+							dialog.classList.add("withbg");
+							break;
+						}
+						case "cards": {
+							dialog.addSmall([item.data.map(value => [get.translation(get.type(value)), "", value]), "vcard"]);
+							dialog.classList.add("forcebutton");
+							dialog.classList.add("withbg");
+							break;
+						}
+						default:
+							return;
+					}
+				});
+			});
 		}
 		dialog.open();
 		let hidden = false;
@@ -9955,8 +10028,9 @@ export class Game extends GameCompatible {
 		lib.init.onfree();
 	}
 	/**
-	 * @param { string } str
-	 * @param { string } [extname]
+	 * 显示显示扩展的更新日志，在game.showChangeLog时显示扩展更新内容
+	 * @param { string } str 更新日志内容，支持以下格式：`string`: 文本，自动包装为 `{ type: 'text', data: str }`；`Array`: 对象数组，每个对象格式为 `{ type, data, 其他属性 }`； `Object`: 单个日志对象，自动包装成数组
+	 * @param { string } [extname] 扩展名，未输入则使用_status.extension
 	 */
 	showExtensionChangeLog(str, extname) {
 		extname = extname || _status.extension;
@@ -9965,11 +10039,19 @@ export class Game extends GameCompatible {
 			return;
 		}
 		game.saveConfig(cfg, lib.extensionPack[extname].version);
-		if (_status.extensionChangeLog) {
-			return;
+		_status.extensionChangeLog ??= {};
+		if (typeof str === "string") {
+			_status.extensionChangeLog[extname] = [
+				{
+					type: "text",
+					data: str,
+				},
+			];
+		} else if (Array.isArray(str)) {
+			_status.extensionChangeLog[extname] = str;
+		} else if (get.objtype(str) === "object") {
+			_status.extensionChangeLog[extname] = [str];
 		}
-		_status.extensionChangeLog = {};
-		_status.extensionChangeLog[extname] = str;
 	}
 	/**
 	 * @param { string } key
@@ -10067,6 +10149,9 @@ export class Game extends GameCompatible {
 		localStorage.removeItem(`${lib.configprefix}${mode}`);
 	}
 	/**
+	 * @deprecated 请使用addPlayerOL，addPlayer已被废除！
+	 */
+	/**
 	 * @param { number } position
 	 * @param { string } [character]
 	 * @param { string } [character2]
@@ -10146,6 +10231,9 @@ export class Game extends GameCompatible {
 		game.arrangePlayers();
 		return player;
 	}
+	/**
+	 * @deprecated 请使用removePlayerOL，removePlayer已被废除！
+	 */
 	/**
 	 * @param { Player } player
 	 */
@@ -10487,7 +10575,7 @@ export class Game extends GameCompatible {
 	 *
 	 * @param { Player[] } targets 需要执行async方法的目标
 	 * @param { (player: Player, i: number) => Promise<any | void> } asyncFunc 需要执行的async方法
-	 * @param { (a: Player, b: Player) => number } sort 排序器，默认为lib.sort.seat
+	 * @param { (a: Player, b: Player) => number } [sort] 排序器，默认为lib.sort.seat
 	 */
 	async doAsyncInOrder(targets, asyncFunc, sort) {
 		if (!sort) {
@@ -10498,6 +10586,23 @@ export class Game extends GameCompatible {
 			let target = sortedTargets[i];
 			await Promise.resolve(asyncFunc(target, i));
 		}
+	}
+	/**
+	 * 此方法用于让所有targets同时执行一个选择函数
+	 *
+	 * @param { Player[] } targets 需要执行选择函数的目标
+	 * @param { function } func 需要执行的函数
+	 * @param { Any[] } args 函数所需的参数
+	 * @returns { GameEventPromise }
+	 */
+	chooseAnyOL(targets, func, args) {
+		const next = game.createEvent("chooseAnyOL");
+		next.targets = targets;
+		next.player = _status.event.player;
+		next.func = func;
+		next.args = args;
+		next.setContent("chooseAnyOL");
+		return next;
 	}
 	/**
 	 * 用于玩家使用非自己手牌时生成的可以选择的假牌（其实就是复制一份出来）。
@@ -10512,7 +10617,14 @@ export class Game extends GameCompatible {
 			cards = [cards];
 		}
 		const cardsx = cards.map(card => {
+			/*while (card.rcardSymbol) {
+				//好孩子不玩嵌套
+				card = card[card.rcardSymbol];
+			}*/
 			const cardx = ui.create.card();
+			//const rcardSymbol = Symbol("card");
+			//cardx.rcardSymbol = rcardSymbol;
+			//cardx[rcardSymbol] = card;
 			cardx.isFake = true;
 			cardx._cardid = card.cardid;
 			if (isBlank) {
@@ -10539,9 +10651,9 @@ export class Game extends GameCompatible {
 		if (!Array.isArray(cards)) {
 			cards = [cards];
 		}
-		const fake = cards.filter(card => card.isFake && card._cardid),
+		const fake = cards.filter(card => card.isFake && card._cardid),//&& card.rcardSymbol 
 			other = cards.removeArray(fake),
-			wild = [],
+			wild = [],//野生的假牌
 			map = {};
 		fake.forEach(card => {
 			const owner = get.owner(card);
@@ -10549,9 +10661,7 @@ export class Game extends GameCompatible {
 				wild.push(card);
 				return;
 			}
-			if (!map[owner.playerid]) {
-				map[owner.playerid] = [];
-			}
+			map[owner.playerid] ??= [];
 			map[owner.playerid].push(card);
 		});
 		wild.forEach(i => i.delete());
@@ -10596,6 +10706,168 @@ export class Game extends GameCompatible {
 			_status.poptip[1].remove();
 			delete _status.poptip;
 		}
+	}
+	/**
+	 * find the skillname of the event
+	 * 获取触发事件的技能
+	 * @param { GameEvent } event
+	 * @param { Boolean } includeCharlotteSkill 是否包含夏洛特技
+	 * @param { Boolean } includeEquipSkill 是否包含装备技能
+	 * @param { Boolean } includeGlobalSkill 是否包含全局技能
+	 * @returns { string | null }
+	 */
+	findSkill(event, includeCharlotteSkill = false, includeEquipSkill = false, includeGlobalSkill = false) {
+		let skill = "";
+		let count = 0;
+		let evt = event;
+		do {
+			evt = evt.parent;
+			let name = evt?.skill || evt?.name;
+			if (!name) {
+				break;
+			}
+			if (name.startsWith("pre_")) {
+				name = name.slice(4);
+			}
+			for (const suffix of ["_backup", "ContentBefore", "ContentAfter", "_cost"]) {
+				if (name.endsWith(suffix)) {
+					name = name.slice(0, name.lastIndexOf(suffix));
+				}
+			}
+			skill = get.sourceSkillFor(name);
+			const info = lib.skill[skill];
+			if (!info || !Object.keys(info).length) {
+				continue;
+			}
+			if ((!includeCharlotteSkill && info.charlotte) || (!includeEquipSkill && info.equipSkill) || (!includeGlobalSkill && lib.skill.global.includes(skill))) {
+				return null;
+			}
+			return skill;
+		} while (++count < 5);
+		return null;
+	}
+	/**
+	 * 添加一个新玩家到target的上家或下家（默认为上家）
+	 * @param { Player } target 新玩家的下家
+	 * @param { string|undefined|null } [character] 新玩家主将
+	 * @param { string|undefined|null } [character2] 新玩家副将
+	 * @param { boolean } [isNext] 是否添加到下家
+	 * @returns { Player }
+	 */
+	addPlayerOL(target, character, character2, isNext) {
+		if (get.itemtype(target) != "player") {
+			return;
+		}
+		const addPlayer = function (id, target, character, character2, isNext) {
+			const players = game.players.concat(game.dead);
+			ui.arena.setNumber(parseInt(ui.arena.dataset.number) + 1);
+			let position = !isNext ? parseInt(target.dataset.position) : parseInt(target.dataset.position) + 1;
+			if (position == 0) {
+				position = players.length;
+			}
+			players.forEach(value => {
+				if (parseInt(value.dataset.position) >= position) {
+					value.dataset.position = parseInt(value.dataset.position) + 1;
+				}
+			});
+			const player = ui.create.player(ui.arena).addTempClass("start");
+			player.playerid = id;
+			if (_status.connectMode) {
+				lib.playerOL[id] = player;
+			} else {
+				game.playerMap[id] = player;
+			}
+			if (character) {
+				player.init(character, character2);
+			}
+			game.players.push(player);
+			player.dataset.position = position;
+			game.arrangePlayers();
+			return player;
+		};
+		const id = get.id();
+		const players = game.players.concat(game.dead);
+		game.broadcast(addPlayer, id, target, character, character2, isNext);
+		const player = addPlayer(id, target, character, character2, isNext);
+		const firstSeat = players.find(value => value.getSeatNum() == 1);
+		if (firstSeat) {
+			const targetSeat = target.getSeatNum();
+			let seatNum = !isNext ? (targetSeat == 1 ? players.length + 1 : targetSeat) : targetSeat + 1;
+			player.setSeatNum(seatNum);
+			players.forEach(value => {
+				if (seatNum && value.getSeatNum() >= seatNum) {
+					value.setSeatNum(value.getSeatNum() + 1);
+				}
+			});
+		}
+		player.actionHistory = new Array(players[0].actionHistory.length).fill({
+			useCard: [],
+			respond: [],
+			skipped: [],
+			lose: [],
+			gain: [],
+			sourceDamage: [],
+			damage: [],
+			custom: [],
+			useSkill: [],
+		});
+		player.stat = new Array(players[0].stat.length).fill({
+			card: {},
+			skill: {},
+			triggerSkill: {},
+		});
+		return player;
+	}
+	/**
+	 * 移除一名玩家，单机联机都可用
+	 * @param { Player } player 要移除的玩家
+	 * @returns { Player }
+	 */
+	removePlayerOL(player) {
+		if (get.itemtype(player) != "player") {
+			return;
+		}
+		const players = game.players.concat(game.dead);
+		player.style.left = `${player.getLeft()}px`;
+		player.style.top = `${player.getTop()}px`;
+		if (player.getSeatNum() > 0) {
+			const seatNum = player.getSeatNum();
+			players.forEach(value => {
+				if (value.getSeatNum() > seatNum) {
+					value.setSeatNum(value.getSeatNum() - 1);
+				}
+			});
+		}
+		game.broadcastAll(player => {
+			if (_status.roundStart == player) {
+				_status.roundStart = player.next || player.getNext() || game.players[0];
+			}
+			const players = game.players.concat(game.dead);
+			const position = parseInt(player.dataset.position);
+			players.forEach(value => {
+				if (parseInt(value.dataset.position) > position) {
+					value.dataset.position = parseInt(value.dataset.position) - 1;
+				}
+			});
+			if (player.isAlive()) {
+				player.next.previous = player.previous;
+				player.previous.next = player.next;
+			}
+			player.nextSeat.previousSeat = player.previousSeat;
+			player.previousSeat.nextSeat = player.nextSeat;
+			player.delete();
+			game.players.remove(player);
+			game.dead.remove(player);
+			ui.arena.setNumber(parseInt(ui.arena.dataset.number) - 1);
+			player.removed = true;
+			if (player == game.me) {
+				ui.me.hide();
+				ui.auto.hide();
+				ui.wuxie.hide();
+			}
+			setTimeout(() => player.removeAttribute("style"), 500);
+		}, player);
+		return player;
 	}
 }
 

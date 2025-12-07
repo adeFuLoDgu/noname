@@ -1,4 +1,90 @@
 const characters = {
+	std_huangwudie: {
+		sex: "female",
+		group: "shu",
+		hp: 4,
+		skills: ["stdshuangrui"],
+	},
+	std_qinghegongzhu: {
+		sex: "female",
+		group: "wei",
+		hp: 3,
+		skills: ["stdzengou", "stdfeili"],
+		names: "曹|null",
+	},
+	std_quyi: {
+		sex: "male",
+		group: "qun",
+		hp: 4,
+		skills: ["stdfuqi", "stdjiaozi"],
+	},
+	std_wenyuan: {
+		sex: "female",
+		group: "shu",
+		hp: 3,
+		skills: ["stdkengqiang", "stdshangjue"],
+	},
+	std_xushao: {
+		sex: "male",
+		group: "qun",
+		hp: 3,
+		skills: ["stdyingmen", "stdpingjian"],
+	},
+	std_zhangxuan: {
+		sex: "female",
+		group: "wu",
+		hp: 3,
+		skills: ["stdtongli", "stdshezang"],
+	},
+	std_jushou: {
+		sex: "male",
+		group: "qun",
+		hp: 3,
+		skills: ["stdjianying", "stdshibei"],
+	},
+	std_simahui: {
+		sex: "male",
+		group: "qun",
+		hp: 3,
+		skills: ["stdjianjie", "stdchenghao"],
+		names: "司马|徽",
+	},
+	std_zhengxuan: {
+		sex: "male",
+		group: "qun",
+		hp: 3,
+		skills: ["stdzhengjing"],
+	},
+	std_miheng: {
+		sex: "male",
+		group: "qun",
+		hp: 3,
+		skills: ["stdkuangcai", "stdshejian"],
+	},
+	std_majun: {
+		sex: "male",
+		group: "wei",
+		hp: 3,
+		skills: ["stdgongqiao"],
+	},
+	std_zhangfen: {
+		sex: "male",
+		group: "wu",
+		hp: 3,
+		skills: ["stdwanglu"],
+	},
+	std_zhaoyan: {
+		sex: "female",
+		group: "wu",
+		hp: 3,
+		skills: ["stdjinhui", "stdqingman"],
+	},
+	std_liuli: {
+		sex: "male",
+		group: "shu",
+		hp: 3,
+		skills: ["stdfuli", "stddehua"],
+	},
 	std_zhangyao: {
 		sex: "female",
 		group: "wu",
@@ -230,7 +316,7 @@ const characters = {
 		sex: "female",
 		group: "qun",
 		hp: 4,
-		skills: ["stdhuizhan"],
+		skills: ["stdhuiji"],
 	},
 	std_dc_yanghu: {
 		sex: "male",
@@ -371,7 +457,7 @@ const characters = {
 		sex: "male",
 		group: "wu",
 		hp: 3,
-		skills: ["stdfunan", "stdxunjie"],
+		skills: ["stdfunan", "stdjiexun"],
 	},
 	std_liuzhang: {
 		sex: "male",

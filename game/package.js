@@ -22,6 +22,7 @@ window.noname_package = {
 		mobile: "移动版",
 		shiji: "始计篇",
 		sb: "谋攻篇",
+		bingshi: "兵势篇",
 		tw: "外服武将",
 		//各服联动+怀旧
 		collab: "联动卡",

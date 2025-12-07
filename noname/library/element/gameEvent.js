@@ -1,8 +1,8 @@
-import { _status, game, get, lib, ui } from "../../../noname.js";
+import { _status, game, get, lib, ui } from "noname";
 import { Player } from "./index.js";
-import security from "../../util/security.js";
-import ContentCompiler from "./GameEvent/compilers/ContentCompiler.js";
-import GameEventManager from "./GameEvent/GameEventManager.js";
+import security from "@/util/security.js";
+import ContentCompiler from "./GameEvent/compilers/ContentCompiler.ts";
+import GameEventManager from "./GameEvent/GameEventManager.ts";
 export { GameEventManager, ContentCompiler };
 
 /**
@@ -695,7 +695,7 @@ export class GameEvent {
 					var card = get.card(),
 						player = get.player();
 					var filter = evt._backup.filterCard;
-					if (filter && !filter(card, player, evt)) {
+					if (typeof info.viewAs !== "function" && filter && !filter(card, player, evt)) {
 						return false;
 					}
 					if (evt._backup.filterOk && !evt._backup.filterOk()) {
@@ -946,6 +946,9 @@ export class GameEvent {
 			if (lib.config.show_cardpile) {
 				ui.cardPileButton.style.display = "";
 			}
+			if (lib.config.show_commonCardpile) {
+				ui.commonCardPileButton.style.display = "";
+			}
 			_status.gameStarted = true;
 			game.showHistory();
 		}
@@ -977,7 +980,9 @@ export class GameEvent {
 			doneList: [],
 		};
 		const doingList = [];
-		const roles = ["player", "source", "target", "global"];
+		const roles = ["player", "source", "target", "global"],
+			map = lib.relatedTrigger,
+			names = Object.keys(map);
 		const playerMap = game.players.concat(game.dead).sortBySeat(start);
 		let player = start;
 		let allbool = false;
@@ -1058,10 +1063,22 @@ export class GameEvent {
 							if (role !== "global" && player !== event[role]) {
 								return false;
 							}
-							if (Array.isArray(expire[role])) {
-								return expire[role].includes(name);
+							const checkTrigger = trigger => {
+								if (trigger == name) {
+									return true;
+								}
+								const evt = names.find(evt => trigger?.startsWith(evt));
+								if (!evt) {
+									return false;
+								}
+								return map[evt].some(rawTrigger => {
+									return `${rawTrigger}${trigger.slice(evt.length)}` == name;
+								});
 							}
-							return expire[role] === name;
+							if (Array.isArray(expire[role])) {
+								return expire[role].length && expire[role].some(checkTrigger);
+							}
+							return checkTrigger(expire[role]);
 						});
 					}
 				})
@@ -1258,17 +1275,17 @@ export class GameEvent {
 		return (this.parent ? this.parent.waitNext() : this.start()).then(
 			onfulfilled
 				? () => {
-						return onfulfilled(
-							new Proxy(this, {
-								get(target, p, receiver) {
-									if (p === "then") {
-										return void 0;
-									}
-									return Reflect.get(target, p, receiver);
-								},
-							})
-						);
-				  }
+					return onfulfilled(
+						new Proxy(this, {
+							get(target, p, receiver) {
+								if (p === "then") {
+									return void 0;
+								}
+								return Reflect.get(target, p, receiver);
+							},
+						})
+					);
+				}
 				: onfulfilled,
 			onrejected
 		);
@@ -1383,7 +1400,7 @@ export class GameEvent {
 	}
 
 	async checkSkipped() {
-		if (!this.player || !this.player.skipList.includes(this.name)) {
+		if (!this.player || !this.player.skipList.includes(this.name) && !this.isSkipped) {
 			return false;
 		}
 		this.player.skipList.remove(this.name);

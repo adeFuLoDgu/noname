@@ -113,6 +113,7 @@ const characters = {
 		group: "wei",
 		hp: 3,
 		skills: ["repindi", "dcfaen"],
+		clans: ["颍川陈氏"],
 	},
 	re_sundeng: {
 		sex: "male",

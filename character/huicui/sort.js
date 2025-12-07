@@ -2,7 +2,7 @@ const characterSort = {
 	sp_baigei: ["re_panfeng", "xingdaorong", "caoxing", "re_chunyuqiong", "xiahoujie", "dc_caiyang", "zhoushan"],
 	sp_caizijiaren: ["dc_xiahouxuan", "dc_kongrong", "re_dongbai", "re_sunluyu", "heyan", "zhaoyan", "wangtao", "wangyue", "zhangxuan", "tengyin", "zhangyao", "xiahoulingnv", "dc_sunru", "pangshanmin", "kuaiqi"],
 	sp_zhilan: ["jimiaojimu", "dc_huangwudie", "dc_liuli", "liuyong", "wanniangongzhu", "zhanghu", "lvlingqi", "tenggongzhu", "panghui", "dc_zhaotongzhaoguang", "yuantanyuanxiyuanshang", "yuechen", "panghong"],
-	sp_guixin: ["zangba", "re_kanze", "re_chendeng", "caimaozhangyun", "dc_lvkuanglvxiang", "dc_gaolan", "yinfuren", "chengui", "chenjiao", "dc_sp_jiaxu", "qinlang", "dc_dongzhao", "houcheng"],
+	sp_guixin: ["mamiao", "zangba", "re_kanze", "re_chendeng", "caimaozhangyun", "dc_lvkuanglvxiang", "dc_gaolan", "yinfuren", "chengui", "chenjiao", "dc_sp_jiaxu", "qinlang", "dc_dongzhao", "houcheng"],
 	sp_daihan: ["mamidi", "dc_jiling", "zhangxun", "dc_yuejiu", "leibo", "qiaorui", "dongwan", "yuanyin"],
 	sp_jianghu: ["guanning", "huzhao", "dc_huangchengyan", "mengjie", "wanglie"],
 	sp_zongheng: ["huaxin", "luyusheng", "re_xunchen", "re_miheng", "fengxi", "re_dengzhi", "dc_yanghu", "zongyu"],

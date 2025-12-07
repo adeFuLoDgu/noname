@@ -165,6 +165,7 @@ const characters = {
 		group: "wei",
 		hp: 3,
 		skills: ["pindi", "faen"],
+		clans: ["颍川陈氏"],
 	},
 	sunluban: {
 		sex: "female",

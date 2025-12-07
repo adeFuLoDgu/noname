@@ -1924,6 +1924,14 @@ export default () => {
 								_status.event = _status.event.parent;
 								_status.event.step = 0;
 								_status.event.identity = link;
+								if (ui.selected.buttons.length > 0) {
+									ui.selected.buttons.forEach(function (button) {
+										if (button && button.parentNode) {
+											button.classList.remove("selected");
+										}
+									});
+									ui.selected.buttons.length = 0;
+								}
 								if (!event.stratagemMode) {
 									if (link != (event.zhongmode ? "mingzhong" : "zhu")) {
 										seats.previousSibling.style.display = "";
@@ -5051,13 +5059,6 @@ export default () => {
 				precontent() {
 					player.removeSkill("sixiang_xuanwu");
 				},
-				ai: {
-					result: {
-						player(player, target) {
-							return -ui.selected.cards.reduce((p, c) => p + get.value(c, player), 0) / 6;
-						},
-					},
-				},
 				group: "sixiang_remove",
 			},
 			sixiang_qinglong: {
@@ -5131,8 +5132,8 @@ export default () => {
 				charlotte: true,
 				async content(event, trigger, player) {
 					const lebu = player.getCards("j", j => {
-							return j.viewAs === "lebu" || j.name === "lebu";
-						}),
+						return j.viewAs === "lebu" || j.name === "lebu";
+					}),
 						bingliang = player.getCards("j", j => {
 							return j.viewAs === "bingliang" || j.name === "bingliang";
 						});

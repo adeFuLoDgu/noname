@@ -1,6 +1,26 @@
 import { lib, game, ui, get, ai, _status } from "../../noname.js";
 
 const dynamicTranslates = {
+	mbkechang(player, skill) {
+		if (player.getStorage(skill, false)) {
+			return lib.translate[`${skill}_rewrite_info`];
+		}
+		return lib.translate[`${skill}_info`];
+	},
+	mbweizhuang(player, skill) {
+		if (!player) {
+			return lib.translate[`${skill}_info`];
+		}
+		if (get.nameList(player).includes("mb_cuilingyi")) {
+			const skin = player.skin[player.name2 === "mb_cuilingyi" ? "name2" : "name"],
+				index = lib.characterSubstitute["mb_cuilingyi"].map(i =>i[0]).indexOf(skin);
+			if (index >= 0) {
+				const trueSkill = `${skill}_${skin.slice(13, -1)}x`;
+				return get.skillInfoTranslation(trueSkill, player, false);
+			}
+		}
+		return "这衣服，岂是你配穿的？";
+	},
 	mbfozong(player) {
 		const list = player.getStorage("mbfozong");
 		if (!list?.length) {
@@ -9,12 +29,6 @@ const dynamicTranslates = {
 		const colors = list?.map(i => get.translation(i))?.join("和");
 		return `锁定技，你的${colors}手牌不计入手牌上限，造成的伤害值和恢复值+1。`;
 	},
-	potkuanggu(player) {
-        if (player.getStorage("potkuanggu", 0)) {
-			return lib.translate["potkuanggu_pot_weiyan_achieve_info"];
-		}
-		return lib.translate["potkuanggu_info"];
-    },
 	yizan_use(player) {
 		if (player.storage.yizan) {
 			return "你可以将一张基本牌当做任意基本牌使用或打出。";
@@ -58,10 +72,9 @@ const dynamicTranslates = {
 		return `${start}阳：${yang}；阴：${yin}${end}`;
 	},
 	mbzuoyou(player) {
-		const bool = player.storage.mbzuoyou,
-			versus = get.mode() == "versus" && _status.mode == "two" ? "角色" : "有手牌的角色弃置一张手牌，然后其";
+		const bool = player.storage.mbzuoyou;
 		let yang = "你可以令一名角色摸三张牌，然后其弃置两张牌",
-			yin = "你可以令一名" + versus + "获得1点护甲";
+			yin = "你可以令一名角色获得1点护甲";
 		if (bool) {
 			yin = `<span class='bluetext'>${yin}</span>`;
 		} else {
@@ -70,36 +83,6 @@ const dynamicTranslates = {
 		let start = "转换技。出牌阶段限一次，",
 			end = "。";
 		return `${start}阳：${yang}；阴：${yin}${end}`;
-	},
-	pothanzhan(player) {
-		let str = lib.translate.pothanzhan_info;
-		if (!player.storage.pothanzhan) {
-			return str;
-		}
-		return str.replace(
-			"X为各自体力上限",
-			"X为" +
-				{
-					hp: "各自体力值",
-					damagedHp: "各自损失体力值",
-					countplayer: "场上存活角色数",
-				}[player.storage.pothanzhan]
-		);
-	},
-	potzhanlie(player) {
-		let str = lib.translate.potzhanlie_info;
-		if (!player.storage.potzhanlie) {
-			return str;
-		}
-		return str.replace(
-			"X为你的攻击范围",
-			"X为" +
-				{
-					hp: "你的体力值",
-					damagedHp: "你的损失体力值",
-					countplayer: "场上存活角色数",
-				}[player.storage.potzhanlie]
-		);
 	},
 	mbfunan(player) {
 		if (player.storage.mbfunan_rewrite) {

@@ -1,6 +1,17 @@
 import { lib, game, ui, get, ai, _status } from "../../noname.js";
 
 const dynamicTranslates = {
+	oldianzan(player) {
+		const targets = player.getStorage("oldianzan").filter(target => target?.isIn());
+		let str = "刘禅";
+		if (targets?.length) {
+			str = targets.map(target => get.rawName(target.name)).join("、");
+			if (targets.length > 1) {
+				str += "中的一人";
+			}
+		}
+		return `点击此技能为${str}助力。`;
+	},
 	renneyan(player) {
 		const bool = player.getStorage("renneyan", false);
 		let yang = "弃置一张牌并令此牌额外结算一次，否则此牌无效",

@@ -1,4 +1,30 @@
 const characters = {
+	sp_zhonghui: {
+		sex: "male",
+		group: "qun",
+		hp: 4,
+		skills: ["mbsizi", "mbxiezhi", "mbyunan", "mbkechang"],
+	},
+	mb_cuilingyi: {
+		sex: "female",
+		group: "wei",
+		hp: 3,
+		skills: ["mbcaiqiu", "mbxishang"],
+		names: "崔|null",
+	},
+	mb_luyu: {
+		sex: "male",
+		group: "wei",
+		hp: 3,
+		skills: ["mbbingfa", "mbshuxing"],
+	},
+	mb_caocao: {
+		sex: "male",
+		group: "qun",
+		hp: 4,
+		skills: ["mblingfa"],
+		dieAudios: ["2"],
+	},
 	mb_caohong: {
 		sex: "male",
 		group: "wei",
@@ -6,54 +32,18 @@ const characters = {
 		skills: ["mbyuanhu"],
 		dieAudios: ["caohong"],
 	},
-	pot_xinxianying: {
-		sex: "female",
-		group: "wei",
-		hp: 3,
-		skills: ["potjiejie", "potqingshi"],
-	},
-	mb_chenzhi: {
-		sex: "male",
-		group: "shu",
-		hp: 3,
-		skills: ["mbquanchong", "mbrenxing"],
-	},
-	sy_baosanniang: {
+	re_baosanniang: {
 		sex: "female",
 		group: "shu",
 		hp: 3,
 		skills: ["mbshuyong", "mbxushen", "mbzhennan"],
 		dieAudios: ["baosanniang"],
 	},
-	fx_baosanniang: {
-		sex: "female",
-		group: "shu",
-		hp: 3,
-		skills: ["mbfangxu", "mbzhuguan", "mblisuo"],
-	},
 	mb_zerong: {
 		sex: "male",
 		hp: 4,
 		group: "qun",
 		skills: ["mbfutu", "mbjingtu", "mbjiebian"],
-	},
-	pot_lusu: {
-		sex: "male",
-		hp: 3,
-		group: "wu",
-		skills: ["pothaoshi", "potdimeng"],
-	},
-	mb_sunjun: {
-		sex: "male",
-		hp: 3,
-		group: "wu",
-		skills: ["mbxiongtu", "mbxianshuai"],
-	},
-	pot_weiyan: {
-		hp: 4,
-		sex: "male",
-		group: "shu",
-		skills: ["potzhongao", "potzhuangshi", "potyinzhan"],
 	},
 	mb_mengda: {
 		sex: "male",
@@ -67,36 +57,6 @@ const characters = {
 		hp: 4,
 		skills: ["mbjinzu", "mbanxian"],
 	},
-	mb_zhangyan: {
-		sex: "male",
-		group: "qun",
-		hp: 4,
-		skills: ["mbfeijing", "mbxiaoge"],
-	},
-	guoyuan: {
-		sex: "male",
-		group: "wei",
-		hp: 3,
-		skills: ["mbqingdao", "mbxiugeng", "mbchenshe"],
-	},
-	mb_huangzu: {
-		sex: "male",
-		group: "qun",
-		hp: 4,
-		skills: ["mbchizhang", "mbduanyang"],
-	},
-	mb_tianfeng: {
-		sex: "male",
-		group: "qun",
-		hp: 3,
-		skills: ["mbganggeng", "mbsijian"],
-	},
-	mb_luyusheng: {
-		sex: "female",
-		group: "wu",
-		hp: 3,
-		skills: ["mbrunwei", "mbshuanghuai"],
-	},
 	mb_guanyinping: {
 		sex: "female",
 		group: "shu",
@@ -104,12 +64,6 @@ const characters = {
 		maxHp: 4,
 		skills: ["mbxuehen", "mbhuxiao", "mbwuji"],
 		dieAudios: ["guanyinping"],
-	},
-	pot_chendao: {
-		sex: "male",
-		group: "shu",
-		hp: 4,
-		skills: ["potwanglie", "pothongyi"],
 	},
 	mb_xingdaorong: {
 		sex: "male",
@@ -124,38 +78,12 @@ const characters = {
 		skills: ["mbanda", "mbzhuguo"],
 		names: "吴|null",
 	},
-	mb_yanghong: {
-		sex: "male",
-		group: "qun",
-		hp: 3,
-		skills: ["mbjianji", "mbyuanmo"],
-	},
-	mb_xiahoushang: {
-		sex: "male",
-		group: "wei",
-		hp: 4,
-		skills: ["mbtanfeng"],
-		dieAudios: ["tw_xiahoushang"],
-		img: "image/character/tw_xiahoushang.jpg",
-		names: "夏侯|尚",
-	},
-	sunsháo: {
-		sex: "male",
-		group: "wu",
-		hp: 4,
-		skills: ["mbganjue", "mbzhuji"],
-	}, //跟孙邵拼音字母相同了
-	pangxi: {
-		sex: "male",
-		group: "shu",
-		hp: 3,
-		skills: ["mbxuye", "mbkuangxiang"],
-	},
 	mb_simazhao: {
 		sex: "male",
 		group: "wei",
 		hp: 3,
 		skills: ["mbxiezheng", "mbqiantun", "mbweisi", "mbzhaoxiong"],
+		img: "image/character/jsrg_simazhao.jpg",
 		names: "司马|昭",
 		dieAudios: ["jsrg_simazhao"],
 		groupBorder: "jin",
@@ -171,18 +99,6 @@ const characters = {
 		group: "qun",
 		hp: 3,
 		skills: ["friendqinying", "friendlunxiong", "friendgongli_shitao"],
-	},
-	pot_yuji: {
-		sex: "male",
-		group: "qun",
-		hp: 3,
-		skills: ["potfuji", "potdaozhuan"],
-	},
-	pot_lougui: {
-		sex: "male",
-		group: "wei",
-		hp: 3,
-		skills: ["potguansha", "potjiyu"],
 	},
 	mb_qinghegongzhu: {
 		sex: "female",
@@ -210,27 +126,12 @@ const characters = {
 		skills: ["friendyance", "friendfangqiu", "friendzhugelianggongli"],
 		names: "诸葛|亮",
 	},
-	pot_dongzhao: {
-		sex: "male",
-		group: "wei",
-		hp: 3,
-		skills: ["spmiaolve", "spyingjia"],
-		img: "image/character/tw_dongzhao.jpg",
-		dieAudios: ["tw_dongzhao"],
-	},
 	mb_xuezong: {
 		sex: "male",
 		group: "wu",
 		hp: 3,
 		skills: ["mbfunan", "mbjiexun"],
 		dieAudios: ["xuezong"],
-	},
-	pot_taishici: {
-		sex: "male",
-		group: "wu",
-		hp: 4,
-		skills: ["pothanzhan", "potzhanlie", "potzhenfeng"],
-		names: "太史|慈",
 	},
 	mb_ganfuren: {
 		sex: "female",
@@ -473,6 +374,7 @@ const characters = {
 		group: "wei",
 		hp: 3,
 		skills: ["redingpin", "refaen"],
+		clans: ["颍川陈氏"],
 	},
 	xin_caoxiu: {
 		sex: "male",
@@ -791,7 +693,7 @@ const characters = {
 		sex: "male",
 		group: "wu",
 		hp: 4,
-		skills: ["rexuanfeng"],
+		skills: ["rexuanfeng", "reyongjin"],
 	},
 	re_liubiao: {
 		sex: "male",
@@ -1097,14 +999,6 @@ const characters = {
 		skills: ["relianji", "remoucheng"],
 		clans: ["太原王氏"],
 		dieAudios: ["wangyun"],
-	},
-
-	re_baosanniang: {
-		sex: "female",
-		group: "shu",
-		hp: 3,
-		skills: ["meiyong", "rexushen", "rezhennan"],
-		dieAudios: ["baosanniang"],
 	},
 
 	hujinding: {

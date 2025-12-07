@@ -1,19 +1,17 @@
-import { userAgentLowerCase, GeneratorFunction, AsyncFunction, AsyncGeneratorFunction } from "../util/index.js";
-import { game } from "../game/index.js";
-import { lib } from "../library/index.js";
-import { _status } from "../status/index.js";
-import { ui } from "../ui/index.js";
-import { CacheContext } from "../library/cache/cacheContext.js";
 import { Is } from "./is.js";
 import { Promises } from "./promises.js";
-import { rootURL } from "../../noname.js";
-import * as pinyinPro from "./pinyins/index.js";
-import { Audio } from "./audio.js";
-import security from "../util/security.js";
-import { CodeSnippet, ErrorManager } from "../util/error.js";
+import { rootURL, game, lib, _status, ui } from "noname";
+import * as pinyinPro from "pinyin-pro";
+import NonameDictionary from "./pinyins/noname-dict.js";
+import { Audio } from "./audio.ts";
+import { GeneratorFunction, AsyncFunction, AsyncGeneratorFunction } from "@/util/index.js";
+import security from "@/util/security.js";
+import { CodeSnippet, ErrorManager } from "@/util/error.ts";
 
+import JSZip from "jszip";
 import { GetCompatible } from "./compatible.js";
-import { HTMLPoptipElement } from "../library/poptip.js";
+import { HTMLPoptipElement } from "@/library/poptip.js";
+import { CacheContext } from "@/library/cache/cacheContext.js";
 
 // 用于标识Map、Set等对象在序列化中的类型
 // 使用了md5("__noname_type")的值作为键
@@ -24,6 +22,134 @@ export class Get extends GetCompatible {
 	is = new Is();
 	promises = new Promises();
 	Audio = Audio;
+	/**
+	 * 将一组卡牌按花色或颜色分组，生成最终可用于dialog.addNewRow方法的参数列表，用于使用#Player.chooseButton/Player.chooseButtonTarget使用createDialog创建对话框的需要从一组卡牌中选择所有某种颜色/花色的牌的技能，用法可参考手杀曹髦/手杀陆郁生
+	 * @param {Card[]} cards 要分组的卡牌
+	 * @param {'suit'|'color'} type 分组类型 目前仅支持'suit'/'color'
+	 * @param {false | Player} player get.suit/get.color的player参数
+	 * @returns {Array<Row_Item_Option | Row_Item_Option[]>} 返回一个列表，每一项是一个分组配置（addNewRow方法的参数RowItem）或一对分组配置组成的数组
+	 */
+	addNewRowList(cards, type = "suit", player = false) {
+		//把框变成按钮，同时给框加封条，显示xxx牌多少张
+		function createCustom() {
+			/**
+			 * @this {{
+			 *   count: number,
+			 *   type: 'suit' | 'color',
+			 *   suit?: string,
+			 *   color?: string
+			 * }}
+			 */
+			return function (itemContainer) {
+				// 从上下文获取color和count
+				const { count, type } = this;
+				// 添加link属性
+				let link;
+				if (type === "suit") {
+					link = this.suit;
+				} else if (type === "color") {
+					link = this.color;
+				}
+				itemContainer.link = link;
+				// 继承Button的原型方法
+				Object.setPrototypeOf(itemContainer, lib.element.Button.prototype);
+				// 添加点击事件
+				itemContainer.addEventListener(lib.config.touchscreen ? "touchend" : "click", ui.click.button);
+				// 将容器加入到dialog.buttons
+				itemContainer.closest(".dialog").buttons.add(itemContainer);
+				// 添加buttonid
+				itemContainer.buttonid ??= get.id();
+				//加封条
+				function formatStr(str, type) {
+					if (type === "color") {
+						return str.replace("红色", '<span style="color: red; ">$&</span>');
+					}
+					return str.replace(/(?:♥︎|♦︎)/g, '<span style="color: red; ">$&</span>');
+				}
+				let div = ui.create.div(itemContainer);
+				const innerHTML = count ? formatStr(`${get.translation(link)}牌${count}张`, type) : formatStr(`没有${get.translation(link)}牌`, type);
+				div.css({
+					innerHTML,
+					position: "absolute",
+					width: "100%",
+					bottom: "1%",
+					height: "35%",
+					background: "#352929bf",
+					display: "flex",
+					justifyContent: "center",
+					alignItems: "center",
+					fontSize: "1.2em",
+					zIndex: "2",
+				});
+			};
+		}
+		//框的样式，不要太宽，高度最小也要100px，防止空框没有高度
+		/**@type {Row_Item_Option['itemContainerCss']} */
+		let itemContainerCss = {
+			border: "solid #c6b3b3 2px",
+			minHeight: "100px",
+		};
+		const groupCards = Object.groupBy(cards, card => get[type](card, player));
+		if (type == "suit") {
+			groupCards.heart ??= [];
+			groupCards.diamond ??= [];
+			groupCards.spade ??= [];
+			groupCards.club ??= [];
+		} else if (type == "color") {
+			groupCards.red ??= [];
+			groupCards.black ??= [];
+		}
+		const keys = Object.keys(groupCards).sort((a, b) => {
+			let arr = [];
+			if (type == "suit") {
+				arr = lib.suits.slice();
+			} else if (type == "color") {
+				arr = Object.keys(lib.color);
+			}
+			return arr.indexOf(a) - arr.indexOf(b);
+		});
+		const list = [];
+		//添加框
+		while (keys.length) {
+			let key1 = keys.shift();
+			let cards1 = groupCards[key1];
+			let key2 = keys.shift();
+			let cards2 = groupCards[key2];
+			if (key2) {
+				list.push([
+					{
+						item: cards1,
+						ItemNoclick: true,
+						custom: createCustom(),
+						itemContainerCss,
+						[type]: key1,
+						count: cards1.length,
+						type,
+					},
+					{
+						item: cards2,
+						ItemNoclick: true,
+						custom: createCustom(),
+						itemContainerCss,
+						[type]: key2,
+						count: cards2.length,
+						type,
+					},
+				]);
+			} else {
+				list.push({
+					item: cards1,
+					ItemNoclick: true,
+					custom: createCustom(),
+					itemContainerCss,
+					[type]: key1,
+					count: cards1.length,
+					type,
+				});
+			}
+		}
+		return list;
+	}
 	/**
 	 * 获取牌的牌面信息
 	 * @param { Card | VCard | CardBaseUIData } node
@@ -82,7 +208,7 @@ export class Get extends GetCompatible {
 	/**
 	 * 获取当前事件是由何skill/card事件衍生并生成相应的卡牌信息提示
 	 * @param {Player} player
-	 * @param {GameEventPromise} sourceEvent
+	 * @param {GameEvent} sourceEvent
 	 * @returns {GameEvent|string}
 	 */
 	cardsetion(player, sourceEvent) {
@@ -111,7 +237,7 @@ export class Get extends GetCompatible {
 			name2 = _status.event.getParent(3).name;
 			evt2 = _status.event.getParent(3);
 		}
-		if (name1 == "compareMultiple" || name2 == "compareMultiple" || name1.indexOf("Callback") != -1 || name2.indexOf("Callback") != -1) {
+		if (name1 == "compareMultiple" || name2 == "compareMultiple" || name1?.indexOf("Callback") != -1 || name2?.indexOf("Callback") != -1) {
 			name1 = _status.event.getParent(4).name;
 			evt1 = _status.event.getParent(4);
 			name2 = _status.event.getParent(5).name;
@@ -703,6 +829,9 @@ export class Get extends GetCompatible {
 		if (info.persevereSkill) {
 			list.add("持恒技");
 		}
+		if (info.transformSkill) {
+			list.add("变身技");
+		}
 		if (info.comboSkill) {
 			list.add("连招技");
 		}
@@ -765,6 +894,27 @@ export class Get extends GetCompatible {
 			names.push([name[0], name[1]]);
 		}
 		return names;
+	}
+	/**
+	 * 获取角色称号，默认返回纯文本
+	 * @param {Player|string} name 玩家对象或角色名
+	 * @param {boolean} [name2=false] 是否返回玩家副将的称号
+	 * @param {boolean} [plainText=true] 是否返回纯文本
+	 * @returns {string} 称号
+	 */
+	characterTitle(player, name2 = false, plainText = true) {
+		if (get.itemtype(player) == "player") {
+			player = name2 ? player.name2 : player.name;
+		}
+		let characterTitle = lib.characterTitle[player] || "";
+		if (plainText) {
+			// 排除掉本体的几个颜色样式标记，如#r、#p、#g、#b
+			if (characterTitle.startsWith("#")) {
+				characterTitle = characterTitle.slice(2);
+			}
+			return get.plainText(characterTitle);
+		}
+		return characterTitle;
 	}
 	/**
 	 * 返回角色对应的原角色
@@ -1057,6 +1207,29 @@ export class Get extends GetCompatible {
 		}
 	}
 	/**
+	 * 获取一张装备牌的兵主
+	 * @param { string | Card | VCard  } name
+	 * @returns {String[]}
+	 */
+	bingzhu(name) {
+		if (typeof name != "string") {
+			name = get.name(name);
+		}
+		const list = [],
+			info = lib.card[name];
+		if (lib.cardBingzhu[name]) {
+			list.addArray(lib.cardBingzhu[name]);
+		}
+		if (info.derivation) {
+			const names = get.characterSurname(info.derivation).map(list => list.join(""));
+			list.addArray(names);
+		}
+		if (info.bingzhu) {
+			list.addArray(info.bingzhu);
+		}
+		return list.filter(surname => surname !== "某");
+	}
+	/**
 	 * @overload
 	 * @param { string } name
 	 * @returns { import("../library/element/character").Character }
@@ -1146,7 +1319,7 @@ export class Get extends GetCompatible {
 	 *
 	 * 获取一个技能或事件的某个属性的源技能
 	 * @param { string | Object } skill - 传入的技能或事件
-	 * @param { string } text - 要获取的属性（不填写默认获取sourceSkill）
+	 * @param { string } [text] - 要获取的属性（不填写默认获取sourceSkill）
 	 * @returns { string }
 	 */
 	sourceSkillFor(skill, text) {
@@ -1156,13 +1329,13 @@ export class Get extends GetCompatible {
 		if (typeof skill !== "string") {
 			skill = skill[text] || skill.skill;
 		}
-		let info = get.info(skill);
+		let info = lib.skill[skill];
 		while (true) {
 			if (!info || typeof info[text] !== "string") {
 				break;
 			}
 			skill = info[text];
-			info = get.info(skill);
+			info = lib.skill[skill];
 		}
 		return skill;
 	}
@@ -1209,13 +1382,7 @@ export class Get extends GetCompatible {
 	 * @param { (zip: JSZip) => any } callback
 	 */
 	zip(callback) {
-		if (!window.JSZip) {
-			lib.init.js(lib.assetURL + "game", "jszip", function () {
-				callback(new JSZip());
-			});
-		} else {
-			callback(new JSZip());
-		}
+		callback(new JSZip());
 	}
 	delayx(num, max) {
 		if (typeof num != "number") {
@@ -1416,11 +1583,11 @@ export class Get extends GetCompatible {
 		const target = constructor
 			? Array.isArray(obj) || obj instanceof Map || obj instanceof Set || constructor === Object
 				? // @ts-expect-error ignore
-				  new constructor()
+					new constructor()
 				: constructor.name in window && /\[native code\]/.test(constructor.toString())
-				? // @ts-expect-error ignore
-				  new constructor(obj)
-				: obj
+					? // @ts-expect-error ignore
+						new constructor(obj)
+					: obj
 			: Object.create(null);
 		if (target === obj) {
 			return target;
@@ -1741,8 +1908,10 @@ export class Get extends GetCompatible {
 			over: _status.over,
 			inpile: lib.inpile,
 			inpile_nature: lib.inpile_nature,
-			renku: _status.renku,
 		};
+		for (const [key, value] of lib.commonArea) {
+			state[value.areaStatusName] = _status[value.areaStatusName];
+		}
 		for (var i in lib.playerOL) {
 			state.players[i] = lib.playerOL[i].getState();
 		}
@@ -1930,8 +2099,14 @@ export class Get extends GetCompatible {
 			if (info.ai.halfneg) {
 				return 0;
 			}
-			if (typeof info.ai.combo == "string" && player && !player.hasSkill(info.ai.combo)) {
-				return 0;
+			if (player?.hasSkill && info?.ai?.combo) {
+				let skills = info.ai.combo;
+				if (!Array.isArray(skills)) {
+					skills = [skills];
+				}
+				if (!skills.every(skill => player.hasSkill(skill, null, null, false))) {
+					return 0;
+				}
 			}
 			if (info.ai.neg) {
 				return -1;
@@ -2480,7 +2655,7 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 						}
 						return stringifying;
 					}, {})
-			  )}`
+				)}`
 			: "";
 	}
 	/**
@@ -2903,7 +3078,7 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 	 * @returns { 'dialog' }
 	 *
 	 * @overload
-	 * @param { GameEvent | GameEventPromise } obj
+	 * @param { GameEvent } obj
 	 * @returns { 'event' }
 	 */
 	itemtype(obj) {
@@ -2965,7 +3140,7 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 		if (obj instanceof lib.element.Dialog) {
 			return "dialog";
 		}
-		if (obj instanceof lib.element.GameEvent || obj instanceof lib.element.GameEventPromise) {
+		if (obj instanceof lib.element.GameEvent) {
 			return "event";
 		}
 
@@ -3497,7 +3672,11 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 	 */
 	select(select) {
 		if (typeof select == "function") {
-			return get.select(select());
+			let result = get.select(select());
+			if (typeof result == "number") {
+				return [result, result];
+			}
+			return result;
 		} else if (typeof select == "number") {
 			return [select, select];
 		} else if (select && get.itemtype(select) == "select") {
@@ -3671,35 +3850,47 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 	 *
 	 * @param { string } str
 	 * @param { Player } [player]
+	 * @param { boolean } prefix 是否考虑重复技能前缀，默认为false
 	 * @returns { string }
 	 */
-	skillTranslation(str, player) {
-		var str2;
-		if (get.itemtype(player) !== "player") {
-			player = undefined;
+	skillTranslation(str, player, prefix = false) {
+		let str2;
+		if (get.itemtype(player) !== "player" || prefix === false) {
+			return get.translation(str);
 		}
-		if (str.startsWith("re")) {
-			str2 = str.slice(2);
-			if (str2) {
-				if (lib.translate[str] == lib.translate[str2]) {
-					if (player?.hasSkill(str2)) {
-						return "界" + lib.translate[str];
-					}
-				}
+		const name = lib.translate[str];
+		if (!player?.getSkills("invisible", null, false).some(skill => {
+			if (!get.skillInfoTranslation(skill, player).length || lib.translate[skill] !== name) {
+				return false;
 			}
-		} else if (str.startsWith("xin")) {
-			str2 = str.slice(3);
-			if (str2) {
-				if (lib.translate[str] == lib.translate[str2]) {
-					if (player?.hasSkill(str2)) {
-						return "新" + lib.translate[str];
-					}
-				}
+			return skill != str && get.sourceSkillFor(skill) != get.sourceSkillFor(str);
+		})) {
+			return get.translation(str);
+		}
+		const info = get.info(str);
+		if (info?.duplicatePrefix !== undefined) {
+			const prefix = info.duplicatePrefix;
+			if (typeof prefix == "function") {
+				return `${prefix(player, str)}${name}`;
 			}
+			return `${prefix}${name}`;
+		}
+		const map = lib.duplicatePrefix;
+		for (let key in map) {
+			if (str.startsWith(key) && lib.skill[str.slice(key.length)]) {
+				return `${map[key]}${name}`;
+			}
+			let key2 = `${key}_`;
+			if (str.startsWith(key2)) {
+				return `${map[key]}${name}`;
+			}
+		}
+		if (_status.skillOwner?.[str] !== undefined) {
+			return `${get.translation(str)}（${get.translation(_status.skillOwner[str])}）`;
 		}
 		return get.translation(str);
 	}
-	skillInfoTranslation(name, player) {
+	skillInfoTranslation(name, player, noHTML = true) {
 		let str = (() => {
 			if (player && lib.dynamicTranslate[name]) {
 				return lib.dynamicTranslate[name](player, name);
@@ -3711,6 +3902,9 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 			return str;
 		})();
 		if (typeof str === "string") {
+			if (noHTML === true) {
+				str = get.plainText(str);
+			}
 			return str;
 		} else {
 			console.warn(`孩子，你${name}的翻译传的是什么？！`);
@@ -4062,8 +4256,14 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 				if (func && !func(info, skill, i)) {
 					continue;
 				}
-				if (player && player.hasSkill && info.ai && info.ai.combo && !player.hasSkill(info.ai.combo)) {
-					continue;
+				if (player?.hasSkill && info?.ai?.combo) {
+					let skills = info.ai.combo;
+					if (!Array.isArray(skills)) {
+						skills = [skills];
+					}
+					if (!skills.every(skill => player.hasSkill(skill, null, null, false))) {
+						continue;
+					}
 				}
 				list.add(skill);
 			}
@@ -4516,7 +4716,7 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 		}
 		if (position !== "cardPile") {
 			let j = 0;
-			if (start !== "random") {
+			if (start === "random") {
 				j = get.rand(0, ui.discardPile.childNodes.length - 1);
 			}
 			for (let i = 0; i < ui.discardPile.childNodes.length; i++, j++) {
@@ -4600,7 +4800,7 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 					opacity = "";
 				}
 				var skilltrans = get.translation(skills[i]).slice(0, 2);
-				str += '<div class="skill" style="' + opacity + '">【' + skilltrans + '】</div><div style="' + opacity + '">' + get.skillInfoTranslation(skills[i]) + '</div><div style="display:block;height:10px"></div>';
+				str += '<div class="skill" style="' + opacity + '">【' + skilltrans + '】</div><div style="' + opacity + '">' + get.skillInfoTranslation(skills[i], null, false) + '</div><div style="display:block;height:10px"></div>';
 			}
 		}
 		return str;
@@ -4725,8 +4925,8 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 			}
 		}
 	}
-	nodeintro(node, simple, evt) {
-		var uiintro = ui.create.dialog("hidden", "notouchscroll");
+	nodeintro(node, simple, evt, uiintro) {
+		uiintro ??= ui.create.dialog("hidden", "notouchscroll");
 		uiintro.setAttribute("id", "nodeintro");
 		if (node.classList.contains("player") && !node.name) {
 			return uiintro;
@@ -4775,6 +4975,30 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 
 			if (lib.characterAppend[node.name]) {
 				uiintro.addText(get.colorspan(lib.characterAppend[node.name]));
+			}
+
+			if (lib.config.show_sortPack) {
+				for (let packname in lib.characterPack) {
+					if (node.name in lib.characterPack[packname]) {
+						let pack = lib.translate[packname + '_character_config'],
+							sort;
+						if (lib.characterSort[packname]) {
+							let sorted = lib.characterSort[packname];
+							for (let sortname in sorted) {
+								if (sorted[sortname].includes(node.name)) {
+									sort = `<span style = "font-size:small">${lib.translate[sortname]}</span>`;
+									break;
+								}
+							}
+						}
+						const sortPack = document.createElement("div");
+						sortPack.innerHTML = `${pack}${sort ? `<br>[${sort}]` : ""}`;
+						sortPack.appendChild(document.createElement("hr"));
+						sortPack.insertBefore(document.createElement("hr"), sortPack.firstChild);
+						uiintro.add(sortPack);
+						break;
+					}
+				}
 			}
 
 			if (get.characterInitFilter(node.name)) {
@@ -4844,11 +5068,11 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 						} else {
 							forbidstr += "（双将禁用）<br>";
 						}
-						forbidstr += get.skillInfoTranslation(skills[i], node) + "</div></div>";
+						forbidstr += get.skillInfoTranslation(skills[i], node, false) + "</div></div>";
 						uiintro.add(forbidstr);
 					} else if (!skills2.includes(skills[i])) {
 						if (lib.skill[skills[i]].preHidden && get.mode() == "guozhan") {
-							uiintro.add('<div><div class="skill" style="opacity:0.5">' + translation + '</div><div><span style="opacity:0.5">' + get.skillInfoTranslation(skills[i], node) + '</span><br><div class="underlinenode on gray" style="position:relative;padding-left:0;padding-top:7px">预亮技能</div></div></div>');
+							uiintro.add('<div><div class="skill" style="opacity:0.5">' + translation + '</div><div><span style="opacity:0.5">' + get.skillInfoTranslation(skills[i], node, false) + '</span><br><div class="underlinenode on gray" style="position:relative;padding-left:0;padding-top:7px">预亮技能</div></div></div>');
 							var underlinenode = uiintro.content.lastChild.querySelector(".underlinenode");
 							if (_status.prehidden_skills.includes(skills[i])) {
 								underlinenode.classList.remove("on");
@@ -4856,11 +5080,11 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 							underlinenode.link = skills[i];
 							underlinenode.listen(ui.click.hiddenskill);
 						} else {
-							uiintro.add('<div style="opacity:0.5"><div class="skill">' + translation + "</div><div>" + get.skillInfoTranslation(skills[i], node) + "</div></div>");
+							uiintro.add('<div style="opacity:0.5"><div class="skill">' + translation + "</div><div>" + get.skillInfoTranslation(skills[i], node, false) + "</div></div>");
 						}
 					} else if (lib.skill[skills[i]].temp || !node.skills.includes(skills[i]) || lib.skill[skills[i]].thundertext) {
 						if (lib.skill[skills[i]].frequent || lib.skill[skills[i]].subfrequent) {
-							uiintro.add('<div><div class="skill thundertext thunderauto">' + translation + '</div><div class="thundertext thunderauto">' + get.skillInfoTranslation(skills[i], node) + '<br><div class="underlinenode on gray" style="position:relative;padding-left:0;padding-top:7px">自动发动</div></div></div>');
+							uiintro.add('<div><div class="skill thundertext thunderauto">' + translation + '</div><div class="thundertext thunderauto">' + get.skillInfoTranslation(skills[i], node, false) + '<br><div class="underlinenode on gray" style="position:relative;padding-left:0;padding-top:7px">自动发动</div></div></div>');
 							var underlinenode = uiintro.content.lastChild.querySelector(".underlinenode");
 							if (lib.skill[skills[i]].frequent) {
 								if (lib.config.autoskilllist.includes(skills[i])) {
@@ -4880,10 +5104,10 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 							underlinenode.link = skills[i];
 							underlinenode.listen(ui.click.autoskill2);
 						} else {
-							uiintro.add('<div><div class="skill thundertext thunderauto">' + translation + '</div><div class="thundertext thunderauto">' + get.skillInfoTranslation(skills[i], node) + "</div></div>");
+							uiintro.add('<div><div class="skill thundertext thunderauto">' + translation + '</div><div class="thundertext thunderauto">' + get.skillInfoTranslation(skills[i], node, false) + "</div></div>");
 						}
 					} else if (lib.skill[skills[i]].frequent || lib.skill[skills[i]].subfrequent) {
-						uiintro.add('<div><div class="skill">' + translation + "</div><div>" + get.skillInfoTranslation(skills[i], node) + '<br><div class="underlinenode on gray" style="position:relative;padding-left:0;padding-top:7px">自动发动</div></div></div>');
+						uiintro.add('<div><div class="skill">' + translation + "</div><div>" + get.skillInfoTranslation(skills[i], node, false) + '<br><div class="underlinenode on gray" style="position:relative;padding-left:0;padding-top:7px">自动发动</div></div></div>');
 						var underlinenode = uiintro.content.lastChild.querySelector(".underlinenode");
 						if (lib.skill[skills[i]].frequent) {
 							if (lib.config.autoskilllist.includes(skills[i])) {
@@ -4903,7 +5127,7 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 						underlinenode.link = skills[i];
 						underlinenode.listen(ui.click.autoskill2);
 					} else if (lib.skill[skills[i]].clickable && node.isIn() && node.isUnderControl(true)) {
-						var intronode = uiintro.add('<div><div class="skill">' + translation + "</div><div>" + get.skillInfoTranslation(skills[i], node) + '<br><div class="menubutton skillbutton" style="position:relative;margin-top:5px">点击发动</div></div></div>').querySelector(".skillbutton");
+						var intronode = uiintro.add('<div><div class="skill">' + translation + "</div><div>" + get.skillInfoTranslation(skills[i], node, false) + '<br><div class="menubutton skillbutton" style="position:relative;margin-top:5px">点击发动</div></div></div>').querySelector(".skillbutton");
 						if (!_status.gameStarted || (lib.skill[skills[i]].clickableFilter && !lib.skill[skills[i]].clickableFilter(node))) {
 							intronode.classList.add("disabled");
 							intronode.style.opacity = 0.5;
@@ -4915,7 +5139,7 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 							intronode.listen(ui.click.skillbutton);
 						}
 					} else {
-						uiintro.add('<div><div class="skill">' + translation + "</div><div>" + get.skillInfoTranslation(skills[i], node) + "</div></div>");
+						uiintro.add('<div><div class="skill">' + translation + "</div><div>" + get.skillInfoTranslation(skills[i], node, false) + "</div></div>");
 					}
 					if (lib.translate[skills[i] + "_append"]) {
 						uiintro._place_text = uiintro.add('<div class="text">' + lib.translate[skills[i] + "_append"] + "</div>");
@@ -4986,7 +5210,7 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 				td = document.createElement("td");
 
 				(function () {
-					num = 0;
+					let num = 0;
 					for (var j = 0; j < node.stat.length; j++) {
 						if (typeof node.stat[j].damage == "number") {
 							num += node.stat[j].damage;
@@ -5141,6 +5365,7 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 			if (lib.config.show_favourite && lib.character[node.name] && game.players.includes(node) && (!modepack || !modepack[node.name]) && (!simple || get.is.phoneLayout())) {
 				var addFavourite = ui.create.div(".text.center.pointerdiv");
 				addFavourite.link = node.name;
+				addFavourite.style.marginRight = "15px";
 				if (lib.config.favouriteCharacter.includes(node.name)) {
 					addFavourite.innerHTML = "移除收藏";
 				} else {
@@ -5149,6 +5374,18 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 				addFavourite.listen(ui.click.favouriteCharacter);
 				uiintro.add(addFavourite);
 			}
+			if (!simple || get.is.phoneLayout()) {
+				let viewInfo = ui.create.div(".text.center.pointerdiv");
+				viewInfo.link = node;
+				viewInfo.innerHTML = "查看资料";
+				viewInfo.listen(function() {
+					let player = this.link;
+					let audioName = player.skin.name || player.name1 || player.name;
+					ui.click.charactercard(player.name1 || player.name, null, null, true, player.node.avatar, audioName);
+				});
+				uiintro.add(viewInfo);
+			}
+			/*先废弃这里的换肤
 			if (!simple || get.is.phoneLayout()) {
 				if ((lib.config.change_skin || lib.skin) && !node.isUnseen()) {
 					var num = 1;
@@ -5264,7 +5501,7 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 						});
 					}
 				}
-			}
+			}*/
 
 			uiintro.add(ui.create.div(".placeholder.slim"));
 		} else if (node.classList.contains("mark") && node.info && node.parentNode && node.parentNode.parentNode && node.parentNode.parentNode.classList.contains("player")) {
@@ -5345,7 +5582,8 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 				return;
 			}
 			var name = node.name,
-				Vcard = node[node.cardSymbol] || false;
+				Vcard = node[node.cardSymbol] || false,
+				trueCard = node;
 			if (node.parentNode.cardMod) {
 				var moded = false;
 				for (var i in node.parentNode.cardMod) {
@@ -5360,29 +5598,28 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 					return uiintro;
 				}
 			}
-			if (node.link && node.link.name && lib.card[node.link.name]) {
+			if (node.link?.name && lib.card[node.link.name]) {
 				name = node.link.name;
+				Vcard = node.link[node.link.cardSymbol] || false;
+				trueCard = node.link;
 			}
-			var cardPosition = get.position(node);
-			if (((cardPosition === "e" || cardPosition === "j") && node.viewAs && node.viewAs != name) || (Vcard && (Vcard.cards.length != 1 || Vcard.cards[0].name != name))) {
-				uiintro.add(get.translation(node.viewAs));
-				var cardInfo = lib.card[node.viewAs],
+			var cardPosition = get.position(trueCard);
+			if (((cardPosition === "e" || cardPosition === "j") && trueCard.viewAs && trueCard.viewAs != name) || (Vcard && (Vcard.cards.length != 1 || Vcard.cards[0].name != name))) {
+				uiintro.add(get.translation(trueCard.viewAs));
+				var cardInfo = lib.card[trueCard.viewAs],
 					showCardIntro = true;
-				var cardOwner = get.owner(node);
+				var cardOwner = get.owner(trueCard);
 				if (cardInfo.blankCard) {
 					if (cardOwner && !cardOwner.isUnderControl(true)) {
 						showCardIntro = false;
 					}
 				}
-				if (cardOwner) {
-					var sourceVCard = Vcard;
-					if (showCardIntro && sourceVCard) {
-						uiintro.add('<div class="text center">（' + (sourceVCard?.cards?.length ? get.translation(get.translation(sourceVCard.cards)) : "这是一张虚拟牌") + "）</div>");
-					}
+				if (cardOwner && showCardIntro) {
+					uiintro.isNotCard = true;
 				}
 				// uiintro.add(get.translation(node.viewAs)+'<br><div class="text center" style="padding-top:5px;">（'+get.translation(node)+'）</div>');
-				uiintro.nosub = true;
-				name = node.viewAs;
+				//uiintro.nosub = true;
+				name = trueCard.viewAs;
 			} else {
 				uiintro.add(get.translation(node));
 			}
@@ -5544,6 +5781,14 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 					if (lib.translate[name + "_append"]) {
 						uiintro.add('<div class="text" style="display:inline">' + lib.translate[name + "_append"] + "</div>");
 					}
+					if (uiintro.isNotCard) {
+						if (Vcard?.cards?.length) {
+							uiintro.add('<div class="text center">—— 对应实体牌 ——</div>');
+							uiintro.addSmall(Vcard.cards);
+						} else {
+							uiintro.add('<div class="text center">（这是一张虚拟牌）</div>');
+						}
+					}
 				}
 				uiintro.add(ui.create.div(".placeholder.slim"));
 			}
@@ -5574,6 +5819,30 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 
 			if (lib.characterAppend[node.link]) {
 				uiintro.addText(get.colorspan(lib.characterAppend[node.link]));
+			}
+
+			if (lib.config.show_sortPack) {
+				for (let packname in lib.characterPack) {
+					if (node.link in lib.characterPack[packname]) {
+						let pack = lib.translate[packname + '_character_config'],
+							sort;
+						if (lib.characterSort[packname]) {
+							let sorted = lib.characterSort[packname];
+							for (let sortname in sorted) {
+								if (sorted[sortname].includes(node.link)) {
+									sort = `<span style = "font-size:small">[${lib.translate[sortname]}]</span>`;
+									break;
+								}
+							}
+						}
+						const sortPack = document.createElement("div");
+						sortPack.innerHTML = `${pack}${sort ? `<br>${sort}` : ""}`;
+						sortPack.appendChild(document.createElement("hr"));
+						sortPack.insertBefore(document.createElement("hr"), sortPack.firstChild);
+						uiintro.add(sortPack);
+						break;
+					}
+				}
 			}
 
 			if (get.characterInitFilter(node.link)) {
@@ -5693,7 +5962,7 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 							}
 						}
 
-						uiintro.add('<div><div class="skill">' + translation + "</div><div>" + get.skillInfoTranslation(skills[i]) + "</div></div>");
+						uiintro.add('<div><div class="skill">' + translation + "</div><div>" + get.skillInfoTranslation(skills[i], null, false) + "</div></div>");
 
 						if (lib.translate[skills[i] + "_append"]) {
 							uiintro._place_text = uiintro.add('<div class="text">' + lib.translate[skills[i] + "_append"] + "</div>");
@@ -5705,6 +5974,7 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 					var addFavourite = ui.create.div(".text.center.pointerdiv");
 					addFavourite.link = node.link;
 					addFavourite.style.marginBottom = "15px";
+					addFavourite.style.marginRight = "15px";
 					if (lib.config.favouriteCharacter.includes(node.link)) {
 						addFavourite.innerHTML = "移除收藏";
 					} else {
@@ -5715,7 +5985,18 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 				} else {
 					uiintro.add(ui.create.div(".placeholder.slim"));
 				}
-				var addskin = false;
+				if (!simple || get.is.phoneLayout()) {
+					let viewInfo = ui.create.div(".text.center.pointerdiv");
+					viewInfo.link = node.link;
+					viewInfo.innerHTML = "查看资料";
+					viewInfo.style.marginBottom = "15px";
+					viewInfo.listen(function() {
+						return ui.click.charactercard(this.link, node);
+					});
+					uiintro.add(viewInfo);
+				}
+				//先废弃这里的换肤
+				/*var addskin = false;
 				if (node.parentNode.classList.contains("menu-buttons")) {
 					addskin = !lib.config.show_charactercard;
 				} else {
@@ -5791,7 +6072,7 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 							createButtons(lib.skin[nameskin]);
 						});
 					}
-				}
+				}*/
 			}
 		} else if (node.classList.contains("equips") && ui.arena.classList.contains("selecting")) {
 			(function () {
@@ -5923,14 +6204,19 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 	/**
 	 *
 	 * 弹出特殊名词的解释窗口
-	 * @param {string} info 对应解释在lib.poptip的值
+	 * @param {string | Function} info 对应解释在lib.poptip的值
+	 * @param {string} poptip 此名词的对应id
 	 * @param {PointerEvent|TouchEvent} event 点击事件
 	 */
-	poptipIntro(info, event) {
+	poptipIntro(info, poptip, event) {
 		const uiintro = ui.create.dialog("hidden", "notouchscroll");
 		uiintro.style.zIndex = "21";
 		uiintro.setAttribute("id", "poptip");
-		uiintro._place_text = uiintro.add(`<div class = "text">${info}</div>`);
+		if (typeof info == "string") {
+			uiintro._place_text = uiintro.add(`<div class = "text">${info}</div>`);
+		} else {
+			info(uiintro, poptip);
+		}
 		uiintro.classList.add("popped");
 		uiintro.classList.add("static");
 		ui.window.appendChild(uiintro);
@@ -7080,8 +7366,11 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 	/**
 	 * @overload
 	 * @param {object} poptip
+	 * @param {string} poptip.id 对应特殊名词id
+	 * @param {string} poptip.type 特殊名词的类型
 	 * @param {string} poptip.name 特殊名词
-	 * @param {string} poptip.info 对应解释
+	 * @param {string} [poptip.info] 对应解释
+	 * @param {string | ((dialog: Dialog, poptip: string) => Dialog)} [poptip.dialog] 自定义框
 	 * @returns {string}
 	 */
 	/**
@@ -7091,6 +7380,87 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 	 */
 	poptip(poptip) {
 		return lib.poptip.getElement(poptip);
+	}
+	/**
+	 * 获取角色原皮对应的图片路径
+	 * @param { string } name
+	 * @returns {string | null}
+	 */
+	skinPath(name) {
+		if (!name) {
+			return null;
+		}
+		let src,
+			ext = ".jpg",
+			subfolder = "default";
+		let dbimage = null,
+			extimage = null,
+			modeimage = null,
+			nameinfo = get.character(name),
+			gzbool = false;
+		if (nameinfo.skinPath) {
+			if (nameinfo.skinPath.startsWith("ext:")) {
+				return nameinfo.skinPath.replace(/^ext:/, "extension/");
+			}
+			return nameinfo.skinPath;
+		}
+		const mode = get.mode();
+		if (lib.characterPack[`mode_${mode}`] && lib.characterPack[`mode_${mode}`][name]) {
+			if (mode === "guozhan") {
+				if (name.startsWith("gz_shibing")) {
+					name = name.slice(3, 11);
+				} else {
+					if (lib.config.mode_config.guozhan.guozhanSkin && nameinfo && nameinfo.hasSkinInGuozhan) {
+						gzbool = true;
+					}
+					name = name.slice(3);
+				}
+			} else {
+				modeimage = mode;
+			}
+		} else if (name.includes("::")) {
+			// @ts-expect-error ignore
+			name = name.split("::");
+			modeimage = name[0];
+			name = name[1];
+		}
+		let imgPrefixUrl;
+		if (!modeimage && nameinfo) {
+			if (nameinfo.img) {
+				imgPrefixUrl = nameinfo.img;
+			} else if (nameinfo.trashBin) {
+				for (const value of nameinfo.trashBin) {
+					if (value.startsWith("img:")) {
+						imgPrefixUrl = value.slice(4);
+						break;
+					} else if (value.startsWith("ext:")) {
+						extimage = value;
+						break;
+					} else if (value.startsWith("db:")) {
+						dbimage = value;
+						break;
+					} else if (value.startsWith("mode:")) {
+						modeimage = value.slice(5);
+						break;
+					} else if (value.startsWith("character:")) {
+						name = value.slice(10);
+						break;
+					}
+				}
+			}
+		}
+		if (imgPrefixUrl) {
+			src = imgPrefixUrl;
+		} else if (extimage) {
+			src = extimage.replace(/^ext:/, "extension/");
+		} else if (dbimage) {
+			src = dbimage.slice(3);
+		} else if (modeimage) {
+			src = `image/mode/${modeimage}/character/${name}${ext}`;
+		} else {
+			src = `image/character/${gzbool ? "gz_" : ""}${name}${ext}`;
+		}
+		return `${src.split("/").slice(0, -2).join("/")}/skin/${name}/`;
 	}
 	/**
 	 * 将URL转换成相对于无名杀根目录的路径
@@ -7213,6 +7583,8 @@ freezeSlot(Get.prototype, "isFunctionBody");
 freezeSlot(Get.prototype, "pureFunctionStr");
 freezeSlot(Get.prototype, "funcInfoOL");
 freezeSlot(Get.prototype, "infoFuncOL");
+
+pinyinPro.addDict(NonameDictionary);
 
 export let get = new Get();
 /**

@@ -1,4 +1,23 @@
 const characters = {
+	ol_le_liushan: {
+		sex: "male",
+		group: "shu",
+		hp: 3,
+		skills: ["oltuoquan", "olxianglv", "olanle", "oldianzan"],
+	},
+	you_zhugeliang: {
+		sex: "male",
+		group: "shu",
+		hp: 3,
+		skills: ["dcyingyou"],
+	},
+	bigsb_dengai: {
+		sex: "male",
+		group: "wei",
+		hp: 3,
+		maxHp: 5,
+		skills: ["olandu", "olqiqi"],
+	},
 	wild_liru: {
 		sex: "male",
 		group: "qun",
@@ -350,6 +369,18 @@ const characters = {
 		hp: 3,
 		skills: ["xwshoufa", "fuzhao"],
 		names: "null|null",
+	},
+	bozai: {
+		sex: "male",
+		group: "qun",
+		hp: 4,
+		skills: ["quanjia"],
+	},
+	xiangjiaoduanwu: {
+		sex: "male",
+		group: "qun",
+		hp: 4,
+		skills: ["xuyuan", "xiaomian"],
 	},
 };
 
