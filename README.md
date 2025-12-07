@@ -8,6 +8,9 @@ Click [here](https://adeFuLoDgu.github.io/noname) to play with browser. **(Bette
 + Please reset the game after the major version update to get the updated default game settings.
 ![image](https://raw.githubusercontent.com/adeFuLoDgu/noname/master/reset_illustration.jpg)
 
+## Note
++ Certain dependencies are needed to run this repository locally. Please refer to the [official repository](https://github.com/libnoname/noname/tree/PR-Branch) for details.
+
 ## Currently Known Issues:
 + ~~Cannot adjust zoom level in Firefox.~~ Firefox is not supported (Service Worker check function).
 + Cannot use multiplayer for live play because of enforcement of https of github (secure websocket). Or enable mixed content for the live play site in your browser.

@@ -2148,6 +2148,9 @@ const skills = {
 			return [player, event.player, event.source].filter(target => target?.isIn() && target?.countDiscardableCards(player, "he"));
 		},
 		check(event, player) {
+			if (event.player && get.attitude(player, event.player) < 0) {
+				return false;
+			}
 			const targets = lib.skill.mbchenshe.logTarget(event, player);
 			return (
 				targets.reduce((sum, target) => {
