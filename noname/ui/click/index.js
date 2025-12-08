@@ -521,41 +521,43 @@ export class Click {
 		}
 		const defaultFolder = src;
 		// @ts-expect-error ignore
-		game.getFileList(defaultFolder, (folders, files) => {
-			if (files.length) {
-				const list = [...files, "defaultSkin"].filter(i => i != nowSkin);
-				if (list.length) {
-					const skin = list.randomGet();
-					if (skin === "defaultSkin") {
-						delete lib.config.skin[name];
-						if (lib.characterSubstitute[name]) {
-							for (const nameList of lib.characterSubstitute[name]) {
-								const subName = nameList[0];
-								delete lib.config.skin[subName];
+		if (location.href.indexOf("//localhost") != -1) {
+			game.getFileList(defaultFolder, (folders, files) => {
+				if (files.length) {
+					const list = [...files, "defaultSkin"].filter(i => i != nowSkin);
+					if (list.length) {
+						const skin = list.randomGet();
+						if (skin === "defaultSkin") {
+							delete lib.config.skin[name];
+							if (lib.characterSubstitute[name]) {
+								for (const nameList of lib.characterSubstitute[name]) {
+									const subName = nameList[0];
+									delete lib.config.skin[subName];
+								}
+							}
+						} else {
+							lib.config.skin[name] = [skin, `${defaultFolder}${skin}`];
+							if (lib.characterSubstitute[name]) {
+								for (const nameList of lib.characterSubstitute[name]) {
+									const subName = nameList[0],
+										[fold, prefix] = skin.split(".");
+									lib.config.skin[subName] = [name, `${defaultFolder}/${fold}/${subName}.${prefix}`];
+								}
 							}
 						}
+						game.saveConfig("skin", lib.config.skin);
+						avatar.setBackground(name, "character");
+						finish(true);
 					} else {
-						lib.config.skin[name] = [skin, `${defaultFolder}${skin}`];
-						if (lib.characterSubstitute[name]) {
-							for (const nameList of lib.characterSubstitute[name]) {
-								const subName = nameList[0],
-									[fold, prefix] = skin.split(".");
-								lib.config.skin[subName] = [name, `${defaultFolder}/${fold}/${subName}.${prefix}`];
-							}
-						}
+						finish(false);
 					}
-					game.saveConfig("skin", lib.config.skin);
-					avatar.setBackground(name, "character");
-					finish(true);
 				} else {
 					finish(false);
 				}
-			} else {
+			}, () => {
 				finish(false);
-			}
-		}, () => {
-			finish(false);
-		});
+			});
+		}
 	}
 	touchpop(forced) {
 		if (lib.config.touchscreen || forced) {
@@ -3345,26 +3347,28 @@ export class Click {
 					}
 				};
 				let defaultFolder = src;
-				game.getFileList(defaultFolder, (folders, files) => {
-					if (files.length && !node) {
-						node = ui.create.div(".changeskin", "可换肤", playerbg);
-						avatars = ui.create.div(".avatars", playerbg);
-						changeskinfunc = function() {
-							playerbg.classList.add("scroll");
-							if (node._created) {
-								return;
-							}
-							node._created = true;
-							game.getFileList(defaultFolder, (folders, files) => {
-								const list = files.map(file => {
-									let src = `${defaultFolder}${file}`;
-									return [file, src];
-								})
-								createButtons(list);
-							}, () => {});
-						};
-					}
-				}, () => {});
+				if (location.href.indexOf("//localhost") != -1) {
+					game.getFileList(defaultFolder, (folders, files) => {
+						if (files.length && !node) {
+							node = ui.create.div(".changeskin", "可换肤", playerbg);
+							avatars = ui.create.div(".avatars", playerbg);
+							changeskinfunc = function() {
+								playerbg.classList.add("scroll");
+								if (node._created) {
+									return;
+								}
+								node._created = true;
+								game.getFileList(defaultFolder, (folders, files) => {
+									const list = files.map(file => {
+										let src = `${defaultFolder}${file}`;
+										return [file, src];
+									})
+									createButtons(list);
+								}, () => {});
+							};
+						}
+					}, () => {});
+				}
 			}
 		}
 		var ban = ui.create.div(".menubutton.large.ban.character", uiintro, "禁用", function (e) {

@@ -115,6 +115,8 @@ let Character_bannedList = [
 	"jsp_liubei",
 	"old_caochong",
 	"diy_weiyan",
+	"goblin",
+	"lord_goblin",
 ];
 window.config = {
 	extension_sources: {

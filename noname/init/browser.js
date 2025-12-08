@@ -5,7 +5,7 @@ export async function browserReady() {
 	// if (location.href.startsWith("http") && typeof window.initReadWriteFunction != "function" && !window.require && !window.__dirname) {
 	// window.initReadWriteFunction = function (game) {
 	try {
-		await fetch(`./checkFile?fileName=noname.js`)
+		await fetch(`/checkFile?fileName=noname.js`)
 			.then(response => response.json())
 			.then(result => {
 				if (!result?.success) throw new Error(result.errorMsg);

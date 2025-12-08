@@ -84,6 +84,7 @@ export async function importMode(name) {
  * @returns {Promise<void>}
  */
 async function importFunction(type, path) {
+	path = (location.href.indexOf("//localhost") == -1 ? "/noname" : "") + path;
 	const modeContent = await import(/* @vite-ignore */ path + ".js").catch(e => {
 		if (/Failed to fetch/.test(e.message) && window.isSecureContext) {
 			return import(/* @vite-ignore */ path + ".ts");
