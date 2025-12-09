@@ -1,4 +1,4 @@
-import { lib, game, ui, get, ai, _status } from "noname";
+import { lib, game, ui, get, ai, _status } from "../../noname.js";
 
 const translates = {
 	ol_sb_chengyu: "OL谋程昱",

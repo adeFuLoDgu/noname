@@ -16,7 +16,9 @@ export {};
 	};
 
 	if (!("serviceWorker" in navigator)) {
-		alert(globalText.SERVICE_WORKER_NOT_SUPPORT);
+		if (location.href.indexOf("//localhost") != -1) {
+			alert(globalText.SERVICE_WORKER_NOT_SUPPORT);
+		}
 		return;
 	}
 
