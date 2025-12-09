@@ -11769,11 +11769,11 @@ player.removeVirtualEquip(card);
 			} else if (typeof event.animate == "function") {
 				var time = event.animate(event);
 				game.pause();
-				if (window.decadeUI) {
-					gainTo(cards);
-				} else {
-					setTimeout(
-						function () {
+				setTimeout(
+					function () {
+						if (window.decadeUI) {
+							gainTo(cards, true);
+						} else {
 							addv();
 							player.node.handcards1.insertBefore(frag1, player.node.handcards1.firstChild);
 							player.node.handcards2.insertBefore(frag2, player.node.handcards2.firstChild);
@@ -11782,14 +11782,14 @@ player.removeVirtualEquip(card);
 								ui.updatehl();
 							}
 							broadcast();
-							game.resume();
-						},
-						get.delayx(time, time)
-					);
-				}
+						}
+						game.resume();
+					},
+					get.delayx(time, time)
+				);
 			} else {
 				if (window.decadeUI) {
-					gainTo(cards);
+					gainTo(cards, true);
 				} else {
 					addv();
 					player.node.handcards1.insertBefore(frag1, player.node.handcards1.firstChild);
