@@ -344,7 +344,7 @@ export async function boot() {
 				return null;
 			}
 		};
-		if (import.meta.env.DEV || typeof lib.device == "undefined") {
+		if (import.meta.env.DEV || typeof lib.device == "undefined" || location.href.indexOf("//localhost") == -1) {
 			const { browserReady } = await import("./browser.js");
 			await browserReady();
 		} else {
