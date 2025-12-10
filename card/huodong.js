@@ -66,7 +66,19 @@ game.import("card", function () {
 				bingzhu: ["刘宏", "袁术", "司马炎"],
 				skills: ["mb_chuanguoyuxi_skill"],
 				ai: {
-					equipValue: 9,
+					equipValue(card, player) {
+						if (card.constructor.name == "VCard" && card?.cards?.[0]) card = card.cards[0];
+						if (player.isZhu2()) {
+							return 9;
+						}
+						if (player.hp < 4) {
+							return 0;
+						}
+						return 1;
+					},
+					basic: {
+						equipValue: 5,
+					},
 				},
 			},
 			//见好就收

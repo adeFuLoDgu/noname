@@ -7251,12 +7251,15 @@ player.removeVirtualEquip(card);
 				} else {
 					event.compareName = event.parent.name;
 				}
+				if (typeof(event.compareName) == "string" && event.compareName.startsWith("pre_")) {
+					event.compareName = event.compareName.slice(4);
+				}
 				if (!event.isDelay) {
 					game.broadcastAll(function(player, target, eventName){
 						var dialog = decadeUI.create.compareDialog();
 						dialog.caption = get.translation(eventName) + '拼点';
 						dialog.player = player;
-						dialog.target = event.compareWithCardPile ? "牌堆" : target;
+						dialog.target = typeof(target) == "string" ? player : target;
 						dialog.open();
 
 						decadeUI.delay(400);
