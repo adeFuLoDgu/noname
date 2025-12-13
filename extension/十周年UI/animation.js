@@ -232,7 +232,7 @@ var duilib;
 			}
 
 			var domX, domY, domDefaultX, domDefaultY;
-			var dpr = e.dpr;
+			var dpr = e.dpr / get.menuZoom();
 			var referSize = { width: e.canvas.width, height: e.canvas.height };
 			var domNode = this.referNode instanceof HTMLElement ? this.referNode : undefined;
 			if (domNode) {
@@ -240,7 +240,7 @@ var duilib;
 					var rect = domNode.getBoundingClientRect();
 					this.referBounds = {
 						x: rect.left,
-						y: decadeUI.get.bodySize().height - rect.bottom,
+						y: decadeUI.get.bodySize().height * get.menuZoom() - rect.bottom,
 						width: rect.width,
 						height: rect.height,
 					};
@@ -281,9 +281,9 @@ var duilib;
 				}
 
 				if (renderY == undefined) {
-					renderY = (this.referBounds.y + this.referBounds.height / 2) * dpr;;
+					renderY = (this.referBounds.y + this.referBounds.height / 2) * dpr;
 				} else {
-					renderY += this.referBounds.y * dpr;;
+					renderY += this.referBounds.y * dpr;
 				}
 			}
 
@@ -315,7 +315,7 @@ var duilib;
 			} else if (renderScaleX && renderScaleY) {
 				renderScale *= Math.min(renderScaleX, renderScaleY);
 			} else {
-				renderScale *= dpr;
+				renderScale *= dpr * get.menuZoom();
 			}
 
 			if (renderScale != 1) {
@@ -656,7 +656,7 @@ var duilib;
 					});
 					return 'loading';
 				}
-				return console.error('prepSpine: [' + filename + '] 骨骼没有加载');;
+				return console.error('prepSpine: [' + filename + '] 骨骼没有加载');
 			}
 
 			var skeleton;
@@ -825,7 +825,7 @@ var duilib;
 		};
 
 		AnimationPlayer.prototype.getSpineActions = function (filename) {
-			if (!this.hasSpine(filename)) return console.error('getSpineActions: [' + filename + '] 骨骼没有加载');;
+			if (!this.hasSpine(filename)) return console.error('getSpineActions: [' + filename + '] 骨骼没有加载');
 
 			var skeleton;
 			var skeletons = this.spine.skeletons;
@@ -843,7 +843,7 @@ var duilib;
 		};
 
 		AnimationPlayer.prototype.getSpineBounds = function (filename) {
-			if (!this.hasSpine(filename)) return console.error('getSpineBounds: [' + filename + '] 骨骼没有加载');;
+			if (!this.hasSpine(filename)) return console.error('getSpineBounds: [' + filename + '] 骨骼没有加载');
 
 			if (!this.resized) {
 				var dpr = 1;

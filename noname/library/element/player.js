@@ -14929,8 +14929,7 @@ export class Player extends HTMLDivElement {
 					setTimeout(function () {
 						var rect = that.getBoundingClientRect();
 						decadeUI.animation.playSpine('effect_zhenwang', {
-							x: rect.left + rect.width / 2 - 7,
-							y: decadeUI.get.bodySize().height - rect.top - rect.height / 2 + 1,
+							parent: that,
 							scale: 0.8,
 						});
 					}, 250);

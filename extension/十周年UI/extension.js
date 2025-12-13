@@ -5531,7 +5531,7 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 					this.asyncJs(`${decadeUIPath}dynamicSkin.js`),
 					this.asyncJs(`${decadeUIPath}dynamicSkinTemplate.js`),
 					this.asyncJs(`${decadeUIPath}effect.js`),
-					this.asyncJs(`${decadeUIPath}menu.js`),
+					//this.asyncJs(`${decadeUIPath}menu.js`),
 					this.asyncJs(`${decadeUIPath}skill.js`),
 					this.asyncJs(`${decadeUIPath}spine.js`)
 					]);
