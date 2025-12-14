@@ -46,7 +46,10 @@ import "vue/dist/vue.esm-browser.js";
         */
 		game.tryUpdateClient(/** UpdateReason.UNDERSUPPORT **/ 4);
 	}
-
+	window.useNewDpr = true;
+	if ((core === "chrome" && !get.checkVersion([128, 0, 0], version)) || (core === "firefox" && !get.checkVersion([126, 0, 0], version))) {
+		window.useNewDpr = false;
+	}
 	// GPL确认
 	if (!localStorage.getItem("gplv3_noname_alerted")) {
 		const gameIntialized = nonameInitialized && nonameInitialized.length > 0;

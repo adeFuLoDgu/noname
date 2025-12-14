@@ -232,7 +232,7 @@ var duilib;
 			}
 
 			var domX, domY, domDefaultX, domDefaultY;
-			var dpr = e.dpr / get.menuZoom();
+			var dpr = e.dpr / (window.useNewDpr ? get.menuZoom() : 1);
 			var referSize = { width: e.canvas.width, height: e.canvas.height };
 			var domNode = this.referNode instanceof HTMLElement ? this.referNode : undefined;
 			if (domNode) {
@@ -240,7 +240,7 @@ var duilib;
 					var rect = domNode.getBoundingClientRect();
 					this.referBounds = {
 						x: rect.left,
-						y: decadeUI.get.bodySize().height * get.menuZoom() - rect.bottom,
+						y: decadeUI.get.bodySize().height * (window.useNewDpr ? get.menuZoom() : 1) - rect.bottom,
 						width: rect.width,
 						height: rect.height,
 					};
@@ -315,7 +315,7 @@ var duilib;
 			} else if (renderScaleX && renderScaleY) {
 				renderScale *= Math.min(renderScaleX, renderScaleY);
 			} else {
-				renderScale *= dpr * get.menuZoom();
+				renderScale *= dpr * (window.useNewDpr ? get.menuZoom() : 1);
 			}
 
 			if (renderScale != 1) {

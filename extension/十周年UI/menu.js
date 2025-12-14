@@ -1,4 +1,6 @@
 'use strict';
 decadeModule.import((lib, game, ui, get, ai, _status) => {
-	game.menuZoom = 1;
+	if (!window.useNewDpr) {
+		game.menuZoom = 1;
+	}
 });
