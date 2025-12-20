@@ -66,7 +66,8 @@ await build({
 		rollupOptions: {
 			preserveEntrySignatures: "strict",
 			treeshake: false,
-			external: ["vue"],
+			//commented out for github pages
+			//external: ["vue"],
 			output: {
 				preserveModules: true, // 保留文件结构
 				preserveModulesRoot: "./",
