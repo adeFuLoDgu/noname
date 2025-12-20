@@ -135,6 +135,7 @@ const characters = {
 		group: "qun",
 		hp: 4,
 		skills: ["liangji", "jugong", "chengmou"],
+		clans: ["太原王氏"],
 	},
 	ns_nanhua: {
 		sex: "male",

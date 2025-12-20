@@ -258,7 +258,75 @@ game.import("card", function () {
 					//if(player!=game.me&&player.countCards('h')<2) return false;
 					return target.countCards("h") > 0;
 				},
-				content() {
+				async content(event, trigger, player) {
+					//适配卡牌上的storage？
+					/*const { card } = event;
+					if (card?.storage) {
+						const keys = ["showPosition", "discardPosition", "chooseToShow", "chooseToDiscard", "filterDiscard", "filterShow"];
+						for (const key of keys) {
+							event[key] = card.storage[key];
+						}
+					};*/
+					const { target, showPosition = "h" } = event;
+					if (target.countCards(showPosition) == 0) {
+						return event.finish();
+					}
+					//返回目标选展示牌的结果，给出默认逻辑
+					event.chooseToShow ??= async (event, player, target) => {
+						const { showPosition = "h", filterShow = () => true } = event;
+						let result;
+						if (target.countCards(showPosition) == 1) {
+							result = { cards: target.getCards(showPosition) };
+						}
+						else {
+							result = await target
+								.chooseCard(true, showPosition, "请选择【火攻】要展示的牌", filterShow)
+								.set("ai", function (card) {
+									if (_status.event.getRand() < 0.5) {
+										return Math.random();
+									}
+									return get.value(card);
+								})
+								.forResult();
+						}
+						return result;
+					}
+					const result = await event.chooseToShow(event, player, target);
+					event.showResult = result;
+					const { cards } = result;
+					event.cards2 = cards;
+					const showEvent = target.showCards(cards, `${get.translation(target)}因【火攻】展示的牌`).set("closeDialog", false);
+					await showEvent;
+					const videoId = showEvent.videoId;
+					event.videoId = videoId;
+					//返回玩家弃牌/其他操作的结果，给出默认逻辑
+					event.chooseToDiscard ??= async (event, player, target) => {
+						const { discardPostion = "h", cards2, filterDiscard = { suit: get.suit(cards2[0]) } } = event;
+						const result = await player
+							.chooseToDiscard(discardPostion, filterDiscard)
+							.set("ai", card => {
+								const evt = _status.event.getParent();
+								if (get.damageEffect(evt.target, evt.player, evt.player, "fire") > 0) {
+									return 6.2 + Math.min(4, evt.player.hp) - get.value(card, evt.player);
+								}
+								return -1;
+							})
+							.set("prompt", false)
+							.forResult();
+						return result;
+					}
+					const result2 = await event.chooseToDiscard(event, player, target);
+					event.discardResult = result2;
+					if (result2?.bool) {
+						await target.damage("fire");
+					}
+					else {
+						target.addTempSkill("huogong2");
+					}
+					game.addVideo("cardDialog", null, videoId);
+					game.broadcastAll("closeDialog", videoId);
+				},
+				/*content() {
 					"step 0";
 					if (target.countCards("h") == 0) {
 						event.finish();
@@ -303,7 +371,7 @@ game.import("card", function () {
 					event.dialog.close();
 					game.addVideo("cardDialog", null, event.videoId);
 					game.broadcast("closeDialog", event.videoId);
-				},
+				},*/
 				ai: {
 					basic: {
 						order: 9.2,

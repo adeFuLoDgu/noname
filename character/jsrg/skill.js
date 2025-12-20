@@ -9090,7 +9090,7 @@ const skills = {
 		trigger: { global: "gainAfter" },
 		filter(event, player) {
 			const { player: source } = event;
-			const skill = this.skill_id;
+			const skill = "jsrgjulian";
 			if (source == player || source.group != "qun" || source.countMark(`${skill}_count`) >= lib.skill[skill].maxNum) {
 				return false;
 			}
@@ -9116,7 +9116,7 @@ const skills = {
 				audio: ["jsrgjulian3.mp3", "jsrgjulian4.mp3"],
 				trigger: { player: "phaseJieshuBegin" },
 				filter(event, player) {
-					return lib.skill[this.skill_id].logTarget(null, player).length;
+					return lib.skill["jsrgjulian_gain"].logTarget(null, player).length;
 				},
 				prompt: "是否发动【聚敛】？",
 				prompt2: "获得其他所有群势力角色的各一张牌",
@@ -9208,7 +9208,7 @@ const skills = {
 			if (!hs.length) {
 				return false;
 			}
-			return hs.every(card => lib.filter.cardDiscardable(card, player, this.skill_id));
+			return hs.every(card => lib.filter.cardDiscardable(card, player, "jsrgzhuhuan"));
 		},
 		async cost(event, trigger, player) {
 			event.result = await player
@@ -10944,21 +10944,21 @@ const skills = {
 			if (name == "damageBegin4") {
 				return player.hp > 0;
 			}
-			return game.hasPlayer(current => current.isMinHp() && player.getStorage("jsrgjishan").includes(current));
+			return game.hasPlayer(current => current.isMinHp() && player.getStorage("jsrgjishan").includes(current) && current.isDamaged());
 		},
 		async cost(event, trigger, player) {
 			const { triggername, skill } = event,
 				{ player: target } = trigger;
 			if (triggername == "damageBegin4") {
-				const bool = await player.chooseBool(get.prompt(skill, target), "失去1点体力并防止此伤害，然后你与其各摸一张牌").set("choice", get.info(skill).check(trigger, player)).forResultBool();
+				const { result } = await player.chooseBool(get.prompt(skill, target), "失去1点体力并防止此伤害，然后你与其各摸一张牌").set("choice", get.info(skill).check(trigger, player));
 				event.result = {
-					bool: bool,
+					bool: result?.bool,
 					targets: [target],
 				};
 			} else {
 				event.result = await player
 					.chooseTarget(get.prompt(skill), "令一名体力值最小且你对其发动过〖积善①〗的角色回复1点体力", (card, player, target) => {
-						return target.isMinHp() && player.getStorage("jsrgjishan").includes(target);
+						return target.isMinHp() && player.getStorage("jsrgjishan").includes(target) && target.isDamaged();
 					})
 					.set("ai", target => {
 						const player = get.player();

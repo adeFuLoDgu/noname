@@ -2,7 +2,7 @@ const characters = {
 	sb_lvbu: {
 		sex: "male",
 		group: "qun",
-		hp: 4,
+		hp: 5,
 		skills: ["sbwushuang", "sbliyu"],
 	},
 	sb_xiahouyuan: {
@@ -76,6 +76,7 @@ const characters = {
 		group: "wei",
 		hp: 3,
 		skills: ["sbquhu", "sbjieming"],
+		clans: ["颍川荀氏"],
 	},
 	sb_caopi: {
 		sex: "male",

@@ -2290,7 +2290,22 @@ const _zhanfa = {
 			value: 5.8,
 		},
 		skill: {
-			trigger: { player: "chooseToDiscardBegin" },
+			trigger: { player: "huogongBegin" },
+			forced: true,
+			async content(event, trigger, player) {
+				trigger.set("chooseToDiscard", async (event, player, target) => {
+					const { discardPostion = "h", cards2, filterDiscard = { suit: get.suit(cards2[0]) } } = event;
+					const result = await player
+						.chooseCard(`请选择火攻要展示的牌`, discardPostion, filterDiscard)
+						.set("ai", () => Math.random())
+						.forResult();
+					if (result?.bool && result.cards?.length) {
+						await player.showCards(result.cards, `${get.translation(player)}因<span class = bluetext>虚焰</span>修改过的【火攻】展示的牌`);
+					}
+					return result;
+				})
+			}
+			/*trigger: { player: "chooseToDiscardBegin" },
 			forced: true,
 			filter(event, player) {
 				return event.getParent()?.name == "huogong";
@@ -2306,20 +2321,7 @@ const _zhanfa = {
 							await player.showCards(cards, `${get.translation(player)}【火攻】展示的牌`);
 						}
 					});
-				/*const result = await player
-					.chooseCard(trigger.filterCard, () => true)
-					.set("prompt", false)
-					.forResult();
-				if (result?.cards?.length) {
-					const { cards } = result;
-					await player.showCards(cards, `${get.translation(player)}因【火攻】展示的牌`, false);
-					trigger.result = { bool: true, cards: cards };
-				}
-				else {
-					trigger.result = { bool: false};
-				}
-				trigger.finish();*/
-			},
+			},*/
 		},
 	},
 	//蓄力箭

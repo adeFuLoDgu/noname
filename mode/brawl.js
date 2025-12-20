@@ -4731,6 +4731,7 @@ export default () => {
 											group: "qun",
 											hp: 4,
 											skills: ["weijing", "rerende"],
+											clans: ["陈留吴氏"],
 										},
 										zhangren: {
 											sex: "male",

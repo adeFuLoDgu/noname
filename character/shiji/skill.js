@@ -6180,7 +6180,7 @@ const skills = {
 			if (!list.includes("gain") && player.hasCard(i => get.type(i) == "equip", "he") && game.hasPlayer(current => current != player && current.countCards("h") > 0)) {
 				return true;
 			}
-			if (!list.includes("give") && player.countCards("he") > 1 && game.hasPlayer(current => current != player && current.countCards("e") > 0)) {
+			if (!list.includes("give") && player.countCards("he") > 0 && game.hasPlayer(current => current != player && current.countCards("e") > 0)) {
 				return true;
 			}
 			return !list.includes("draw") && game.hasPlayer(current => current != player);
@@ -6189,7 +6189,7 @@ const skills = {
 			dialog(event, player) {
 				const list = [
 					["gain", "将一张装备牌置于其他角色的装备区内并获得其一张手牌"],
-					["give", "将两张牌交给一名其他角色并获得其装备区内的一张牌"],
+					["give", "将至多两张牌交给一名其他角色并获得其装备区内的一张牌"],
 					["draw", "你可以选择任意名其他角色，这些角色手牌数和装备区牌数每有一项与你相同，其摸一张牌，若这些角色均摸了两张牌，你摸选择角色数张牌"],
 				];
 				return ui.create.dialog("睦阵：请选择一项", [list, "textbutton"], "hidden");
@@ -6203,7 +6203,7 @@ const skills = {
 					return player.hasCard(i => get.type(i) == "equip", "he") && game.hasPlayer(current => current != player && current.countCards("h") > 0);
 				}
 				if (button.link == "give") {
-					return player.countCards("he") > 1 && game.hasPlayer(current => current != player && current.countCards("e") > 0);
+					return player.countCards("he") > 0 && game.hasPlayer(current => current != player && current.countCards("e") > 0);
 				}
 				return game.hasPlayer(current => current != player);
 			},
@@ -6240,7 +6240,7 @@ const skills = {
 						true,
 						() => false,
 					][index],
-					selectCard: [1, 2, -1][index],
+					selectCard: [1, [1, 2], -1][index],
 					ai1(card) {
 						return 8 - get.value(card);
 					},
@@ -7346,44 +7346,31 @@ const skills = {
 		audio: 2,
 		enable: ["chooseToUse", "chooseToRespond"],
 		filter(event, player) {
-			if (!player.countMark("spwuku") || !player.countCards("hse") || player.hasSkill("spmiewu2")) {
+			if (!player.countMark("spwuku") || !player.countCards("hse") || player.hasSkill("spmiewu_used")) {
 				return false;
 			}
-			for (var i of lib.inpile) {
-				var type = get.type2(i);
-				if ((type == "basic" || type == "trick") && event.filterCard(get.autoViewAs({ name: i }, "unsure"), player, event)) {
-					return true;
+			return get.inpileVCardList(info => {
+				if (!["basic", "trick", "delay"].includes(info[0])) {
+					return false;
 				}
-			}
-			return false;
+				return event.filterCard(get.autoViewAs({ name: info[2], nature: info[3] }, "unsure"), player, event);
+			}).length;
 		},
 		chooseButton: {
 			dialog(event, player) {
-				var list = [];
-				for (var i = 0; i < lib.inpile.length; i++) {
-					var name = lib.inpile[i];
-					if (name == "sha") {
-						if (event.filterCard(get.autoViewAs({ name }, "unsure"), player, event)) {
-							list.push(["基本", "", "sha"]);
-						}
-						for (var nature of lib.inpile_nature) {
-							if (event.filterCard(get.autoViewAs({ name, nature }, "unsure"), player, event)) {
-								list.push(["基本", "", "sha", nature]);
-							}
-						}
-					} else if (get.type2(name) == "trick" && event.filterCard(get.autoViewAs({ name }, "unsure"), player, event)) {
-						list.push(["锦囊", "", name]);
-					} else if (get.type(name) == "basic" && event.filterCard(get.autoViewAs({ name }, "unsure"), player, event)) {
-						list.push(["基本", "", name]);
+				const list = get.inpileVCardList(info => {
+					if (!["basic", "trick", "delay"].includes(info[0])) {
+						return false;
 					}
-				}
+					return event.filterCard(get.autoViewAs({ name: info[2], nature: info[3] }, "unsure"), player, event);
+				});
 				return ui.create.dialog("灭吴", [list, "vcard"]);
 			},
 			check(button) {
 				if (_status.event.getParent().type != "phase") {
 					return 1;
 				}
-				var player = _status.event.player;
+				const player = get.player();
 				if (["wugu", "zhulu_card", "yiyi", "lulitongxin", "lianjunshengyan", "diaohulishan"].includes(button.link[2])) {
 					return 0;
 				}
@@ -7402,8 +7389,17 @@ const skills = {
 					},
 					position: "hse",
 					viewAs: { name: links[0][2], nature: links[0][3] },
-					precontent() {
-						player.addTempSkill("spmiewu2");
+					log: false,
+					async precontent(event, trigger, player) {
+						player
+							.when({ player: ["useCardAfter", "respondAfter"] })
+							.filter(evt => evt.getParent() == event.getParent())
+							.step(async (event, trigger, player) => {
+								player.removeSkill(event.name);
+								await player.draw();
+							});
+						player.addTempSkill("spmiewu_used");
+						player.logSkill("spmiewu");
 						player.removeMark("spwuku", 1);
 					},
 				};
@@ -7416,8 +7412,8 @@ const skills = {
 			if (!lib.inpile.includes(name)) {
 				return false;
 			}
-			var type = get.type2(name);
-			return (type == "basic" || type == "trick") && player.countMark("spwuku") > 0 && player.countCards("she") > 0 && !player.hasSkill("spmiewu2");
+			const type = get.type2(name);
+			return ["basic", "trick"].includes(type) && player.countMark("spwuku") > 0 && !player.hasSkill("spmiewu_used");
 		},
 		ai: {
 			combo: "spwuku",
@@ -7425,11 +7421,11 @@ const skills = {
 			respondSha: true,
 			respondShan: true,
 			skillTagFilter(player) {
-				if (!player.countMark("spwuku") || !player.countCards("hse") || player.hasSkill("spmiewu2")) {
+				if (!player.countMark("spwuku") || !player.countCards("hse") || player.hasSkill("spmiewu_used")) {
 					return false;
 				}
 			},
-			order: 1,
+			order: 7,
 			result: {
 				player(player) {
 					if (_status.event.dying) {
@@ -7439,21 +7435,11 @@ const skills = {
 				},
 			},
 		},
-	},
-	spmiewu2: {
-		trigger: { player: ["useCardAfter", "respondAfter"] },
-		forced: true,
-		charlotte: true,
-		popup: false,
-		sourceSkill: "spmiewu",
-		filter(event, player) {
-			return event.skill == "spmiewu_backup";
-		},
-		content() {
-			player.draw();
+		subSkill: {
+			backup: {},
+			used: { charlotte: true },
 		},
 	},
-	spmiewu_backup: { audio: "spmiewu" },
 	qinzheng: {
 		audio: 2,
 		trigger: { player: ["useCard", "respond"] },

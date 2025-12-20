@@ -1000,7 +1000,9 @@ export class Click {
 			const cards = _status[value.areaStatusName];
 			uiintro.add(`<div class="text center">${value.translate || get.translation(key)} (${get.cnNumber(cards?.length ?? 0)}张)</div>`);
 			if (get.itemtype(cards) == "cards") {
-				uiintro.addSmall([cards, "card"]);
+				if (!value.isUnseen) {
+					uiintro.addSmall([cards, "card"]);
+				}
 			}
 			uiintro.add(ui.create.div(".placeholder"));
 		}
@@ -3492,10 +3494,29 @@ export class Click {
 						spacemark = '<span style="font-size:7px">' + " " + "</span>" + "|" + '<span style="font-size:7px">' + " " + "</span>";
 					}
 					// 获取武将称号
-					var charactertitle = lib.characterTitle[name] || "";
+					var charactertitle = get.characterTitle(name, false, false);
 					var titleHtml = "";
-					if (charactertitle) {
+					if (charactertitle.length) {
 						titleHtml = '<div class="character-title">' + get.colorspan(charactertitle) + '</div>';
+					}
+					let packName;
+					for (let packname in lib.characterPack) {
+						if (name in lib.characterPack[packname]) {
+							let pack = lib.translate[packname + '_character_config'],
+								sort;
+							if (lib.characterSort[packname]) {
+								let sorted = lib.characterSort[packname];
+								for (let sortname in sorted) {
+									if (sorted[sortname].includes(name)) {
+										sort = `<span style = "font-size:small">[${lib.translate[sortname]}]</span>`;
+										break;
+									}
+								}
+							}
+							packName = `${pack}${sort ? `${sort}` : ""}`;
+							titleHtml = `${titleHtml}<div class="character-title">${packName}</div>`;
+							break;
+						}
 					}
 					intro.innerHTML = titleHtml + '<span style="font-weight:bold;margin-right:5px">' + charactername + "</span>" + '<span style="font-size:14px;font-family:SimHei,STHeiti,sans-serif">' + "[" + characterpinyin + "]" + "</span>" + spacemark + charactersex + spacemark + charactergroup + spacemark + characterhp + '<span style="line-height:2"></span>' + "<br>" + characterintroinfo;
 
@@ -3656,10 +3677,33 @@ export class Click {
 					showCharacterNamePinyin = lib.config.show_characternamepinyin;
 				intro = uiintro.querySelector(".characterintro") || ui.create.div(".characterintro", uiintro);
 				// 添加武将称号
-				if (lib.characterTitle[name]) {
+				let characterTitle = get.colorspan(get.characterTitle(name, false, false)), packName;
+				for (let packname in lib.characterPack) {
+					if (name in lib.characterPack[packname]) {
+						let pack = lib.translate[packname + '_character_config'],
+							sort;
+						if (lib.characterSort[packname]) {
+							let sorted = lib.characterSort[packname];
+							for (let sortname in sorted) {
+								if (sorted[sortname].includes(name)) {
+									sort = `<span style = "font-size:small">[${lib.translate[sortname]}]</span>`;
+									break;
+								}
+							}
+						}
+						packName = `${pack}${sort ? `${sort}` : ""}`;
+						if (characterTitle.length) {
+							characterTitle = `${characterTitle}<span style="color: white"> | ${packName}</span>`;
+						} else {
+							characterTitle = `<span style="color: white">${packName}</span>`;
+						}
+						break;
+					}
+				}
+				if (characterTitle.length) {
 					const titleDiv = document.createElement("div");
 					titleDiv.className = "character-title";
-					titleDiv.innerHTML = get.colorspan(lib.characterTitle[name]);
+					titleDiv.innerHTML = characterTitle;
 					intro.appendChild(titleDiv);
 					// 添加分隔线
 					const hr = document.createElement("hr");
@@ -4388,9 +4432,6 @@ export class Click {
 		}
 	}
 	pause() {
-		if (lib.config.test_game) {
-			return;
-		}
 		if (_status.paused2 || _status.pausing || _status.nopause || !ui.pause) {
 			return;
 		}
@@ -4399,6 +4440,9 @@ export class Click {
 				return;
 			}
 			if (!_status.gameStarted) {
+				return;
+			}
+			if (lib.config.test_game) {
 				return;
 			}
 		}

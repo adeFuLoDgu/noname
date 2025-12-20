@@ -1,4 +1,12 @@
 const characters = {
+	tw_jsrg_liubei: {
+		sex: "male",
+		group: "qun",
+		hp: 4,
+		skills: ["twjishan", "jsrgzhenqiao"],
+		img: "image/character/jsrg_liubei.jpg",
+		dieAudios: ["jsrg_liubei"],
+	},
 	tw_jsrg_sunjian: {
 		sex: "male",
 		group: "qun",
@@ -598,6 +606,7 @@ const characters = {
 		hp: 3,
 		skills: ["twweipo", "mjchenshi", "twmouzhi"],
 		dieAudios: ["sp_xunchen"],
+		clans: ["颍川荀氏"],
 	},
 	tw_jiangqing: {
 		sex: "male",

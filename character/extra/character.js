@@ -40,6 +40,7 @@ const characters = {
 		group: "shen",
 		hp: 4,
 		skills: ["caanchao", "cayurong", "cadingxi"],
+		clans: ["太原王氏"],
 	},
 	ca_shen_caocao: {
 		sex: "male",
@@ -162,6 +163,7 @@ const characters = {
 		hp: 4,
 		skills: ["dclinjie", "dcduzhang", "dcjianghuo"],
 		groupInGuozhan: "ye",
+		clans: ["颍川钟氏"],
 	},
 	shen_pangtong: {
 		sex: "male",

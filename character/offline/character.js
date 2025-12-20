@@ -158,6 +158,7 @@ const characters = {
 		group: "wei",
 		hp: 3,
 		skills: ["xy_jianzu", "xy_dishou"],
+		clans: ["颍川荀氏"],
 	},
 	xy_chengong: {
 		sex: "male",
@@ -246,6 +247,7 @@ const characters = {
 		hp: 4,
 		skills: ["drlt_qianjie", "zj_jueyan", "zj_huairou"],
 		dieAudios: ["lukang"],
+		clans: ["吴郡陆氏"],
 	},
 	zj_zhaotong: {
 		sex: "male",
@@ -302,6 +304,7 @@ const characters = {
 		group: "wei",
 		hp: 4,
 		skills: ["zj_quanwei", "zj_quanshu", "zj_quanqing"],
+		clans: ["颍川钟氏"],
 	},
 	zj_jiangwei: {
 		sex: "male",
@@ -676,6 +679,7 @@ const characters = {
 		group: "wu",
 		hp: 3,
 		skills: ["dragqianxun", "draglianying"],
+		clans: ["吴郡陆氏"],
 	},
 	drag_xusheng: {
 		sex: "male",
@@ -1229,6 +1233,7 @@ const characters = {
 		group: "shu",
 		hp: 4,
 		skills: ["tyqingshi", "tyyilin", "tychengming"],
+		isZhugong: true,
 	},
 	ty_sunquan: {
 		sex: "male",
@@ -1476,6 +1481,7 @@ const characters = {
 		hp: 4,
 		skills: ["psmouchuan", "pszizhong", "psjizun", "psqingsuan"],
 		isZhugong: true,
+		clans: ["颍川钟氏"],
 	},
 	yj_ehuan: {
 		sex: "male",

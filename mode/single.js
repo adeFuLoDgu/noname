@@ -387,6 +387,7 @@ export default () => {
 					group: "wu",
 					hp: 3,
 					skills: ["qianxun", "lianying"],
+					clans: ["吴郡陆氏"],
 				},
 				sunshangxiang: {
 					sex: "female",

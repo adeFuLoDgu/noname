@@ -1,4 +1,10 @@
 const characters = {
+	pot_zanghong: {
+		sex: "male",
+		group: "qun",
+		hp: 4,
+		skills: ["pot_liezhi", "pot_jugu"],
+	},
 	pot_chenjiao: {
 		sex: "male",
 		group: "wei",
@@ -82,6 +88,7 @@ const characters = {
 		group: "wu",
 		hp: 3,
 		skills: ["mbrunwei", "mbshuanghuai"],
+		clans: ["吴郡陆氏"],
 	},
 	mb_yanghong: {
 		sex: "male",

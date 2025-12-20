@@ -3317,9 +3317,6 @@ const skills = {
 			const goon =
 				player.hasUseTarget(card) &&
 				!game.getGlobalHistory("useCard", evt => {
-					if (!["sha", "juedou"].includes(evt.card.name)) {
-						return false;
-					}
 					return evt.targets?.some(target => targets.includes(target));
 				}).length;
 			return [bool, goon];

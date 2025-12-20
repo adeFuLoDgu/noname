@@ -90,686 +90,738 @@ export const otherMenu = function (/** @type { boolean | undefined } */ connectM
 		clickMode.call(ui.commandnode);
 	};
 	//更新菜单有本体函数赋值，就不要懒加载了
-	//以下為v1.10.11版本更新函數，新版本更新會直接抓官方伺服器，而不是github上的資料
 	(function () {
-		var page = ui.create.div('');
-		var node = ui.create.div('.menubutton.large', '更新', start.firstChild, clickMode);
+		var page = ui.create.div("");
+		var node = ui.create.div(".menubutton.large", "更新", start.firstChild, clickMode);
 		node.link = page;
-		page.classList.add('menu-help');
-		var ul = document.createElement('ul');
-		var li1 = document.createElement('li');
-		var li2 = document.createElement('li');
-		var li3 = document.createElement('li');
-		const trimURL = url => {
-			const updateURLS = lib.updateURLS;
-			for (const key in updateURLS) {
-				const updateURL = updateURLS[key];
-				if (url == updateURL) return lib.configMenu.general.config.update_link.item[key];
-			}
-			let index = url.indexOf('://');
-			if (index != -1) url = url.slice(index + 3);
-			index = url.indexOf('/');
-			if (index != -1) url = url.slice(0, index);
-			if (url.length > 15) {
-				const list = url.split('.');
-				if (list.length > 1) list.shift();
-				url = list.join('.');
-			}
-			if (url.length > 15) {
-				const list = url.split('.');
-				if (list.length > 1) list.pop();
-				url = list.join('.');
-			}
-			return url;
-		};
-		li1.innerHTML = '游戏版本：' + lib.version + '<p style="margin-top:8px;white-space:nowrap"></p>';
-		li2.innerHTML = '素材版本：' + (lib.config.asset_version || '无') + '<p style="margin-top:8px"></p>';
-		li3.innerHTML = '更新地址：<span>' + trimURL(lib.config.updateURL || lib.updateURL) + '</span><p style="margin-top:8px"></p>';
-		li3.style.whiteSpace = 'nowrap';
-		li3.style.display = 'none';// coding
+		page.classList.add("menu-help");
+		var ul = document.createElement("ul");
+		var li1 = document.createElement("li");
+		var li2 = document.createElement("li");
+		var li3 = document.createElement("li");
+		// const trimURL = url => {
+		// 	const updateURLS = lib.updateURLS;
+		// 	for (const key in updateURLS) {
+		// 		const updateURL = updateURLS[key];
+		// 		if (url == updateURL) return lib.configMenu.general.config.update_link.item[key];
+		// 	}
+		// 	let index = url.indexOf('://');
+		// 	if (index != -1) url = url.slice(index + 3);
+		// 	index = url.indexOf('/');
+		// 	if (index != -1) url = url.slice(0, index);
+		// 	if (url.length > 15) {
+		// 		const list = url.split('.');
+		// 		if (list.length > 1) list.shift();
+		// 		url = list.join('.');
+		// 	}
+		// 	if (url.length > 15) {
+		// 		const list = url.split('.');
+		// 		if (list.length > 1) list.pop();
+		// 		url = list.join('.');
+		// 	}
+		// 	return url;
+		// };
+		li1.innerHTML = "游戏版本：" + lib.version + '<p style="margin-top:8px;white-space:nowrap"></p>';
+		li2.innerHTML = "素材版本：" + (lib.config.asset_version || "无") + '<p style="margin-top:8px"></p>';
+		// li3.innerHTML = '更新地址：<span>' + trimURL(lib.config.updateURL || lib.updateURL) + '</span><p style="margin-top:8px"></p>';
+		li3.style.whiteSpace = "nowrap";
+		li3.style.display = "none"; // coding
 
-		var button1, button2, button3, button4, button5;
+		/**
+		 * @type {HTMLButtonElement}
+		 */
+		var checkVersionButton;
+		/**
+		 * @type {HTMLButtonElement}
+		 */
+		var checkAssetButton;
+		/**
+		 * @type {HTMLButtonElement}
+		 */
+		var checkDevVersionButton;
 
-		game.checkForUpdate = function (forcecheck, dev) {
-			if (!dev && button1.disabled) {
+		game.checkForUpdate = async function (forcecheck, dev) {
+			if (!dev && checkVersionButton.disabled) {
 				return;
-			}
-			else if (dev && button3.disabled) {
+			} else if (dev && checkDevVersionButton.disabled) {
 				return;
-			}
-			else if (!game.download) {
-				alert('此版本不支持游戏内更新，请手动更新');
-				return;
-			}
-			else {
+			} else {
 				if (dev) {
-					button3.innerHTML = '正在检查更新';
+					checkDevVersionButton.innerHTML = "正在检查更新";
+				} else {
+					checkVersionButton.innerHTML = "正在检查更新";
 				}
-				else {
-					button1.innerHTML = '正在检查更新';
-				}
-				button3.disabled = true;
-				button1.disabled = true;
 
-				var goupdate = function (files, update) {
-					lib.version = update.version;
-					if (update.dev && !lib.config.debug) {
-						dev = 'nodev';
-					}
-					lib.init.req('game/source.js', function () {
-						try {
-							eval(this.responseText);
-							if (!window.noname_source_list) {
-								throw ('err');
-							}
-						}
-						catch (e) {
-							alert('更新地址有误');
-							console.log(e);
-							return;
-						}
+				checkDevVersionButton.disabled = true;
+				checkVersionButton.disabled = true;
 
-						var updates = window.noname_source_list;
-						delete window.noname_source_list;
-						if (Array.isArray(files)) {
-							files.add('game/update.js');
-							var files2 = [];
-							for (var i = 0; i < files.length; i++) {
-								var str = files[i].indexOf('*');
-								if (str != -1) {
-									str = files[i].slice(0, str);
-									files.splice(i--, 1);
-									for (var j = 0; j < updates.length; j++) {
-										if (updates[j].startsWith(str)) {
-											files2.push(updates[j]);
-										}
-									}
-								}
-							}
-							updates = files.concat(files2);
-						}
-						for (var i = 0; i < updates.length; i++) {
-							if (updates[i].startsWith('theme/') && !updates[i].includes('.css')) {
-								updates.splice(i--, 1);
-							}
-							else if (updates[i].startsWith('node_modules/') && !update.node) {
-								updates.splice(i--, 1);
-							}
-						}
-
-						if (!ui.arena.classList.contains('menupaused')) {
-							ui.click.configMenu();
-							ui.click.menuTab('其它');
-						}
-						var p = button1.parentNode;
-						button1.remove();
-						button3.remove();
-						var span = document.createElement('span');
-						var n1 = 0;
-						var n2 = updates.length;
-						span.innerHTML = '正在下载文件（' + n1 + '/' + n2 + '）';
-						p.appendChild(span);
-						var finish = function () {
-							span.innerHTML = '游戏更新完毕（' + n1 + '/' + n2 + '）';
-							p.appendChild(document.createElement('br'));
-							var button = document.createElement('button');
-							button.innerHTML = '重新启动';
-							button.onclick = game.reload;
-							button.style.marginTop = '8px';
-							p.appendChild(button);
-						};
-						game.multiDownload(updates, function () {
-							n1++;
-							span.innerHTML = '正在下载文件（' + n1 + '/' + n2 + '）';
-						}, function (e) {
-							game.print('下载失败：' + e.source);
-						}, function () {
-							setTimeout(finish, 500);
-						}, null, dev);
-					}, function () {
-						alert('更新地址有误');
-					}, true);
+				const refresh = () => {
+					checkVersionButton.disabled = false;
+					checkVersionButton.innerHTML = "检查游戏更新";
+					checkDevVersionButton.disabled = false;
+					checkDevVersionButton.innerHTML = "更新到开发版";
 				};
 
-				lib.init.req('game/update.js', function () {
-					try {
-						eval(this.responseText);
-						if (!window.noname_update) {
-							throw ('err');
+				/**
+				 * @param {{ assets: any; author?: { login: string; avatar_url: string; html_url: string; }; body?: string; html_url?: string; name: any; published_at?: string; zipball_url: any; }} description
+				 */
+				const download = description => {
+					const progress = createProgress("正在更新" + description.name, 1, description.name + ".zip");
+					/**
+					 * @type {progress}
+					 */
+					let unZipProgress;
+					let url = description.zipball_url;
+					if (Array.isArray(description.assets) && description.assets.length > 0) {
+						const coreZipData = description.assets.find(v => v.name == "noname.core.zip");
+						if (coreZipData && confirm(`检测到该版本(${description.name})有离线包资源，是否改为下载离线包资源？否则将下载完整包资源`)) {
+							url = "https://ghproxy.cc/" + coreZipData.browser_download_url;
 						}
 					}
-					catch (e) {
-						alert('更新地址有误');
-						console.log(e);
-						return;
-					}
-
-					var update = window.noname_update;
-					delete window.noname_update;
-					if (forcecheck === false) {
-						if (update.version == lib.config.check_version) {
-							return;
+					request(url, (receivedBytes, total, filename) => {
+						if (typeof filename == "string") {
+							progress.setFileName(filename);
 						}
-					}
-					game.saveConfig('check_version', update.version);
-					var goon = true;
-					if (!dev) {
-						if (update.version.includes('beta') || update.version == lib.version) {
-							goon = false;
+						let received = 0,
+							max = 0;
+						if (total) {
+							max = +(total / (1024 * 1024)).toFixed(1);
+						} else {
+							max = 1000;
 						}
-					}
-					if (goon) {
-						var files = null;
-						var version = lib.version;
-						if (Array.isArray(update.dev) && dev) {
-							files = update.dev;
+						received = +(receivedBytes / (1024 * 1024)).toFixed(1);
+						if (received > max) {
+							max = received;
 						}
-						else if (Array.isArray(update.files) && update.update && !dev) {
-							var version1 = version.split('.');
-							var version2 = update.update.split('.');
-							for (var i = 0; i < version1.length && i < version2.length; i++) {
-								if (version2[i] > version1[i]) {
-									files = false; break;
+						progress.setProgressMax(max);
+						progress.setProgressValue(received);
+					})
+						.then(async blob => {
+							progress.remove();
+							const zip = await get.promises.zip();
+							zip.load(await blob.arrayBuffer());
+							const entries = Object.entries(zip.files);
+							let root;
+							// const hiddenFileFlags = [".", "_"];
+							unZipProgress = createProgress("正在解压" + progress.getFileName(), entries.length);
+							let i = 0;
+							for (const [key, value] of entries) {
+								// 第一个是文件夹的话，就是根文件夹
+								if (i == 0 && value.dir && !description.name.includes("noname.core.zip")) {
+									root = key;
 								}
-								else if (version1[i] > version2[i]) {
-									files = update.files.slice(0); break;
+								unZipProgress.setProgressValue(i++);
+								const fileName = typeof root == "string" && key.startsWith(root) ? key.replace(root, "") : key;
+								// if (hiddenFileFlags.includes(fileName[0])) {
+								// 	continue;
+								// }
+								if (value.dir) {
+									await game.promises.createDir(fileName);
+									continue;
 								}
-							}
-							if (files === null) {
-								if (version1.length >= version2.length) {
-									files = update.files.slice(0);
-								}
-							}
-						}
-						var str;
-						if (dev) {
-							str = '开发版仅供测试使用，可能存在风险，是否确定更新？';
-						}
-						else {
-							str = '有新版本' + update.version + '可用，是否下载？';
-						}
-						if (navigator.notification && navigator.notification.confirm) {
-							var str2;
-							if (dev) {
-								str2 = str;
-								str = '更新到开发版';
-							}
-							else {
-								str2 = update.changeLog[0];
-								for (var i = 1; i < update.changeLog.length; i++) {
-									if (update.changeLog[i].indexOf('://') == -1) {
-										str2 += '；' + update.changeLog[i];
-									}
-								}
-							}
-							navigator.notification.confirm(
-								str2,
-								function (index) {
-									if (index == 1) {
-										goupdate(files, update);
-									}
-									else {
-										button1.disabled = false;
-										button1.innerHTML = '检查游戏更新';
-										button3.disabled = false;
-										button3.innerHTML = '更新到开发版';
-									}
-								},
-								str,
-								['确定', '取消']
-							);
-						}
-						else {
-							if (confirm(str)) {
-								goupdate(files, update);
-							}
-							else {
-								button1.disabled = false;
-								button1.innerHTML = '检查游戏更新';
-								button3.disabled = false;
-								button3.innerHTML = '更新到开发版';
-							}
-						}
-					}
-					else {
-						alert('当前版本已是最新');
-						button1.disabled = false;
-						button1.innerHTML = '检查游戏更新';
-						button3.disabled = false;
-						button3.innerHTML = '更新到开发版';
-					}
-				}, function () {
-					if (forcecheck === false) {
-						return;
-					}
-					alert('连接失败');
-					button1.disabled = false;
-					button1.innerHTML = '检查游戏更新';
-					button3.disabled = false;
-					button3.innerHTML = '更新到开发版';
-				}, true);
-			}
-		};
-		game.checkForAssetUpdate = function (type) {
-			if (button2.disabled) {
-				return;
-			}
-			else if (game.download) {
-				button2.innerHTML = '正在检查更新';
-				button2.disabled = true;
-				lib.init.req('game/asset.js', function () {
-					try {
-						eval(this.responseText);
-						if (!window.noname_asset_list || !window.noname_skin_list) {
-							throw ('err');
-						}
-					}
-					catch (e) {
-						alert('更新地址有误');
-						console.log(e);
-						return;
-					}
-
-					var updates = window.noname_asset_list;
-					delete window.noname_asset_list;
-					var skins = window.noname_skin_list;
-					delete window.noname_skin_list;
-					var asset_version = updates.shift();
-
-					var skipcharacter = [], skipcard = ['tiesuo_mark', 'shield'];
-					if (!lib.config.asset_full) {
-						for (var i = 0; i < lib.config.all.sgscharacters.length; i++) {
-							var pack = lib.characterPack[lib.config.all.sgscharacters[i]];
-							for (var j in pack) {
-								skipcharacter.add(j);
-							}
-						}
-						for (var i = 0; i < lib.config.all.sgscards.length; i++) {
-							var pack = lib.cardPack[lib.config.all.sgscards[i]];
-							if (pack) {
-								skipcard = skipcard.concat(pack);
-							}
-						}
-					}
-					for (var i = 0; i < updates.length; i++) {
-						switch (updates[i].slice(0, 5)) {
-							case 'image': {
-								if (!lib.config.asset_full) {
-									if (!lib.config.asset_image) {
-										updates.splice(i--, 1);
-									}
-									else {
-										if (updates[i].startsWith('image/character')) {
-											if (updates[i].indexOf('jun_') != 16 && updates[i].indexOf('gz_') != 16 && !skipcharacter.includes(updates[i].slice(16, updates[i].lastIndexOf('.')))) {
-												updates.splice(i--, 1);
-											}
+								unZipProgress.setFileName(fileName);
+								const [path, name] = [fileName.split("/").slice(0, -1).join("/"), fileName.split("/").slice(-1).join("/")];
+								game.print(`${fileName}(${i}/${entries.length})`);
+								await game.promises.writeFile(value.asArrayBuffer(), path, name).catch(async e => {
+									// 特殊处理
+									if (name == "noname-server.exe" && e.message.includes("resource busy or locked")) {
+										if (typeof window.require == "function" && typeof window.process == "object" && typeof window.__dirname == "string") {
+											return new Promise((resolve, reject) => {
+												const cp = require("child_process");
+												cp.exec(`taskkill /IM noname-server.exe /F`, e => {
+													if (e) {
+														reject(e);
+													} else {
+														game.promises
+															.writeFile(value.asArrayBuffer(), path, name)
+															.then(() => {
+																cp.exec(`start /b ${__dirname}\\noname-server.exe -platform=electron`, () => {});
+																function loadURL() {
+																	let myAbortController = new AbortController();
+																	let signal = myAbortController.signal;
+																	setTimeout(() => myAbortController.abort(), 2000);
+																	fetch(`http://localhost:8089/app.html`, { signal })
+																		.then(({ ok }) => {
+																			if (ok) {
+																				resolve(null);
+																			} else {
+																				throw new Error("fetch加载失败");
+																			}
+																		})
+																		.catch(() => loadURL());
+																}
+																loadURL();
+															})
+															.catch(reject);
+													}
+												});
+											});
 										}
-										else if (updates[i].startsWith('image/card')) {
-											let cardname = updates[i].slice(11, updates[i].lastIndexOf('.'));
-											if (lib.card[cardname] && !skipcard.includes(cardname)) {
-												updates.splice(i--, 1);
-											}
-										}
-										else if (updates[i].startsWith('image/mode/stone')) {
-											updates.splice(i--, 1);
-										}
+									} else {
+										throw e;
 									}
-								}
-								break;
+								});
 							}
-							case 'audio': {
-								if (!lib.config.asset_audio) {
-									updates.splice(i--, 1);
-								}
-								break;
-							}
-							case 'font/': {
-								if (!lib.config.asset_font) {
-									updates.splice(i--, 1);
+							unZipProgress.remove();
+							if (url === description.zipball_url) {
+								await lib.init.promises.js("game", "update.js");
+								if (Array.isArray(window.noname_asset_list)) {
+									game.saveConfig("asset_version", window.noname_asset_list[0]);
+									delete window.noname_asset_list;
 								}
 							}
-						}
-					}
-					if (lib.config.asset_skin) {
-						for (var i in skins) {
-							for (var j = 1; j <= skins[i]; j++) {
-								updates.push('image/skin/' + i + '/' + j + '.jpg');
+							if (confirm("更新完成，是否重启？")) {
+								game.reload();
 							}
-						}
-					}
-					if (!ui.arena.classList.contains('menupaused')) {
-						ui.click.configMenu();
-						ui.click.menuTab('其它');
-					}
-
-					var proceed = function () {
-						if (updates.length == 0) {
-							game.print(updates);
-							game.saveConfig('asset_version', asset_version);
-							alert('素材已是最新');
-							button2.disabled = false;
-							button2.innerHTML = '检查素材更新';
-							return;
-						}
-						var p = button2.parentNode;
-						button2.remove();
-						var span = document.createElement('span');
-						span.style.whiteSpace = 'nowrap';
-						var n1 = 0;
-						var n2 = updates.length;
-						span.innerHTML = '正在下载素材（' + n1 + '/' + n2 + '）';
-						span1.remove();
-						span2.remove();
-						span2_check.remove();
-						span3.remove();
-						span3_check.remove();
-						span4.remove();
-						span4_check.remove();
-						span5.remove();
-						span5_check.remove();
-						span6.remove();
-						span6_check.remove();
-						span2_br.remove();
-						span3_br.remove();
-						span4_br.remove();
-						span5_br.remove();
-						span6_br.remove();
-						p.appendChild(span);
-
-						var br6 = ui.create.node('br');
-						var span7 = ui.create.div('.hrefnode', '详细信息');
-						span7.style.marginTop = '6px';
-						span7.listen(ui.click.consoleMenu);
-						p.appendChild(br6);
-						p.appendChild(span7);
-
-						var finish = function () {
-							if (n1 == n2) {
-								game.saveConfig('asset_version', asset_version);
+							refresh();
+						})
+						.catch(e => {
+							if (progress.parentNode) {
+								progress.remove();
 							}
-							span.innerHTML = '素材更新完毕（' + n1 + '/' + n2 + '）';
-							p.appendChild(document.createElement('br'));
-							var button = document.createElement('button');
-							button.innerHTML = '重新启动';
-							button.onclick = game.reload;
-							button.style.marginTop = '8px';
-							p.appendChild(button);
-						};
-						game.multiDownload(updates, function () {
-							n1++;
-							span.innerHTML = '正在下载素材（' + n1 + '/' + n2 + '）';
-						}, function (e) {
-							game.print('下载失败：' + e.source);
-						}, function () {
-							setTimeout(finish, 500);
+							if (unZipProgress && unZipProgress.parentNode) {
+								unZipProgress.remove();
+							}
+							refresh();
+							throw e;
 						});
-					};
-					game.checkFileList(updates, proceed);
-				}, function () {
-					alert('连接失败');
-					button2.disabled = false;
-					button2.innerHTML = '检查素材更新';
-				}, true);
-			}
-			else {
-				alert('此版本不支持游戏内更新素材，请手动更新');
+				};
+
+				if (!dev) {
+					getLatestVersionFromGitHub()
+						.then(tagName => {
+							game.saveConfig("check_version", tagName.slice(1));
+							if (typeof lib.config[`version_description_${tagName}`] == "object") {
+								/** @type { ReturnType<import('../../../../library/update.js').getRepoTagDescription> } */
+								const description = lib.config[`version_description_${tagName}`];
+								return description;
+							} else {
+								return getRepoTagDescription(tagName);
+							}
+						})
+						.then(description => {
+							// 保存版本信息
+							if (typeof lib.config["version_description_" + description.name] != "object") {
+								game.saveConfig("version_description_" + description.name, description);
+							}
+							const versionResult = checkVersion(lib.version, description.name);
+							if (versionResult === 0) {
+								// forcecheck: 为false的时候是自动检测更新的调用
+								if (forcecheck === false || !confirm("版本已是最新，是否强制更新？")) {
+									refresh();
+									return;
+								}
+							}
+							const str = versionResult < 0 ? `有新版本${description.name}可用，是否下载？` : `本地版本${lib.version}高于或等于github版本${description.name}，是否强制下载？`;
+							const str2 = description.body;
+							if (navigator.notification && navigator.notification.confirm) {
+								navigator.notification.confirm(
+									str2,
+									function (index) {
+										if (index == 1) {
+											download(description);
+										} else {
+											refresh();
+										}
+									},
+									str,
+									["确定", "取消"]
+								);
+							} else {
+								if (confirm(str + "\n" + str2)) {
+									download(description);
+								} else {
+									refresh();
+								}
+							}
+						})
+						.catch(e => {
+							alert("获取更新失败: " + e);
+							refresh();
+						});
+				} else {
+					if (confirm("将要直接下载dev版本的完整包，是否继续?")) {
+						download({
+							name: "noname-PR-Branch",
+							assets: [],
+							zipball_url: "https://ghproxy.cc/https://github.com/libnoname/noname/archive/PR-Branch.zip",
+						});
+					} else {
+						refresh();
+					}
+				}
 			}
 		};
 
-		button1 = document.createElement('button');
-		button1.innerHTML = '检查游戏更新';
-		button1.onclick = game.checkForUpdate;
-		li1.lastChild.appendChild(button1);
+		game.checkForAssetUpdate = async function () {
+			if (checkAssetButton.disabled) {
+				return;
+			} else if (game.download) {
+				// if (
+				// 	!localStorage.getItem("noname_authorization") &&
+				// 	!sessionStorage.getItem("noname_authorization")
+				// ) {
+				// 	if (
+				// 		confirm(
+				// 			"素材更新或许会直接超过每小时的访问限制，是否输入您github的token以解除访问每小时60次的限制？"
+				// 		)
+				// 	)
+				// 		await gainAuthorization();
+				// }
+				checkAssetButton.innerHTML = "正在检查更新";
+				checkAssetButton.disabled = true;
 
-		button3 = document.createElement('button');
-		button3.innerHTML = '更新到开发版';
-		button3.style.marginLeft = '5px';
-		button3.onclick = function () {
+				const refresh = () => {
+					checkAssetButton.innerHTML = "检查素材更新";
+					checkAssetButton.disabled = false;
+				};
+
+				const assetDirectories = [];
+				if (lib.config.asset_font) {
+					assetDirectories.push("font");
+				}
+				if (lib.config.asset_audio) {
+					assetDirectories.push("audio");
+				}
+				if (lib.config.asset_image) {
+					assetDirectories.push("image");
+				}
+				const version = await getLatestVersionFromGitHub().catch(e => {
+					refresh();
+					throw e;
+				});
+				const files = await getTreesFromGithub(assetDirectories, version).catch(e => {
+					refresh();
+					throw e;
+				});
+
+				assetDirectories.forEach((assetDirectory, index) => {
+					const arr = files[index];
+					const size = arr.reduce((previous, current) => {
+						return previous + current.size;
+					}, 0);
+					game.saveConfig(`asset_${assetDirectory}_size`, parseSize(size));
+				});
+
+				/**
+				 * @template T
+				 * @param { T[] } arr
+				 * @param { (value: T) => Promise<boolean> } predicate
+				 */
+				const asyncFilter = async (arr, predicate) => {
+					//将arr每20个分为一个数组，分别使用Promise.all
+					/** @type { boolean[] } */
+					const results = [];
+					for (let i = 0; i < arr.length; i += 20) {
+						const pushArr = arr.slice(i, i + 20);
+						results.push(...(await Promise.all(pushArr.map(predicate))));
+					}
+					return arr.filter((_v, index) => results[index]);
+				};
+
+				const result = await asyncFilter(files.flat(), async v => {
+					return game.promises
+						.readFile(v.path)
+						.then(data => {
+							// 有设置就不进行对比直接返回false
+							if (lib.config.asset_notReplaceExistingFiles) {
+								return false;
+							}
+							return v.size != data.byteLength;
+							// 报错了就是没有文件
+						})
+						.catch(() => true);
+				}).then(arr => arr.map(v => v.path));
+
+				console.log("需要更新的文件有:", result);
+				game.print("需要更新的文件有:", result);
+				const finish = async () => {
+					await lib.init.promises.js("game", "asset");
+					if (Array.isArray(window.noname_asset_list)) {
+						game.saveConfig("asset_version", window.noname_asset_list[0]);
+						try {
+							// 动态更新素材版本显示
+							if (
+								li2 instanceof HTMLLIElement &&
+								li2.childNodes[0] &&
+								// nodeType = 3为text
+								li2.childNodes[0].nodeType === 3 &&
+								li2.childNodes[0].textContent.startsWith("素材版本")
+							) {
+								li2.childNodes[0].textContent = `素材版本：${window.noname_asset_list[0]}`;
+							}
+						} catch (error) {
+							console.error("动态更新素材版本显示失败:", error);
+						}
+						delete window.noname_asset_list;
+					}
+					if (confirm("更新完成，是否重启？")) {
+						game.reload();
+					}
+					refresh();
+				};
+				if (result.length > 0) {
+					const progress = createProgress("正在更新素材包.zip");
+					/**
+					 * @type {progress}
+					 */
+					let unZipProgress;
+					request(
+						"https://api.unitedrhythmized.club/noname",
+						(receivedBytes, total, filename) => {
+							if (typeof filename == "string") {
+								progress.setFileName(filename);
+							}
+							let received = 0,
+								max = 0;
+							if (total) {
+								max = +(total / (1024 * 1024)).toFixed(1);
+							} else {
+								max = 1000;
+							}
+							received = +(receivedBytes / (1024 * 1024)).toFixed(1);
+							if (received > max) {
+								max = received;
+							}
+							progress.setProgressMax(max);
+							progress.setProgressValue(received);
+						},
+						{
+							method: "POST",
+							body: JSON.stringify({
+								action: "downloadAssets",
+								version,
+								fileList: result.concat("game/asset.js"),
+							}),
+						}
+					)
+						.then(async blob => {
+							progress.remove();
+							const zip = await get.promises.zip();
+							zip.load(await blob.arrayBuffer());
+							const entries = Object.entries(zip.files);
+							let root;
+							const hiddenFileFlags = [".", "_"];
+							unZipProgress = createProgress("正在解压" + progress.getFileName(), entries.length);
+							let i = 0;
+							for (const [key, value] of entries) {
+								unZipProgress.setProgressValue(i++);
+								const fileName = typeof root == "string" && key.startsWith(root) ? key.replace(root, "") : key;
+								if (hiddenFileFlags.includes(fileName[0])) {
+									continue;
+								}
+								if (value.dir) {
+									await game.promises.createDir(fileName);
+									continue;
+								}
+								unZipProgress.setFileName(fileName);
+								const [path, name] = [fileName.split("/").slice(0, -1).join("/"), fileName.split("/").slice(-1).join("/")];
+								game.print(`${fileName}(${i}/${entries.length})`);
+								await game.promises.writeFile(value.asArrayBuffer(), path, name);
+							}
+							unZipProgress.remove();
+							await finish();
+						})
+						.catch(e => {
+							if (progress.parentNode) {
+								progress.remove();
+							}
+							if (unZipProgress && unZipProgress.parentNode) {
+								unZipProgress.remove();
+							}
+							refresh();
+							throw e;
+						});
+				} else {
+					await finish();
+				}
+			} else {
+				alert("此版本不支持游戏内更新素材，请手动更新");
+			}
+		};
+
+		checkVersionButton = document.createElement("button");
+		checkVersionButton.innerHTML = "检查游戏更新";
+		checkVersionButton.onclick = () => game.checkForUpdate(null);
+		li1.lastChild.appendChild(checkVersionButton);
+
+		checkDevVersionButton = document.createElement("button");
+		checkDevVersionButton.innerHTML = "更新到开发版";
+		checkDevVersionButton.style.marginLeft = "5px";
+		checkDevVersionButton.onclick = function () {
 			game.checkForUpdate(null, true);
 		};
 		// if(lib.config.dev){
-		//     li1.lastChild.appendChild(button3);
+		//     li1.lastChild.appendChild(checkDevVersionButton);
 		// }
 
 		(function () {
-			var updatep1 = li1.querySelector('p');
+			/** @type { HTMLParagraphElement } */
+			// @ts-expect-error ignore
+			var updatep1 = li1.querySelector("p");
 			var updatep2 = li2;
 			var updatep3 = li3;
 			var updatep4 = node;
-			var updatepx = ui.create.node('p');
+			var updatepx = ui.create.node("p");
 			li1.appendChild(updatepx);
-			updatepx.style.display = 'none';
-			updatepx.style.whiteSpace = 'nowrap';
-			updatepx.style.marginTop = '8px';
-			var buttonx = ui.create.node('button', '访问项目主页', function () {
-				window.open('https://github.com/libnoname/noname');
+			updatepx.style.display = "none";
+			updatepx.style.whiteSpace = "nowrap";
+			updatepx.style.marginTop = "8px";
+			var buttonx = ui.create.node("button", "访问项目主页", function () {
+				window.open("https://github.com/libnoname/noname");
 			});
 			updatepx.appendChild(buttonx);
 			ui.updateUpdate = function () {
 				if (!game.download) {
-					updatep1.style.display = 'none';
-					updatep2.style.display = 'none';
-					updatep3.style.display = 'none';
-					updatepx.style.display = '';
-					updatep4.innerHTML = '关于';
-				}
-				else {
-					updatep1.style.display = '';
-					updatep2.style.display = '';
-					updatep3.style.display = 'none'; // coding
-					updatepx.style.display = 'none';
-					updatep4.innerHTML = '更新';
+					updatep1.style.display = "none";
+					updatep2.style.display = "none";
+					updatep3.style.display = "none";
+					updatepx.style.display = "";
+					updatep4.innerHTML = "关于";
+				} else {
+					updatep1.style.display = "";
+					updatep2.style.display = "";
+					updatep3.style.display = "none"; // coding
+					updatepx.style.display = "none";
+					updatep4.innerHTML = "更新";
 				}
 			};
 			ui.updateUpdate();
-		}());
+		})();
 
-		button4 = document.createElement('button');
-		button4.innerHTML = '设置更新地址';
-		button4.onclick = function () {
-			game.prompt('设置更新地址', function (str) {
-				if (str) {
-					game.saveConfig('updateURL', str);
-					li3.querySelector('span').innerHTML = trimURL(str);
-					button5.style.display = '';
-					button6.style.display = 'none';
-				}
-			});
-		};
+		// button4 = document.createElement('button');
+		// button4.innerHTML = '设置更新地址';
+		// button4.onclick = function () {
+		// 	game.prompt('设置更新地址', function (str) {
+		// 		if (str) {
+		// 			game.saveConfig('updateURL', str);
+		// 			li3.querySelector('span').innerHTML = trimURL(str);
+		// 			button5.style.display = '';
+		// 			button6.style.display = 'none';
+		// 		}
+		// 	});
+		// };
 		// li3.lastChild.appendChild(button4);
 
-		var button6 = document.createElement('button');
-		button6.innerHTML = '设为备用镜像';
-		button6.style.display = 'none';// coding
+		// var button6 = document.createElement('button');
+		// button6.innerHTML = '设为备用镜像';
+		// button6.style.display = 'none';// coding
 		// button6.style.marginLeft='5px';
-		button6.onclick = function () {
-			game.saveConfig('updateURL', lib.mirrorURL);
-			button5.style.display = '';
-			button6.style.display = 'none';
-			li3.querySelector('span').innerHTML = trimURL(lib.mirrorURL);
-		};
-		li3.lastChild.appendChild(button6);
+		// button6.onclick = function () {
+		// 	game.saveConfig('updateURL', lib.mirrorURL);
+		// 	// button5.style.display = '';
+		// 	button6.style.display = 'none';
+		// 	li3.querySelector('span').innerHTML = trimURL(lib.mirrorURL);
+		// };
+		// li3.lastChild.appendChild(button6);
 
-		button5 = document.createElement('button');
-		button5.innerHTML = '设为默认镜像';
+		// button5 = document.createElement('button');
+		// button5.innerHTML = '设为默认镜像';
 		// button5.style.marginLeft='5px';
-		button5.onclick = function () {
-			game.saveConfig('updateURL');
-			button5.style.display = 'none';
-			button6.style.display = '';
-			li3.querySelector('span').innerHTML = trimURL(lib.updateURL);
-		};
-		li3.lastChild.appendChild(button5);
-		if (!lib.config.updateURL) {
-			button5.style.display = 'none';
-		}
-		else {
-			button6.style.display = 'none';
-		}
+		// button5.onclick = function () {
+		// 	game.saveConfig('updateURL');
+		// 	button5.style.display = 'none';
+		// 	button6.style.display = '';
+		// 	li3.querySelector('span').innerHTML = trimURL(lib.updateURL);
+		// };
+		// li3.lastChild.appendChild(button5);
+		// if (!lib.config.updateURL) {
+		// 	button5.style.display = 'none';
+		// }
+		// else {
+		// 	button6.style.display = 'none';
+		// }
 
-		button2 = document.createElement('button');
-		button2.innerHTML = '检查素材更新';
-		button2.onclick = game.checkForAssetUpdate;
-		li2.lastChild.appendChild(button2);
+		checkAssetButton = document.createElement("button");
+		checkAssetButton.innerHTML = "检查素材更新";
+		checkAssetButton.onclick = () => game.checkForAssetUpdate();
+		li2.lastChild.appendChild(checkAssetButton);
 
-		var span1 = ui.create.div('.config.more', '选项 <div>&gt;</div>');
-		span1.style.fontSize = 'small';
-		span1.style.display = 'inline';
+		var span1 = ui.create.div(".config.more", "选项 <div>&gt;</div>");
+		span1.style.fontSize = "small";
+		span1.style.display = "inline";
 		span1.toggle = function () {
-			if (!this.classList.toggle('on')) {
-				game.saveConfig('asset_toggle_off', true);
-				span2.style.display = 'none';
-				span2_br.style.display = 'none';
-				span2_check.style.display = 'none';
-				span3.style.display = 'none';
-				span3_br.style.display = 'none';
-				span3_check.style.display = 'none';
-				span4.style.display = 'none';
-				span4_br.style.display = 'none';
-				span4_check.style.display = 'none';
-				span5.style.display = 'none';
-				span5_br.style.display = 'none';
-				span5_check.style.display = 'none';
-				span6.style.display = 'none';
-				span6_br.style.display = 'none';
-				span6_check.style.display = 'none';
-			}
-			else {
-				game.saveConfig('asset_toggle_off');
-				span2.style.display = '';
-				span2_br.style.display = '';
-				span2_check.style.display = '';
-				span3.style.display = '';
-				span3_br.style.display = '';
-				span3_check.style.display = '';
-				span4.style.display = '';
-				span4_br.style.display = '';
-				span4_check.style.display = '';
-				span5.style.display = '';
-				span5_br.style.display = '';
-				span5_check.style.display = '';
-				span6.style.display = '';
-				span6_br.style.display = '';
-				span6_check.style.display = '';
+			if (!this.classList.toggle("on")) {
+				game.saveConfig("asset_toggle_off", true);
+				[
+					span114514_br,
+					span7,
+					span7_br,
+					span7_check,
+					span3,
+					span3_br,
+					span3_check,
+					span4,
+					span4_br,
+					span4_check,
+					span5,
+					span5_br,
+					span5_check,
+					/* span6, span6_br, span6_check,*/
+				].forEach(item =>
+					HTMLDivElement.prototype.css.call(item, {
+						display: "none",
+					})
+				);
+			} else {
+				game.saveConfig("asset_toggle_off");
+				[
+					span114514_br,
+					span7,
+					span7_br,
+					span7_check,
+					span3,
+					span3_br,
+					span3_check,
+					span4,
+					span4_br,
+					span4_check,
+					span5,
+					span5_br,
+					span5_check,
+					/* span6, span6_br, span6_check,*/
+				].forEach(item =>
+					HTMLDivElement.prototype.css.call(item, {
+						display: "",
+					})
+				);
 			}
 		};
 		span1.listen(span1.toggle);
 		li2.lastChild.appendChild(span1);
 
-		var span6_br = ui.create.node('br');
-		li2.lastChild.appendChild(span6_br);
+		// var span6_br = ui.create.node('br');
+		// li2.lastChild.appendChild(span6_br);
+		// var span2_br = ui.create.node('br');
+		var span114514_br = ui.create.node("br");
+		li2.lastChild.appendChild(span114514_br);
 
-		var span5 = ui.create.div('', '图片素材（精简，126MB）');
-		span5.style.fontSize = 'small';
-		span5.style.lineHeight = '16px';
-		var span5_check = document.createElement('input');
-		span5_check.type = 'checkbox';
-		span5_check.style.marginLeft = '5px';
-		if (lib.config.asset_image) {
-			span5_check.checked = true;
+		var span7 = ui.create.div("", `不替换已有素材`);
+		span7.style.fontSize = "small";
+		span7.style.lineHeight = "16px";
+		li2.lastChild.appendChild(span7);
+		var span7_check = document.createElement("input");
+		span7_check.type = "checkbox";
+		span7_check.style.marginLeft = "5px";
+		if (lib.config.asset_notReplaceExistingFiles) {
+			span7_check.checked = true;
 		}
-		span5_check.onchange = function () {
-			game.saveConfig('asset_image', this.checked);
+		span7_check.onchange = function () {
+			game.saveConfig("asset_notReplaceExistingFiles", this.checked);
 		};
-		var span2_br = ui.create.node('br');
+		li2.lastChild.appendChild(span7_check);
+		var span7_br = ui.create.node("br");
+		li2.lastChild.appendChild(span7_br);
 
-		var span4 = ui.create.div('', '字体素材（48MB）');
-		span4.style.fontSize = 'small';
-		span4.style.lineHeight = '16px';
+		var span4 = ui.create.div("", `字体素材（${lib.config.asset_font_size || "23.4MB"}）`);
+		span4.style.fontSize = "small";
+		span4.style.lineHeight = "16px";
 		li2.lastChild.appendChild(span4);
-		var span4_check = document.createElement('input');
-		span4_check.type = 'checkbox';
-		span4_check.style.marginLeft = '5px';
+		var span4_check = document.createElement("input");
+		span4_check.type = "checkbox";
+		span4_check.style.marginLeft = "5px";
 		if (lib.config.asset_font) {
 			span4_check.checked = true;
 		}
 		span4_check.onchange = function () {
-			game.saveConfig('asset_font', this.checked);
+			game.saveConfig("asset_font", this.checked);
 		};
 		li2.lastChild.appendChild(span4_check);
-		var span3_br = ui.create.node('br');
+		var span3_br = ui.create.node("br");
 		li2.lastChild.appendChild(span3_br);
 
-		var span3 = ui.create.div('', '音效素材（125MB）');
-		span3.style.fontSize = 'small';
-		span3.style.lineHeight = '16px';
+		var span3 = ui.create.div("", `音效素材（${lib.config.asset_audio_size || "350MB"}）`);
+		span3.style.fontSize = "small";
+		span3.style.lineHeight = "16px";
 		li2.lastChild.appendChild(span3);
-		var span3_check = document.createElement('input');
-		span3_check.type = 'checkbox';
-		span3_check.style.marginLeft = '5px';
+		var span3_check = document.createElement("input");
+		span3_check.type = "checkbox";
+		span3_check.style.marginLeft = "5px";
 		if (lib.config.asset_audio) {
 			span3_check.checked = true;
 		}
 		span3_check.onchange = function () {
-			game.saveConfig('asset_audio', this.checked);
+			game.saveConfig("asset_audio", this.checked);
 		};
 		li2.lastChild.appendChild(span3_check);
-		var span4_br = ui.create.node('br');
+		var span4_br = ui.create.node("br");
 		li2.lastChild.appendChild(span4_br);
 
-		var span2 = ui.create.div('', '皮肤素材（351MB）');
-		span2.style.fontSize = 'small';
-		span2.style.lineHeight = '16px';
-		li2.lastChild.appendChild(span2);
-		var span2_check = document.createElement('input');
-		span2_check.type = 'checkbox';
-		span2_check.style.marginLeft = '5px';
-		if (lib.config.asset_skin) {
-			span2_check.checked = true;
-		}
-		span2_check.onchange = function () {
-			game.saveConfig('asset_skin', this.checked);
-		};
-		li2.lastChild.appendChild(span2_check);
-		var span5_br = ui.create.node('br');
-		li2.lastChild.appendChild(span5_br);
-
-
+		// var span2 = ui.create.div('', '皮肤素材（351MB）');
+		// span2.style.fontSize = 'small';
+		// span2.style.lineHeight = '16px';
+		// li2.lastChild.appendChild(span2);
+		// var span2_check = document.createElement('input');
+		// span2_check.type = 'checkbox';
+		// span2_check.style.marginLeft = '5px';
+		// if (lib.config.asset_skin) {
+		// 	span2_check.checked = true;
+		// }
+		// span2_check.onchange = function () {
+		// 	game.saveConfig('asset_skin', this.checked);
+		// };
+		// li2.lastChild.appendChild(span2_check);
+		var span5 = ui.create.div("", `图片素材（${lib.config.asset_image_size || "363MB"}）`);
+		span5.style.fontSize = "small";
+		span5.style.lineHeight = "16px";
 		li2.lastChild.appendChild(span5);
-		li2.lastChild.appendChild(span5_check);
-		li2.lastChild.appendChild(span2_br);
-
-		var span6 = ui.create.div('', '图片素材（完整，203MB）');
-		span6.style.fontSize = 'small';
-		span6.style.lineHeight = '16px';
-		li2.lastChild.appendChild(span6);
-		var span6_check = document.createElement('input');
-		span6_check.type = 'checkbox';
-		span6_check.style.marginLeft = '5px';
-		if (lib.config.asset_full) {
-			span6_check.checked = true;
+		var span5_check = document.createElement("input");
+		span5_check.type = "checkbox";
+		span5_check.style.marginLeft = "5px";
+		if (lib.config.asset_image) {
+			span5_check.checked = true;
 		}
-		span6_check.onchange = function () {
-			game.saveConfig('asset_full', this.checked);
+		span5_check.onchange = function () {
+			// @ts-expect-error ignore
+			game.saveConfig("asset_image", this.checked);
 		};
-		li2.lastChild.appendChild(span6_check);
+		li2.lastChild.appendChild(span5_check);
+		var span5_br = ui.create.node("br");
+		li2.lastChild.appendChild(span5_br);
+		// li2.lastChild.appendChild(span2_br);
 
-		span2.style.display = 'none';
-		span2_br.style.display = 'none';
-		span2_check.style.display = 'none';
-		span3.style.display = 'none';
-		span3_br.style.display = 'none';
-		span3_check.style.display = 'none';
-		span4.style.display = 'none';
-		span4_br.style.display = 'none';
-		span4_check.style.display = 'none';
-		span5.style.display = 'none';
-		span5_br.style.display = 'none';
-		span5_check.style.display = 'none';
-		span6.style.display = 'none';
-		span6_br.style.display = 'none';
-		span6_check.style.display = 'none';
+		// var span6 = ui.create.div('', '图片素材（完整，203MB）');
+		// span6.style.fontSize = 'small';
+		// span6.style.lineHeight = '16px';
+		// li2.lastChild.appendChild(span6);
+		// var span6_check = document.createElement('input');
+		// span6_check.type = 'checkbox';
+		// span6_check.style.marginLeft = '5px';
+		// if (lib.config.asset_full) {
+		// 	span6_check.checked = true;
+		// }
+		// span6_check.onchange = function () {
+		// 	game.saveConfig('asset_full', this.checked);
+		// };
+		// li2.lastChild.appendChild(span6_check);
+
+		[
+			/* span2, span2_br, span2_check,*/
+			span3,
+			span3_br,
+			span3_check,
+			span4,
+			span4_br,
+			span4_check,
+			span5,
+			span5_br,
+			span5_check,
+			/* span6, span6_br, span6_check,*/
+		].forEach(item =>
+			HTMLDivElement.prototype.css.call(item, {
+				display: "none",
+			})
+		);
 
 		ul.appendChild(li1);
 		ul.appendChild(li2);
 		ul.appendChild(li3);
 		page.appendChild(ul);
 
-
 		if (!lib.config.asset_toggle_off) {
 			span1.toggle();
 		}
-	}());
+	})();
 	(function () {
 		var norow2 = function () {
 			var node = currentrow1;

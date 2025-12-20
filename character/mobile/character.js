@@ -1,9 +1,35 @@
 const characters = {
+	mb_liuhui: {
+		sex: "male",
+		group: "qun",
+		hp: 3,
+		skills: ["mbgeyuan", "mbchongcha"],
+	},
+	mb_caozhi: {
+		sex: "male",
+		group: "wei",
+		hp: 3,
+		skills: ["mbchongsi", "mbpeidong"],
+	},
+	mb_zhouyu: {
+		sex: "male",
+		group: "wu",
+		hp: 3,
+		skills: ["mbshouyue", "mbdieyin"],
+	},
+	mb_zhangzhi: {
+		sex: "male",
+		group: "qun",
+		hp: 3,
+		skills: ["mbshiju"],
+	},
 	sp_zhonghui: {
 		sex: "male",
 		group: "qun",
 		hp: 4,
 		skills: ["mbsizi", "mbxiezhi", "mbyunan", "mbkechang"],
+		isZhugong: true,
+		clans: ["颍川钟氏"],
 	},
 	mb_cuilingyi: {
 		sex: "female",
@@ -412,6 +438,7 @@ const characters = {
 		group: "shu",
 		hp: 4,
 		skills: ["sbbenxi"],
+		clans: ["陈留吴氏"],
 	},
 	yangfu: {
 		sex: "male",

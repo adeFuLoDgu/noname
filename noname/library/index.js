@@ -882,6 +882,7 @@ export class Library {
 		["挟令", "挟天子以令诸侯"],
 		["霹雳投石车", "霹雳车"],
 		["金箍棒", "如意金箍棒"],
+		["扑克", ""],
 	]);
 	/**
 	 * the cards which can respond card
@@ -10826,6 +10827,7 @@ export class Library {
 			sheshen_info: "锁定技。当主公即将死亡时，你令其增加1点体力上限并回复体力至X点（X为你的体力值），然后其获得你的所有牌。若如此做，你死亡。",
 			identity_mingcha: "明察",
 			identity_mingcha_info: "游戏开始时，你可以查看一名角色的身份是否为反贼（对所有玩家可见）。",
+			visible_sxrm_connect_tag: "连接牌",
 		},
 		{
 			// get(target, prop, receiver) {
@@ -14179,6 +14181,35 @@ export class Library {
 		[
 			"射",
 			{
+				color: "#f0cf13",
+				nature: "shenmm",
+			}
+		],
+		[
+			"书",
+			{
+				color: "#f0cf13",
+				nature: "shenmm",
+			}
+		],
+		[
+			"数",
+			{
+				color: "#f0cf13",
+				nature: "shenmm",
+			}
+		],
+		[
+			"御",
+			{
+				color: "#f0cf13",
+				nature: "shenmm",
+			}
+		],
+		[
+			"手杀乐",
+			{
+				showName: "乐",
 				color: "#f0cf13",
 				nature: "shenmm",
 			}

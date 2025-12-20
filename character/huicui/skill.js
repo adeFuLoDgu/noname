@@ -16046,7 +16046,7 @@ const skills = {
 					.forResult();
 			}
 			if (result?.index == 0) {
-				await player.discardPlayerCard(target, num, true, "he", "allowChoooseAll");
+				await player.discardPlayerCard(target, num, true, "he", "allowChooseAll");
 			} else if (result?.index == 1) {
 				await target.damage();
 			}
@@ -18058,18 +18058,19 @@ const skills = {
 		filter(event, player) {
 			return player != event.player && player.isMaxHandcard(true);
 		},
-		content() {
+		async content(event, trigger, player) {
 			player.addTempSkill("zhuangdan_mark", { player: "phaseEnd" });
 			player.tempBanSkill("liedan", { player: "phaseEnd" });
 		},
-		ai: {
-			combo: "liedan",
+		ai: { combo: "liedan" },
+		subSkill: {
+			mark: {
+				charlotte: true,
+				mark: true,
+				marktext: "胆",
+				intro: { content: "我超勇的" },
+			},
 		},
-	},
-	zhuangdan_mark: {
-		mark: true,
-		marktext: "胆",
-		intro: { content: "我超勇的" },
 	},
 	//乌巢酒仙
 	recangchu: {

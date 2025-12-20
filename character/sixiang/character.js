@@ -153,6 +153,7 @@ const characters = {
 		group: "qun",
 		hp: 3,
 		skills: ["stdyizheng", "stdrangjie"],
+		clans: ["弘农杨氏"],
 	},
 	std_huangfusong: {
 		sex: "male",
@@ -592,6 +593,7 @@ const characters = {
 		group: "qun",
 		hp: 3,
 		skills: ["stdyunji", "stdzongji"],
+		clans: ["太原王氏"],
 	},
 };
 

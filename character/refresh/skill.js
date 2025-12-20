@@ -1286,8 +1286,16 @@ const skills = {
 		locked: false,
 		popup: false,
 		group: "olhuoji_viewAs",
-		content() {
-			trigger.setContent(lib.skill.olhuoji.huogongContent);
+		async content(event, trigger, player) {
+			trigger.set("chooseToShow", async (event, player, target) => {
+				const { showPosition = "h" } = event;
+				const cards = target.getCards(showPosition).randomGets(1);
+				return { bool: true, cards: cards };
+			});
+			trigger.set("filterDiscard", card => {
+				const { cards2 } = get.event().getParent();
+				return get.color(card) == get.color(cards2[0]);
+			})
 		},
 		async huogongContent(event, trigger, player) {
 			const { target } = event;
@@ -12936,10 +12944,10 @@ const skills = {
 		derivation: "rechanyuan",
 		enable: ["chooseToUse", "chooseToRespond"],
 		hiddenCard(player, name) {
-			return lib.inpile.includes(name) && player.countCards("h") > 0 && !player.hasSkill("reguhuo_phase");
+			return lib.inpile.includes(name) && player.countCards("h") > 0 && !player.hasSkill("reguhuo_used");
 		},
 		filter(event, player) {
-			if (!player.countCards("hs") || player.hasSkill("reguhuo_phase")) {
+			if (!player.countCards("hs") || player.hasSkill("reguhuo_used")) {
 				return false;
 			}
 			for (var i of lib.inpile) {
@@ -13063,7 +13071,7 @@ const skills = {
 			respondShan: true,
 			respondSha: true,
 			skillTagFilter(player) {
-				if (!player.countCards("hs") || player.hasSkill("reguhuo_phase")) {
+				if (!player.countCards("hs") || player.hasSkill("reguhuo_used")) {
 					return false;
 				}
 			},
@@ -13073,131 +13081,131 @@ const skills = {
 			},
 			threaten: 1.3,
 		},
-	},
-	reguhuo_guess: {
-		trigger: {
-			player: ["useCardBefore", "respondBefore"],
-		},
-		forced: true,
-		silent: true,
-		popup: false,
-		charlotte: true,
-		firstDo: true,
-		sourceSkill: "reguhuo",
-		filter(event, player) {
-			return event.skill && event.skill.indexOf("reguhuo_") == 0;
-		},
-		content() {
-			"step 0";
-			player.addTempSkill("reguhuo_phase");
-			event.fake = false;
-			var card = trigger.cards[0];
-			if (card.name != trigger.card.name || (card.name == "sha" && !get.is.sameNature(trigger.card, card))) {
-				event.fake = true;
-			}
-			//player.logSkill('reguhuo');
-			player.line(trigger.targets, get.nature(trigger.card));
-			event.cardTranslate = get.translation(trigger.card.name);
-			trigger.card.number = get.number(card);
-			trigger.card.suit = get.suit(card);
-			//trigger.line=false;
-			trigger.skill = "reguhuo_backup";
-			if (trigger.card.name == "sha" && get.natureList(trigger.card).length) {
-				event.cardTranslate = get.translation(trigger.card.nature) + event.cardTranslate;
-			}
-			player.popup(event.cardTranslate, trigger.name == "useCard" ? "metal" : "wood");
-			event.prompt = "是否质疑" + get.translation(player) + "声明的" + event.cardTranslate + "？";
-			game.log(player, "声明了", "#y" + event.cardTranslate);
-			event.targets = game
-				.filterPlayer(function (current) {
-					return current != player && !current.hasSkill("rechanyuan");
-				})
-				.sortBySeat();
-			event.targets2 = event.targets.slice(0);
-			player.lose(card, ui.ordering).relatedEvent = trigger;
-			if (!event.targets.length) {
-				event.goto(3);
-			}
-			event.betrays = [];
-			"step 1";
-			var list = event.targets.map(function (target) {
-				return [target, [event.prompt, [["reguhuo_ally", "reguhuo_betray"], "vcard"]], true];
-			});
-			player
-				.chooseButtonOL(list)
-				.set("switchToAuto", function () {
-					_status.event.result = "ai";
-				})
-				.set("processAI", function () {
-					var choice = Math.random() > 0.5 ? "reguhuo_ally" : "reguhuo_betray";
-					var player = _status.event.player;
-					var evt = _status.event.getParent("reguhuo_guess");
-					if (player.hp <= 1 || (evt && (get.realAttitude || get.attitude)(player, evt.player) >= 0)) {
-						choice = "reguhuo_ally";
+		subSkill: {
+			backup: {},
+			used: { charlotte: true },
+			guess: {
+				trigger: {
+					player: ["useCardBefore", "respondBefore"],
+				},
+				forced: true,
+				silent: true,
+				popup: false,
+				charlotte: true,
+				firstDo: true,
+				sourceSkill: "reguhuo",
+				filter(event, player) {
+					return event.skill && event.skill.indexOf("reguhuo_") == 0;
+				},
+				content() {
+					"step 0";
+					player.addTempSkill("reguhuo_used");
+					event.fake = false;
+					var card = trigger.cards[0];
+					if (card.name != trigger.card.name || (card.name == "sha" && !get.is.sameNature(trigger.card, card))) {
+						event.fake = true;
 					}
-					return {
-						bool: true,
-						links: [["", "", choice]],
-					};
-				});
-			"step 2";
-			for (var i in result) {
-				if (result[i].links[0][2] == "reguhuo_betray") {
-					var current = (_status.connectMode ? lib.playerOL : game.playerMap)[i];
-					event.betrays.push(current);
-					current.addExpose(0.2);
-				}
-			}
-			"step 3";
-			for (var i of event.targets2) {
-				var b = event.betrays.includes(i);
-				i.popup(b ? "质疑" : "不质疑", b ? "fire" : "wood");
-				game.log(i, b ? "#y质疑" : "#g不质疑");
-			}
-			game.delay();
-			"step 4";
-			player.showCards(trigger.cards);
-			if (event.betrays.length) {
-				event.betrays.sortBySeat();
-				if (event.fake) {
-					game.asyncDraw(event.betrays);
-					trigger.cancel();
-					trigger.getParent().goto(0);
-					game.log(player, "声明的", "#y" + event.cardTranslate, "作废了");
-				} else {
-					var next = game.createEvent("reguhuo_final", false);
-					event.next.remove(next);
-					trigger.after.push(next);
-					next.targets = event.betrays;
-					next.setContent(lib.skill.reguhuo_guess.contentx);
-					event.finish();
-				}
-			} else {
-				event.finish();
-			}
-			"step 5";
-			game.delayx();
+					//player.logSkill('reguhuo');
+					player.line(trigger.targets, get.nature(trigger.card));
+					event.cardTranslate = get.translation(trigger.card.name);
+					trigger.card.number = get.number(card);
+					trigger.card.suit = get.suit(card);
+					//trigger.line=false;
+					trigger.skill = "reguhuo_backup";
+					if (trigger.card.name == "sha" && get.natureList(trigger.card).length) {
+						event.cardTranslate = get.translation(trigger.card.nature) + event.cardTranslate;
+					}
+					player.popup(event.cardTranslate, trigger.name == "useCard" ? "metal" : "wood");
+					event.prompt = "是否质疑" + get.translation(player) + "声明的" + event.cardTranslate + "？";
+					game.log(player, "声明了", "#y" + event.cardTranslate);
+					event.targets = game
+						.filterPlayer(function (current) {
+							return current != player && !current.hasSkill("rechanyuan");
+						})
+						.sortBySeat();
+					event.targets2 = event.targets.slice(0);
+					player.lose(card, ui.ordering).relatedEvent = trigger;
+					if (!event.targets.length) {
+						event.goto(3);
+					}
+					event.betrays = [];
+					"step 1";
+					var list = event.targets.map(function (target) {
+						return [target, [event.prompt, [["reguhuo_ally", "reguhuo_betray"], "vcard"]], true];
+					});
+					player
+						.chooseButtonOL(list)
+						.set("switchToAuto", function () {
+							_status.event.result = "ai";
+						})
+						.set("processAI", function () {
+							var choice = Math.random() > 0.5 ? "reguhuo_ally" : "reguhuo_betray";
+							var player = _status.event.player;
+							var evt = _status.event.getParent("reguhuo_guess");
+							if (player.hp <= 1 || (evt && (get.realAttitude || get.attitude)(player, evt.player) >= 0)) {
+								choice = "reguhuo_ally";
+							}
+							return {
+								bool: true,
+								links: [["", "", choice]],
+							};
+						});
+					"step 2";
+					for (var i in result) {
+						if (result[i].links[0][2] == "reguhuo_betray") {
+							var current = (_status.connectMode ? lib.playerOL : game.playerMap)[i];
+							event.betrays.push(current);
+							current.addExpose(0.2);
+						}
+					}
+					"step 3";
+					for (var i of event.targets2) {
+						var b = event.betrays.includes(i);
+						i.popup(b ? "质疑" : "不质疑", b ? "fire" : "wood");
+						game.log(i, b ? "#y质疑" : "#g不质疑");
+					}
+					game.delay();
+					"step 4";
+					player.showCards(trigger.cards);
+					if (event.betrays.length) {
+						event.betrays.sortBySeat();
+						if (event.fake) {
+							game.asyncDraw(event.betrays);
+							trigger.cancel();
+							trigger.getParent().goto(0);
+							game.log(player, "声明的", "#y" + event.cardTranslate, "作废了");
+						} else {
+							var next = game.createEvent("reguhuo_final", false);
+							event.next.remove(next);
+							trigger.after.push(next);
+							next.targets = event.betrays;
+							next.setContent(lib.skill.reguhuo_guess.contentx);
+							event.finish();
+						}
+					} else {
+						event.finish();
+					}
+					"step 5";
+					game.delayx();
+				},
+				contentx() {
+					"step 0";
+					event.target = targets.shift();
+					event.target.chooseToDiscard("弃置一张牌或失去1点体力").set("ai", function (card) {
+						return 9 - get.value(card);
+					});
+					"step 1";
+					if (!result.bool) {
+						target.loseHp();
+					}
+					"step 2";
+					target.addSkills("rechanyuan");
+					if (targets.length) {
+						event.goto(0);
+					}
+				},
+			},
 		},
-		contentx() {
-			"step 0";
-			event.target = targets.shift();
-			event.target.chooseToDiscard("弃置一张牌或失去1点体力").set("ai", function (card) {
-				return 9 - get.value(card);
-			});
-			"step 1";
-			if (!result.bool) {
-				target.loseHp();
-			}
-			"step 2";
-			target.addSkills("rechanyuan");
-			if (targets.length) {
-				event.goto(0);
-			}
-		},
-	},
-	reguhuo_backup: {},
-	reguhuo_phase: {
-		charlotte: true,
 	},
 	rechanyuan: {
 		init(player, skill) {
@@ -17086,6 +17094,7 @@ const skills = {
 		audio: 2,
 		trigger: { player: "phaseDrawBegin1" },
 		preHidden: true,
+		frequent: true,
 		content() {
 			"step 0";
 			var cards = get.cards(4);

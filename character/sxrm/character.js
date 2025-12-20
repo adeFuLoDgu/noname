@@ -37,6 +37,7 @@ const characters = {
 		group: "wu",
 		hp: 3,
 		skills: ["sxrmchanyu", "sxrmcongfeng"],
+		clans: ["吴郡陆氏"],
 	},
 	sxrm_lvmeng: {
 		sex: "male",

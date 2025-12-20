@@ -658,7 +658,7 @@ const skills = {
 		selectTarget: 0,
 		position: "he",
 		filterCard(card, player) {
-			return get.type(card) == "equip" && player.getDiscardableCards("he").includes(card);
+			return get.type(card) == "equip" && lib.filter.cardDiscardable(card, player, "cuiren");
 		},
 		filter(event, player) {
 			return player.countCards("he", card => get.type(card) == "equip") > 0;
@@ -711,10 +711,27 @@ const skills = {
 					player: ["useCard2"],
 				},
 				filter(event, player) {
-					return game.hasPlayer(curr => lib.filter.targetEnabled2(event.card, player, curr));
+					if (!["basic", "trick"].includes(get.type(event.card)) || !event.targets?.length) {
+						return false;
+					}
+					return game.hasPlayer(current => {
+						if (event.targets.includes(current)) {
+							return false;
+						}
+						return lib.filter.targetEnabled2(event.card, player, current) && lib.filter.targetInRange(event.card, player, current);
+					});
 				},
 				charlotte: true,
 				async cost(event, trigger, player) {
+					const targets = game.filterPlayer(current => {
+						if (trigger.targets.includes(current)) {
+							return false;
+						}
+						return lib.filter.targetEnabled2(trigger.card, player, current) && lib.filter.targetInRange(trigger.card, player, current);
+					});
+					if (!targets?.length) {
+						return;
+					}
 					event.result = await player
 						.chooseTarget(`为${get.translation(trigger.card)}额外指定任意目标`)
 						.set("ai", target => {
@@ -722,10 +739,9 @@ const skills = {
 								trigger = get.event().getTrigger();
 							return get.effect(target, trigger.card, player, player);
 						})
+						.set("targetx", targets)
 						.set("filterTarget", (card, player, target) => {
-							player = get.player();
-							const trigger = get.event().getTrigger();
-							return player.canUse(trigger.card, target) && !trigger.targets.includes(target);
+							return get.event("targetx").includes(target);
 						})
 						.set("selectTarget", [1, Infinity])
 						.forResult();

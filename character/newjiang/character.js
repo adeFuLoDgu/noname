@@ -30,7 +30,7 @@ const characters = {
 	v_sunce: {
 		sex: "male",
 		group: "wu",
-		hp: 4,
+		hp: 5,
 		skills: ["dczhifeng", "dcweijing"],
 	},
 	yao_yuanshu: {
@@ -69,6 +69,7 @@ const characters = {
 		hp: 3,
 		skills: ["zhinang", "gouzhu"],
 		names: "荀|彧-荀|攸",
+		clans: ["颍川荀氏"],
 	},
 	xiahoumao: {
 		sex: "male",

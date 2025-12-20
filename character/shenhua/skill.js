@@ -2808,7 +2808,31 @@ const skills = {
 	},
 	nzry_mingren: {
 		audio: "nzry_mingren_1",
+		drawNum: 2,
 		audioname: ["sb_yl_luzhi"],
+		trigger: {
+			global: "phaseBefore",
+			player: "enterGame",
+		},
+		forced: true,
+		locked: false,
+		filter(event, player) {
+			return (event.name != "phase" || game.phaseNumber == 0) && !player.getExpansions("nzry_mingren").length;
+		},
+		async content(event, trigger, player) {
+			await player.draw(get.info(event.name).drawNum || 2);
+			if (!player.countCards("h")) {
+				return;
+			}
+			const { result } = await player.chooseCard("h", "将一张手牌置于武将牌上，称为“任”", true).set("ai", function (card) {
+				return 6 - get.value(card);
+			});
+			if (result.bool) {
+				const next = player.addToExpansion(result.cards[0], player, "give", "log");
+				next.gaintag.add("nzry_mingren");
+				await next;
+			}
+		},
 		marktext: "任",
 		intro: {
 			content: "expansion",
@@ -2820,50 +2844,19 @@ const skills = {
 				player.loseToDiscardpile(cards);
 			}
 		},
-		group: ["nzry_mingren_1", "nzry_mingren_2"],
-		ai: {
-			notemp: true,
-		},
+		group: ["nzry_mingren_1"],
+		ai: { notemp: true },
 		subSkill: {
 			1: {
 				audio: 2,
 				audioname: ["sb_yl_luzhi"],
-				trigger: {
-					global: "phaseBefore",
-					player: "enterGame",
-				},
-				forced: true,
-				locked: false,
-				filter(event, player) {
-					return (event.name != "phase" || game.phaseNumber == 0) && !player.getExpansions("nzry_mingren").length;
-				},
-				async content(event, trigger, player) {
-					await player.draw(2 + event.name.startsWith("sbmingren"));
-					if (!player.countCards("h")) {
-						return;
-					}
-					const { result } = await player.chooseCard("h", "将一张手牌置于武将牌上，称为“任”", true).set("ai", function (card) {
-						return 6 - get.value(card);
-					});
-					if (result.bool) {
-						const next = player.addToExpansion(result.cards[0], player, "give", "log");
-						next.gaintag.add("nzry_mingren");
-						await next;
-					}
-				},
-			},
-			2: {
-				audio: "nzry_mingren_1",
-				audioname: ["sb_yl_luzhi"],
-				trigger: {
-					player: "phaseJieshuBegin",
-				},
+				trigger: { player: "phaseJieshuBegin" },
 				filter(event, player) {
 					return player.countCards("h") > 0 && player.getExpansions("nzry_mingren").length > 0;
 				},
 				async cost(event, trigger, player) {
 					event.result = await player
-						.chooseCard("h", get.prompt("nzry_mingren"), "选择一张手牌替换“任”（" + get.translation(player.getExpansions("nzry_mingren")[0]) + "）")
+						.chooseCard("h", get.prompt(event.skill), "选择一张手牌替换“任”（" + get.translation(player.getExpansions("nzry_mingren")[0]) + "）")
 						.set("ai", function (card) {
 							const player = _status.event.player;
 							const color = get.color(card);
@@ -3801,12 +3794,15 @@ const skills = {
 		async content(event, trigger, player) {
 			const target = event.target;
 			const { result } = await target
-				.chooseToUse(function (card, player, event) {
-					if (get.name(card) != "sha") {
-						return false;
-					}
-					return lib.filter.filterCard.apply(this, arguments);
-				}, "挑衅：对" + get.translation(player) + "使用一张杀，或令其弃置你的一张牌")
+				.chooseToUse(
+					function (card, player, event) {
+						if (get.name(card) != "sha") {
+							return false;
+						}
+						return lib.filter.filterCard.apply(this, arguments);
+					},
+					"挑衅：对" + get.translation(player) + "使用一张杀，或令其弃置你的一张牌"
+				)
 				.set("targetRequired", true)
 				.set("complexSelect", true)
 				.set("complexTarget", true)
@@ -6399,6 +6395,12 @@ const skills = {
 		audioname: ["re_sp_zhugeliang", "ol_sp_zhugeliang", "ol_pangtong"],
 		group: "bazhen_bagua",
 		locked: true,
+		init(player, skill) {
+			player.addExtraEquip(skill, "bagua", true, player => player.hasEmptySlot(2) && lib.card.bagua);
+		},
+		onremove(player, skill) {
+			player.removeExtraEquip(skill);
+		},
 	},
 	bazhen_bagua: {
 		audio: "bazhen",
