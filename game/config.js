@@ -227,7 +227,7 @@ window.config = {
 	menu_style: "simple",
 	player_border: "slim",
 	radius_size: "reduce",
-	ui_zoom:"120%",
+	ui_zoom : Math.min(screen.width, screen.height) >= 1080 ? "150%" : Math.min(screen.width, screen.height) < 768 ? "100%" : "120%",
 
 	image_character: "default",
 	image_background: "ol_bg",

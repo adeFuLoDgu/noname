@@ -1679,6 +1679,18 @@ const skills = {
 		derivation: "olchengxiang",
 		ai: {
 			halfneg: true,
+			effect: {
+				player(card, player, target, current) {
+					if (!player.hasSkill("olchengxiang") && get.tag(card, "draw")) {
+						return -1;
+					}
+				},
+				target(card, player, target, current) {
+					if (!target.hasSkill("olchengxiang") && get.tag(card, "draw")) {
+						return -1;
+					}
+				},
+			},
 		},
 	},
 	stronglianwu: {
