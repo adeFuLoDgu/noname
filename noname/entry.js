@@ -1,4 +1,5 @@
-import { game, get } from "noname";
+import { game } from "noname";
+import { get } from "../noname.js";
 import { boot } from "@/init/index.js";
 import { nonameInitialized, userAgentLowerCase } from "@/util/index.js";
 import "core-js-bundle";
