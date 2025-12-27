@@ -8623,7 +8623,7 @@ export class Library {
 		},
 	};
 	/**
-	 * @type {import('path-browserify')}
+	 * @type {import('path-browserify-esm')}
 	 */
 	// @ts-expect-error ignore
 	path = {};
@@ -10884,7 +10884,6 @@ export class Library {
 		VCard: Element.VCard,
 		Button: Element.Button,
 		GameEvent: Element.GameEvent,
-		GameEventPromise: Element.GameEventPromise,
 		Dialog: Element.Dialog,
 		Control: Element.Control,
 		Client: Element.Client,
@@ -13348,6 +13347,7 @@ export class Library {
 						player.seatNum = info.seatNum;
 						player.disabledSlots = info.disabledSlots;
 						player.expandedSlots = info.expandedSlots;
+						player.extraEquip = info.extraEquip;
 						player.setNickname();
 						if (info.dead) {
 							player.classList.add("dead");
@@ -13374,7 +13374,9 @@ export class Library {
 							player.$disableJudge();
 						}
 						player.$syncDisable();
-
+						if (info.extraEquip) {
+							player.$handleEquipChange();
+						}
 						player.directgain(info.handcards);
 						lib.playerOL[i] = player;
 						/*if (info.vcardsMap) {
@@ -14176,35 +14178,35 @@ export class Library {
 			{
 				color: "#f0cf13",
 				nature: "shenmm",
-			}
+			},
 		],
 		[
 			"射",
 			{
 				color: "#f0cf13",
 				nature: "shenmm",
-			}
+			},
 		],
 		[
 			"书",
 			{
 				color: "#f0cf13",
 				nature: "shenmm",
-			}
+			},
 		],
 		[
 			"数",
 			{
 				color: "#f0cf13",
 				nature: "shenmm",
-			}
+			},
 		],
 		[
 			"御",
 			{
 				color: "#f0cf13",
 				nature: "shenmm",
-			}
+			},
 		],
 		[
 			"手杀乐",
@@ -14212,7 +14214,7 @@ export class Library {
 				showName: "乐",
 				color: "#f0cf13",
 				nature: "shenmm",
-			}
+			},
 		],
 		[
 			"TW",
@@ -14546,6 +14548,14 @@ export class Library {
 			},
 		],
 		[
+			"手杀合",
+			{
+				showName: "合",
+				color: "#AAABFF",
+				nature: "blackmm",
+			},
+		],
+		[
 			"九鼎",
 			{
 				showName: "鼎",
@@ -14828,9 +14838,6 @@ export class Library {
 	selectGroup = ["shen", "devil"]; //"western",
 	phaseName = ["phaseZhunbei", "phaseJudge", "phaseDraw", "phaseUse", "phaseDiscard", "phaseJieshu"];
 	quickVoice = ["我从未见过如此厚颜无耻之人！", "这波不亏", "请收下我的膝盖", "你咋不上天呢", "放开我的队友，冲我来", "你随便杀，闪不了算我输", "见证奇迹的时刻到了", "能不能快一点啊，兵贵神速啊", "主公，别开枪，自己人", "小内再不跳，后面还怎么玩儿啊", "你们忍心，就这么让我酱油了？", "我，我惹你们了吗", "姑娘，你真是条汉子", "三十六计，走为上，容我去去便回", "人心散了，队伍不好带啊", "昏君，昏君啊！", "风吹鸡蛋壳，牌去人安乐", "小内啊，您老悠着点儿", "不好意思，刚才卡了", "你可以打得再烂一点吗", "哥们，给力点儿行嘛", "哥哥，交个朋友吧", "妹子，交个朋友吧"];
-	other = {
-		ignore: () => void 0,
-	};
 	InitFilter = {
 		noZhuHp: "不享受主公的额外体力上限",
 		noZhuSkill: "不享受地主的额外技能",

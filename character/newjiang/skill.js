@@ -1,4 +1,4 @@
-import { lib, game, ui, get, ai, _status } from "../../noname.js";
+import { lib, game, ui, get, ai, _status } from "noname";
 
 /** @type { importCharacterConfig['skill'] } */
 const skills = {
@@ -672,13 +672,13 @@ const skills = {
 		async content(event, trigger, player) {
 			const type = get.subtype(event.cards[0]);
 			if (type == "equip1") {
-				player.addTempSkill("cuiren_effect1", { player: "phaseBegin" });
+				player.addTempSkill("cuiren_effect1");
 			} else if (type == "equip2") {
-				player.addTempSkill("cuiren_effect2", { player: "phaseBegin" });
+				player.addTempSkill("cuiren_effect2");
 			} else if (parseInt(type.slice(-1)) > 4) {
 				player.popup("杯具");
 			} else {
-				player.addTempSkill("cuiren_effect3", { player: "phaseBegin" });
+				player.addTempSkill("cuiren_effect3");
 			}
 		},
 		subSkill: {
@@ -1386,10 +1386,13 @@ const skills = {
 							},
 						],
 					])
-					.set("filterButton", button => get.player().hasUseTarget(button.link) && get.position(button.link) == "d")
+					.set("filterButton", button => {
+						return get.event("canUse").includes(button.link);
+					})
 					.set("ai", button => {
 						return get.player().getUseValue(button.link);
 					})
+					.set("canUse", cards.filter(card => player.hasUseTarget(card) && get.position(card) == "d"))
 					.forResult();
 				if (result?.bool && result.links?.length) {
 					const card = result.links[0];

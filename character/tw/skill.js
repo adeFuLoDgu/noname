@@ -1,4 +1,4 @@
-import { lib, game, ui, get, ai, _status } from "../../noname.js";
+import { lib, game, ui, get, ai, _status } from "noname";
 
 /** @type { importCharacterConfig['skill'] } */
 const skills = {
@@ -10,7 +10,7 @@ const skills = {
 			global: "damageBegin4",
 		},
 		filter(event, player, name) {
-			if (player.getStorage("twjishan").includes(name)) {
+			if (player.getStorage("twjishan_used").includes(name)) {
 				return false;
 			}
 			if (name == "damageBegin4") {
@@ -2187,7 +2187,7 @@ const skills = {
 					if (player.hasSkill("twsbfangzhu_used")) {
 						return false;
 					}
-					return game.countPlayer(() => true) >= 4;
+					return game.countPlayer(() => true) >= 3;
 				},
 				async cost(event, trigger, player) {
 					event.result = await player

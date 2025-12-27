@@ -20,6 +20,9 @@ export default defineConfig({
 	server: {
 		host: "127.0.0.1",
 		port: port.client,
+		fs: {
+			allow: ["../.."],
+		},
 		proxy: {
 			"/checkFile": "http://127.0.0.1:" + port.server,
 			"/checkDir": "http://127.0.0.1:" + port.server,

@@ -1,4 +1,4 @@
-import { lib, game, ui, get, ai, _status } from "../../noname.js";
+import { lib, game, ui, get, ai, _status } from "noname";
 
 /** @type { importCharacterConfig['skill'] } */
 const skills = {
@@ -66,8 +66,9 @@ const skills = {
 				forced: true,
 				async content(event, trigger, player) {
 					const { cards } = trigger;
-					const types = cards.map(card => get.type2(card)).unique();
-					await player.draw(types.length);
+					await player.draw();
+					//const types = cards.map(card => get.type2(card)).unique();
+					//await player.draw(types.length);
 				}
 			},
 			gain: {
@@ -6026,6 +6027,7 @@ const skills = {
 				}
 				lib.translate["qiexie_" + name + "_append"] = append;
 				lib.card["qiexie_" + name] = card;
+				game.finishCard("qiexie_" + name);
 			}
 		},
 		subSkill: {
@@ -7362,7 +7364,7 @@ const skills = {
 		trigger: { player: "useCard2" },
 		forced: true,
 		filter(event, player) {
-			return get.suit(event.card) == "none";
+			return get.color(event.card, player) == "none";
 		},
 		content() {
 			"step 0";

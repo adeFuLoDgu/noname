@@ -1,4 +1,28 @@
 const characters = {
+	hanxuan: {
+		sex: "male",
+		group: "qun",
+		hp: 3,
+		skills: ["mbweizhan", "mbyilv"],
+	},
+	hefei_zhangliao: {
+		sex: "male",
+		group: "wei",
+		hp: 4,
+		skills: ["hefeichonglei", "hefeidangshi", "hefeiheyuzhangliao"],
+	},
+	hefei_lidian: {
+		sex: "male",
+		group: "wei",
+		hp: 3,
+		skills: ["hefeiduanjin", "hefeigaigong", "hefeiheyulidian"],
+	},
+	hefei_yuejin: {
+		sex: "male",
+		group: "wei",
+		hp: 4,
+		skills: ["hefeixianjian", "hefeizheji", "hefeiheyuyuejin"],
+	},
 	mb_liuhui: {
 		sex: "male",
 		group: "qun",

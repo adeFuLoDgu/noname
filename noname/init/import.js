@@ -1,5 +1,4 @@
 import { lib, game, _status } from "noname";
-import security from "@/util/security.js";
 /**
  * @param {string} name - 卡牌包名
  * @returns {Promise<void>}
@@ -30,22 +29,9 @@ export async function importExtension(name) {
 		await game.import("extension", await createEmptyExtension(name));
 		return;
 	}
-	let extcontent = localStorage.getItem(lib.configprefix + "extension_" + name);
-	if (extcontent) {
-		//var backup_onload=lib.init.onload;
-		_status.evaluatingExtension = true;
-		try {
-			security.eval(extcontent);
-		} catch (e) {
-			console.log(e);
-		}
-		//lib.init.onload=backup_onload;
-		_status.evaluatingExtension = false;
-		return;
-	}
 	await importFunction("extension", `/extension/${name}/extension`).catch(e => {
 		console.error(`扩展《${name}》加载失败`, e);
-		let remove = confirm(`扩展《${name}》加载失败，是否移除此扩展？此操作不会移除目录下的文件。\n错误信息: ${(e instanceof Error ? e.stack : String(e))}`);
+		let remove = confirm(`扩展《${name}》加载失败，是否移除此扩展？此操作不会移除目录下的文件。\n错误信息: \n${(e instanceof Error ? e.stack : String(e))}`);
 		if (remove) {
 			lib.config.extensions.remove(name);
 			if (lib.config[`@Experimental.extension.${name}.character`]) {

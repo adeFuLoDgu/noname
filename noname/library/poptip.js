@@ -87,9 +87,13 @@ export class PoptipManager {
 		}],
 		["characterDialog", (dialog, poptip) => {
 			const name = poptip.startsWith("character_") ? poptip.slice(10) : poptip;
-			dialog.addSmall([[name], "character"]);
-			const node = dialog.buttons[0];
-			get.nodeintro(node, null, null, dialog);
+			if (name.startsWith("characterx_")) {
+				dialog.addSmall([[name.slice(11)], "character"]);
+			} else {
+				dialog.addSmall([[name], "character"]);
+				const node = dialog.buttons[0];
+				get.nodeintro(node, null, null, dialog);
+			}
 			return dialog;
 		}],
 	]);

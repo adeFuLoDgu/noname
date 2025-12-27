@@ -1,4 +1,4 @@
-import { lib, game, ui, get, ai, _status } from "../../noname.js";
+import { lib, game, ui, get, ai, _status } from "noname";
 
 const translates = {
 	shen_luxun: "神陆逊",
@@ -571,7 +571,7 @@ const translates = {
 	dc_shen_sunquan: "新杀神孙权",
 	dc_shen_sunquan_prefix: "新杀|神",
 	dccangming: "沧溟",
-	dccangming_info: "锁定技，分发初始手牌后，你令所有角色将手牌置于武将牌上，称为“溟”。有牌进入“溟”时，每包含一个类别，你摸一张牌。一名角色受到伤害后或回合开始时，获得其武将牌上的所有“溟”。",
+	dccangming_info: "锁定技，分发初始手牌后，你令所有角色将手牌置于武将牌上，称为“溟”。有牌进入“溟”时，你摸一张牌。一名角色受到伤害后或回合开始时，获得其武将牌上的所有“溟”。",
 	dcchouxi: "筹汐",
 	dcchouxi_info: "出牌阶段，你可将一张牌当作“溟”中的一张基本牌或普通锦囊牌使用（每种牌名每回合限一次），以此法使用牌无距离次数限制。",
 	dcjichao: "激潮",

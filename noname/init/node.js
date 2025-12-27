@@ -69,18 +69,24 @@ export function nodeReady() {
 		fs: require("fs"),
 		path: require("path"),
 		debug() {
-			// let remote;
-			// if (electronVersion >= 14) {
-			// 	// @ts-expect-error ignore
-			// 	remote = require("@electron/remote");
-			// } else {
-			// 	// @ts-expect-error ignore
-			// 	remote = require("electron").remote;
-			// }
-			// remote.getCurrentWindow().toggleDevTools();
+			let remote;
+			if (electronVersion >= 14) {
+				// @ts-expect-error ignore
+				remote = require("@electron/remote");
+			} else {
+				// @ts-expect-error ignore
+				remote = require("electron").remote;
+			}
+			remote.getCurrentWindow().toggleDevTools();
 		},
 	};
 	lib.path = lib.node.path;
+	
+	if (typeof window.cordovaLoadTimeout != "undefined") {
+		clearTimeout(window.cordovaLoadTimeout);
+		delete window.cordovaLoadTimeout;
+	}
+
 	game.download = function (url, folder, onsuccess, onerror, dev, onprogress) {
 		if (!url.startsWith("http")) {
 			url = get.url(dev) + url;
@@ -229,10 +235,12 @@ export function nodeReady() {
 				};
 				fileReader.readAsArrayBuffer(data, "UTF-8");
 			} else {
-				get.zip(function (zip) {
-					zip.file("i", data);
-					lib.node.fs.writeFile(__dirname + "/" + path + "/" + name, zip.files.i.asNodeBuffer(), null, callback);
-				});
+				lib.node.fs.writeFile(
+					__dirname + "/" + path + "/" + name,
+					typeof data == "string" ? data : new Uint8Array(data),
+					null,
+					callback
+				);
 			}
 		});
 	};

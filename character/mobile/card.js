@@ -1,6 +1,12 @@
-import { lib, game, ui, get, ai, _status } from "../../noname.js";
+import { lib, game, ui, get, ai, _status } from "noname";
 
 const cards = {
+	hefei_xianjian: {
+		derivation: "hefei_yuejin",
+		fullskin: true,
+		image: "image/card/hefei_xianjian.png",
+		type: "equip",
+	},
 	cz_liulongcanjia: {
 		fullskin: true,
 		cardimage: "liulongcanjia",

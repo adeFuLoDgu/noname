@@ -1,4 +1,4 @@
-import { lib, game, ui, get, ai, _status } from "../../noname.js";
+import { lib, game, ui, get, ai, _status } from "noname";
 
 /** @type { importCharacterConfig['skill'] } */
 const skills = {
@@ -198,7 +198,18 @@ const skills = {
 					"装备区牌数变化后最多",
 					{ player: "loseAfter", global: ["equipAfter", "addJudgeAfter", "gainAfter", "loseAsyncAfter", "addToExpansionAfter"] },
 					(evt, player) => {
-						const count = player.countCards("e");
+						if ((() => {
+							if (evt.name == "equip" && evt.player == player) {
+								return false;
+							}
+							const evtx = evt.getl(player);
+							if (evtx?.es?.length) {
+								return false;
+							}
+							return true;
+						})()) {
+							return false;
+						}
 						return !evt.immojin && player.isMaxEquip();
 					},
 				],
@@ -331,7 +342,11 @@ const skills = {
 					const next = player.gain(card, "draw");
 					next.set("immojin", true);
 					if (["basic", "trick"].includes(get.type2(card.name, false))) {
-						next.gaintag.add(["ol_le_mojin_directHit", "ol_le_mojin_baseDamage"].randomGet());
+						let gaintag = "ol_le_mojin_directHit";
+						if (get.tag(card, "recover") && Math.random() > 0.5) {
+							gaintag = "ol_le_mojin_baseDamage";
+						}
+						next.gaintag.add(gaintag);
 					}
 					await next;
 					event.trigger("mojinSucces");
@@ -354,28 +369,29 @@ const skills = {
 			},
 			effect: {
 				trigger: {
-					player: ["useCard"],
+					player: "useCard",
+					global: "recoverBegin",
 				},
 				filter(event, player) {
-					return player.hasHistory("lose", evt => {
-						if (evt.getParent() != event || evt.type != "use") {
+					const useCard = event.getParent("useCard", true, true);
+					return useCard?.player == player && player.hasHistory("lose", evt => {
+						const evtx = evt.relatedEvent || evt.getParent();
+						if (evtx != useCard) {
 							return false;
 						}
 						const list = Object.values(evt.gaintag_map).flat();
-						return list.includes("ol_le_mojin_directHit") || list.includes("ol_le_mojin_baseDamge");
+						if (event.name == "useCard") {
+							return list.includes("ol_le_mojin_directHit")
+						}
+						return list.includes("ol_le_mojin_baseDamage");
 					});
 				},
 				forced: true,
 				async content(event, trigger, player) {
-					const list = player
-						.getHistory("lose", evt => evt.getParent() == trigger && evt.type == "use")
-						.map(evt => Object.values(evt.gaintag_map))
-						.flat();
-					if (list.includes("ol_le_mojin_directHit")) {
-						trigger.directHit = true;
-					}
-					if (list.includes("ol_le_mojin_baseDamage")) {
-						trigger.baseDamage++;
+					if (trigger.name == "useCard") {
+						trigger.directHit.addArray(game.players);
+					} else {
+						trigger.num++;
 					}
 				},
 			},
@@ -411,7 +427,11 @@ const skills = {
 			const next = player.gain(card, "draw");
 			next.set("immojin", true);
 			if (["basic", "trick"].includes(get.type2(card.name, false))) {
-				next.gaintag.add(["ol_le_mojin_directHit", "ol_le_mojin_baseDamage"].randomGet());
+				let gaintag = "ol_le_mojin_directHit";
+				if (get.tag(card, "recover") && Math.random() > 0.5) {
+					gaintag = "ol_le_mojin_baseDamage";
+				}
+				next.gaintag.add(gaintag);
 			}
 			await next;
 			event.trigger("mojinSucces");
@@ -419,20 +439,33 @@ const skills = {
 	},
 	luoyangchan_skill: {
 		enable: ["phaseUse"],
-		filterTarget: () => false,
+		usable: 1,
 		equipSkill: true,
-		selectTarget: -1,
 		filterCard(card, player) {
-			return get.color(card, player) == "black";
+			if (!player.hasSkill("luoyangchan_skill", null, false)) {
+				const cards = player.getCards("e", cardx => get.name(cardx) == "luoyangchan");
+				if (cards.every(cardx => cardx == card)) {
+					return false;
+				}
+			}
+			return get.color(card, player) == "black" && lib.filter.cardDiscardable(card, player, "luoyangchan_skill");
 		},
 		filter(event, player) {
-			return player.countCards("he", card => get.color(card, player) == "black");
+			return player.countCards("he", card => {
+				if (!player.hasSkill("luoyangchan_skill", null, false)) {
+					const cards = player.getCards("e", cardx => get.name(cardx) == "luoyangchan");
+					if (cards.every(cardx => cardx == card)) {
+						return false;
+					}
+				}
+				return get.color(card, player) == "black" && lib.filter.cardDiscardable(card, player, "luoyangchan_skill");
+			});
 		},
 		position: "he",
 		discard: false,
 		lose: false,
 		async content(event, trigger, player) {
-			await player.discard(event.cards);
+			await player.modedDiscard(event.cards);
 			const cards = player.getCards("h");
 			await player.loseToDiscardpile(cards);
 			await player.draw(cards.length);

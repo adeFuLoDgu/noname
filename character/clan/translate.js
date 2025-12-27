@@ -1,4 +1,4 @@
-import { lib, game, ui, get, ai, _status } from "../../noname.js";
+import { lib, game, ui, get, ai, _status } from "noname";
 
 const translates = {
 	clan_wuxian_prefix: "族",
@@ -215,9 +215,9 @@ const translates = {
 	clan_xunyu: "族荀彧",
 	clan_xunyu_prefix: "族",
 	clandingan: "定安",
-	clandingan_info: "锁定技，你使用牌后，若本回合此前有角色使用过同名牌，你与不为此牌目标的任意其他角色各摸一张牌，然后令因此摸牌的其他角色中手牌最多的角色执行一项：1.受到你造成的1点伤害；2.随机弃置手牌中最多的同名牌。",
+	clandingan_info: "锁定技，每轮限一次，你使用牌后，若本回合此前有角色使用过同名牌，你与不为此牌目标的任意其他角色各摸一张牌，然后令因此摸牌的其他角色中手牌最多的角色执行一项：1.受到你造成的1点伤害；2.随机弃置手牌中最多的同名牌。",
 	clanfuning: "抚宁",
-	clanfuning_info: "每回合你的体力值首次变化后，可以将至少X张牌交给一名其他角色（X为你已损失体力值且至少为1），若你交出的牌：颜色均相同，你回复1点体力；数量大于本回合受到过伤害的角色数，你将手牌调整至体力上限。",
+	clanfuning_info: "每回合你的体力值首次变化后，可以将X张牌交给一名其他角色（X为你已损失体力值），若你交出的牌：颜色均相同，你回复1点体力；数量大于本回合受到过伤害的角色数，你将手牌调整至体力上限。",
 	clan_chenqun: "族陈群",
 	clan_chenqun_prefix: "族",
 	clangezhi: "革制",

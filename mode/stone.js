@@ -1,4 +1,4 @@
-import { lib, game, ui, get, ai, _status } from "../noname.js";
+import { lib, game, ui, get, ai, _status } from "noname";
 export const type = "mode";
 /**
  * @type { () => importModeConfig }
@@ -118,7 +118,7 @@ export default () => {
 						sel.removeAllRanges();
 					};
 					rename.onkeydown = function (e) {
-						if (e.keyCode == 13) {
+						if (e.code == "Enter") {
 							e.preventDefault();
 							e.stopPropagation();
 							rename.blur();

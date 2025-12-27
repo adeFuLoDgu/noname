@@ -2,9 +2,11 @@ audio/*.TXT
 image/*.TXT
 
 dist
+dist-types
 output
 node_modules
 package-lock.json
+.turbo
 README.md
 ehthumbs.db
 Thumbs.db

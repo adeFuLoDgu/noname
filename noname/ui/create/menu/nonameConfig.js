@@ -1,4 +1,4 @@
-import { _status, game, get, lib, ui } from "../../../../noname.js";
+import { _status, game, get, lib, ui } from "noname";
 
 /**
  * 使字符串有html的代码提示
@@ -80,7 +80,7 @@ export const NonameConfig = {
 			};
 		},
 		inputKeydown(e) {
-			if (e.keyCode == 13) {
+			if (e.code == "Enter") {
 				e.preventDefault();
 				e.stopPropagation();
 				e.target.blur();

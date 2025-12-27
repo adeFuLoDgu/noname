@@ -1,4 +1,4 @@
-import { lib, game, ui, get, ai, _status } from "../../noname.js";
+import { lib, game, ui, get, ai, _status } from "noname";
 
 /** @type { importCharacterConfig['skill'] } */
 const skills = {
@@ -1554,20 +1554,26 @@ const skills = {
 					}
 					return true;
 				});
-				const dialog = ui.create.dialog("伏械：弃置一张武器牌或失去1个技能", [[["discardEquip1", "弃置武器牌"]], "tdnodes"], [skills, "skill"]);
+				const dialog = ui.create.dialog("伏械：弃置一张武器牌或失去1个技能");
 				dialog.direct = true;
+				dialog.add([[["discardEquip1", "弃置武器牌"]], (item, type, position, noclick, node) => {
+					node = ui.create.buttonPresets.tdnodes(item, type, position, noclick);
+					node.link = ["discard", "equip1"];
+					return node;
+				}])
+				dialog.add([skills, "skill"]);
 				return dialog;
 			},
 			filter(button, player) {
-				if (button.link == "discardEquip1") {
-					return player.countCards("he", card => get.subtype(card) == "equip1");
+				if (Array.isArray(button.link)) {
+					return player.countDiscardableCards(player, "he", card => get.subtype(card) == button.link[1]);
 				}
 				return true;
 			},
 			check(button) {
 				const player = get.player();
-				if (button.link == "discardEquip1") {
-					if (player.countCards("he", card => get.subtype(card) == "equip1" && get.value(card) < 10)) {
+				if (Array.isArray(button.link)) {
+					if (player.countDiscardableCards(player, "he", card => get.subtype(card) == button.link[1] && get.value(card) < 10)) {
 						return 3;
 					}
 					return 1;
@@ -1583,7 +1589,7 @@ const skills = {
 					choice: result[0],
 					filterCard(card) {
 						const { choice } = get.info("dcfuxie_backup");
-						if (choice == "discardEquip1") {
+						if (Array.isArray(choice)) {
 							return get.subtype(card) == "equip1" && lib.filter.cardDiscardable(card, player, "dcfuxie");
 						}
 						return false;
@@ -1591,7 +1597,7 @@ const skills = {
 					position: "he",
 					selectCard() {
 						const { choice } = get.info("dcfuxie_backup");
-						if (choice == "discardEquip1") {
+						if (Array.isArray(choice)) {
 							return 1;
 						}
 						return -1;
@@ -1601,8 +1607,8 @@ const skills = {
 					},
 					async content(event, trigger, player) {
 						const { choice } = get.info("dcfuxie_backup");
-						if (choice == "discardEquip1") {
-							await player.discard(event.cards);
+						if (Array.isArray(choice)) {
+							await player.modedDiscard(event.cards);
 						} else {
 							await player.removeSkills(choice);
 						}
@@ -1619,7 +1625,7 @@ const skills = {
 				};
 			},
 			prompt(result, player) {
-				let prompt = result[0] == "discardEquip1" ? "弃置一张武器牌" : `失去【${get.translation(result[0])}】`;
+				let prompt = Array.isArray(result[0]) ? "弃置一张武器牌" : `失去【${get.translation(result[0])}】`;
 				return `${prompt}，令一名角色弃置两张牌`;
 			},
 		},

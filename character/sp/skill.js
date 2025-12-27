@@ -1,4 +1,4 @@
-import { lib, game, ui, get, ai, _status } from "../../noname.js";
+import { lib, game, ui, get, ai, _status } from "noname";
 
 /** @type { importCharacterConfig['skill'] } */
 const skills = {
@@ -931,7 +931,7 @@ const skills = {
 							evtx.targets.push(result.targets[0]);
 						}
 					}
-				}/* else if (opinion == "black") {
+				} /* else if (opinion == "black") {
 					player.tempBanSkill("olshuoyu", { player: "phaseAfter" });
 				}*/
 			});
@@ -2829,22 +2829,24 @@ const skills = {
 			}
 			return true;
 		},
-		locked: true,
+		limited: true,
+		skillAnimation: true,
+		animationColor: "gray",
 		async cost(event, trigger, player) {
 			const result = await player
 				.chooseControl("额外回合", "出杀次数")
-				.set("prompt", "假威：请选择一项")
-				.set("prompt2", get.skillInfoTranslation(event.skill, player, false))
+				.set("prompt", get.prompt2(event.skill))
 				.set(
 					"resultx",
 					(() => {
 						if (
-							game.hasPlayer(current => {
+							Math.random() > 0.5
+							/*game.hasPlayer(current => {
 								if (current.hp > 1 || get.attitude(player, current) >= 0) {
 									return false;
 								}
 								return player.countCards("h", card => get.tag(card, "damage") && player.canUse(card, current));
-							})
+							})*/
 						) {
 							return "额外回合";
 						}
@@ -2859,9 +2861,10 @@ const skills = {
 			};
 		},
 		async content(event, trigger, player) {
+			player.awakenSkill(event.name);
 			if (event.cost_data == "额外回合") {
 				const next = player.insertPhase(event.name);
-				player
+				/*player
 					.when({
 						player: "phaseEnd",
 					})
@@ -2878,24 +2881,30 @@ const skills = {
 							}).length
 						);
 						await player.draw(num);
-					});
+					});*/
 			} else {
-				player.addMark(event.name, 1, false);
+				const skill = `${event.name}_effect`;
+				player.addSkill(skill);
+				player.addMark(skill, 1, false);
 				const card = get.cardPile(card => card.name == "sha");
 				if (card) {
 					await player.gain(card, "gain2");
 				}
 			}
 		},
-		intro: {
-			content: "出杀次数+#",
-		},
-		onremove: true,
-		mod: {
-			cardUsable(card, player, num) {
-				if (card.name == "sha") {
-					return num + player.countMark("olqujia");
-				}
+		subSkill: {
+			effect: {
+				intro: {
+					content: "出杀次数+#",
+				},
+				onremove: true,
+				mod: {
+					cardUsable(card, player, num) {
+						if (card.name == "sha") {
+							return num + player.countMark("olqujia_effect");
+						}
+					},
+				},
 			},
 		},
 	},

@@ -1,4 +1,4 @@
-import { lib, game, ui, get, ai, _status } from "../../noname.js";
+import { lib, game, ui, get, ai, _status } from "noname";
 
 /** @type { importCharacterConfig['skill'] } */
 const skills = {
@@ -2376,20 +2376,25 @@ const skills = {
 				player
 					.chooseControl(list)
 					.set("choiceList", list2)
-					.set("resultx", (() => {
-						if (!player.isDamaged()) {
+					.set(
+						"resultx",
+						(() => {
+							if (!player.isDamaged()) {
+								return 0;
+							}
+							if (player.hp <= 2) {
+								return 1;
+							}
+							if (
+								target.countCards("e", card => {
+									return player.canEquip(card) && get.value(card, target) >= 4 + player.getDamagedHp();
+								})
+							) {
+								return 1;
+							}
 							return 0;
-						}
-						if (player.hp <= 2) {
-							return 1;
-						}
-						if (target.countCards("e", card => {
-							return player.canEquip(card) && get.value(card, target) >= 4 + player.getDamagedHp();
-						})) {
-							return 1;
-						}
-						return 0;
-					})())
+						})()
+					)
 					.set("ai", () => {
 						return get.event("resultx");
 					});
@@ -3758,13 +3763,13 @@ const skills = {
 			},
 			skip: {
 				audio: "splirang",
-				trigger: { player: "phaseDrawBefore" },
+				trigger: { player: "phaseBegin" },
 				forced: true,
 				filter(event, player) {
 					return player.hasMark("xinlirang");
 				},
-				content() {
-					trigger.cancel();
+				async content(event, trigger, player) {
+					player.skip("phaseDraw");
 					player.removeMark("xinlirang", player.countMark("xinlirang"));
 				},
 			},

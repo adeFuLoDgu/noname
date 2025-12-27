@@ -1,4 +1,4 @@
-import { lib, game, ui, get, ai, _status } from "../../noname.js";
+import { lib, game, ui, get, ai, _status } from "noname";
 
 /** @type { importCharacterConfig['skill'] } */
 const skills = {
@@ -250,6 +250,7 @@ const skills = {
 				})
 				.forResult();
 			if (result2?.bool && result2.cards?.length) {
+				await player.recover();
 				player.addTempSkill(`${name}_effect`, { player: "phaseBegin" });
 				player.addMark(`${name}_effect`, num, false);
 			} else {
@@ -1821,55 +1822,58 @@ const skills = {
 	dcshuaiyan: {
 		audio: 2,
 		trigger: {
-			global: ["loseAfter", "equipAfter", "addJudgeAfter", "gainAfter", "loseAsyncAfter", "addToExpansionAfter"],
+			global: ["phaseDrawEnd", "phaseDiscardEnd"],
 		},
-		filter(event, player, name, target) {
-			return target && target.countCards("h") == player.countCards("h");
+		filter(event, player) {
+			const num = player.countCards("h");
+			if (event.player == player) {
+				return game.hasPlayer(current => {
+					return current.countCards("h") == num;
+				});
+			}
+			return event.player.countCards("h") == num;
 		},
-		getIndex(event, player) {
-			return game
-				.filterPlayer(target => {
-					if (target == player) {
-						return false;
-					}
-					if (event.getg && event.getg(target) && event.getg(target).length && target.countCards("h") == player.countCards("h")) {
-						return true;
-					}
-					const evt = event.getl(target);
-					if (evt && evt.hs && evt.hs.length && target.countCards("h") == player.countCards("h")) {
-						return true;
-					}
-					return false;
-				})
-				.sortBySeat();
+		async cost(event, trigger, player) {
+			const num = player.countCards("h");
+			if (trigger.player == player) {
+				const count = game.countPlayer(current => {
+					return current.countCards("h") == num;
+				});
+				event.result = await player.chooseBool(get.prompt(event.skill), `摸${get.cnNumber(count)}张牌`).forResult();
+			} else {
+				event.result = await player.chooseBool(get.prompt(event.skill, trigger.player), "弃置其一张牌或摸一张牌").forResult();
+				event.result.targets = [trigger.player];
+			}
 		},
-		logTarget(event, player, triggername, target) {
-			return target;
-		},
-		forced: true,
 		async content(event, trigger, player) {
+			if (trigger.player == player) {
+				const num = player.countCards("h");
+				const count = game.countPlayer(current => {
+					return current.countCards("h") == num;
+				});
+				await player.draw(count);
+				return;
+			}
 			const target = event.targets[0],
 				goon = target.countDiscardableCards(player, "he");
 			let result;
 			if (goon) {
 				result = await player
-					.chooseControl()
-					.set("choiceList", ["弃置" + get.translation(target) + "的一张牌", "摸一张牌"])
-					.set("ai", () => {
-						const player = get.player();
-						const eff1 = get.effect(get.event("target"), { name: "guohe_copy2" }, player, player);
-						const eff2 = get.effect(player, { name: "draw" }, player, player);
-						return eff1 > eff2 ? 0 : 1;
+					.discardPlayerCard(target, "he", "弃置其一张牌，否则摸一张牌")
+					.set("ai", button => {
+						const { player, target } = get.event();
+						if (get.effect(target, { name: "guohe_copy2" }, player, player) > 0) {
+							return get.buttonValue(button);
+						}
+						return 0;
 					})
 					.set("target", target)
 					.forResult();
 			} else {
-				result = { index: 1 };
+				result = { bool: false };
 			}
-			if (result.index == 0) {
-				player.discardPlayerCard(target, "he", true);
-			} else {
-				player.draw();
+			if (!result?.bool) {
+				await player.draw();
 			}
 		},
 	},

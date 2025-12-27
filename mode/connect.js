@@ -1,4 +1,4 @@
-import { lib, game, ui, get, ai, _status } from "../noname.js";
+import { lib, game, ui, get, ai, _status } from "noname";
 export const type = "mode";
 /**
  * @type { () => importModeConfig }
@@ -82,7 +82,7 @@ export default () => {
 					});
 				};
 				node.addEventListener("keydown", function (e) {
-					if (e.keyCode == 13) {
+					if (e.code == "Enter") {
 						connect(e);
 					}
 				});

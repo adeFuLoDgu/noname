@@ -1,4 +1,4 @@
-import { lib, game, ui, get, ai, _status } from "../../noname.js";
+import { lib, game, ui, get, ai, _status } from "noname";
 
 /** @type { importCharacterConfig['skill'] } */
 const skills = {
@@ -348,6 +348,7 @@ const skills = {
 		filter(event, player) {
 			return game.getGlobalHistory("useCard", evt => evt.card.name == event.card.name).indexOf(event) > 0;
 		},
+		round: 1,
 		async cost(event, trigger, player) {
 			const targets = game.filterPlayer(current => {
 				if (trigger.targets?.includes(current)) {
@@ -470,17 +471,18 @@ const skills = {
 			if (!game.hasPlayer(current => current != player)) {
 				return false;
 			}
-			return player.countCards("he") >= Math.max(1, player.getDamagedHp());
+			const num = player.getDamagedHp(); //Math.max(1, player.getDamagedHp())
+			return num > 0 && player.countCards("he") >= num;
 		},
 		async cost(event, trigger, player) {
-			const num = Math.max(1, player.getDamagedHp()),
+			const num = player.getDamagedHp(),
 				count = game.countPlayer2(current => current.hasHistory("damage"), true);
 			event.result = await player
 				.chooseCardTarget({
 					prompt: get.prompt2(event.skill),
 					filterCard: true,
 					position: "he",
-					selectCard: [num, Infinity],
+					selectCard: num,
 					filterTarget: lib.filter.notMe,
 					complexCard: true,
 					count: count,

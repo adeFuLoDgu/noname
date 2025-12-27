@@ -420,7 +420,7 @@ export const extensionMenu = function (connectMenu) {
 					str += ",connect:false"; //不写的话，这里会变成undefined喵，所以默认是不能联机的哦
 					str += "}";
 					const extension = {
-						"extension.js": `import { lib, game, ui, get, ai, _status } from "../../noname.js";\nexport const type = "extension";\nexport default function(){\n\treturn ${str} \n};`,
+						"extension.js": `import { lib, game, ui, get, ai, _status } from "noname";\nexport const type = "extension";\nexport default function(){\n\treturn ${str} \n};`,
 						"info.json": JSON.stringify({
 							intro: introExtLine.querySelector("input").value ?? "",
 							name: page.currentExtension,
@@ -440,47 +440,47 @@ export const extensionMenu = function (connectMenu) {
 					for (var i in dash2.content.image) {
 						extension[i] = dash2.content.image[i];
 					}
-					var callback = () => {
+					// var callback = () => {
 						if (exportext) {
-							var proexport = function () {
-								game.importExtension(extension, null, page.currentExtension, {
+							// var proexport = function () {
+								game.importExtension(extension, null, page.currentExtension, /* {
 									intro: introExtLine.querySelector("input").value || "",
 									author: authorExtLine.querySelector("input").value || "",
 									netdisk: diskExtLine.querySelector("input").value || "",
 									forum: forumExtLine.querySelector("input").value || "",
 									version: versionExtLine.querySelector("input").value || "",
-								});
-							};
-							if (game.getFileList) {
-								game.getFileList("extension/" + page.currentExtension, function (folders, files) {
-									extension._filelist = files;
-									proexport();
-								});
-							} else {
-								proexport();
-							}
+								} */);
+							// };
+							// if (game.getFileList) {
+							// 	game.getFileList("extension/" + page.currentExtension, function (folders, files) {
+							// 		extension._filelist = files;
+							// 		proexport();
+							// 	});
+							// } else {
+								// proexport();
+							// }
 						} else {
 							game.importExtension(extension, function () {
 								exportExtLine.style.display = "";
 							});
 						}
-					};
-					//兼容网页版情况
-					if (typeof game.readFile == "function") {
-						game.readFile(
-							"LICENSE",
-							function (data) {
-								extension["LICENSE"] = data;
-								game.writeFile(data, "extension/" + page.currentExtension, "LICENSE", function () { });
-								callback();
-							},
-							function () {
-								alert("许可证文件丢失，无法导出扩展");
-							}
-						);
-					} else {
-						callback();
-					}
+					// };
+					// //兼容网页版情况
+					// if (typeof game.readFile == "function") {
+					// 	game.readFile(
+					// 		"LICENSE",
+					// 		function (data) {
+					// 			extension["LICENSE"] = data;
+					// 			game.writeFile(data, "extension/" + page.currentExtension, "LICENSE", function () { });
+					// 			callback();
+					// 		},
+					// 		function () {
+					// 			alert("许可证文件丢失，无法导出扩展");
+					// 		}
+					// 	);
+					// } else {
+					// 	callback();
+					// }
 				}, 500);
 			};
 			var buttonConfirm = document.createElement("button");

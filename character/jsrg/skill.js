@@ -1,4 +1,4 @@
-import { lib, game, ui, get, ai, _status } from "../../noname.js";
+import { lib, game, ui, get, ai, _status } from "noname";
 
 /** @type { importCharacterConfig['skill'] } */
 const skills = {
@@ -6671,10 +6671,10 @@ const skills = {
 		selectCard: -1,
 		selectTarget: [1, Infinity],
 		log: false,
-		precontent() {
+		async precontent(event, trigger, player) {
 			player.logSkill("jsrgduxing");
-			var targets = event.result.targets;
-			for (var target of targets) {
+			const targets = event.result.targets;
+			for (var target of [player, ...targets]) {
 				target.addTempSkill("jsrgduxing_allsha");
 			}
 			player.addTempSkill("jsrgduxing_restore");
@@ -6711,7 +6711,9 @@ const skills = {
 				charlotte: true,
 				mod: {
 					cardname(card, player, name) {
-						return "sha";
+						if (get.color(card) == "red") {
+							return "sha";
+						}
 					},
 				},
 			},
@@ -6801,6 +6803,7 @@ const skills = {
 	jsrgbashi: {
 		trigger: { player: "chooseToRespondBefore" },
 		zhuSkill: true,
+		usable: 4,
 		filter(event, player) {
 			if (event.responded) {
 				return false;

@@ -1,4 +1,4 @@
-import { lib, game, ui, get, ai, _status } from "../../noname.js";
+import { lib, game, ui, get, ai, _status } from "noname";
 
 const translates = {
 	bachiqionggouyu: "八尺琼勾玉",
@@ -19,7 +19,7 @@ const translates = {
 		info: "从随机的三个操作中选择一个(对其他角色可见)。摸金成功会获得奖励，然后继续“摸金”。",
 	})}。每当${get.poptip("ol_le_mojin_tip")}成功后，你获得奖励并重新进行一次${get.poptip("ol_le_mojin_tip")}。回合开始时，将${get.poptip("luoyangchan")}置入你的武器栏。`,
 	ol_le_mojin_directHit: "不可响应",
-	ol_le_mojin_baseDamage: "数值+1",
+	ol_le_mojin_baseDamage: "回复+1",
 	ol_le_dingbao: "定宝",
 	ol_le_dingbao_info: `限定技，出牌阶段，你可以直接完成一次${get.poptip("ol_le_mojin_tip")}并结束此阶段。`,
 	luoyangchan: "洛阳铲",
