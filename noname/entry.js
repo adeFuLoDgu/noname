@@ -1,4 +1,4 @@
-import { game } from "noname";
+import { game, get } from "noname";
 import { boot } from "@/init/index.js";
 import { nonameInitialized, userAgentLowerCase } from "@/util/index.js";
 import "core-js-bundle";
@@ -13,6 +13,7 @@ import "vue/dist/vue.esm-browser.js";
 		"在线更新", //游戏内在线更新方式修改了，不再依赖于在线更新扩展了
 	];
 
+	const [core, ...version] = get.coreInfo();
 	window.useNewDpr = true;
 	if ((core === "chrome" && !get.checkVersion([128, 0, 0], version)) || (core === "firefox" && !get.checkVersion([126, 0, 0], version))) {
 		window.useNewDpr = false;

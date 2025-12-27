@@ -6,15 +6,20 @@ on:
     paths-ignore:
       - 'docker/**'
       - 'docs/**'
-      - .editorconfig
+      - .dockerignore
       - .eslintrc.json
       - .gitignore
       - .mise.toml
+      - .nomedia
       - .prettierrc
-      - eslint.config.mjs
-      - prettier.config.mjs
-      - deno.json
+      - Dockerfile
       - README.md
+      - deno.json
+      - docker-compose.yml
+      - eslint.config.js
+      - eslint.config.mjs
+      - prettier.config.js
+      - prettier.config.mjs
     branches:
       - "master"
 
@@ -34,7 +39,6 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # Single deploy job since we're just deploying
   deploy:
     environment:
       name: github-pages
@@ -60,9 +64,8 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v3
         with:
-          # Upload entire repository
           path: './dist'
           retention-days: 1
       - name: Deploy to GitHub Pages

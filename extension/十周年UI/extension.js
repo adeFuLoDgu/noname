@@ -3147,17 +3147,6 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 							}
 						}
 					);
-					Mixin.replace(
-						'lib.skill._discard.content',
-						/(?=\s*var\s*todiscard\s*=\s*ui\s*\.\s*todiscard\s*\[\s*id\s*\]\s*;)/,
-						() => {
-							if (window.decadeUI) {
-								ui.todiscard = [];
-								ui.clear();
-								return;
-							}
-						}
-					);
 					const uiCreateIdentityCard = ui.create.identityCard;
 					ui.create.identityCard = function (identity) {
 						const identityCard = uiCreateIdentityCard(...arguments);

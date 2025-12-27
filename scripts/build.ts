@@ -11,7 +11,7 @@ import path from "path";
 const argv = minimist(process.argv.slice(2));
 
 const importMap: Record<string, string> = {
-	noname: "/noname.js",
+	noname: "./noname.js",
 	vue: "vue/dist/vue.esm-browser.js",
 	"pinyin-pro": "pinyin-pro",
 	dedent: "dedent",
