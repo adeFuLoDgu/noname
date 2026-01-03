@@ -11,17 +11,17 @@ const translates = {
 	bazhijing_skill_info: "锁定技，在你受到一张锦囊牌伤害后，防止同名锦囊牌对你造成的伤害，失去此装备后清除记录。",
 	ol_le_caohong: "OL乐曹洪",
 	ol_le_caohong_prefix: "OL乐",
-	ol_le_mojin: "摸金",
-	ol_le_mojin_info: `锁定技，游戏开始时，你进行一次${get.poptip({
-		id: "ol_le_mojin_tip",
+	olmojin: "摸金",
+	olmojin_info: `锁定技，游戏开始时，你进行一次${get.poptip({
+		id: "olmojin_tip",
 		name: "摸金",
 		type: "character",
 		info: "从随机的三个操作中选择一个(对其他角色可见)。摸金成功会获得奖励，然后继续“摸金”。",
-	})}。每当${get.poptip("ol_le_mojin_tip")}成功后，你获得奖励并重新进行一次${get.poptip("ol_le_mojin_tip")}。回合开始时，将${get.poptip("luoyangchan")}置入你的武器栏。`,
-	ol_le_mojin_directHit: "不可响应",
-	ol_le_mojin_baseDamage: "回复+1",
-	ol_le_dingbao: "定宝",
-	ol_le_dingbao_info: `限定技，出牌阶段，你可以直接完成一次${get.poptip("ol_le_mojin_tip")}并结束此阶段。`,
+	})}。每当${get.poptip("olmojin_tip")}成功后，你获得奖励并重新进行一次${get.poptip("olmojin_tip")}。回合开始时，将${get.poptip("luoyangchan")}置入你的武器栏。`,
+	olmojin_directHit: "不可响应",
+	olmojin_baseDamage: "回复+1",
+	oldingbao: "定宝",
+	oldingbao_info: `限定技，出牌阶段，你可以直接完成一次${get.poptip("olmojin_tip")}并结束此阶段。`,
 	luoyangchan: "洛阳铲",
 	luoyangchan_info: "出牌阶段限一次，你可以弃置一张黑色牌，执行一次手气卡效果(不消耗手气卡)。",
 	luoyangchan_skill: "洛阳铲",
@@ -365,6 +365,12 @@ const translates = {
 	xuyuan_info: "出牌阶段开始时，你可选择一个花色和一个装备的副类别，然后从牌堆中随机将一张满足要求的装备牌置入你的装备区。",
 	xiaomian: "笑面",
 	xiaomian_info: "你使用牌时，可以摸X张牌(X 为你装备区里与此牌花色相同的牌数）。若如此做，弃置你装备区里的一张牌。",
+	tw_dm_quyi: "TW魔麴义",
+	tw_dm_quyi_prefix: "TW|魔",
+	dmchongqi: "冲骑",
+	dmchongqi_info: `每回合限一次，你使用【杀】指定目标后，可以弃置目标角色一张牌。${get.poptip("rule_youji")}：此【杀】伤害+1。`,
+	dmfanquan: "反拳",
+	dmfanquan_info: `你受到伤害后，可以选择一名其他角色，令其受到1点伤害。${get.poptip("rule_boji")}：其受到X点伤害，本回合你计算与其他角色距离+1（X为你受到的伤害值）。`,
 };
 
 export default translates;

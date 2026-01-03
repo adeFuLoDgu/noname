@@ -1,9 +1,15 @@
 const characters = {
+	tw_dm_quyi: {
+		sex: "male",
+		group: "qun",
+		hp: 4,
+		skills: ["retieji", "dmchongqi", "dmfanquan"],
+	},
 	ol_le_caohong: {
 		sex: "male",
 		group: "wei",
 		hp: 4,
-		skills: ["ol_le_mojin", "ol_le_dingbao"],
+		skills: ["olmojin", "oldingbao"],
 	},
 	ol_le_liushan: {
 		sex: "male",

@@ -1,6 +1,124 @@
 import { lib, game, ui, get, ai, _status } from "noname";
 
 const cards = {
+	sm_prettyDerby: {
+		audio: true,
+		fullskin: true,
+		derivation: "sm_shen_machao",
+		type: "equip",
+		distance: {
+			globalFrom: -1,
+			globalTo: +1,
+		},
+		selectTarget: -1,
+		filterTarget(card, player, target) {
+			if (player !== target) {
+				return false
+			}
+			const ranges = Array.from(Array(5)).map((value, index) => `equip${index + 1}`);
+			if (get.is.mountCombined()) {
+				ranges.removeArray(["equip3", "equip4"]);
+				ranges.add("equip3_4");
+			}
+			if (get.itemtype(card) == "card") {
+				const owner = get.owner(card, "judge");
+				if (owner && !lib.filter.canBeGained(card, player, owner)) {
+					return false;
+				}
+			}
+			return ranges.some(range => player.countEquipableSlot(range));
+		},
+		async prepareEquip(event, trigger, player) {
+			if (!event.card.subtypes?.length) {
+				const choices = [];
+				for (let i = 0; i <= 5; i++) {
+					if (player.hasEquipableSlot(i)) {
+						choices.push(`equip${i}`);
+					}
+				}
+				if (!choices.length) {
+					return;
+				}
+				const result = await player
+					.chooseControl(choices)
+					.set("prompt", "请选择置入【赛马】的装备栏")
+					.set("ai", () => _status.event.controls.randomGet())
+					.forResult();
+				event.card.subtypes = [result.control];
+			}
+		},
+		ai: {
+			equipValue: 7.5,
+			basic: {
+				equipValue: 7.5,
+			},
+		},
+	},
+	//sm-赛马
+	sm_mabian: {
+		derivation: "sp_sm_shen_machao",
+		fullskin: true,
+		type: "equip",
+		subtype: "equip5",
+		async onEquip(event, trigger, player) {
+			const { card } = event,
+				skill = "sm_mabian_skill";
+			if (event.getParent().name != "equip") {
+				return;
+			}
+			const evt = event.getParent(2),
+				target = evt.player;
+			if (!get.info(evt.name)?.transformSkill) {
+				return;
+			}
+			const skills = [];
+			for (const name of get.nameList(target)) {
+				const list = get.character(name, 3);
+				if (!list?.length || !list.includes(evt.name)) {
+					continue;
+				}
+				if (get.characterTitle(name) != "赛马娘") {
+					continue;
+				}
+				skills.add(list[0]);
+			}
+			player.addSkill(skill);
+			const map = player.getStorage(skill, new Map());
+			map.set(card, skills);
+			player.setStorage(skill, map);
+			player.addAdditionalSkill(skill, Array.from(map.values()).flat());
+		},
+		forceDie: true,
+		async onLose(event, trigger, player) {
+			const { card } = event,
+				skill = "sm_mabian_skill";
+			const map = player.getStorage(skill, new Map());
+			map.delete(card);
+			player.setStorage(skill, map);
+			player.addAdditionalSkill(skill, Array.from(map.values()).flat());
+			if (!map.size) {
+				player.removeSkill(skill);
+			}
+		},
+		cardPrompt(card, player) {
+			if (!card || !player) {
+				return lib.translate["sm_mabian_info"];
+			}
+			const skill = "sm_mabian_skill",
+				map = player.getStorage(skill, new Map()),
+				vcard = card[card.cardSymbol];
+			if (!vcard || !map.has(vcard) || !map.get(vcard).length) {
+				return lib.translate["sm_mabian_info"];
+			}
+			const skills = map.get(vcard);
+			return `你视为拥有着${skills.map(name => get.poptip(name))}`;
+		},
+		ai: {
+			basic: {
+				equipValue: 7,
+			},
+		},
+	},
 	//26神黄月英的升级装备
 	zc26_zhuge: {
 		fullskin: true,
@@ -502,7 +620,7 @@ const cards = {
 		ai: {
 			order: 5,
 			tag: {
-				damage: 0.5,
+				damage: 0.6,
 				gain: 0.5,
 				loseCard: 1,
 				respondShan: 1,

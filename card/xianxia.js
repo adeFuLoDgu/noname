@@ -561,7 +561,7 @@ game.import("card", function () {
 						const result = await player
 							.chooseControl("摸一张牌", "回复1点体力")
 							.set("prompt", `联军盛宴：选择一项令所有目标执行`)
-							.set("ai", () => (get.event("val") > 0 ? "摸一张牌" : "回复1点体力"))
+							.set("ai", () => (get.event().val > 0 ? "摸一张牌" : "回复1点体力"))
 							.set("val", val)
 							.forResult();
 						if (result?.control) {
@@ -661,7 +661,7 @@ game.import("card", function () {
 								return choice[choice.length - 2];
 							})()
 						)
-						.set("ai", () => get.event("res"))
+						.set("ai", () => get.event().res)
 						.forResult();
 					event.result = {
 						bool: result.control != "cancel2",
@@ -719,7 +719,7 @@ game.import("card", function () {
 								return "cancel2";
 							})()
 						)
-						.set("ai", () => get.event("res"))
+						.set("ai", () => get.event().res)
 						.forResult();
 					event.result = {
 						bool: result.control != "cancel2",
@@ -901,7 +901,7 @@ game.import("card", function () {
 					event.result = await player
 						.chooseToDiscard(get.prompt2(event.skill), 2, "h")
 						.set("ai", card => {
-							if (get.event("val") <= 0) {
+							if (get.event().val <= 0) {
 								return 0;
 							}
 							return 6 - get.value(card);

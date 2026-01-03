@@ -1,5 +1,6 @@
 export default {
-	ol_sb_dongzhao: "以镒称铢",
+	//ol_re_xinxianying: "",
+	ol_sb_dongzhao: "天阶登志",
 	ol_sb_chengyu: "兼智且勇",
 	ol_sb_yl_luzhi: "人之望",
 	//ol_sunxiu: "弥殇的景君", //暂无称号，先取别的称号顶替一下

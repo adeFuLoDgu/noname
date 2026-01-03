@@ -119,7 +119,7 @@ const translates = {
 	mbquanchong: "权宠",
 	mbquanchong_info: "锁定技，每轮限一次，结束阶段，你弃置所有牌，执行一个额外回合，若你体力值不为全场唯一最大，则以此法执行的回合开始时你失去1点体力。",
 	mbrenxing: "任行",
-	mbrenxing_info: "每回合首次有牌不于弃牌阶段被弃置时，你可选择一项：1.与当前回合角色各摸一张牌；2.弃置一名本回合未使用或打出过【杀】的角色一张牌。",
+	mbrenxing_info: "每轮限两次，每回合首次有牌不于弃牌阶段被弃置时，你可选择一项：1.与当前回合角色各摸一张牌；2.弃置一名本回合未使用或打出过【杀】的角色一张牌。",
 	pot_xinxianying: "势辛宪英",
 	pot_xinxianying_prefix: "势",
 	potjiejie: "诫节",

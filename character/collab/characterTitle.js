@@ -1,5 +1,8 @@
 export default {
 	//注：此包武将称号多取自于线下制图，可能存在版本差异，线上暂无较统一的版本称号或暂缺）
+	bozai: "哈基米",
+	xiangjiaoduanwu: "南北绿豆",
+	tw_dm_quyi: "暗月魔潮",
 	old_lingju: "艳艳无双", //铜雀台用的皮肤称号
 	sp_fuwan: "如蹈汤火",
 	sp_fuhuanghou: "暗夜密见",

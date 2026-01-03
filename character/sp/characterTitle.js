@@ -3,7 +3,7 @@ export default {
 	//ol_yangfeng: "忠勇半途", //暂无称号
 	//ol_caizhenji: "舍心顾复", //暂无称号
 	//sunyuan: "孙鸢", //暂无称号
-	ol_lvlingqi: "无双虓姬",
+	ol_lvlingqi: "红袖仗钺",
 	zhangren: "索命神射",
 	zoushi: "惑心之魅",
 	zangba: "节度青徐",

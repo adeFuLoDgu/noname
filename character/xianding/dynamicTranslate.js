@@ -1,6 +1,13 @@
 import { lib, game, ui, get, ai, _status } from "noname";
 
 const dynamicTranslates = {
+	dcliexiang(player, skill) {
+		let info = lib.translate[`${skill}_info`];
+		if (player.hasSkill("dcliexiang_extra")) {
+			return info.replace("一名", "至多两名");
+		}
+		return info;
+	},
 	dcsbyinmou(player) {
 		const bool = player.storage.dcsbyinmou;
 		let yang = "将手牌摸至体力上限（至多摸五）",

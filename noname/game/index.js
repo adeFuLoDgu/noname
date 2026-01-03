@@ -10,14 +10,14 @@
  * @typedef { { mode: string, name: string[], name1: string, name2?: string, time: number, video: Video, win: boolean } } Videos
  */
 
-import { _status, lib, get, ai, ui, gnc } from "noname";
-import { isClass, userAgentLowerCase, Uninstantable, GeneratorFunction, AsyncFunction, delay, nonameInitialized } from "@/util/index.js";
+import { _status, lib, get, ai, ui } from "noname";
+import { isClass, userAgentLowerCase, GeneratorFunction, AsyncFunction, delay } from "@/util/index.js";
 
 import { DynamicStyle } from "./dynamic-style/index.js";
 import { GamePromises } from "./promises.js";
 import { Check } from "./check.js";
 
-import security from "@/util/security.js";
+import { security } from "@/util/sandbox.js"
 import { save } from "@/util/config.js";
 import { debounce } from "@/util/utils.js";
 
@@ -789,15 +789,15 @@ export class Game {
 		if (!id) {
 			throw new TypeError();
 		}
-		if (lib.comparator.typeEquals(short, "object")) {
+		if (typeof short === "object") {
 			config = short;
 			short = null;
 		}
-		if (lib.comparator.typeEquals(name, "object")) {
+		if (typeof name === "object") {
 			config = name;
 			name = null;
 		}
-		if (!lib.comparator.typeEquals(short, "string") && short) {
+		if (typeof short !== "string" && short) {
 			name = short;
 		}
 		if (["default", "all"].includes(type)) {
@@ -1892,16 +1892,8 @@ export class Game {
 		}
 	}
 	/**
-	 * @template { keyof typeof lib.message.client } T
-	 * @overload
-	 * @param { T } func
-	 * @param { ...Parameters<typeof lib.message.client[T]> } args
-	 * @returns { void }
-	 */
-	/**
 	 * @template { any[] } T
-	 * @overload
-	 * @param { (...args: T) => void } func
+	 * @param { (...args: T) => any } func
 	 * @param { ...T } args
 	 * @returns { void }
 	 */
@@ -1916,16 +1908,8 @@ export class Game {
 		}
 	}
 	/**
-	 * @template { keyof typeof lib.message.client } T
-	 * @overload
-	 * @param { T } func
-	 * @param { ...Parameters<typeof lib.message.client[T]> } args
-	 * @returns { void }
-	 */
-	/**
 	 * @template { any[] } T
-	 * @overload
-	 * @param { (...args: T) => void } func
+	 * @param { (...args: T) => any } func
 	 * @param { ...T } args
 	 * @returns { void }
 	 */
@@ -2977,20 +2961,15 @@ export class Game {
 			/** @type {Promise<any>} */
 			let promise;
 			if (typeof content === "function") {
-				if (gnc.is.generator(content)) {
-					promise = gnc.of(content)(lib, game, ui, get, ai, _status);
-				} else {
-					promise = Promise.try(content, lib, game, ui, get, ai, _status);
-				}
+				promise = Promise.try(content, lib, game, ui, get, ai, _status);
 			} else {
 				// 目前假定content是一个合法的对象
 				promise = Promise.resolve(content);
 			}
 
-			promise = promise.then(content2 => {
-				if (content2.name) {
-					lib.imported[type][content2.name] = content2;
-					// delete content2.name;
+			promise = promise.then(result => {
+				if (result.name) {
+					lib.imported[type][result.name] = result;
 				}
 			});
 
@@ -3017,7 +2996,7 @@ export class Game {
 					return;
 				}
 			} else {
-				object = await (gnc.is.generatorFunc(object) ? gnc.of(object) : object)(lib, game, ui, get, ai, _status);
+				object = await object(lib, game, ui, get, ai, _status);
 			}
 			noEval = true;
 		}
@@ -3166,16 +3145,19 @@ export class Game {
 				if (precontent) {
 					_status.extension = name;
 
-					await (gnc.is.generatorFunc(precontent) ? gnc.of(precontent) : precontent).call(object, config);
+					await precontent.call(object, config);
 					delete _status.extension;
 				}
 				if (prepare) {
 					lib.onprepare?.push(prepare);
 				}
-			} catch (e1) {
-				console.error(`加载《${name}》扩展的precontent时出现错误。`, e1);
+			} catch (e) {
+				console.error(`加载《${name}》扩展的precontent时出现错误。`, e);
 				if (!lib.config.extension_alert) {
-					alert(`加载《${name}》扩展的precontent时出现错误。\n该错误本身可能并不影响扩展运行。您可以在“设置→通用→无视扩展报错”中关闭此弹窗。\n${decodeURI(e1.stack)}`);
+					alert(`加载《${name}》扩展的precontent时出现错误。
+该错误本身可能并不影响扩展运行。您可以在“设置→通用→无视扩展报错”中关闭此弹窗。
+错误信息: 
+${(e instanceof Error ? e.stack : String(e))}`);
 				}
 			}
 

@@ -1,6 +1,6 @@
 import { _status, game, get, lib, ui } from "noname";
 import { Player } from "./index.js";
-import security from "@/util/security.js";
+import { security } from "@/util/sandbox.js"
 import ContentCompiler from "./GameEvent/compilers/ContentCompiler.ts";
 import GameEventManager from "./GameEvent/GameEventManager.ts";
 export { GameEventManager, ContentCompiler };
@@ -687,6 +687,10 @@ export class GameEvent {
 								return mod;
 							}
 						}
+						/*if (evt.ignoreMod) {
+							console.log(card);
+							card.cards = [];
+						}*/
 						return get.filter(evt.filterCard2).apply(this, arguments);
 					};
 				}
@@ -1449,33 +1453,11 @@ export class GameEvent {
 	 * 获取 Result 对象中的信息。
 	 * @example 
 	 * ```js
-	// 示例 1：
 	const chooseCardResult = await player.chooseCard().forResult();
 	// 获取整个结果对象，然后访问如 chooseCardResult.cards 等属性
-	
-	// 示例 2：
-	const cards = await player.chooseCard().forResult('cards');
-	// 获取结果对象中 'cards' 属性的值
-	
-	// 示例 3：
-	const [success, cards, targets] = await player.chooseCardTarget().forResult('bool', 'cards', 'targets');
-	// 获取结果对象中多个属性的值
-	// - success 表示是否成功
-	// - cards 表示选择的卡片
-	// - targets 表示选择的目标
 	```
-	 * @template {keyof Result} T
 	 * @this GameEvent
-	 * @overload
 	 * @returns {Promise<Partial<Result>>}
-	 * 
-	 * @overload
-	 * @param {T} param0
-	 * @returns {Promise<Exclude<Result[T], undefined>>}
-	 * 
-	 * @overload
-	 * @param { T[] } params
-	 * @returns { Promise<Exclude<Result[T], undefined>[]> }
 	 */
 	async forResult(...params) {
 		await this;
@@ -1491,21 +1473,21 @@ export class GameEvent {
 	 * 返回result中的bool项
 	 */
 	forResultBool() {
-		return this.forResult("bool");
+		return this.forResult().then(r => r.bool);
 	}
 
 	/**
 	 * 返回result中的targets项。
 	 */
 	forResultTargets() {
-		return this.forResult("targets");
+		return this.forResult().then(r => r.targets);
 	}
 
 	/**
 	 * 返回result中的cards项
 	 */
 	forResultCards() {
-		return this.forResult("cards");
+		return this.forResult().then(r => r.cards);
 	}
 
 	/**
@@ -1515,21 +1497,21 @@ export class GameEvent {
 	 *
 	 */
 	forResultCard() {
-		return this.forResult("card");
+		return this.forResult().then(r => r.card);
 	}
 
 	/**
 	 * 返回result中的control项。
 	 */
 	forResultControl() {
-		return this.forResult("control");
+		return this.forResult().then(r => r.control);
 	}
 
 	/**
 	 * 返回result中的links项。
 	 */
 	forResultLinks() {
-		return this.forResult("links");
+		return this.forResult().then(r => r.links);
 	}
 
 	/**

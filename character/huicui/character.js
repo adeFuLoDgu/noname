@@ -4,11 +4,12 @@ const characters = {
 		group: "shu",
 		hp: 4,
 		skills: ["dczhangguan", "dccongfeng"],
+		groupBorder: "wei",
 	},
 	jimiaojimu: {
 		sex: "male",
 		group: "qun",
-		hp: 3,
+		hp: 4,
 		skills: ["dczouyi", "dcyanxi"],
 		names: "吉|邈-吉|穆",
 	},

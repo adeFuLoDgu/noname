@@ -1,4 +1,6 @@
 export default {
+	sm_shen_machao: "赛马娘",
+	sp_sm_shen_machao: "赛马神",
 	dc_shen_sunquan: "瀚海碧君",
 	shen_liubei: "誓守桃园义",
 	shen_luxun: "红莲业火",

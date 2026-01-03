@@ -1384,7 +1384,7 @@ export default {
 			return typeof evt.filterCard == "function" && evt.filterCard({ name: "shan" }, player, evt) && evt.filterCard({ name: "sha" }, player, evt);
 		},
 		async content(event, trigger, player) {
-			const control = await player
+			const { control } = await player
 				.chooseControl(["sha", "shan"])
 				.set("prompt", `鏖战：请选择${get.translation(trigger.cards[0])}视为${trigger.name == "respond" ? "打出" : "使用"}的牌名`)
 				.set("ai", () => {
@@ -1394,7 +1394,7 @@ export default {
 					}
 					return ["sha", "shan"].randomGet();
 				})
-				.forResultControl();
+				.forResult();
 			const card = get.autoViewAs({ name: control }, trigger.cards);
 			trigger.card = card;
 			trigger.getParent().result.card = card;
@@ -1945,10 +1945,7 @@ export default {
 			if (!map?.count || map?.count < 0) {
 				return false;
 			}
-			if (map?.type == "round" && event.player != player) {
-				return false;
-			}
-			if (map?.type == "round" && event.skill) {
+			if (map?.type == "round" && (event.player != player || event.skill)) {
 				return false;
 			}
 			if (player.isIn()) {
@@ -1963,22 +1960,25 @@ export default {
 					map.count--;
 				}, map);
 			}
-			trigger._rest_return = true;
+			player.markSkill("_rest_return");
+			trigger[event.name] = true;
 			if (!map.count) {
-				game.broadcastAll(function (player) {
-					player.classList.remove("out");
-				}, player);
-				player.removeSkill("undist");
-				game.log(player, "移回了游戏");
-				delete _status._rest_return[player.playerid];
-				await player.recoverTo(player.maxHp);
-				//生成restEnd时机
-				const next = game.createEvent("restEnd", false);
-				next.setContent("emptyEvent");
-				next.player = player;
-				await next;
+				await player.restEnd();
 			}
 		},
+		intro: {
+			markcount(storage, player) {
+				const { type, count } = _status._rest_return?.[player.playerid] || {};
+				return (!count || !type || count < 0) ? "∞" : count;
+			},
+			content(storage, player) {
+				const { type, count } = _status._rest_return?.[player.playerid] || {};
+				if (!count || !type || count < 0) {
+					return `无限休整中，撅醒时机未知`;
+				}
+				return `还需休整${count}${type == "phase" ? "回合" : "轮"}`;
+			}
+		}
 	},
 	/**
 	 * @deprecated

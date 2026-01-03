@@ -522,41 +522,45 @@ export class Click {
 		const defaultFolder = src;
 		// @ts-expect-error ignore
 		if (location.href.indexOf("//localhost") != -1) {
-			game.getFileList(defaultFolder, (folders, files) => {
-				if (files.length) {
-					const list = [...files, "defaultSkin"].filter(i => i != nowSkin);
-					if (list.length) {
-						const skin = list.randomGet();
-						if (skin === "defaultSkin") {
-							delete lib.config.skin[name];
-							if (lib.characterSubstitute[name]) {
-								for (const nameList of lib.characterSubstitute[name]) {
-									const subName = nameList[0];
-									delete lib.config.skin[subName];
+			game.getFileList(
+				defaultFolder,
+				(folders, files) => {
+					if (files.length) {
+						const list = [...files, "defaultSkin"].filter(i => i != nowSkin);
+						if (list.length) {
+							const skin = list.randomGet();
+							if (skin === "defaultSkin") {
+								delete lib.config.skin[name];
+								if (lib.characterSubstitute[name]) {
+									for (const nameList of lib.characterSubstitute[name]) {
+										const subName = nameList[0];
+										delete lib.config.skin[subName];
+									}
+								}
+							} else {
+								lib.config.skin[name] = [skin, `${defaultFolder}${skin}`];
+								if (lib.characterSubstitute[name]) {
+									for (const nameList of lib.characterSubstitute[name]) {
+										const subName = nameList[0],
+											[fold, prefix] = skin.split(".");
+										lib.config.skin[subName] = [name, `${defaultFolder}/${fold}/${subName}.${prefix}`];
+									}
 								}
 							}
+							game.saveConfig("skin", lib.config.skin);
+							avatar.setBackground(name, "character");
+							finish(true);
 						} else {
-							lib.config.skin[name] = [skin, `${defaultFolder}${skin}`];
-							if (lib.characterSubstitute[name]) {
-								for (const nameList of lib.characterSubstitute[name]) {
-									const subName = nameList[0],
-										[fold, prefix] = skin.split(".");
-									lib.config.skin[subName] = [name, `${defaultFolder}/${fold}/${subName}.${prefix}`];
-								}
-							}
+							finish(false);
 						}
-						game.saveConfig("skin", lib.config.skin);
-						avatar.setBackground(name, "character");
-						finish(true);
 					} else {
 						finish(false);
 					}
-				} else {
+				},
+				() => {
 					finish(false);
 				}
-			}, () => {
-				finish(false);
-			});
+			);
 		}
 	}
 	touchpop(forced) {
@@ -2194,6 +2198,50 @@ export class Click {
 			delete this._waitingfordrag;
 		}
 	}
+	cardmouseenter() {
+		if (!lib.config.spread_card) return;
+		if (this.parentNode?.parentNode?.parentNode !== ui.me) return;
+		if (ui.selected.cards.length) return;
+		ui._handcardHover = this;
+		ui.updatehl();
+	}
+	cardmouseleave() {
+		if (ui._handcardHover === this) {
+			ui._handcardHover = null;
+			if (!ui.selected.cards.length) {
+				ui.updatehl();
+			}
+		}
+	}
+	playertouchstart(e) {
+		if (e.touches.length != 1 || !lib.config.enable_drag) {
+			return;
+		}
+		if (this.classList.contains("selectable") && !this.classList.contains("selected") && !this.classList.contains("noclick")) {
+			this._waitingfordrag = {
+				clientX: e.touches[0].clientX,
+				clientY: e.touches[0].clientY,
+			};
+		}
+	}
+	playertouchmove(e) {
+		ui.click.longpresscancel.call(this);
+		if (this._waitingfordrag) {
+			var drag = this._waitingfordrag;
+			_status.clicked = false;
+			_status.touchnocheck = true;
+			ui.click.target.call(this);
+			_status.touchnocheck = false;
+			if (this.classList.contains("selected")) {
+				_status.mousedragging = drag;
+				_status.mousedragorigin = this;
+				_status.mouseleft = false;
+				_status.selectionfull = false;
+				_status.multitarget = false;
+			}
+			delete this._waitingfordrag;
+		}
+	}
 	windowmouseup(e) {
 		delete _status.force;
 		// if(_status.forcetouchinterval){
@@ -2660,6 +2708,9 @@ export class Click {
 		} else {
 			ui.selected.cards.add(this);
 			this.classList.add("selected");
+			if (ui._handcardHover === this) {
+				ui._handcardHover = null;
+			}
 			this.updateTransform(true);
 		}
 		if (game.chess && get.config("show_range") && !_status.event.skill && this.classList.contains("selected") && _status.event.isMine() && _status.event.name == "chooseToUse") {
@@ -3261,7 +3312,7 @@ export class Click {
 		if (lib.config.change_skin) {
 			let node, avatars;
 			const info = get.character(name),
-				src = get.skinPath(name); 
+				src = get.skinPath(name);
 			if (src) {
 				const createButtons = list => {
 					if (!list.length) {
@@ -3343,33 +3394,41 @@ export class Click {
 								button.setBackgroundImage(src);
 							} else {
 								const [fold, prefix] = skinname.split(".");
-								button.setBackgroundImage(`${src.split("/").slice(0, -1).join("/")}/${fold}/${audioName}.${prefix}`)
+								button.setBackgroundImage(`${src.split("/").slice(0, -1).join("/")}/${fold}/${audioName}.${prefix}`);
 							}
 						}
 					}
 				};
 				let defaultFolder = src;
 				if (location.href.indexOf("//localhost") != -1) {
-					game.getFileList(defaultFolder, (folders, files) => {
-						if (files.length && !node) {
-							node = ui.create.div(".changeskin", "可换肤", playerbg);
-							avatars = ui.create.div(".avatars", playerbg);
-							changeskinfunc = function() {
-								playerbg.classList.add("scroll");
-								if (node._created) {
-									return;
-								}
-								node._created = true;
-								game.getFileList(defaultFolder, (folders, files) => {
-									const list = files.map(file => {
-										let src = `${defaultFolder}${file}`;
-										return [file, src];
-									})
-									createButtons(list);
-								}, () => {});
-							};
-						}
-					}, () => {});
+					game.getFileList(
+						defaultFolder,
+						(folders, files) => {
+							if (files.length && !node) {
+								node = ui.create.div(".changeskin", "可换肤", playerbg);
+								avatars = ui.create.div(".avatars", playerbg);
+								changeskinfunc = function () {
+									playerbg.classList.add("scroll");
+									if (node._created) {
+										return;
+									}
+									node._created = true;
+									game.getFileList(
+										defaultFolder,
+										(folders, files) => {
+											const list = files.map(file => {
+												let src = `${defaultFolder}${file}`;
+												return [file, src];
+											});
+											createButtons(list);
+										},
+										() => {}
+									);
+								};
+							}
+						},
+						() => {}
+					);
 				}
 			}
 		}
@@ -3497,12 +3556,12 @@ export class Click {
 					var charactertitle = get.characterTitle(name, false, false);
 					var titleHtml = "";
 					if (charactertitle.length) {
-						titleHtml = '<div class="character-title">' + get.colorspan(charactertitle) + '</div>';
+						titleHtml = '<div class="character-title">' + get.colorspan(charactertitle) + "</div>";
 					}
 					let packName;
 					for (let packname in lib.characterPack) {
 						if (name in lib.characterPack[packname]) {
-							let pack = lib.translate[packname + '_character_config'],
+							let pack = lib.translate[packname + "_character_config"],
 								sort;
 							if (lib.characterSort[packname]) {
 								let sorted = lib.characterSort[packname];
@@ -3525,7 +3584,6 @@ export class Click {
 						intro.innerHTML += '<br><br><span style="font-weight:bold;color:#ff6b6b;">引文</span><br>' + lib.characterAppend[name];
 					}
 				}
-
 
 				var intro2 = uiintro.querySelector(".intro2") || ui.create.div(".characterintro.intro2", uiintro);
 				list.addArray(get.character(name, 3) || []);
@@ -3621,7 +3679,7 @@ export class Click {
 								}
 								let derivationVoiceMap = get.Audio.skill({ skill: derivation[i], player: { name: playername, skin: { name: skinName }, tempname: [skinName] } }).textList;
 								if (derivationVoiceMap.length > 0) {
-									intro2.innerHTML += '<br><br><span style="font-weight:bold;color:#ff6b6b;">' + get.translation(derivation[i]) + '台词</span>';
+									intro2.innerHTML += '<br><br><span style="font-weight:bold;color:#ff6b6b;">' + get.translation(derivation[i]) + "台词</span>";
 									derivationVoiceMap.forEach((text, index) => {
 										const derivationTextSpan = document.createElement("span");
 										derivationTextSpan.style.fontSize = "15.2px";
@@ -3647,7 +3705,9 @@ export class Click {
 						}
 					} else {
 						let skinName2 = bg.tempSkin || this.linkname;
-						let dieAudios3 = get.Audio.die({ player: { name: this.playername, skin: { name: skinName2 }, tempname: [skinName2] } }).audioList.map((i3) => i3.text).filter(Boolean);
+						let dieAudios3 = get.Audio.die({ player: { name: this.playername, skin: { name: skinName2 }, tempname: [skinName2] } })
+							.audioList.map(i3 => i3.text)
+							.filter(Boolean);
 						intro2.innerHTML = '<span style="font-weight:bold;margin-right:5px">阵亡台词</span>';
 						dieAudios3.forEach((text, index) => {
 							const dieTextSpan = document.createElement("span");
@@ -3677,10 +3737,11 @@ export class Click {
 					showCharacterNamePinyin = lib.config.show_characternamepinyin;
 				intro = uiintro.querySelector(".characterintro") || ui.create.div(".characterintro", uiintro);
 				// 添加武将称号
-				let characterTitle = get.colorspan(get.characterTitle(name, false, false)), packName;
+				let characterTitle = get.colorspan(get.characterTitle(name, false, false)),
+					packName;
 				for (let packname in lib.characterPack) {
 					if (name in lib.characterPack[packname]) {
-						let pack = lib.translate[packname + '_character_config'],
+						let pack = lib.translate[packname + "_character_config"],
 							sort;
 						if (lib.characterSort[packname]) {
 							let sorted = lib.characterSort[packname];
@@ -3861,7 +3922,6 @@ export class Click {
 					intro.innerHTML += '<br><br><span style="font-weight:bold;color:#ff6b6b;">引文</span><br>' + lib.characterAppend[name];
 				}
 
-
 				const introduction2 = uiintro.querySelector(".intro2") || ui.create.div(".characterintro.intro2", uiintro);
 				list.addArray(get.character(name).skills || []);
 				if (lib.config.touchscreen) {
@@ -3883,9 +3943,11 @@ export class Click {
 					}
 					this.classList.add("active");
 					if (this.link != "dieAudios") {
-						const skillNameSpan = document.createElement("span"), skillNameSpanStyle = skillNameSpan.style;
+						const skillNameSpan = document.createElement("span"),
+							skillNameSpanStyle = skillNameSpan.style;
 						skillNameSpanStyle.fontWeight = "bold";
-						const link = this.link, skillName = get.translation(link);
+						const link = this.link,
+							skillName = get.translation(link);
 						skillNameSpan.innerHTML = skillName;
 						const showSkillNamePinyin = lib.config.show_skillnamepinyin;
 						if (showSkillNamePinyin != "doNotShow" && skillName != "阵亡") {
@@ -3908,7 +3970,7 @@ export class Click {
 							introduction2.appendChild(skillNameSpan);
 						}
 						htmlParser.innerHTML = get.skillInfoTranslation(this.link, null, false);
-						Array.from(htmlParser.childNodes).forEach((childNode) => introduction2.appendChild(childNode));
+						Array.from(htmlParser.childNodes).forEach(childNode => introduction2.appendChild(childNode));
 						var info = get.info(this.link);
 						var skill = this.link;
 						var playername = this.linkname;
@@ -3920,13 +3982,14 @@ export class Click {
 							if (typeof derivations == "string") {
 								derivations = [derivations];
 							}
-							derivations.forEach((derivation) => {
+							derivations.forEach(derivation => {
 								if (derivation.indexOf("_faq") == -1 && !get.info(derivation).nopop) {
 									return false;
 								}
 								introduction2.appendChild(document.createElement("br"));
 								introduction2.appendChild(document.createElement("br"));
-								const derivationNameSpan = document.createElement("span"), derivationNameSpanStyle = derivationNameSpan.style;
+								const derivationNameSpan = document.createElement("span"),
+									derivationNameSpanStyle = derivationNameSpan.style;
 								derivationNameSpanStyle.fontWeight = "bold";
 								const derivationName = get.translation(derivation);
 								derivationNameSpan.innerHTML = derivationName;
@@ -3950,7 +4013,7 @@ export class Click {
 									introduction2.appendChild(derivationNameSpan);
 								}
 								htmlParser.innerHTML = get.skillInfoTranslation(derivation, null, false);
-								Array.from(htmlParser.childNodes).forEach((childNode) => introduction2.appendChild(childNode));
+								Array.from(htmlParser.childNodes).forEach(childNode => introduction2.appendChild(childNode));
 							});
 						}
 
@@ -4008,7 +4071,7 @@ export class Click {
 									audioList,
 									addVideo: false,
 									random: false,
-									autoplay: false
+									autoplay: false,
 								});
 								this.audioName = name;
 							}
@@ -4016,7 +4079,9 @@ export class Click {
 						}
 					} else {
 						let skinName2 = bg.tempSkin || this.linkname;
-						let dieAudios3 = get.Audio.die({ player: { name: this.playername, skin: { name: skinName2 }, tempname: [skinName2] } }).audioList.map((i2) => i2.text).filter(Boolean);
+						let dieAudios3 = get.Audio.die({ player: { name: this.playername, skin: { name: skinName2 }, tempname: [skinName2] } })
+							.audioList.map(i2 => i2.text)
+							.filter(Boolean);
 						introduction2.innerHTML = '<span style="font-weight:bold;margin-right:5px">阵亡台词</span>';
 						dieAudios3.forEach((text, index) => {
 							const dieTextSpan = document.createElement("span");
@@ -4031,7 +4096,7 @@ export class Click {
 									audioList,
 									addVideo: false,
 									random: false,
-									autoplay: false
+									autoplay: false,
 								});
 								this.audioName = name;
 							}
@@ -4047,7 +4112,7 @@ export class Click {
 
 		// 创建皮肤容器并添加到intro底部
 		if (lib.characterSubstitute[name]) {
-			refreshSkin = function() {
+			refreshSkin = function () {
 				if (!intro) {
 					intro = uiintro.querySelector(".characterintro");
 				}

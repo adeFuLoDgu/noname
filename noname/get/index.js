@@ -5,8 +5,7 @@ import * as pinyinPro from "pinyin-pro";
 import NonameDictionary from "./pinyins/noname-dict.js";
 import { Audio } from "./audio.ts";
 import { GeneratorFunction, AsyncFunction, AsyncGeneratorFunction, userAgentLowerCase } from "@/util/index.js";
-import security from "@/util/security.js";
-import { CodeSnippet, ErrorManager } from "@/util/error.ts";
+import { security, CodeSnippet, ErrorManager } from "@/util/sandbox.js";
 
 import JSZip from "jszip";
 import { HTMLPoptipElement } from "@/library/poptip.js";
@@ -3710,20 +3709,11 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 		return card;
 	}
 	/**
-	 * @overload
 	 * @returns {GameEvent}
-	 */
-	/**
-	 * @template { keyof GameEvent } T
-	 * @overload
-	 * @param {T} key
-	 * @returns {GameEvent[T]}
 	 */
 	event(key) {
 		if (key) {
-			// 能跑起来的东西还是不要去动它比较好 --Spmario233
-			// 跑起来没问题的东西就不要乱动！ --Spmario233
-			// console.warn(`get.event("${key}")写法即将被废弃，请更改为get.event().${key}`);
+			console.warn(`get.event("${key}")写法即将被废弃，请更改为get.event().${key}`);
 			return _status.event[key];
 		}
 		return _status.event;
@@ -5761,7 +5751,7 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 						}
 					}
 					if (lib.card[name].cardPrompt) {
-						var str = lib.card[name].cardPrompt(node.link || node, player),
+						var str = lib.card[name].cardPrompt(node.link || node, get.owner(node)),
 							placetext = uiintro.add('<div class="text" style="display:inline">' + str + "</div>");
 						if (!str.startsWith('<div class="skill"')) {
 							uiintro._place_text = placetext;
@@ -5793,6 +5783,22 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 							uiintro.addSmall(Vcard.cards);
 						} else {
 							uiintro.add('<div class="text center">（这是一张虚拟牌）</div>');
+						}
+					}
+					if (node.gaintag?.length) {
+						let gaintag = node.gaintag.map(tag => {
+							let translate = get.translation(tag);
+							if (translate === tag && tag.startsWith("eternal_")) {
+								translate = get.translation(tag.slice(8));
+							};
+							if (translate === "invisible") {
+								return "";
+							}
+							return translate;
+						}).filter(tag => tag.length);
+						if (gaintag?.length) {
+							uiintro.add(" ");
+							uiintro.add(`<div class="text" style="display:inline">此牌标签：${gaintag}</div>`);
 						}
 					}
 				}

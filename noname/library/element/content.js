@@ -1,5 +1,5 @@
 // 不经过编译
-import { _status, game, get, lib, ui, ai, gnc } from "noname";
+import { _status, game, get, lib, ui, ai } from "noname";
 import { GameEvent } from "./gameEvent.js";
 import { Player } from "./player.js";
 
@@ -382,7 +382,7 @@ export const Content = {
 				newGroups = get.is.double(player.name2, true) || [get.character(player.name2, 1)];
 			}
 			if (newGroups.length > 1) {
-				const newGroup = await player.chooseControl(newGroups).set("prompt", "请选择一个新的势力").forResult("control");
+				const { control: newGroup } = await player.chooseControl(newGroups).set("prompt", "请选择一个新的势力").forResult();
 				if (newGroup != player.group) {
 					await player.changeGroup(newGroup);
 				}
@@ -1369,7 +1369,7 @@ player.removeVirtualEquip(card);
 						event.aiCard ||
 							function (target) {
 								const getAi =
-									get.event("ai") ||
+									get.event().ai ||
 									function (card) {
 										return Math.random();
 									};
@@ -4176,7 +4176,7 @@ player.removeVirtualEquip(card);
 								next.set("forceDie", true);
 								next.set("arrangeSkill", true);
 								next.set("includeOut", true);
-								const { result } = await next;
+								const result = await next.forResult();
 								//千里走单骑全责，把敌人打死可能会打断chooseControl
 								if (result) {
 									event.current = usableSkills.find(info => info.skill == skillsToChoose[result.index]);
@@ -6848,7 +6848,7 @@ player.removeVirtualEquip(card);
 			event.lose_list = lose_list;
 			event.getNum = card => {
 				for (var i of event.lose_list) {
-					if (i[1].contains && i[1].includes(card)) {
+					if (i[1].includes && i[1].includes(card)) {
 						return get.number(card, i[0]);
 					}
 				}
@@ -7083,7 +7083,7 @@ player.removeVirtualEquip(card);
 			event.lose_list = lose_list;
 			event.getNum = function (card) {
 				for (var i of event.lose_list) {
-					if (i[1].contains && i[1].includes(card)) {
+					if (i[1].includes && i[1].includes(card)) {
 						return get.number(card, i[0]);
 					}
 				}
@@ -9787,9 +9787,9 @@ player.removeVirtualEquip(card);
 			return;
 		}
 		var next = player.chooseTarget(2, function (card, player, target) {
-			var filterCard = get.event("filter");
+			var filterCard = get.event().filter;
 			if (ui.selected.targets.length) {
-				if (!get.event("aimTargets").includes(target)) {
+				if (!get.event().aimTargets.includes(target)) {
 					return false;
 				}
 				var from = ui.selected.targets[0];
@@ -9813,11 +9813,11 @@ player.removeVirtualEquip(card);
 				}
 				return false;
 			} else {
-				if (!get.event("sourceTargets").includes(target)) {
+				if (!get.event().sourceTargets.includes(target)) {
 					return false;
 				}
 				return game.hasPlayer(current => {
-					if (!get.event("aimTargets").includes(current) || target == current) {
+					if (!get.event().aimTargets.includes(current) || target == current) {
 						return false;
 					}
 					var js = target.getCards("j", filterCard);
@@ -9847,8 +9847,8 @@ player.removeVirtualEquip(card);
 			var player = _status.event.player;
 			var att = get.attitude(player, target);
 			var sgnatt = get.sgn(att);
-			var aimTargets = get.event("aimTargets"),
-				filterCard = get.event("filter");
+			var aimTargets = get.event().aimTargets,
+				filterCard = get.event().filter;
 			if (ui.selected.targets.length == 0) {
 				if (att > 0) {
 					let noEffect = true;
@@ -10002,7 +10002,7 @@ player.removeVirtualEquip(card);
 					.set("targets1", targets[1])
 					/*.set("filterButton", function (button) {
 				var targets1 = _status.event.targets1;
-				if (!get.event("filter")(button.link)) return false;
+				if (!get.event().filter(button.link)) return false;
 				if (get.position(button.link) == "j") {
 					if (_status.event.nojudge) return false;
 					return targets1.canAddJudge(button.link);
@@ -12269,7 +12269,10 @@ player.removeVirtualEquip(card);
 			game.broadcast(
 				function (player, cards, num) {
 					for (var i = 0; i < cards.length; i++) {
-						cards[i].removeGaintag(true);
+						//cards[i].removeGaintag(true);
+						//仅移除非永久标记
+						const tags = cards[i].gaintag.filter(tag => !tag.startsWith("eternal_"));
+						tags.forEach(tag => cards[i].removeGaintag(tag));
 						cards[i].classList.remove("glow");
 						cards[i].classList.remove("glows");
 						cards[i].fix();
@@ -12798,10 +12801,8 @@ player.removeVirtualEquip(card);
 	},
 	die: [
 		async (event, trigger, player) => {
-			const { reason, source, restMap } = event;
+			const { reason, source } = event;
 			event.forceDie = true;
-			//判断当前事件是否是休整（同时确保各个参数的合法性）
-			event.reserveOut = ["phase", "round"].includes(restMap.type) && typeof restMap.count == "number";
 			//只有真正死亡才会影响每轮起始的角色（注意：不是每个模式都有这个属性，只有个别几个模式有，身份22斗地主都是判断的onround来决定是否进入下一轮）
 			if (_status.roundStart == player && !event.reserveOut) {
 				_status.roundStart = player.next || player.getNext() || game.players[0];
@@ -12842,49 +12843,24 @@ player.removeVirtualEquip(card);
 					}
 				}
 			}*/
-			//休整的流程
-			if (event.reserveOut) {
-				if (player.isIn() && !_status._rest_return?.[player.playerid]) {
-					game.log(player, "进入了修整状态");
-					game.log(player, "移出了游戏");
-					//game.addGlobalSkill('_rest_return');
-					player.addSkill("undist");
-					_status._rest_return ??= {};
-					_status._rest_return[player.playerid] = {
-						type: restMap.type,
-						count: restMap.count,
-					};
-				} else {
-					event.finish();
-				}
-			}
-			//正常死亡流程
-			if (!event.reserveOut) {
-				game.broadcastAll(function (player) {
-					player.classList.add("dead");
-					player.removeLink();
-					player.classList.remove("turnedover");
-					player.classList.remove("out");
-					player.node.count.innerHTML = "0";
-					player.node.hp.hide();
-					player.node.equips.hide();
-					player.node.count.hide();
-					player.previous.next = player.next;
-					player.next.previous = player.previous;
-					game.players.remove(player);
-					game.dead.push(player);
-					_status.dying.remove(player);
-				}, player);
-			}
+			game.broadcastAll(function (player) {
+				player.classList.add("dead");
+				player.removeLink();
+				player.classList.remove("turnedover");
+				player.classList.remove("out");
+				player.node.count.innerHTML = "0";
+				player.node.hp.hide();
+				player.node.equips.hide();
+				player.node.count.hide();
+				player.previous.next = player.next;
+				player.next.previous = player.previous;
+				game.players.remove(player);
+				game.dead.push(player);
+				_status.dying.remove(player);
+			}, player);
 
-			//播放阵亡语音或特殊的休整语音（沟槽的十常侍），休整语音也请放到跟死亡语音一起
-			if (typeof restMap.audio == "string") {
-				game.broadcastAll(function (audio) {
-					if (lib.config.background_speak) {
-						game.playAudio("die", audio);
-					}
-				}, restMap.audio);
-			} else if (!event.noDieAudio) {
+			//是否播放阵亡语音
+			if (!event.noDieAudio) {
 				game.tryDieAudio(player);
 			}
 			//添加死亡动画（包括录像的）
@@ -12901,40 +12877,21 @@ player.removeVirtualEquip(card);
 			if (player.hp != 0) {
 				await player.changeHp(0 - player.hp, false).set("forceDie", true);
 			}
-			//休整时解除连环和翻面状态
-			if (event.reserveOut) {
-				game.broadcastAll(function (player) {
-					if (player.isLinked()) {
-						if (get.is.linked2(player)) {
-							player.classList.toggle("linked2");
-						} else {
-							player.classList.toggle("linked");
-						}
-					}
-					if (player.isTurnedOver()) {
-						player.classList.toggle("turnedover");
-					}
-				}, player);
-				game.addVideo("link", player, player.isLinked());
-				game.addVideo("turnOver", player, player.classList.contains("turnedover"));
+		},
+		async (event, trigger, player) => {
+			const { source } = event;
+			//是否执行展示身份牌和胜负判断的操作
+			if (player.dieAfter && !event.reserveOut && !event.noDieAfter) {
+				await player.dieAfter(source);
 			}
 		},
 		async (event, trigger, player) => {
-			const { source, restMap } = event;
-			//休整不执行展示身份牌和击杀奖惩的操作
-			if (player.dieAfter && !event.reserveOut) {
-				player.dieAfter(source);
-			}
-		},
-		async (event, trigger, player) => {
-			if (!event.reserveOut) {
-				game.callHook("checkDie", [event, player]);
-			}
+			game.callHook("checkDie", [event, player]);
 			await event.trigger("die");
 		},
 		async (event, trigger, player) => {
-			const { reason, source, restMap } = event;
-			if (player.isDead() || event.reserveOut) {
+			const { reason, source } = event;
+			if (player.isDead()) {// || event.reserveOut
 				//死亡移除武将牌的标记显示，有些不想移除的可以放进excludeMark排除（比如十常侍的常侍标记）
 				if (!game.reserveDead) {
 					const exclude = event.excludeMark;
@@ -12999,14 +12956,14 @@ player.removeVirtualEquip(card);
 			}
 		},
 		async (event, trigger, player) => {
-			const { source, restMap } = event;
-			//休整不执行展示身份牌和击杀奖惩的操作
-			if (player.dieAfter2 && !event.reserveOut) {
-				player.dieAfter2(source);
+			const { source } = event;
+			//是否执行击杀奖惩的操作
+			if (player.dieAfter2 && !event.reserveOut && !event.noDieAfter2) {
+				await player.dieAfter2(source);
 			}
 		},
 		async (event, trigger, player) => {
-			const { reason, source, restMap } = event;
+			const { reason, source } = event;
 			if (!event.reserveOut) {
 				//真正的死亡才会显示再战那些按钮，以及隐藏一些按钮什么的
 				game.broadcastAll(function (player) {
@@ -13045,12 +13002,6 @@ player.removeVirtualEquip(card);
 						_status.coin += 10;
 					}
 				}
-			} else {
-				//休整时将角色移出游戏
-				game.broadcastAll(function (player) {
-					player.classList.add("out");
-				}, player);
-				await event.trigger("rest");
 			}
 			if (source && lib.config.border_style == "auto" && (lib.config.autoborder_count == "kill" || lib.config.autoborder_count == "mix")) {
 				switch (source.node.framebg.dataset.auto) {
@@ -13293,6 +13244,71 @@ player.removeVirtualEquip(card);
 			}
 			source.classList.add("topcount");
 		}
+	},
+	//进入休整状态
+	rest: async function(event, trigger, player) {
+		const { type = "phase", count = -1 } = event.restMap;//, audio
+		if (_status._rest_return?.[player.playerid]) {
+			return;
+		}
+		/*if (audio) {
+			game.broadcastAll(function (audio) {
+				if (lib.config.background_speak) {
+					game.playAudio("die", audio);
+				}
+			}, audio);
+		}*/
+
+		game.log(player, "进入了修整状态");
+		player.classList.remove("dead");
+		game.dead.remove(player);
+		game.players.add(player);
+		game.arrangePlayers();
+		game.broadcastAll((id, type, count) => {
+			_status._rest_return ??= {};
+			_status._rest_return[id] = {
+				type: type,
+				count: count,
+			};
+		}, player.playerid, type, count);
+		player.markSkill("_rest_return");
+
+		game.log(player, "移出了游戏");
+		game.broadcastAll(function (player) {
+			player.classList.add("out");
+		}, player);
+		player.addSkill("undist");
+
+		await event.trigger("rest");
+	},
+	//结束休整状态
+	restEnd: async function(event, trigger, player) {
+		const { hp = player.maxHp } = event.restEndMap;//, audio
+		if (!_status._rest_return?.[player.playerid]) {
+			return;
+		}
+		/*if (typeof audio == "string") {
+			game.broadcastAll(function (audio) {
+				if (lib.config.background_speak) {
+					game.playAudio("die", audio);
+				}
+			}, audio);
+		}*/
+
+		game.log(player, "结束了休整");
+		game.broadcastAll((id) => {
+			delete _status._rest_return[id];
+		}, player.playerid);
+		player.unmarkSkill("_rest_return");
+
+		game.log(player, "移回了游戏");
+		game.broadcastAll(function (player) {
+			player.classList.remove("out");
+		}, player);
+		player.removeSkill("undist");
+
+		await player.reviveEvent(hp);
+		await event.trigger("restEnd");
 	},
 	//复活事件
 	revive: async function (event, trigger, player) {
@@ -13850,7 +13866,7 @@ player.removeVirtualEquip(card);
 						return [top, cards];
 				}
 			};
-		const { result } = await next;
+		const result = await next.forResult();
 		const top = result?.moved?.[0] || [];
 		const bottom = result?.moved?.[1] || [];
 		top.reverse();

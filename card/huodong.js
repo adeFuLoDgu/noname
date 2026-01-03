@@ -100,9 +100,8 @@ game.import("card", function () {
 						choice,
 						putback = false;
 					do {
-						const {
-							cards: [card],
-						} = await game.cardsGotoOrdering(get.cards());
+						const card = get.cards()[0];
+						await game.cardsGotoOrdering([card]);
 						const numx = get.number(card, false);
 						gain.push(card);
 						await target.showCards(card, get.translation(target) + "使用了【见好就收】");
@@ -122,7 +121,7 @@ game.import("card", function () {
 						if (gain.length > 1) {
 							choices.push("cancel2");
 						}
-						const { result } = await target
+						const result = await target
 							.chooseControl(choices)
 							.set("prompt", "见好就收：猜测下一张牌的点数大于或小于，或者取消获得所有展示过的牌")
 							.set("ai", () => {
@@ -132,7 +131,8 @@ game.import("card", function () {
 								return get.event().num < 7 ? 0 : 1;
 							})
 							.set("gain", gain)
-							.set("num", numx);
+							.set("num", numx)
+							.forResult();
 						if (result.control == "cancel2") {
 							await target.gain(gain, "gain2");
 							break;
@@ -316,7 +316,7 @@ game.import("card", function () {
 				global: ["jiaoyou_skill"],
 				async content(event, trigger, player) {
 					const { target } = event;
-					const cards = target.getCards("h", card => get.tag(card, "damage") > 0.5),
+					const cards = target.getCards("h", card => get.tag(card, "damage") && get.type(card) != "delay"),
 						name = event.name;
 					if (cards.length) {
 						await target.showCards(cards);
@@ -1189,14 +1189,15 @@ game.import("card", function () {
 						if (!target?.isIn()) {
 							continue;
 						}
-						const { result } = await target
+						const result = await target
 							.chooseToRespond("劝酒：打出一张【酒】否则受到每名其他角色造成的1点伤害", function (card) {
 								return get.name(card) == "jiu";
 							})
-							.set("ai", () => 114514);
+							.set("ai", () => 114514)
+							.forResult();
 						/*.set("ai1", () => 114514)
 							.set("ai2", function () {
-								return get.effect_use.apply(this, arguments) - get.event("effect") + 114514;
+								return get.effect_use.apply(this, arguments) - get.event().effect + 114514;
 							})
 							.set(
 								"effect",
@@ -1262,7 +1263,7 @@ game.import("card", function () {
 						},
 					},
 					tag: {
-						damage: 0.2,
+						damage: 0.6,
 						multitarget: 1,
 						multineg: 1,
 					},
@@ -1307,7 +1308,7 @@ game.import("card", function () {
 						if (!target?.isIn() || target == player) {
 							continue;
 						}
-						const { result } = await target
+						const result = await target
 							.chooseToUse(
 								"你死我活：对距离为1的角色使用一张【杀】或失去1点体力",
 								function (card) {
@@ -1334,10 +1335,11 @@ game.import("card", function () {
 								}
 							)
 							.set("ai2", function () {
-								return get.effect_use.apply(this, arguments) - get.event("effect");
+								return get.effect_use.apply(this, arguments) - get.event().effect;
 							})
 							.set("effect", get.effect(target, { name: "losehp" }, target, target))
-							.set("addCount", false);
+							.set("addCount", false)
+							.forResult();
 						if (!goon()) {
 							break;
 						}
@@ -1515,7 +1517,7 @@ game.import("card", function () {
 				async content(event, trigger, player) {
 					const cards = [];
 					while (cards.length < 2) {
-						const card = get.cardPile(card => get.tag(card, "damage") > 0.5 && !cards.includes(card));
+						const card = get.cardPile(card => get.tag(card, "damage") && get.type(card) != "delay" && !cards.includes(card));
 						if (card) {
 							cards.add(card);
 						} else {
@@ -2261,7 +2263,7 @@ game.import("card", function () {
 					});
 					if (targets.length == 1) {
 						const target = targets[0];
-						const bool = await player.chooseBool(get.prompt(event.skill, target), "令" + get.translation(target) + "也成为" + get.translation(trigger.card) + "的目标").forResult("bool");
+						const { bool } = await player.chooseBool(get.prompt(event.skill, target), "令" + get.translation(target) + "也成为" + get.translation(trigger.card) + "的目标").forResult();
 						event.result = { bool: bool, targets: targets };
 					} else {
 						event.result = await player

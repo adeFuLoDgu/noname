@@ -1,6 +1,9 @@
 export default {
 	//clan_xunyu: "",
-	clan_chenqun: "九品中正",
+	//clan_xunshi: "",
+	clan_chentai: "弘济简至",
+	clan_yangzhong: "岐路也汤汤",
+	clan_chenqun: "片言折狱",
 	clan_wangshen: "崇虎田光",
 	clan_wuxian: "庄姝晏晏",
 	clan_wuban: "豪侠督进",
@@ -27,10 +30,9 @@ export default {
 	clan_wuyi: "仞锋矢勇",
 	clan_yangci: "固世笃忠贞",
 	clan_yangxiu: "皓首邀终始",
-	clan_xunshuang: "大直若屈", //暂且未拥有正式称号,本称号取自武将制图作品
-	clan_yangzhong: "蓩亭侯", //暂且未拥有正式称号,本称号取自武将制图作品
+	//clan_xunshuang: "",
 	clan_yangbiao: "负荷履崎岖",
 	clan_luji: "探赜执道",
-	clan_lujing: "毗陵侯", //暂且未拥有正式称号,本称号取自武将制图作品
+	//clan_lujing: ""
 	clan_hanfu: "挈瓶之知",
 };

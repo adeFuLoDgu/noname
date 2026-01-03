@@ -1,4 +1,17 @@
 const characters = {
+	sm_shen_machao: {
+		sex: "male",
+		group: "shen",
+		hp: 4,
+		skills: ["sm_tuanlian", "sm_jingji", "sm_kuangchi"],
+	},
+	sp_sm_shen_machao: {
+		sex: "male",
+		group: "shen",
+		hp: 4,
+		skills: ["sm_kulian", "sm_lema", "sm_chaoxuan", "sm_wandou"],
+		img: "image/character/sm_shen_machao.jpg",
+	},
 	dc_shen_sunquan: {
 		sex: "male",
 		group: "shen",

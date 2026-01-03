@@ -938,7 +938,7 @@ export const showYexingsContent = async (event, _trigger, player) => {
 
 		next.set("ai", showCheck);
 
-		if (await next.forResultBool()) {
+		if ((await next.forResult()).bool) {
 			showYexingPlayers.push(target);
 			target.$fullscreenpop("暴露野心", "thunder");
 			game.log(target, "暴露了野心");
@@ -1001,7 +1001,7 @@ export const showYexingsContent = async (event, _trigger, player) => {
 		/** @type {string} */
 		let text;
 
-		const control = await next.forResultControl();
+		const { control } = await next.forResult();
 		if (control) {
 			text = control;
 			yexingGroupList.remove(control);
@@ -1046,7 +1046,7 @@ export const showYexingsContent = async (event, _trigger, player) => {
 			next.set("source", target);
 			next.set("ai", check);
 
-			if (await next.forResultBool()) {
+			if ((await next.forResult()).bool) {
 				other.chat("加入");
 				//event.targets4.push(target);
 				broadcastAll(
@@ -1074,7 +1074,7 @@ export const showYexingsContent = async (event, _trigger, player) => {
 			 */
 			function check(_event, _player) {
 				const player = get.player();
-				const source = get.event("source");
+				const source = get.event().source;
 				const friendsCount = target.getFriends(true, false).length;
 
 				if (game.players.length <= 2 * friendsCount) {
@@ -1219,13 +1219,13 @@ export const chooseJunlingFor = async (event, _trigger, player) => {
 		prompt = `选择一张军令牌，令${get.translation(target)}${selfPrompt}选择是否执行`;
 	}
 
-	const chooseResult = await player
+	const { links: chooseResult } = await player
 		.chooseButton([prompt, [junlings, "vcard"]], true)
 		.set("ai", button => {
 			// @ts-expect-error 祖宗之法就是这么写的
 			return get.junlingEffect(get.player(), button.link[2], get.event()?.getParent()?.target, [], get.player());
 		})
-		.forResultLinks();
+		.forResult();
 
 	const result = {
 		junling: chooseResult[0][2],
@@ -1237,10 +1237,10 @@ export const chooseJunlingFor = async (event, _trigger, player) => {
 	if (result.junling == "junling1") {
 		/** @type {Player[]} */
 		// @ts-expect-error 祖宗之法就是这么做的
-		const targets = await player
+		const { targets } = await player
 			.chooseTarget("选择一名角色，做为若该军令被执行，受到伤害的角色", true)
 			.set("ai", other => get.damageEffect(other, target, player))
-			.forResultTargets();
+			.forResult();
 
 		if (targets.length > 0) {
 			player.line(targets, "green");
@@ -1322,7 +1322,7 @@ export const carryOutJunling = async (event, _trigger, player) => {
 			}
 
 			for (let i = 0; i < 2 && player.countCards("he") > 0; i++) {
-				const { result } = await player.chooseCard("交给" + get.translation(source) + "第" + get.cnNumber(i + 1) + "张牌（共两张）", "he", true);
+				const result = await player.chooseCard("交给" + get.translation(source) + "第" + get.cnNumber(i + 1) + "张牌（共两张）", "he", true).forResult();
 				if (result.cards?.length) {
 					await player.give(result.cards, source);
 				}
@@ -1352,7 +1352,7 @@ export const carryOutJunling = async (event, _trigger, player) => {
 				position += "e";
 				num0++;
 			}
-			const { result } = await player
+			const result = await player
 				.chooseCard(
 					"选择一张手牌和一张装备区内牌（若有），然后弃置其余的牌",
 					position,
@@ -1368,7 +1368,8 @@ export const carryOutJunling = async (event, _trigger, player) => {
 				.set("complexCard", true)
 				.set("ai", function (card) {
 					return get.value(card);
-				});
+				})
+				.forResult();
 
 			if (!result.bool || !result.cards?.length) {
 				return;
@@ -1597,6 +1598,8 @@ export const transCharacter = async (event, _trigger, player) => {
 	const { target, num1, num2 } = event;
 	const str = [num1, num2].map(i => (i == 1 ? "主" : "副")).toUniqued();
 	game.log(player, "与", target, `进行了${str}将易位`);
+	await player.showCharacter(num1 - 1);
+	await target.showCharacter(num2 - 1);
 	const name1 = player[`name${num1}`],
 		name2 = target[`name${num2}`];
 	const getSkills = (current, name) => {

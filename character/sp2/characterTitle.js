@@ -1,4 +1,5 @@
 export default {
+	star_zhanghe: "河北之庭柱",
 	dc_yanxiang: "冢中鸣鸮",
 	cuilie: "镇纲责僭",
 	star_jiangwan: "讬忠赞业",

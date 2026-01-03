@@ -825,6 +825,16 @@ export default {
 		maxHp: 4,
 		skills: ["gz_ol_daohuo", "gz_ol_chunlao"],
 	}),
+	gz_ol_xuyou: new Character({
+		sex: "male",
+		group: "qun",
+		hp: 3,
+		maxHp: 3,
+		hujia: 0,
+		skills: ["gz_ol_chenglve", "gz_ol_fushi"],
+		dieAudios: ["xuyou"],
+		img: "image/character/xuyou.jpg",
+	}),
 };
 
 export const sort = "";

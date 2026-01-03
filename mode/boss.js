@@ -431,7 +431,7 @@ export default () => {
 					position: players[i].dataset.position,
 				});
 			}
-			(_status.videoInited = true), (info.boss = game.me == game.boss);
+			((_status.videoInited = true), (info.boss = game.me == game.boss));
 			game.addVideo("init", null, info);
 			if (game.bossinfo.init) {
 				game.bossinfo.init();
@@ -697,9 +697,12 @@ export default () => {
 				content() {
 					"step 0";
 					if (target.hasSha()) {
-						target.chooseToUse(function (card, player, event) {
-							return get.name(card) == "sha" && lib.filter.filterCard.apply(this, arguments);
-						}, "使用一张杀，或交给" + get.translation(player) + "两张牌");
+						target.chooseToUse(
+							function (card, player, event) {
+								return get.name(card) == "sha" && lib.filter.filterCard.apply(this, arguments);
+							},
+							"使用一张杀，或交给" + get.translation(player) + "两张牌"
+						);
 					} else {
 						event.directfalse = true;
 					}
@@ -2400,7 +2403,10 @@ export default () => {
 						lib.startEquipMap.set(name, info);
 					}
 					for (const current of game.players) {
-						const name = get.characterSurname(current.name1).map(names => names.join("")).join("-");
+						const name = get
+							.characterSurname(current.name1)
+							.map(names => names.join(""))
+							.join("-");
 						if (lib.startEquipMap.has(name)) {
 							const info = lib.startEquipMap.get(name);
 							if (info.replace) {
@@ -2769,7 +2775,7 @@ export default () => {
 			boss_zhuanlunwang: "十殿阎王",
 			boss_mengpo: "忘川难断",
 			boss_dizangwang: "渡脱六道",
-			boss_shikieiki: "乐园的最高裁判长",//取自东方花映塚
+			boss_shikieiki: "乐园的最高裁判长", //取自东方花映塚
 			boss_nianshou: "祥云瑞气",
 			boss_nianshou_heti: "祥云瑞气",
 			boss_nianshou_jingjue: "旋乾转坤",
@@ -2777,7 +2783,7 @@ export default () => {
 			boss_nianshou_baonu: "雷嗔电击",
 			boss_nianshou_ruizhi: "深思远虑",
 			boss_huangyueying: "奇智女杰",
-			boss_zhangchunhua: "冷血皇后", 
+			boss_zhangchunhua: "冷血皇后",
 			boss_dongzhuo: "权倾天下",
 			boss_lvbu1: "最强神话",
 			boss_lvbu2: "暴怒战神",
@@ -2798,7 +2804,7 @@ export default () => {
 			boss_shuijing: "武将列传",
 			boss_luxun: "武将列传",
 			boss_sunshangxiang: "武将列传",
-			boss_satan: "卢奇菲罗",//取自意大利中世纪诗人但丁《神曲·地狱篇》，这个称号也就是堕天使路西法的别名
+			boss_satan: "卢奇菲罗", //取自意大利中世纪诗人但丁《神曲·地狱篇》，这个称号也就是堕天使路西法的别名
 			boss_caocao: "魏武霸业",
 			boss_hundun: "掩义隐贼",
 			boss_qiongqi: "毁信废忠",
@@ -3692,6 +3698,12 @@ export default () => {
 			},
 			boss_tiemian: {
 				inherit: "renwang_skill",
+				init(player, skill) {
+					player.addExtraEquip(skill, "renwang", true, player => !player.getEquips(2).length && lib.card.renwang);
+				},
+				onremove(player, skill) {
+					player.removeExtraEquip(skill);
+				},
 				priority: -0.3,
 				equipSkill: false,
 				filter(event, player) {
@@ -5075,14 +5087,14 @@ export default () => {
 				async content(event, trigger, player) {
 					const { player: target } = trigger;
 					player.line(target, "fire");
-					const netx = target.judge(card => {
+					const next = target.judge(card => {
 						if (get.color(card) == "red") {
 							return -5;
 						}
 						return 5;
 					});
-					netx.judge2 = result => result.bool;
-					const { result } = await netx;
+					next.judge2 = result => result.bool;
+					const result = await next.forResult();
 					if (!result?.bool) {
 						target.damage("fire");
 					}
@@ -5483,7 +5495,7 @@ export default () => {
 									player.line(target);
 									await target.recover(player);
 								}
-							})
+							});
 						await next;
 						player.removeSkill(skill);
 						game.broadcastAll(skill => {
@@ -5506,7 +5518,7 @@ export default () => {
 						bool = player.getStorage(event.skill, false);
 					event.result = {
 						bool: bool,
-					}
+					};
 					if (targets.length) {
 						event.result.targets = targets;
 					}
@@ -8993,6 +9005,12 @@ export default () => {
 			},
 			boss_manjia: {
 				group: ["boss_manjia1", "boss_manjia2"],
+				init(player, skill) {
+					player.addExtraEquip(skill, "tengjia", true, player => !player.getEquips(2).length && lib.card.tengjia);
+				},
+				onremove(player, skill) {
+					player.removeExtraEquip(skill);
+				},
 			},
 			boss_manjia1: {
 				trigger: { target: ["useCardToBefore", "shaBegin"] },

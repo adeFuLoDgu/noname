@@ -4,7 +4,7 @@ export default {
 	gz_caoang: "曹昂",
 	gz_zhangxingcai: "张星彩",
 	gz_luzhi: "鲁芝",
-	gz_quyi: "麹义",
+	gz_quyi: "麴义",
 	gz_caoying: "曹婴",
 	gz_guansuo: "关索",
 	gz_zhangxuan: "张嫙",

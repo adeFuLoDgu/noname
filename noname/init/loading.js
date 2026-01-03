@@ -2,7 +2,7 @@
  * 从读取的内容中获取数据
  */
 
-import { lib, game, get, _status, ui, ai, gnc } from "noname";
+import { lib, game, get, _status, ui, ai } from "noname";
 import { isClass } from "@/util/index.js";
 
 /**
@@ -242,11 +242,14 @@ export async function loadExtension(extension) {
 		_status.evaluatingExtension = extension[3];
 		if (typeof extension[1] == "function") {
 			try {
-				await (gnc.is.coroutine(extension[1]) ? gnc.of(extension[1]) : extension[1]).call(extension, extension[2], extension[4]);
+				await extension[1].call(extension, extension[2], extension[4]);
 			} catch (e) {
 				console.log(`加载《${extension[0]}》扩展的content时出现错误。`, e);
 				if (!lib.config.extension_alert) {
-					alert(`加载《${extension[0]}》扩展的content时出现错误。\n该错误本身可能并不影响扩展运行。您可以在“设置→通用→无视扩展报错”中关闭此弹窗。\n${(e instanceof Error ? e.stack : String(e))}`);
+					alert(`加载《${extension[0]}》扩展的content时出现错误。
+该错误本身可能并不影响扩展运行。您可以在“设置→通用→无视扩展报错”中关闭此弹窗。
+错误信息: 
+${(e instanceof Error ? e.stack : String(e))}`);
 				}
 			}
 		}

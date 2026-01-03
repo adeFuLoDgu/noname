@@ -13,7 +13,6 @@ export const AsyncFunction = async function () {}.constructor;
 export const AsyncGeneratorFunction = async function* () {}.constructor;
 export const userAgent = navigator.userAgent;
 export const userAgentLowerCase = userAgent.toLowerCase();
-// export { Mutex } from "./mutex.js";
 export const characterDefaultPicturePath = "image/character/default_silhouette_";
 
 // 设备环境判定：
@@ -55,29 +54,6 @@ export function delay(ms) {
 			resolve();
 		}, ms);
 	});
-}
-
-/**
- * 将当前Record已有的普通项封装起来，但不阻止其继续扩展
- *
- * @template {object} T
- * @param {T} record - 要封装的Record
- * @returns {Readonly<T>}
- */
-export function freezeButExtensible(record) {
-	const descriptors = Object.getOwnPropertyDescriptors(record);
-	if (descriptors) {
-		for (const [key, descriptor] of Object.entries(descriptors)) {
-			if ("value" in descriptor) {
-				descriptor.writable = false;
-			}
-			descriptor.configurable = false;
-			// @ts-expect-error ignore
-			Reflect.defineProperty(record, key, descriptor);
-		}
-	}
-
-	return record;
 }
 
 /**

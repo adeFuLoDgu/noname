@@ -162,6 +162,52 @@ export class UI {
 	 * @type {SMap<HTMLLinkElement | HTMLStyleElement>}
 	 */
 	css;
+	/**
+	 * PC端悬浮的手牌
+	 * @type {HTMLElement | null}
+	 */
+	_handcardHover = null;
+	/**
+	 * 计算手牌展开偏移量
+	 * - 触屏设备：点击选中时展开
+	 * - PC端：仅鼠标悬浮时展开
+	 * @param {HTMLElement[]} cards - 手牌数组
+	 * @param {{cardWidth?: number, currentMargin?: number}} [options] - 配置选项
+	 * @returns {{spreadIndex: number, spreadLeft: number, spreadRight: number}}
+	 */
+	getSpreadOffset(cards, options = {}) {
+		const result = { spreadIndex: -1, spreadLeft: 0, spreadRight: 0 };
+		if (!lib.config.spread_card) return result;
+
+		const cardWidth = options.cardWidth || 112;
+		const currentMargin = options.currentMargin || cardWidth;
+		if (currentMargin >= cardWidth - 2) return result;
+
+		const isTouchscreen = lib.config.touchscreen;
+		for (let i = 0; i < cards.length; i++) {
+			let shouldSpread = false;
+			if (isTouchscreen) {
+				shouldSpread = cards[i].classList?.contains("selected");
+			} else {
+				shouldSpread = cards[i] === ui._handcardHover;
+			}
+			if (shouldSpread) {
+				if (result.spreadIndex !== -1) {
+					result.spreadIndex = -1;
+					break;
+				}
+				result.spreadIndex = i;
+			}
+		}
+
+		if (result.spreadIndex !== -1) {
+			const spreadOffset = Math.max(0, cardWidth - currentMargin);
+			result.spreadLeft = Math.round(spreadOffset * 0.2);
+			result.spreadRight = spreadOffset;
+		}
+
+		return result;
+	}
 	refresh(node) {
 		void window.getComputedStyle(node, null).getPropertyValue("opacity");
 	}
@@ -415,9 +461,16 @@ export class UI {
 		if (offset1 < 100) {
 			offset12 = 100 - offset1;
 		}
+		var spread1 = ui.getSpreadOffset(hs1, { currentMargin: offset1 });
 		for (var i = 0; i < hs1.length; i++) {
-			hs1[i].style.transform = "translateX(" + i * offset1 + "px)";
-			hs1[i]._transform = "translateX(" + i * offset1 + "px)";
+			var x1 = i * offset1;
+			if (spread1.spreadLeft || spread1.spreadRight) {
+				if (i < spread1.spreadIndex) x1 -= spread1.spreadLeft;
+				else if (i > spread1.spreadIndex) x1 += spread1.spreadRight;
+			}
+			var baseTransform1 = "translateX(" + x1 + "px)";
+			hs1[i]._transform = baseTransform1;
+			hs1[i].style.transform = hs1[i].classList.contains("selected") ? baseTransform1 + " translateY(-20px)" : baseTransform1;
 			ui.refresh(hs1[i]);
 			hs1[i].classList.remove("drawinghidden");
 			if (offset12 > 40) {
@@ -437,7 +490,7 @@ export class UI {
 				hs1[i].node.info.style.transform = "translateX(-" + offset12 + "px)";
 			}
 		}
-		ui.handcards1Container.firstChild.style.width = offset1 * (hs1.length - 1) + 118 + "px";
+		ui.handcards1Container.firstChild.style.width = offset1 * (hs1.length - 1) + 118 + (spread1.spreadLeft + spread1.spreadRight) + "px";
 
 		var offset2,
 			offset22 = 0;
@@ -456,9 +509,16 @@ export class UI {
 		if (offset2 < 100) {
 			offset22 = 100 - offset2;
 		}
+		var spread2 = ui.getSpreadOffset(hs2, { currentMargin: offset2 });
 		for (var i = 0; i < hs2.length; i++) {
-			hs2[i].style.transform = "translateX(" + i * offset2 + "px)";
-			hs2[i]._transform = "translateX(" + i * offset2 + "px)";
+			var x2 = i * offset2;
+			if (spread2.spreadLeft || spread2.spreadRight) {
+				if (i < spread2.spreadIndex) x2 -= spread2.spreadLeft;
+				else if (i > spread2.spreadIndex) x2 += spread2.spreadRight;
+			}
+			var baseTransform2 = "translateX(" + x2 + "px)";
+			hs2[i]._transform = baseTransform2;
+			hs2[i].style.transform = hs2[i].classList.contains("selected") ? baseTransform2 + " translateY(-20px)" : baseTransform2;
 			ui.refresh(hs2[i]);
 			hs2[i].classList.remove("drawinghidden");
 			if (offset22 > 40) {
@@ -478,7 +538,7 @@ export class UI {
 				hs2[i].node.info.style.transform = "translateX(-" + offset22 + "px)";
 			}
 		}
-		ui.handcards2Container.firstChild.style.width = offset2 * (hs2.length - 1) + 118 + "px";
+		ui.handcards2Container.firstChild.style.width = offset2 * (hs2.length - 1) + 118 + (spread2.spreadLeft + spread2.spreadRight) + "px";
 	}
 	updateh(compute) {
 		if (!game.me) {

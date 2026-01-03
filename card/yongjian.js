@@ -153,7 +153,7 @@ game.import("card", function () {
 					if (!target.countGainableCards(player, "hej")) {
 						return;
 					}
-					const { result } = await player.gainPlayerCard(target, "hej", true, [1, 2]);
+					const result = await player.gainPlayerCard(target, "hej", true, [1, 2]).forResult();
 					if (result?.bool && result?.cards?.length && target.isIn()) {
 						const num = result.cards.length,
 							he = player.getCards("he");
@@ -429,6 +429,7 @@ game.import("card", function () {
 				subtype: "equip5",
 				fullskin: true,
 				skills: ["xinge"],
+				loseDelay: false,
 				ai: {
 					equipValue: 0,
 					basic: { equipValue: 0 },

@@ -20,7 +20,7 @@ const characterSort = {
 	sp2_xiaohu: ["haomeng", "yanfuren", "yanrou", "dc_zhuling"],
 	sp2_qunxiong: ["dc_yanxiang", "chezhou", "hansong", "matie"],
 	sp2_tianshu: ["star_zhangrang", "star_yuanshu", "star_dongzhuo", "star_yuanshao"],
-	sp2_yuheng: ["star_caoren", "star_zhangchunhua", "star_jiangwan"],
+	sp2_yuheng: ["star_caoren", "star_zhangchunhua", "star_jiangwan", "star_zhanghe"],
 	sp2_kaiyang: ["star_sunjian", "star_taishici"],
 	sp2_yaoguang: ["star_sunshangxiang", "star_dingfeng", "star_wenchou", "star_yanliang"],
 	sp2_tianxuan: ["star_xunyu", "star_fazheng", "star_zhangzhao"],
