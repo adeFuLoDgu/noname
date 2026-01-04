@@ -7360,7 +7360,7 @@ export class Library {
 				},
 				read_clipboard: {
 					name: "读取邀请链接",
-					init: true,
+					init: false,
 					frequent: true,
 					intro: "读取剪贴板以解析邀请链接自动加入联机房间",
 				},

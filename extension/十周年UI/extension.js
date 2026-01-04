@@ -3713,7 +3713,6 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 						if (!handNode)
 						return console.error('hand undefined');
 
-
 						var card;
 						var cards = [];
 						var childs = handNode.childNodes;
@@ -3747,7 +3746,7 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 						var xStart = (csw - cw) / 2;
 						var totalW = cards.length * csw + (cards.length - 1) * 2;
 						var limitW = pw;
-						var expand;
+						var expand = false;
 
 						if (totalW > limitW) {
 							xMargin = csw - Math.abs(limitW - csw * cards.length) / (cards.length - 1);
@@ -3762,22 +3761,40 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 							xStart += (limitW - totalW) / 2;
 						}
 
+						let selectedIndex = -1,
+							spreadOffsetLeft = 0,
+							spreadOffsetRight = 0,
+							baseShift = 0;
+						const folded = totalW > limitW && xMargin < csw - 0.5;
+			
+						if (folded && typeof ui.getSpreadOffset === "function") {
+							const spread = ui.getSpreadOffset(cards, { cardWidth: csw, currentMargin: xMargin });
+							({ spreadIndex: selectedIndex, spreadLeft: spreadOffsetLeft, spreadRight: spreadOffsetRight } = spread);
+							if (selectedIndex !== -1) {
+								const minShift = -xStart;
+								const maxShift = xStart + (cards.length - 1) * xMargin;
+								baseShift = Math.max(minShift , Math.min(maxShift, baseShift));
+							}
+						}
+
 						var card;
 						for (var i = 0; i < cards.length; i++) {
-							x = Math.round(xStart + i * xMargin);
+							let fx = xStart + i * xMargin + baseShift;
+							if (spreadOffsetLeft || spreadOffsetRight) {
+								if (i < selectedIndex) fx -= spreadOffsetLeft;
+								else if (i > selectedIndex) fx += spreadOffsetRight;
+							}
+							x = Math.round(fx);
 							card = cards[i];
 							card.tx = x;
 							card.ty = y;
 							card.scaled = true;
 							card.style.transform = 'translate(' + x + 'px,' + y + 'px) scale(' + cs + ')';
 							card._transform = card.style.transform;
+							card.updateTransform(card.classList.contains("selected"));
 						}
 
 						if (expand) {
-
-
-
-
 							ui.handcards1Container.style.overflowX = 'scroll';
 							ui.handcards1Container.style.overflowY = 'hidden';
 							handNode.style.width = Math.round(cards.length * xMargin + (csw - xMargin)) + 'px';
@@ -3786,7 +3803,6 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 							ui.handcards1Container.style.overflowY = '';
 							handNode.style.width = '100%';
 						}
-
 					},
 					updateDiscard:function(){
 						if (!ui.thrown)
