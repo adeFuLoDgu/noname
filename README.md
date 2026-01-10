@@ -13,6 +13,7 @@ Click [here](https://adeFuLoDgu.github.io/noname) to play with browser. **(Bette
 
 ## Currently Known Issues:
 + Zoom level is not work properly in Firefox.
++ Card scroll feature is not work in Firefox.
 + Cannot use multiplayer for live play because of enforcement of https of github (secure websocket). Or enable mixed content for the live play site in your browser.
-+ ~~When DecadeUI extension enabled, cannot use index.html to play locally for browser that have CORS (Cross-Origin Resource Sharing) policy.~~
++ ~~When DecadeUI extension enabled, cannot use index.html to play locally for browser that have CORS (Cross-Origin Resource Sharing) policy.~~ See note.
 + Cannot changeskin for live play.
