@@ -1932,7 +1932,7 @@ const skills = {
 							return target.countDiscardableCards(target, "h");
 						})
 						.set("ai", target => {
-							return get.effect(target, { name: "guohe_copy", position: "h" }, target, player);
+							return get.effect(target, { name: "guohe_copy", position: "h" }, target, get.player());
 						})
 						.forResult();
 					if (!result2?.targets?.length) {
@@ -2025,16 +2025,16 @@ const skills = {
 			}
 			return true;
 		},
-		async cost(event, trigger, player) {
-			event.result = await player.chooseToUse(get.prompt2(event.skill)).set("chooseonly", true).set("logSkill", event.name.slice(0, -5)).forResult();
-		},
+		direct: true,
+		clearTime: true,
 		async content(event, trigger, player) {
-			const { result, logSkill } = event.cost_data;
-			const next = player.useResult(result, event);
-			await next;
-			const { card } = next;
+			const next = player.chooseToUse(get.prompt2(event.name)).set("logSkill", event.name);
+			const result = await next.forResult();
+			if (!result?.bool) {
+				return;
+			}
 			const target = _status.currentPhase;
-			if (!player.hasHistory("sourceDamage", evt => evt.card == card) && target?.canAddJudge("lebu")) {
+			if (!player.hasHistory("sourceDamage", evt => evt.getParent(next.name) == next) && target?.canAddJudge("lebu")) {
 				await player
 					.chooseToUse()
 					.set("openskilldialog", `佯疾：是否将一张黑桃牌当作【乐不思蜀】对${get.translation(target)}使用？`)
@@ -3621,7 +3621,7 @@ const skills = {
 		audio: 2,
 		enable: "phaseUse",
 		filter(event, player) {
-			return player.hasCard(card => get.info("clanlilun").filterCard(card, player), "h");
+			return player.hasCard(card => get.info("clanlilun").filterCard(card, player), "he");
 		},
 		filterCard(card, player) {
 			if (player.getStorage("clanlilun").includes(card.name)) {
@@ -3630,11 +3630,11 @@ const skills = {
 			if (ui.selected.cards.length && ui.selected.cards[0].name != card.name) {
 				return false;
 			}
-			const cards = player.getCards("h", cardx => player.canRecast(cardx));
+			const cards = player.getCards("he", cardx => player.canRecast(cardx));
 			return cards.includes(card) && cards.filter(i => i.name == card.name).length > 1;
 		},
 		selectCard: 2,
-		position: "h",
+		position: "he",
 		check(card) {
 			const player = get.event().player;
 			const value = function (card, player) {

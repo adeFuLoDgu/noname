@@ -1,4 +1,9 @@
 export default {
+	"#starjizhan1": "为将者，不可失其勇！",
+	"#starjizhan2": "阵前休得啰嗦，哪个敢来领死？",
+	"#starcuxia1": "本将纵横幽冀，不知何为敌手！",
+	"#starcuxia2": "兀那长须贼将，脸红什么！",
+	"#star_yanliang:die": "来将可是关，啊！",
 	"#dczijue1": "恨朱紫有价，怨寒门无阶。",
 	"#dczijue2": "吾一腔才学，不当五百万钱否? ",
 	"#dcchibi1": "凉州鄙夫，安敢立马君前! ",

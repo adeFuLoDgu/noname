@@ -524,7 +524,7 @@ export class Game {
 
 			// 这是不可能出现的情况喵，但是eslint会报错喵
 			if (!target) {
-				throw "impossible";
+				throw new Error("impossible");
 			}
 
 			while (!target.id && target !== document.body) {
@@ -537,7 +537,7 @@ export class Game {
 				target = target.parentElement;
 
 				if (!target) {
-					throw "impossible";
+					throw new Error("impossible");
 				}
 			}
 
@@ -2986,22 +2986,19 @@ export class Game {
 		}
 	}
 	async loadExtension(object) {
-		let noEval = false;
-		if (typeof object == "function") {
+		let stopImporting = false;
+		if (typeof object === "function") {
+			const extensionFilter = object.filter || function () {
+				return true;
+			}
 			if (isClass(object)) {
-				const filters = await object.filter?.();
-				if (filters ?? true) {
-					object = (await object.init?.()) ?? new object();
-				} else {
-					return;
-				}
+				object = (await object.init?.()) ?? new object();
 			} else {
 				object = await object(lib, game, ui, get, ai, _status);
 			}
-			noEval = true;
-		}
-		if (object.closeSyntaxCheck) {
-			noEval = true;
+			if (await extensionFilter() !== true) {
+				stopImporting = true;
+			}
 		}
 		const name = object.name,
 			extensionName = `extension_${name}`,
@@ -3011,6 +3008,7 @@ export class Game {
 					init: true,
 				},
 			};
+		object.config ??= {};
 		if (object.package) {
 			const author = Object.getOwnPropertyDescriptor(object.package, "author");
 			if (author) {
@@ -3032,29 +3030,26 @@ export class Game {
 				Object.defineProperty(extensionMenu.intro, "name", intro);
 			}
 		}
-		if (object.config) {
-			Object.keys(object.config).forEach((key) => {
-				Object.defineProperty(extensionMenu, key, Object.getOwnPropertyDescriptor(object.config, key));
-			});
-		}
-		if (object.help) {
-			Object.keys(object.help).forEach((key) => {
-				Object.defineProperty(lib.help, key, Object.getOwnPropertyDescriptor(object.help, key));
-			});
-		}
-		if (object.editable !== false && lib.config.show_extensionmaker) {
-			extensionMenu.edit = {
-				name: "编辑此扩展",
-				clear: true,
-				onclick: () => {
-					if (game.editExtension && lib.extensionPack && lib.extensionPack[name]) {
-						game.editExtension(name);
-					} else {
-						alert("无法编辑未启用的扩展，请启用此扩展并重启后重试");
-					}
-				},
-			};
-		}
+		const addOptions = (target, source) => {
+			if (source) {
+				const descriptors = Object.fromEntries(Object.keys(source).map(key => [key, Object.getOwnPropertyDescriptor(source, key)]));
+				Object.defineProperties(target, descriptors);
+			}
+		};
+		addOptions(extensionMenu, object.config);
+		addOptions(lib.help, object.help);
+
+		extensionMenu.edit = {
+			name: "编辑此扩展",
+			clear: true,
+			onclick() {
+				if (lib.extensionPack?.[name] && object.editable !== false && lib.config.show_extensionmaker) {
+					game.editExtension?.(name);
+				} else {
+					alert("无法编辑未启用的扩展，请启用此扩展并重启后重试");
+				}
+			},
+		};
 		extensionMenu.delete = {
 			name: "删除此扩展",
 			clear: true,
@@ -3094,11 +3089,8 @@ export class Game {
 			game.importedPack = object;
 			return;
 		}
-		if (!object || !lib.config[`${extensionName}_enable`]) {
+		if (stopImporting || !object || !lib.config[`${extensionName}_enable`]) {
 			return;
-		}
-		if (!noEval) {
-			lib.init.eval(object);
 		}
 		Object.keys(object.config)
 			.filter(key => !(`${extensionName}_${key}` in lib.config))
@@ -3120,19 +3112,18 @@ export class Game {
 			if (object.package) {
 				extensionPack = object.package;
 				object.package.files = object.files ?? {};
-				const extensionPackFiles = object.package.files;
-				extensionPackFiles.character ??= [];
-				extensionPackFiles.card ??= [];
-				extensionPackFiles.skill ??= [];
-				extensionPackFiles.audio ??= [];
+				const extensionPackFiles = {
+					character: [],
+					card: [],
+					skill: [],
+					audio: [],
+					...object.package.files,
+				}
 			} else {
 				extensionPack = {};
 			}
 			lib.extensionPack[name] = extensionPack;
-			const arenaReady = object.arenaReady,
-				content = object.content,
-				prepare = object.prepare,
-				precontent = object.precontent;
+			const { arenaReady, content, prepare, precontent } = object;
 			extensionPack.code = {
 				arenaReady,
 				content,
@@ -3153,7 +3144,7 @@ export class Game {
 				}
 			} catch (e) {
 				console.error(`加载《${name}》扩展的precontent时出现错误。`, e);
-				if (!lib.config.extension_alert) {
+				if (!lib.config.ignore_error) {
 					alert(`加载《${name}》扩展的precontent时出现错误。
 该错误本身可能并不影响扩展运行。您可以在“设置→通用→无视扩展报错”中关闭此弹窗。
 错误信息: 
@@ -3186,6 +3177,7 @@ ${(e instanceof Error ? e.stack : String(e))}`);
 	 *  - `1`: 路径的内容是文件
 	 * @param {(err: Error) => void} [onerror] - 接收错误的回调函数
 	 * @return {void} - 由于三端的异步需求和历史原因，文件管理必须为回调异步函数
+	 * @type { undefined  | ((fileName: string, callback?: (result: -1 | 0 | 1) => void, onerror?: (err: Error) => void) => void) }
 	 */
 	checkFile;
 
@@ -3199,6 +3191,7 @@ ${(e instanceof Error ? e.stack : String(e))}`);
 	 *  - `1`: 路径的内容是目录
 	 * @param {(err: Error) => void} [onerror] - 接收错误的回调函数
 	 * @return {void} - 由于三端的异步需求和历史原因，文件管理必须为回调异步函数
+	 * @type { undefined  | ((dir: string, callback?: (result: -1 | 0 | 1) => void, onerror?: (err: Error) => void) => void) }
 	 */
 	checkDir;
 
@@ -3250,6 +3243,20 @@ ${(e instanceof Error ? e.stack : String(e))}`);
 	 * @type { () => Promise<any> }
 	 */
 	checkForAssetUpdate;
+	/**
+	 * @type { () => void }
+	 */
+	exit;
+
+	/**
+	 * @type { (url: string) => void }
+	 */
+	open;
+	/**
+	 * @type { (data: any, name?: string) => void }
+	 */
+	export;
+	
 	async importExtension(data, finishLoad, exportExtension) {
 		//by 来瓶可乐加冰、Rintim、Tipx-L、诗笺
 		const zip = await get.promises.zip();
@@ -3364,42 +3371,7 @@ ${(e instanceof Error ? e.stack : String(e))}`);
 			return false;
 		}
 	}
-	/**
-	 * @param { any } data
-	 * @param { string } [name]
-	 */
-	export(data, name) {
-		if (typeof data === "string") {
-			data = new Blob([data], { type: "text/plain" });
-		}
-		let fileNameToSaveAs = name || "noname";
-		fileNameToSaveAs = fileNameToSaveAs.replace(/\\|\/|:|\?|"|\*|<|>|\|/g, "-");
 
-		if (lib.device) {
-			let directory;
-			if (lib.device == "android") {
-				directory = cordova.file.externalDataDirectory;
-			} else {
-				directory = cordova.file.documentsDirectory;
-			}
-			window.resolveLocalFileSystemURL(directory, function (entry) {
-				entry.getFile(fileNameToSaveAs, { create: true }, function (fileEntry) {
-					fileEntry.createWriter(function (fileWriter) {
-						fileWriter.onwriteend = function () {
-							alert("文件已导出至" + directory + fileNameToSaveAs);
-						};
-						fileWriter.write(data);
-					});
-				});
-			});
-		} else {
-			const downloadLink = document.createElement("a");
-			downloadLink.download = fileNameToSaveAs;
-			downloadLink.innerHTML = "Download File";
-			downloadLink.href = window.URL.createObjectURL(data);
-			downloadLink.click();
-		}
-	}
 	/**
 	 * @param { string[] } list
 	 * @param { Function } [onsuccess]
@@ -4977,63 +4949,7 @@ ${(e instanceof Error ? e.stack : String(e))}`);
 		window.location.reload();
 		delete _status.waitingToReload;
 	}
-	exit() {
-		var ua = userAgentLowerCase;
-		var ios = ua.includes("iphone") || ua.includes("ipad") || ua.includes("macintosh");
-		//electron
-		if (typeof window.process == "object" && typeof window.require == "function") {
-			var versions = window.process.versions;
-			var electronVersion = parseFloat(versions.electron);
-			var remote;
-			if (electronVersion >= 14) {
-				remote = require("@electron/remote");
-			} else {
-				remote = require("electron").remote;
-			}
-			var thisWindow = remote.getCurrentWindow();
-			thisWindow.destroy();
-			window.process.exit();
-		}
-		// android-cordova环境
-		else if (lib.device === "android") {
-			if (navigator.app && navigator.app.exitApp) {
-				navigator.app.exitApp();
-			}
-		}
-		//ios-cordova环境或ios浏览器环境
-		else if (lib.device === "ios" || (!lib.device && ios)) {
-			game.saveConfig("mode");
-			if (_status) {
-				if (_status.reloading) {
-					return;
-				}
-				_status.reloading = true;
-			}
-			if (_status.video && !_status.replayvideo) {
-				localStorage.removeItem(lib.configprefix + "playbackmode");
-			}
-			window.location.reload();
-		}
-		//非ios的网页版
-		else if (!ios) {
-			window.onbeforeunload = null;
-			window.close();
-		}
-	}
-	/**
-	 * @param { string } url
-	 */
-	open(url) {
-		if (lib.device) {
-			if (cordova.InAppBrowser) {
-				cordova.InAppBrowser.open(url, "_system");
-			} else {
-				ui.create.iframe(url);
-			}
-		} else {
-			window.open(url);
-		}
-	}
+
 	reloadCurrent() {
 		const me = Reflect.get(_status, "_startPlayerNames") ?? game.me;
 		let names = [me.name1 || me.name, me.name2];
@@ -7407,18 +7323,6 @@ ${(e instanceof Error ? e.stack : String(e))}`);
 		return game.delay(time, time2);
 	}
 	/**
-	 * @deprecated
-	 */
-	asyncDelay(time, time2) {
-		return game.delay(time, time2);
-	}
-	/**
-	 * @deprecated
-	 */
-	asyncDelayx(time, time2) {
-		return game.delayx(time, time2);
-	}
-	/**
 	 * @param { GameEvent } [event]
 	 */
 	check(event = _status.event) {
@@ -7438,7 +7342,7 @@ ${(e instanceof Error ? e.stack : String(e))}`);
 			return false;
 		}
 
-		let useCache = !lib.config.compatiblemode && !event.skill && !event.multitarget;
+		let useCache = !event.skill && !event.multitarget;
 		const filterCache = type => {
 			if (get.select(event[`select${uppercaseType(type)}`])[1] < 0) {
 				return false;
@@ -8060,10 +7964,10 @@ ${(e instanceof Error ? e.stack : String(e))}`);
 				try {
 					lib.storage = JSON.parse(localStorage.getItem(lib.configprefix + lib.config.mode));
 					if (typeof lib.storage != "object") {
-						throw "err";
+						throw new Error("err");
 					}
 					if (lib.storage == null) {
-						throw "err";
+						throw new Error("err");
 					}
 				} catch (err) {
 					lib.storage = {};
@@ -9862,7 +9766,7 @@ ${(e instanceof Error ? e.stack : String(e))}`);
 		try {
 			config = JSON.parse(localStorage.getItem(`${lib.configprefix}${mode}`));
 			if (typeof config != "object") {
-				throw "err";
+				throw new Error("err");
 			}
 		} catch (err) {
 			config = {};
@@ -10095,7 +9999,7 @@ ${(e instanceof Error ? e.stack : String(e))}`);
 		try {
 			config = JSON.parse(localStorage.getItem(`${lib.configprefix}config`));
 			if (!config || typeof config != "object") {
-				throw "err";
+				throw new Error("err");
 			}
 		} catch (err) {
 			config = {};

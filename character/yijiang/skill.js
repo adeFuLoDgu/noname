@@ -5813,7 +5813,7 @@ const skills = {
 			if (!event.directfalse && result.bool) {
 				var e1 = player.getEquips(1);
 				if (e1.length) {
-					player.discard(e1, "notBySelf");
+					player.modedDiscard(e1, this.trigger.target);
 				}
 				event.finish();
 			} else {
@@ -5925,7 +5925,7 @@ const skills = {
 			if (!event.directfalse && result.bool) {
 				var e1 = player.getEquips(1);
 				if (e1.length) {
-					player.discard(e1, "notBySelf");
+					player.modedDiscard(e1, trigger.player);
 				}
 			} else {
 				trigger.num++;
@@ -7909,7 +7909,7 @@ const skills = {
 					event.card2 = event.resultOL[target.playerid].cards[0];
 				}
 				if (!event.card1 || !event.card2) {
-					throw "err";
+					throw new Error("err");
 				}
 			} catch (e) {
 				console.log(e);

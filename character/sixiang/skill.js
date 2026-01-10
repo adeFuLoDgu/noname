@@ -10,28 +10,24 @@ const skills = {
 		filter(event, player) {
 			return player.countCards("h");
 		},
-		async cost(event, trigger, player) {
-			event.result = await player
+		direct: true,
+		clearTime: true,
+		async content(event, trigger, player) {
+			await player
 				.chooseToUse()
-				.set("openskilldialog", `###${get.prompt(event.skill)}###将任意张手牌当作【杀】使用`)
+				.set("openskilldialog", `###${get.prompt(event.name)}###将任意张手牌当作【杀】使用`)
 				.set("norestore", true)
-				.set("_backupevent", `${event.name.slice(0, -5)}_backup`)
+				.set("_backupevent", `${event.name}_backup`)
 				.set("custom", {
 					add: {},
 					replace: { window() {} },
 				})
-				.backup(`${event.name.slice(0, -5)}_backup`)
+				.backup(`${event.skill}_backup`)
 				.set("targetRequired", true)
 				.set("complexTarget", true)
 				.set("complexSelect", true)
 				.set("addCount", false)
-				.set("chooseonly", true)
-				.set("logSkill", event.name.slice(0, -5))
-				.forResult();
-		},
-		async content(event, trigger, player) {
-			const { result } = event.cost_data;
-			await player.useResult(result, event);
+				.set("logSkill", event.name);
 		},
 		/*ai: {
 			effect: {
@@ -57,13 +53,17 @@ const skills = {
 				},
 				selectCard: [1, Infinity],
 				position: "h",
-				async precontent(event, trigger, player) {
-					event.getParent().oncard = (card, player) => {
-						if (get.event().targets.some(target => target.countCards("h") == player.countCards("h"))) {
-							get.event().directHit.addArray(game.players);
-							game.log(card, "不可被响应");
-						}
-					};
+				precontent(event, trigger, player) {
+					player
+						.when("useCard")
+						.filter(evt => evt.getParent() == event.getParent())
+						.step(async (event, trigger, player) => {
+							const num = player.countCards("h");
+							if (trigger.targets?.some(target => target.countCards("h") === num)) {
+								trigger.directHit.addArray(game.players);
+								game.log(trigger.card, "不可被响应");
+							}
+						});
 				},
 				ai1(card) {
 					if (ui.selected.cards.length) {
@@ -71,7 +71,6 @@ const skills = {
 					}
 					return 5 - get.value(card);
 				},
-				log: false,
 			},
 		},
 	},
@@ -1491,28 +1490,24 @@ const skills = {
 		filter(event, player) {
 			return player.countCards("hes") && player.hasUseTarget(get.autoViewAs({ name: "sha" }, "unsure"), false, false) && player.hasHistory("lose");
 		},
-		async cost(event, trigger, player) {
-			event.result = await player
+		direct: true,
+		clearTime: true,
+		async content(event, trigger, player) {
+			await player
 				.chooseToUse()
-				.set("openskilldialog", `###${get.prompt(event.skill)}###将一张牌当作无距离限制的【杀】使用`)
+				.set("openskilldialog", `###${get.prompt(event.name)}###将一张牌当作无距离限制的【杀】使用`)
 				.set("norestore", true)
-				.set("_backupevent", `${event.name.slice(0, -5)}_backup`)
+				.set("_backupevent", `${event.name}_backup`)
 				.set("custom", {
 					add: {},
 					replace: { window() {} },
 				})
-				.backup(`${event.name.slice(0, -5)}_backup`)
+				.backup(`${event.name}_backup`)
 				.set("targetRequired", true)
 				.set("complexTarget", true)
 				.set("complexSelect", true)
 				.set("addCount", false)
-				.set("chooseonly", true)
-				.set("logSkill", event.name.slice(0, -5))
-				.forResult();
-		},
-		async content(event, trigger, player) {
-			const { result, logSkill } = event.cost_data;
-			await player.useResult(result, event);
+				.set("logSkill", event.name);
 		},
 		subSkill: {
 			backup: {
@@ -1530,7 +1525,6 @@ const skills = {
 				ai1(card) {
 					return 7 - get.value(card);
 				},
-				log: false,
 			},
 		},
 	},
@@ -3152,6 +3146,7 @@ const skills = {
 			return player.countCards("hs", { color: "red" });
 		},
 		direct: true,
+		clearTime: true,
 		async content(event, trigger, player) {
 			const next = player.chooseToUse();
 			next.set("openskilldialog", get.prompt2("stdzhengnan"));
@@ -3336,12 +3331,7 @@ const skills = {
 		},
 		async content(event, trigger, player) {
 			const { targets, cards } = event;
-			const next = targets[0].discard(cards);
-			if (player != targets[0]) {
-				next.notBySelf = true;
-			}
-			next.discarder = player;
-			await next;
+			await targets[0].modedDiscard(cards, player);
 			if (player == targets[0]) {
 				await player.draw();
 			}
@@ -4851,6 +4841,7 @@ const skills = {
 			);
 		},
 		direct: true,
+		clearTime: true,
 		async content(event, trigger, player) {
 			const next = player.moveCard(
 				game.filterPlayer(current => current != trigger.source),
@@ -5385,6 +5376,7 @@ const skills = {
 			);
 		},
 		direct: true,
+		clearTime: true,
 		zhuSkill: true,
 		content() {
 			player
@@ -5449,7 +5441,7 @@ const skills = {
 			if (result.bool) {
 				if (result.cards && result.cards.some(i => get.suit(i, target) == "diamond")) {
 					player.popup("洗具");
-					trigger.increase("num");
+					trigger.num ++;
 				}
 			}
 		},
@@ -6227,7 +6219,7 @@ const skills = {
 		forced: true,
 		logTarget: "player",
 		content() {
-			trigger.increase("num");
+			trigger.num ++;
 		},
 		global: "stdzhanying_mark",
 		subSkill: {

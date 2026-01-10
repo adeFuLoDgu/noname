@@ -75,35 +75,39 @@ export default () => {
 				}
 			},
 			async (event, trigger, player) => {
-				if (!lib.config.new_tutorial) {
-					_status.new_tutorial = true;
-					lib.init.onfree();
-					game.saveConfig("version", lib.version);
-					var clear = function () {
-						ui.dialog.close();
-						while (ui.controls.length) {
-							ui.controls[0].close();
-						}
-					};
-					var clear2 = function () {
-						ui.auto.show();
-						ui.arena.classList.remove("only_dialog");
-					};
-					game.pause();
+				if (lib.config.new_tutorial) {
+					if (!_status.connectMode) {
+						game.showChangeLog();
+					}
+					return;
+				}
 
-					ui.create.dialog("欢迎来到无名杀，是否进入新手向导？");
-					game.saveConfig("new_tutorial", true);
-					ui.dialog.add('<div class="text center">跳过后，你可以在选项-其它中重置新手向导');
-					ui.auto.hide();
-					ui.create.control("跳过向导", function () {
-						clear();
-						clear2();
-						game.resume();
-						if (window.decadeUI) game.reload();
-						// lib.cheat.cfg(); // owidgets
-					});
-					await new Promise(resolve => ui.create.control("继续", resolve));
+				_status.new_tutorial = true;
+				lib.init.onfree();
+				game.saveConfig("version", lib.version);
 
+				await game.promises.saveConfig("new_tutorial", true);
+				ui.create.dialog("欢迎来到无名杀，是否进入新手向导？");
+				ui.dialog.add('<div class="text center">跳过后，你可以在选项-其它中重置新手向导');
+				ui.auto.hide();
+
+				const { promise, resolve } = Promise.withResolvers();
+
+				ui.create.control("跳过向导", () => resolve(true));
+				ui.create.control("继续", () => resolve(false));
+
+				const skip_tutorial = await promise;
+
+				if (!skip_tutorial) {
+					await tutorial();
+				}
+
+				clear();
+				ui.auto.show();
+				ui.arena.classList.remove("only_dialog");
+				if (window.decadeUI) game.reload();
+
+				async function tutorial() {
 					if (!lib.config.phonelayout && !window.decadeUI) {
 						clear();
 						ui.create.dialog("如果你在使用手机，可能会觉得按钮有点小" + "，将布局改成移动可以使按钮变大");
@@ -183,15 +187,13 @@ export default () => {
 
 					clear();
 					ui.create.dialog("如果还有其它问题，欢迎来到百度无名杀吧进行交流");
-					ui.create.control("完成", function () {
-						clear();
-						clear2();
-						game.resume();
-						if (window.decadeUI) game.reload();
-					});
-				} else {
-					if (!_status.connectMode) {
-						game.showChangeLog();
+					await new Promise(resolve => ui.create.control("完成", resolve));
+				}
+
+				function clear() {
+					ui.dialog.close();
+					while (ui.controls.length) {
+						ui.controls[0].close();
 					}
 				}
 			},
@@ -493,7 +495,7 @@ export default () => {
 			},
 			async (event, trigger, player) => {
 				game.phaseLoop(event.beginner);
-			}
+			},
 		],
 		game: {
 			canReplaceViewpoint: () => true,
@@ -1520,41 +1522,18 @@ export default () => {
 						} else {
 							result[i] = result[i].links;
 						}
-						if (get.is.double(result[i][0]) || (lib.character[result[i][0]] && lib.selectGroup.includes(lib.character[result[i][0]].group) && !lib.character[result[i][0]].hasHiddenSkill)) {
+						if (get.selectGroup(result[i][0]).length > 1) {
 							shen.push(lib.playerOL[i]);
 						}
 					}
 					event.result2 = result;
 					if (shen.length) {
-						var list = ["wei", "shu", "wu", "qun", "jin", "key"];
-						for (var i = 0; i < list.length; i++) {
-							if (!lib.group.includes(list[i])) {
-								list.splice(i--, 1);
-							} else {
-								list[i] = ["", "", "group_" + list[i]];
-							}
-						}
 						for (var i = 0; i < shen.length; i++) {
-							if (get.is.double(result[shen[i].playerid][0])) {
-								shen[i]._groupChosen = "double";
-								shen[i] = [
-									shen[i],
-									[
-										"请选择你的势力",
-										[
-											get.is.double(result[shen[i].playerid][0], true).map(function (i) {
-												return ["", "", "group_" + i];
-											}),
-											"vcard",
-										],
-									],
-									1,
-									true,
-								];
-							} else {
-								shen[i]._groupChosen = "kami";
-								shen[i] = [shen[i], ["请选择你的势力", [list, "vcard"]], 1, true];
-							}
+							const name = result[shen[i].playerid][0];
+							const groups = get.selectGroup(name).map(group => ["", "", `group_${group}`]),
+								type = get.selectGroup(name, true);
+							shen[i]._groupChosen = type;
+							shen[i] = [shen[i], ["请选择你的势力", [groups, "vcard"]], 1, true];
 						}
 						game.me
 							.chooseButtonOL(shen, function (player, result) {
@@ -2409,17 +2388,18 @@ export default () => {
 						game.addRecentCharacter(result.buttons[0].link);
 					}
 					var name = event.choosed[0];
-					if (get.is.double(name)) {
-						game.me._groupChosen = "double";
-						game.me.chooseControl(get.is.double(name, true)).set("prompt", "请选择你的势力");
-					} else if (lib.selectGroup.includes(lib.character[name].group) && !lib.character[name].hasHiddenSkill && get.config("choose_group")) {
-						game.me._groupChosen = "kami";
-						var list = lib.group.slice(0);
-						list.remove("shen");
-						game.me.chooseControl(list).set("prompt", "请选择你的势力");
+					const groups = get.selectGroup(name),
+						type = get.selectGroup(name, true);
+					if (type !== "default") {
+						game.me._groupChosen = type;
+					}
+					if (groups.length) {
+						game.me.chooseButton(["请选择你的势力", [groups.map(group => ["", "", `group_${group}`]), "vcard"]], true).set("direct", true);
 					}
 					"step 2";
-					event.group = result.control || false;
+					if (result.links?.length) {
+						event.group = result.links[0][2].slice(6);
+					}
 					if (event.choosed.length == 2) {
 						game.me.init(event.choosed[0], event.choosed[1]);
 					} else {
@@ -2717,33 +2697,18 @@ export default () => {
 						result.links[1],
 						game.players.length > 4
 					);
-
-					if (lib.selectGroup.includes(game.zhu.group) && !game.zhu.isUnseen(0)) {
-						game.zhu._groupChosen = "kami";
-						var list = ["wei", "shu", "wu", "qun", "jin", "key"];
-						for (var i = 0; i < list.length; i++) {
-							if (!lib.group.includes(list[i])) {
-								list.splice(i--, 1);
-							} else {
-								list[i] = ["", "", "group_" + list[i]];
-							}
-						}
-						game.zhu.chooseButton(["请选择你的势力", [list, "vcard"]], true).set("ai", function () {
-							return Math.random();
-						});
-					} else if (get.is.double(game.zhu.name1)) {
-						game.zhu._groupChosen = "double";
-						var list = get.is.double(game.zhu.name1, true);
-						for (var i = 0; i < list.length; i++) {
-							if (!lib.group.includes(list[i])) {
-								list.splice(i--, 1);
-							} else {
-								list[i] = ["", "", "group_" + list[i]];
-							}
-						}
-						game.zhu.chooseButton(["请选择你的势力", [list, "vcard"]], true).set("ai", function () {
-							return Math.random();
-						});
+					const groups = get.selectGroup(game.zhu.name1),
+						type = get.selectGroup(game.zhu.name1, true);
+					if (type !== "default") {
+						game.zhu._groupChosen = type;
+					}
+					if (groups.length) {
+						game.zhu
+							.chooseButton(["请选择你的势力", [groups.map(group => ["", "", `group_${group}`]), "vcard"]], true)
+							.set("ai", () => {
+								return Math.random();
+							})
+							.set("direct", true);
 					} else {
 						event.goto(3);
 					}
@@ -2801,41 +2766,20 @@ export default () => {
 						} else {
 							result[i] = result[i].links;
 						}
-						if (get.is.double(result[i][0]) || (lib.character[result[i][0]] && lib.selectGroup.includes(lib.character[result[i][0]].group) && !lib.character[result[i][0]].hasHiddenSkill)) {
+						if (get.selectGroup(result[i][0]).length > 0) {
 							shen.push(lib.playerOL[i]);
 						}
 					}
 					event.result2 = result;
 					if (shen.length) {
-						var list = ["wei", "shu", "wu", "qun", "jin", "key"];
-						for (var i = 0; i < list.length; i++) {
-							if (!lib.group.includes(list[i])) {
-								list.splice(i--, 1);
-							} else {
-								list[i] = ["", "", "group_" + list[i]];
-							}
-						}
 						for (var i = 0; i < shen.length; i++) {
-							if (get.is.double(result[shen[i].playerid][0])) {
-								shen[i]._groupChosen = "double";
-								shen[i] = [
-									shen[i],
-									[
-										"请选择你的势力",
-										[
-											get.is.double(result[shen[i].playerid][0], true).map(function (i) {
-												return ["", "", "group_" + i];
-											}),
-											"vcard",
-										],
-									],
-									1,
-									true,
-								];
-							} else {
-								shen[i]._groupChosen = "kami";
-								shen[i] = [shen[i], ["请选择你的势力", [list, "vcard"]], 1, true];
+							const name = result[shen[i].playerid][0];
+							const groups = get.selectGroup(name).map(group => ["", "", `group_${group}`]),
+								type = get.selectGroup(name, true);
+							if (type !== "default") {
+								shen[i]._groupChosen = type;
 							}
+							shen[i] = [shen[i], ["请选择你的势力", [groups, "vcard"]], 1, true, "direct"];
 						}
 						game.me
 							.chooseButtonOL(shen, function (player, result) {

@@ -807,6 +807,12 @@ declare interface Skill {
 	 * 请填写对应势力
 	 */
 	groupSkill?: string;
+	/**
+	 * 是否影响登场势力
+	 * 
+	 * 请填写对应势力
+	 */
+	initGroup?: string;
 
 	/**
 	 * 是否与座位号/交换座次相关（若为字符串'changeSeat'则表示与交换座次相关）：

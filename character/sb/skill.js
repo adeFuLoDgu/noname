@@ -3562,16 +3562,16 @@ const skills = {
 			return game.hasPlayer(target => target != player && !target.isZhu2());
 		},
 		direct: true,
-		*content(event, map) {
-			var player = map.player;
-			var result = yield player
+		async content(event, trigger, player) {
+			var result = await player
 				.chooseTarget(get.prompt("sbwusheng"), "选择一名非主公的其他角色，本阶段对其使用【杀】无距离和次数限制，使用【杀】指定其为目标后摸" + (get.mode() === "identity" ? "两" : "一") + "张牌，对其使用三张【杀】后不能对其使用【杀】", (card, player, target) => {
 					return target != player && !target.isZhu2();
 				})
 				.set("ai", target => {
 					var player = _status.event.player;
 					return get.effect(target, { name: "sha" }, player, player);
-				});
+				})
+				.forResult();
 			if (result.bool) {
 				var target = result.targets[0];
 				player.logSkill("sbwusheng", target);
@@ -4155,9 +4155,8 @@ const skills = {
 		},
 		forced: true,
 		locked: false,
-		*content(event, map) {
-			var player = map.player,
-				storage = player.storage.sbkanpo;
+		async content(event, trigger, player) {
+			var storage = player.storage.sbkanpo;
 			var sum = storage[0];
 			storage[1] = [];
 			player.markSkill("sbkanpo");
@@ -4198,7 +4197,7 @@ const skills = {
 			} else if (event.isOnline()) {
 				event.player.send(func);
 			}
-			var result = yield player
+			var result = await player
 				.chooseButton(["看破：是否记录至多" + get.cnNumber(sum) + "个牌名？", [list, "vcard"]], [1, sum], false)
 				.set("ai", function (button) {
 					if (ui.selected.buttons.length >= Math.max(3, game.countPlayer() / 2)) {
@@ -4303,7 +4302,8 @@ const skills = {
 						},
 					},
 				})
-				.set("sum", sum);
+				.set("sum", sum)
+				.forResult();
 			if (result.bool) {
 				var names = result.links.map(link => link[2]);
 				storage[0] -= names.length;
@@ -4522,7 +4522,7 @@ const skills = {
 			"step 0";
 			var num = player.countCards("s", card => card.hasGaintag("sbguanxing"));
 			if (!num && event.triggername == "damageBegin3") {
-				trigger.increase("num");
+				trigger.num ++;
 			} else if (num && event.triggername == "damageBegin4") {
 				player
 					.judge(function (result) {
@@ -4534,7 +4534,7 @@ const skills = {
 					.set("judge2", result => result.bool)
 					.set("callback", function () {
 						if (event.judgeResult.number <= player.countCards("s", card => card.hasGaintag("sbguanxing"))) {
-							event.getParent("sbkongcheng").getTrigger().decrease("num");
+							event.getParent("sbkongcheng").getTrigger().num--;
 						}
 					});
 			}
@@ -9387,6 +9387,7 @@ const skills = {
 		forced: true,
 		locked: false,
 		dutySkill: true,
+		initGroup: "shu",
 		group: ["sbjieyin_init", "sbjieyin_fail"],
 		filter(event, player) {
 			return game.hasPlayer(current => current.hasMark("sbjieyin_mark"));
@@ -10561,6 +10562,7 @@ const skills = {
 						? await player.chooseButtonTarget({
 								createDialog: [`连营：请选择要分配的牌和目标`, cards],
 								forced: true,
+								allowChooseAll: true,
 								selectButton: [1, Infinity],
 								cardsx: cards,
 								ai1(button) {
@@ -10589,7 +10591,7 @@ const skills = {
 								})
 								.set("enemy", get.value(cards[0], player, "raw") < 0)
 								.forResult();
-				if (result.bool) {
+				if (result?.bool) {
 					if (!result.links?.length) {
 						result.links = cards.slice(0);
 					}

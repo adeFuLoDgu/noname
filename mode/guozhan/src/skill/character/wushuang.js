@@ -3347,9 +3347,9 @@ export default {
 					}, []);
 					return groups.length > 1 || game.hasPlayer(current => !event.targets.includes(current) && current.identity == event.toGroup);
 				},
-				locked: true,
-				async cost(event, trigger, player) {
-					const { bool, cost_data } = await player
+				forced: true,
+				async content(event, trigger, player) {
+					const result = await player
 						.chooseToUse()
 						.set("openskilldialog", "###无常###将一张牌当【出其不意】使用，或点取消摸两张牌")
 						.set("norestore", true)
@@ -3359,20 +3359,8 @@ export default {
 							replace: { window() {} },
 						})
 						.backup("gz_wuchang_backup")
-						.setHiddenSkill("gz_wuchang")
-						.set("chooseonly", true)
 						.forResult();
-					event.result = {
-						bool: true,
-						cost_data: bool ? cost_data : null,
-						skill_popup: !bool,
-					};
-				},
-				async content(event, trigger, player) {
-					if (event.cost_data) {
-						const { result } = event.cost_data;
-						await player.useResult(result, event);
-					} else {
+					if (!result?.bool) {
 						await player.draw(2);
 					}
 				},

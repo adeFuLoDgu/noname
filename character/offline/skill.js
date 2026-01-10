@@ -5611,14 +5611,16 @@ const skills = {
 			const card = get.autoViewAs({ name: "sha" }, "unsure");
 			return event.targets?.some(target => player.canUse(card, target, false));
 		},
-		async cost(event, trigger, player) {
-			event.result = await player
+		direct: true,
+		clearTime: true,
+		async content(event, trigger, player) {
+			const next = player
 				.chooseToUse(function (card, player, event) {
 					if (get.name(card) != "sha") {
 						return false;
 					}
 					return lib.filter.filterCard.apply(this, arguments);
-				}, get.prompt2(event.skill))
+				}, get.prompt2(event.name))
 				.set("targetRequired", true)
 				.set("filterTarget", function (card, player, target) {
 					const { preTargets: targets } = get.event();
@@ -5627,19 +5629,20 @@ const skills = {
 					}
 					return lib.filter.targetEnabled.apply(this, arguments);
 				})
-				.set("preTargets", trigger.targets)
-				.set("chooseonly", true)
-				.forResult();
-		},
-		async content(event, trigger, player) {
-			const { result } = event.cost_data,
-				{
-					targets: [target],
-				} = result;
-			const next = player.useResult(result, event);
-			await next;
-			if (!target.hasHistory("damage", evt => evt.card == next.card)) {
-				await player.discardPlayerCard(target, "he", true);
+				.set("logSkill", event.name)
+				.set("preTargets", trigger.targets);
+			const result = await next.forResult();
+			if (!result?.bool) {
+				return;
+			}
+			const evts = player.getHistory("useCard", evt => evt.getParent() == next);
+			if (evts.length && evts[0]?.targets?.length) {
+				const evt = evts[0];
+				for (const target of evt.targets) {
+					if (!target.hasHistory("damage", evtx => evtx.card == evt.card)) {
+						await player.discardPlayerCard(target, "he", true);
+					}
+				}
 			}
 		},
 	},
@@ -8835,8 +8838,7 @@ const skills = {
 				.forResult();
 		},
 		async content(event, trigger, player) {
-			const { cards } = event;
-			await player.discard(cards).set("discarder", player);
+			const cards = await player.modedDiscard(event.cards).forResultCards();
 			await player.draw(cards.length * 2);
 			game.log(trigger.card, "的伤害改为", "#y" + cards.length);
 			player.addTempSkill(event.name + "_damage");
@@ -11446,9 +11448,9 @@ const skills = {
 				return;
 			}
 			await target.showHandcards();
-			const cards2 = target.getDiscardableCards(player, "h").filter(card => result.links.includes(get.suit(card, target)));
+			const cards2 = target.getCards("h", card => result.links.includes(get.suit(card, target)));
 			if (cards2.length) {
-				await target.discard(cards2, "notBySelf").set("discarder", player);
+				await target.modedDiscard(cards2, player);
 			}
 			if (cards1.length > cards2.length) {
 				await target.damage(player);
@@ -13021,7 +13023,7 @@ const skills = {
 				forced: true,
 				popup: false,
 				async content(event, trigger, player) {
-					player.addSkill("hsfunan_used");
+					player.addTempSkill("hsfunan_used");
 					const targets = game.filterPlayer(target => target != player && target.group == "shu");
 					if (!targets.length) {
 						return;
@@ -15885,7 +15887,11 @@ const skills = {
 		},
 		forced: true,
 		async content(event, trigger, player) {
-			trigger[trigger.hasNature() ? "increase" : "decrease"]("num");
+			if (trigger.hasNature()) {
+				trigger.num ++;
+			} else {
+				trigger.num --;
+			}
 		},
 	},
 	// 鲁肃
@@ -18367,31 +18373,23 @@ const skills = {
 		limited: true,
 		skillAnimation: true,
 		animationColor: "metal",
-		async cost(event, trigger, player) {
-			event.result = await player
+		direct: true,
+		clearTime: true,
+		async content(event, trigger, player) {
+			 await player
 				.chooseToUse()
-				.set("openskilldialog", get.prompt2(event.skill))
+				.set("openskilldialog", get.prompt2(event.name))
 				.set("norestore", true)
-				.set("_backupevent", `${event.skill}_backup`)
+				.set("_backupevent", `${event.name}_backup`)
 				.set("custom", {
 					add: {},
 					replace: { window() {} },
 				})
-				.backup(`${event.skill}_backup`)
+				.backup(`${event.name}_backup`)
 				.set("addCount", false)
-				.set("chooseonly", true)
-				.forResult();
-		},
-		async content(event, trigger, player) {
-			const { result } = event.cost_data;
-			const next = player.useResult(result, event);
-			player
-				.when("useCard0")
-				.filter(evt => evt == next)
-				.step(async (event, trigger, player) => {
-					trigger.baseDamage = trigger.cards.length;
+				.set("oncard", () => {
+					get.event().baseDamage = get.event().cards.length;
 				});
-			await next;
 		},
 		subSkill: {
 			backup: {
@@ -18410,7 +18408,10 @@ const skills = {
 				check(card) {
 					return 7 - get.value(card);
 				},
-				log: false,
+				precontent(event, trigger, player) {
+					player.trySkillAnimate("hm_didao", "hm_didao", player.checkShow("hm_didao"));
+					player.awakenSkill("hm_didao");
+				},
 			},
 		},
 	},
@@ -26018,9 +26019,8 @@ const skills = {
 				},
 				forced: true,
 				popup: false,
-				*content(event, map) {
-					const player = map.player;
-					const result = yield player.draw(2);
+				async content(event, trigger, player) {
+					const result = await player.draw(2).forResult();
 					if (Array.isArray(result) && result.length) {
 						player.addTempSkill("jdlongdan_mark", ["phaseChange", "phaseAfter"]);
 					}
@@ -26203,9 +26203,8 @@ const skills = {
 				},
 				forced: true,
 				locked: false,
-				*content(event, map) {
-					const player = map.player;
-					yield player.gain(player.getExpansions("duwang"), "gain2");
+				async content(event, trigger, player) {
+					await player.gain(player.getExpansions("duwang"), "gain2");
 					player.addSkill("jdcibei_effect");
 				},
 			},
@@ -29150,7 +29149,7 @@ const skills = {
 						if (result.index == 0) {
 							await player.discardPlayerCard(target, "h", true);
 						} else {
-							trigger.increase("num");
+							trigger.num ++;
 						}
 					}
 				},

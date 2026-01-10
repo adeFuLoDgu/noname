@@ -1,12 +1,11 @@
 import { _status, game, get, lib, ui } from "noname";
 import { Player } from "./index.js";
-import { security } from "@/util/sandbox.js"
 import ContentCompiler from "./GameEvent/compilers/ContentCompiler.ts";
 import GameEventManager from "./GameEvent/GameEventManager.ts";
 export { GameEventManager, ContentCompiler };
 
 /**
- * @implements { PromiseLike<Omit<GameEvent,"then">> }
+ * @implements { PromiseLike<void> }
  */
 export class GameEvent {
 	/**
@@ -110,9 +109,8 @@ export class GameEvent {
 	 */
 	_notrigger = [];
 	/**
-	 * @type { Result }
+	 * @type { Partial<Result> }
 	 */
-	// @ts-expect-error ignore
 	_result = {};
 	/**
 	 * @type { any[] }
@@ -212,68 +210,6 @@ export class GameEvent {
 	 * @type { Function[] }
 	 */
 	targetprompt2 = [];
-	/**
-	 * @param {keyof this} key
-	 * @param {number} [value]
-	 * @param {number} [baseValue]
-	 */
-	addNumber(key, value, baseValue) {
-		if (typeof value != "number") {
-			value = 0;
-		}
-		if (typeof this[key] == "number") {
-			this[key] += value;
-		} else {
-			if (typeof baseValue != "number") {
-				baseValue = 0;
-			}
-			this[key] = baseValue + value;
-		}
-		return this;
-	}
-	/**
-	 * @param {keyof this} key
-	 * @param {number} [baseValue]
-	 */
-	decrease(key, baseValue) {
-		if (typeof this[key] == "number") {
-			this[key]--;
-		} else {
-			this.subtractNumber(key, 1, baseValue);
-		}
-		return this;
-	}
-	/**
-	 * @param {keyof this} key
-	 * @param {number} [baseValue]
-	 */
-	increase(key, baseValue) {
-		if (typeof this[key] == "number") {
-			this[key]++;
-		} else {
-			this.addNumber(key, 1, baseValue);
-		}
-		return this;
-	}
-	/**
-	 * @param {keyof this} key
-	 * @param {number} [value]
-	 * @param {number} [baseValue]
-	 */
-	subtractNumber(key, value, baseValue) {
-		if (typeof value != "number") {
-			value = 0;
-		}
-		if (typeof this[key] == "number") {
-			this[key] -= value;
-		} else {
-			if (typeof baseValue != "number") {
-				baseValue = 0;
-			}
-			this[key] = baseValue - value;
-		}
-		return this;
-	}
 	/**
 	 * @param {Parameters<typeof this.hasHandler>[0]} type
 	 * @param {GameEvent} event
@@ -956,7 +892,7 @@ export class GameEvent {
 			_status.gameStarted = true;
 			game.showHistory();
 		}
-		if (!lib.hookmap[name] && !lib.config.compatiblemode) {
+		if (!lib.hookmap[name]) {
 			return;
 		}
 		if (!game.players || !game.players.length) {
@@ -1091,48 +1027,10 @@ export class GameEvent {
 					player.removeSkill(skill);
 				});
 
-			if (lib.config.compatiblemode) {
-				const map = lib.relatedTrigger,
-					names = Object.keys(map);
-				doing.addList(
-					game.expandSkills(player.getSkills("invisible").concat(lib.skill.global)).filter(skill => {
-						const info = get.info(skill);
-						if (!info || !info.trigger) {
-							return false;
-						}
-						return roles.some(role => {
-							const list = [];
-							if (typeof info.trigger[role] == "string") {
-								list.add(info.trigger[role]);
-							} else if (Array.isArray(info.trigger[role])) {
-								list.addArray(info.trigger[role]);
-							}
-							if (list.includes(name)) {
-								return true;
-							}
-							for (const trigger of list.slice()) {
-								for (const name of names) {
-									if (trigger.startsWith(name)) {
-										list.addArray(map[name].map(i => i + trigger.slice(name.length)));
-									}
-								}
-							}
-							return list.includes(name);
-							/*if (info.trigger[role] === name) {
-								return true;
-							}
-							if (Array.isArray(info.trigger[role]) && info.trigger[role].includes(name)) {
-								return true;
-							}*/
-						});
-					})
-				);
-			} else {
-				roles.forEach(role => {
-					doing.addList(lib.hook.globalskill[role + "_" + name]);
-					doing.addList(lib.hook[player.playerid + "_" + role + "_" + name]);
-				});
-			}
+			roles.forEach(role => {
+				doing.addList(lib.hook.globalskill[role + "_" + name]);
+				doing.addList(lib.hook[player.playerid + "_" + role + "_" + name]);
+			});
 			delete doing.listAdded;
 			delete doing.addList;
 			doingList.push(doing);
@@ -1166,18 +1064,6 @@ export class GameEvent {
 		} else if (player) {
 			this._notrigger.add(player);
 		}
-		return this;
-	}
-	/**
-	 * @deprecated
-	 */
-	toPromise() {
-		return this;
-	}
-	/**
-	 * @deprecated
-	 */
-	toEvent() {
 		return this;
 	}
 
@@ -1271,28 +1157,12 @@ export class GameEvent {
 	 * @template TResult1
 	 * @template TResult2
 	 * Attaches callbacks for the resolution and/or rejection of the Promise.
-	 * @param { ((event: Omit<GameEvent,"then">) => TResult1 | Promise<TResult1>) | null } [onfulfilled] The callback to execute when the Promise is resolved.
+	 * @param { (() => TResult1 | Promise<TResult1>) | null } [onfulfilled] The callback to execute when the Promise is resolved.
 	 * @param { ((reason: any) => TResult2 | Promise<TResult2>) | null } [onrejected] The callback to execute when the Promise is rejected.
 	 * @returns { Promise<TResult1 | TResult2> } A Promise for the completion of which ever callback is executed.
 	 */
 	then(onfulfilled, onrejected) {
-		return (this.parent ? this.parent.waitNext() : this.start()).then(
-			onfulfilled
-				? () => {
-					return onfulfilled(
-						new Proxy(this, {
-							get(target, p, receiver) {
-								if (p === "then") {
-									return void 0;
-								}
-								return Reflect.get(target, p, receiver);
-							},
-						})
-					);
-				}
-				: onfulfilled,
-			onrejected
-		);
+		return (this.parent ? this.parent.waitNext() : this.start()).then(onfulfilled, onrejected);
 	}
 	/**
 	 * @template TResult
@@ -1375,14 +1245,15 @@ export class GameEvent {
 					await trigger("Begin", 2);
 				} else {
 					this.#inContent = true;
-					let next = this.content(this);
-					if (_status.withError || (_status.connectMode && !lib.config.debug)) {
-						next = next.catch(error => {
+					let next = this.content(this).catch(error => {
+						if (lib.config.ignore_error || (_status.connectMode && !lib.config.debug)) {
 							game.print("游戏出错：" + this.name);
 							game.print(error.toString());
 							console.error(error);
-						});
-					}
+						} else {
+							throw error;
+						}
+					});
 					await next.finally(() => (this.#inContent = false));
 				}
 			} else {
@@ -1417,7 +1288,7 @@ export class GameEvent {
 	}
 
 	/**
-	 * @type { Promise<Result | void> | null }
+	 * @type { Promise<Partial<Result>|void> | null }
 	 */
 	#waitNext = null;
 	waitNext() {
@@ -1459,114 +1330,8 @@ export class GameEvent {
 	 * @this GameEvent
 	 * @returns {Promise<Partial<Result>>}
 	 */
-	async forResult(...params) {
+	async forResult() {
 		await this;
-		if (params.length == 0) {
-			return this.result;
-		}
-		if (params.length == 1) {
-			return this.result[params[0]];
-		}
-		return Array.from(params).map(key => this.result[key]);
-	}
-	/**
-	 * 返回result中的bool项
-	 */
-	forResultBool() {
-		return this.forResult().then(r => r.bool);
-	}
-
-	/**
-	 * 返回result中的targets项。
-	 */
-	forResultTargets() {
-		return this.forResult().then(r => r.targets);
-	}
-
-	/**
-	 * 返回result中的cards项
-	 */
-	forResultCards() {
-		return this.forResult().then(r => r.cards);
-	}
-
-	/**
-	 * 返回result中的card项
-	 *
-	 * @returns {Promise<VCard>|Promise<Card>} 返回的card项。
-	 *
-	 */
-	forResultCard() {
-		return this.forResult().then(r => r.card);
-	}
-
-	/**
-	 * 返回result中的control项。
-	 */
-	forResultControl() {
-		return this.forResult().then(r => r.control);
-	}
-
-	/**
-	 * 返回result中的links项。
-	 */
-	forResultLinks() {
-		return this.forResult().then(r => r.links);
-	}
-
-	/**
-	 * 在某个异步事件中调试变量信息
-	 *
-	 * 注: 在调试步骤中`定义的变量只在当前输入的语句有效`
-	 *
-	 * @example
-	 * 在技能中调试技能content相关的信息
-	 * ```js
-	 * await event.debugger();
-	 * ```
-	 * 在技能中调试触发此技能事件的相关的信息
-	 * ```js
-	 * await trigger.debugger();
-	 * ```
-	 */
-	async debugger() {
-		if (!lib.config.dev) {
-			return;
-		}
-		if (security.isSandboxRequired()) {
-			throw new Error("当前模式下禁止调试");
-		}
-		const runCode = function (event, code) {
-			try {
-				// 为了使玩家调试时使用var player=xxx时不报错，故使用var
-				// var { player, _trigger: trigger, _result: result } = event;
-				var context = {
-					event,
-					player: event.player,
-					trigger: event._trigger,
-					result: event._result,
-				};
-				return security.exec(`return ${code}`, context);
-			} catch (error) {
-				return error;
-			}
-		}.bind(window);
-
-		const input = async () => {
-			const result = await game.promises.prompt("debugger调试");
-
-			if (result === false) {
-				return false;
-			}
-
-			const obj = runCode(this, result);
-			alert(!obj || obj instanceof Error ? String(obj) : get.stringify(obj));
-			return true;
-		};
-
-		let result = true;
-		while (result) {
-			result = await input();
-		}
+		return this.result;
 	}
 }

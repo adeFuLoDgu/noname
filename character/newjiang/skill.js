@@ -3,7 +3,13 @@ import { lib, game, ui, get, ai, _status } from "noname";
 /** @type { importCharacterConfig['skill'] } */
 const skills = {
 	youtan: {
-		audio: 2,
+		audio: 4,
+		logAudio(event) {
+			if (event.name == "useCardToTarget") {
+				return ["youtan3.mp3", "youtan4.mp3"];
+			}
+			return 2;
+		},
 		trigger: {
 			player: "gainAfter",
 			global: "loseAsyncAfter",
@@ -90,7 +96,6 @@ const skills = {
 		global: "ciren_global",
 		subSkill: {
 			global: {
-				audio: "ciren",
 				trigger: {
 					player: "phaseZhunbeiBegin",
 				},
@@ -123,6 +128,7 @@ const skills = {
 							},
 						})
 						.forResult();
+					event.result.skill_popup = false;
 				},
 				async content(event, trigger, player) {
 					const {
@@ -130,6 +136,7 @@ const skills = {
 							targets: [target],
 						} = event,
 						suit = get.suit(cards[0]);
+					await target.logSkill("ciren", player);
 					await player.give(cards, target);
 					const result = await target
 						.chooseToGive(player, `交给${get.translation(player)}另一张${get.translation(suit)}牌，否则其摸一张牌`, "he")
@@ -434,9 +441,7 @@ const skills = {
 			event.result = await player.discardPlayerCard(target, "he", get.prompt2(event.skill), 2).set("chooseonly", true).forResult();
 		},
 		async content(event, trigger, player) {
-			const next = trigger.target.discard(event.cards);
-			next.set("discarder", player);
-			await next;
+			await trigger.target.modedDiscard(event.cards, player);
 			if (event.cards.length > 1) {
 				const card = event.cards[0],
 					cardx = event.cards[1];
@@ -1475,7 +1480,9 @@ const skills = {
 		filter(event, player) {
 			return player != event.player && event.player.hp >= player.hp && player.countCards("hs", { color: "black" });
 		},
-		async cost(event, trigger, player) {
+		direct: true,
+		clearTime: true,
+		async content(event, trigger, player) {
 			const list = get.inpileVCardList(info => {
 				if (info[0] == "delay") {
 					return false;
@@ -1495,7 +1502,7 @@ const skills = {
 				return;
 			}
 			const result = await player
-				.chooseButton([get.prompt2(event.skill, trigger.player), [list, "vcard"]])
+				.chooseButton([get.prompt2(event.name, trigger.player), [list, "vcard"]])
 				.set("ai", button => {
 					const { player, sourcex: target } = get.event();
 					const card = player.getCards("hs", { color: "black" }).maxBy(card => {
@@ -1533,18 +1540,14 @@ const skills = {
 			next.set("norestore", true);
 			next.set("addCount", false);
 			next.set("onlyTarget", trigger.player);
-			next.set("chooseonly", true);
 			next.set("_backupevent", "dchanjie_backup");
 			next.set("custom", {
 				add: {},
 				replace: { window() {} },
 			});
+			next.set("logSkill", event.name);
 			next.backup("dchanjie_backup");
 			event.result = await next.forResult();
-		},
-		async content(event, trigger, player) {
-			const { result } = event.cost_data;
-			await player.useResult(result, event);
 		},
 		subSkill: {
 			backup: {
@@ -1826,6 +1829,7 @@ const skills = {
 		limited: true,
 		skillAnimation: true,
 		animationColor: "fire",
+		manualConfirm: true,
 		async content(event, trigger, player) {
 			player.awakenSkill(event.name);
 			if (typeof get.skillCount("dczhonge") == "number" && get.skillCount("dczhonge") >= 1) {
@@ -3396,28 +3400,40 @@ const skills = {
 			return player.countCards("h") < player.maxHp;
 		},
 		usable: 1,
+		manualConfirm: true,
 		async content(event, trigger, player) {
 			await player.drawTo(player.maxHp);
 			if (!player.countCards("h")) {
 				return;
 			}
-			const suits = player
-				.getCards("h")
-				.reduce((list, card) => list.add(get.suit(card)), [])
-				.sort((a, b) => lib.suit.indexOf(b) - lib.suit.indexOf(a));
+			const list = get.addNewRowList(player.getCards("h"), "suit", player);
 			const result = await player
-				.chooseControl(suits)
-				.set("prompt", "备预：将一种花色的手牌牌置于牌堆底")
-				.set("ai", () => {
-					const player = get.event().player;
-					let suits = get.event().controls.slice();
-					suits.sort((a, b) => player.countCards("h", { suit: a }) - player.countCards("h", { suit: b }));
-					return suits[0];
+				.chooseButton([
+					[
+						[[`备预：将一种花色的手牌置于牌堆底`], "addNewRow"],
+						[
+							dialog => {
+								dialog.classList.add("fullheight");
+								dialog.forcebutton = false;
+								dialog._scrollset = false;
+							},
+							"handle",
+						],
+						list.map(item => [Array.isArray(item) ? item : [item], "addNewRow"]),
+					],
+				])
+				.set("filterButton", button => {
+					return button.links.length > 0;
+				})
+				.set("ai", button => {
+					const player = get.player();
+					const { links } = button;
+					return Math.max(1, 5 - links.length);
 				})
 				.forResult();
-			if (result.control) {
-				const suit = result.control,
-					cards = player.getCards("h", { suit: suit });
+			if (result?.links?.length) {
+				const [suit] = result.links,
+					cards = player.getCards("h", card => get.suit(card, player) == suit);
 				if (cards.length) {
 					let resultx;
 					if (cards.length == 1) {
@@ -3431,7 +3447,7 @@ const skills = {
 							})
 							.forResult();
 					}
-					if (resultx.bool) {
+					if (resultx?.bool) {
 						const moved = resultx.moved[0];
 						if (moved.length) {
 							await player.lose(cards, ui.cardPile);
@@ -3611,7 +3627,7 @@ const skills = {
 					if (card) {
 						cards.push(card);
 						target.$gain2(card, false);
-						await game.asyncDelayx();
+						await game.delayx();
 						await target.chooseUseTarget(card, true, "nopopup");
 					} else {
 						break;

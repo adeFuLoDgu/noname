@@ -16,7 +16,7 @@ import * as Element from "./element/index.js";
 import { updateURLs } from "./update-urls.js";
 import { defaultHooks } from "./hooks/index.js";
 import { security, ErrorManager } from "@/util/sandbox.js";
-import { nonameInitialized, assetURL, userAgentLowerCase, GeneratorFunction, AsyncFunction, characterDefaultPicturePath } from "@/util/index.js";
+import { assetURL, userAgentLowerCase, GeneratorFunction, AsyncFunction, characterDefaultPicturePath } from "@/util/index.js";
 
 import { defaultSplashs } from "@/init/onload/index.js";
 import dedent from "dedent";
@@ -181,22 +181,6 @@ export class Library {
 	ondb = [];
 	ondb2 = [];
 	chatHistory = [];
-	emotionList = {
-		huangdou_emotion: 50,
-		shibing_emotion: 15,
-		wanglang_emotion: 20,
-		guojia_emotion: 20,
-		zhenji_emotion: 20,
-		xiaowu_emotion: 14,
-		xiaokuo_emotion: 8,
-		xiaosha_emotion: 20,
-		xiaotao_emotion: 20,
-		xiaojiu_emotion: 20,
-		biexiao_emotion: 18,
-		chaijun_emotion: 43,
-		maoshu_emotion: 18,
-		mobile_emotion: 15,
-	};
 	animate = {
 		skill: {},
 		card: {},
@@ -618,7 +602,7 @@ export class Library {
 								if (event.zhuzhanresult) {
 									var target = event.zhuzhanresult;
 									target.line(player, "green");
-									target.discard(event.zhuzhanresult2.cards).discarder = target;
+									target.modedDiscard(event.zhuzhanresult2.cards);
 									if (typeof event.afterYingbianZhuzhan == "function") {
 										event.afterYingbianZhuzhan(event, trigger);
 									}
@@ -775,7 +759,11 @@ export class Library {
 						.when("useCard")
 						.filter(evt => evt == event)
 						.step(async (event, trigger, player) => {
-							trigger.getParent(2).decrease("shanRequired", 1);
+							const evt = trigger.getParent(2);
+							if (!evt.shanRequired) {
+								evt.shanRequired = 0;
+							}
+							evt.shanRequired --;
 						});
 				},
 			],
@@ -793,7 +781,7 @@ export class Library {
 						})
 						.filter(evt => evt.getParent(2) == event && event.targets.includes(evt.player))
 						.step(async (event, trigger) => {
-							trigger.increase("num");
+							trigger.num ++;
 						});
 				},
 			],
@@ -805,7 +793,7 @@ export class Library {
 					}
 					game.log(event.player, "触发了强化效果");
 					game.log(event.card, "造成的伤害+1");
-					event.increase("baseDamage", 1);
+					event.baseDamage ++;
 				},
 			],
 			[
@@ -816,7 +804,7 @@ export class Library {
 					}
 					game.log(event.player, "触发了强化效果");
 					game.log(event.card, "回复的体力+1");
-					event.increase("baseDamage", 1);
+					event.baseDamage ++;
 				},
 			],
 		]),
@@ -943,12 +931,6 @@ export class Library {
 		general: {
 			name: "通用",
 			config: {
-				mount_combine: {
-					name: "合并坐骑栏",
-					init: false,
-					intro: "<li>将进攻坐骑栏和防御坐骑栏合并为同一个位置（重启后生效）。",
-					restart: true,
-				},
 				low_performance: {
 					name: "流畅模式",
 					init: false,
@@ -962,24 +944,49 @@ export class Library {
 						}
 					},
 				},
-				compatiblemode: {
+				compatible: {
 					name: "兼容模式",
+					init: true,
+					intro: "提供部分即将废弃api的实现，使用老扩展时建议开启。<br/>注：这些api将在下个版本移除，扩展作者请关闭此选项以进行适配。（重启后生效）",
+					restart: true,
+				},
+				ignore_error: {
+					name: "无视报错",
 					init: false,
-					intro: "开启兼容模式可防止扩展使游戏卡死并提高对旧扩展的兼容性，但对游戏速度有一定影响，若无不稳定或不兼容的扩展建议关闭",
-					onclick(bool) {
-						game.saveConfig("compatiblemode", bool);
-						if (bool) {
-							ui.window.classList.add("compatiblemode");
-						} else {
-							ui.window.classList.remove("compatiblemode");
-						}
-					},
+					intro: "不以弹窗形式报错。<br/>注：此选项仅保证部分不影响运行的错误不会令游戏卡死，不保证报错后结算正常。影响游戏运行的错误请通知扩展作者适配。",
 				},
 				confirm_exit: {
 					name: "确认退出",
 					init: false,
-					unfrequent: true,
 					intro: "离开游戏前弹出确认对话框",
+				},
+				show_splash: {
+					name: "显示开始界面",
+					intro: "游戏开始前进入模式选择画面",
+					init: "init",
+					item: {
+						off: "关闭",
+						init: "首次启动",
+						always: "保持开启",
+					},
+				},
+				game_speed: {
+					name: "游戏速度",
+					init: "mid",
+					item: {
+						vslow: "慢",
+						slow: "较慢",
+						mid: "中",
+						fast: "较快",
+						vfast: "快",
+						vvfast: "很快",
+					},
+					intro: "设置不同游戏操作间的时间间隔",
+				},
+				sync_speed: {
+					name: "限制结算速度",
+					intro: "在动画结算完成前不执行下一步操作，开启后游戏操作的间隔更长但画面更流畅，在游戏较卡时建议开启",
+					init: true,
 				},
 				keep_awake: {
 					name: "屏幕常亮",
@@ -1009,6 +1016,13 @@ export class Library {
 							}
 						}
 					},
+				},
+				mount_combine: {
+					name: "合并坐骑栏",
+					init: false,
+					unfrequent: true,
+					intro: "<li>将进攻坐骑栏和防御坐骑栏合并为同一个位置（重启后生效）。",
+					restart: true,
 				},
 				auto_confirm: {
 					name: "自动确认",
@@ -1197,34 +1211,6 @@ export class Library {
 						}
 						game.saveConfig("round_menu_func", item);
 					},
-				},
-				show_splash: {
-					name: "显示开始界面",
-					intro: "游戏开始前进入模式选择画面",
-					init: "init",
-					item: {
-						off: "关闭",
-						init: "首次启动",
-						always: "保持开启",
-					},
-				},
-				game_speed: {
-					name: "游戏速度",
-					init: "mid",
-					item: {
-						vslow: "慢",
-						slow: "较慢",
-						mid: "中",
-						fast: "较快",
-						vfast: "快",
-						vvfast: "很快",
-					},
-					intro: "设置不同游戏操作间的时间间隔",
-				},
-				sync_speed: {
-					name: "限制结算速度",
-					intro: "在动画结算完成前不执行下一步操作，开启后游戏操作的间隔更长但画面更流畅，在游戏较卡时建议开启",
-					init: true,
 				},
 				enable_vibrate: {
 					name: "开启震动",
@@ -1479,31 +1465,6 @@ export class Library {
 					async onclick(bool) {
 						await game.promises.saveConfig("extension_auto_import", bool);
 					},
-					unfrequent: true,
-				},
-				experimental_enable: {
-					name: "启用实验性功能",
-					init: false,
-					intro: html`
-						开启后将启用部分仍处于实验性质的功能，将改变无名杀现有的部分逻辑（重启后生效）
-						<br />
-						※ 实验性功能无法保证API稳定，如需使用请及时跟进本体进展
-						<br />
-						※ 以API为主的功能不提供具体实现，如需使用请自行实现
-						<br />
-						※ 部分功能将会作用于联机模式
-					`,
-					/**
-					 * @param {boolean} bool
-					 */
-					async onclick(bool) {
-						await game.promises.saveConfig("experimental_enable", bool);
-					},
-					unfrequent: true,
-				},
-				extension_alert: {
-					name: "无视扩展报错",
-					init: false,
 					unfrequent: true,
 				},
 				fuck_sojson: {
@@ -4113,6 +4074,11 @@ export class Library {
 					} else {
 						map.clear_log.hide();
 					}
+					if (lib.config.show_charactercard) {
+						map.show_charactercardMode.show();
+					} else {
+						map.show_charactercardMode.hide();
+					}
 					if (get.is.phoneLayout()) {
 						map.show_time2.show();
 						map.show_time.hide();
@@ -4490,6 +4456,16 @@ export class Library {
 					name: "显示武将资料",
 					intro: "在武将界面单击时弹出武将资料卡",
 					init: true,
+					unfrequent: true,
+				},
+				show_charactercardMode: {
+					name: "武将资料默认页",
+					intro: "弹出武将资料卡时默认打开的页面",
+					init: "intro",
+					item: {
+						intro: "介绍",
+						skill: "技能",
+					},
 					unfrequent: true,
 				},
 				show_favourite: {
@@ -7185,48 +7161,18 @@ export class Library {
 							alert("请进入对决模式，然后再编辑将池");
 							return;
 						}
-						var container = ui.create.div(".popup-container.editor2", ui.window);
-						var node = container;
 						var map = get.config("character_three") || lib.choiceThree;
-						var str = "character=[\n    ";
-						for (var i = 0; i < map.length; i++) {
-							str += '"' + map[i] + '",';
-							if (i + 1 < map.length && (i + 1) % 5 == 0) {
-								str += "\n    ";
-							}
-						}
-						str += "\n];";
-						ui.window.classList.add("shortcutpaused");
-						ui.window.classList.add("systempaused");
-						var saveInput = function (/**@type {import("@codemirror/view").EditorView}*/ view) {
-							var code = view.state.doc.toString();
-							try {
-								var { character } = security.exec2(code);
+						ui.create.editor2({
+							language: "json",
+							value: JSON.stringify(map, null, 2),
+							saveInput: result => {
+								const character = JSON.parse(result);
 								if (!Array.isArray(character)) {
-									throw "err";
+									throw new Error("代码格式有错误，请对比示例代码仔细检查");
 								}
-							} catch (e) {
-								var tip = lib.getErrorTip(e) || "";
-								alert("代码语法有错误，请仔细检查（" + e + "）" + tip);
-								window.focus();
-								view.dom.focus();
-								return;
-							}
-							game.saveConfig("character_three", character, "versus");
-							ui.window.classList.remove("shortcutpaused");
-							ui.window.classList.remove("systempaused");
-							container.delete();
-							delete window.saveNonameInput;
-						};
-						ui.create
-							.editor2(container, {
-								language: "javascript",
-								value: str,
-								saveInput,
-							})
-							.then(editor => {
-								window.saveNonameInput = () => saveInput(editor);
-							});
+								game.saveConfig("character_three", character, "versus");
+							},
+						});
 					},
 				},
 				reset_character_three: {
@@ -7248,48 +7194,18 @@ export class Library {
 							alert("请进入对决模式，然后再编辑将池");
 							return;
 						}
-						var container = ui.create.div(".popup-container.editor2", ui.window);
-						var node = container;
 						var map = get.config("character_four") || lib.choiceFour;
-						var str = "character=[\n    ";
-						for (var i = 0; i < map.length; i++) {
-							str += '"' + map[i] + '",';
-							if (i + 1 < map.length && (i + 1) % 5 == 0) {
-								str += "\n    ";
-							}
-						}
-						str += "\n];";
-						ui.window.classList.add("shortcutpaused");
-						ui.window.classList.add("systempaused");
-						var saveInput = function (/**@type {import("@codemirror/view").EditorView}*/ view) {
-							var code = view.state.doc.toString();
-							try {
-								var { character } = security.exec2(code);
+						ui.create.editor2({
+							language: "json",
+							value: JSON.stringify(map, null, 2),
+							saveInput: result => {
+								const character = JSON.parse(result);
 								if (!Array.isArray(character)) {
-									throw "err";
+									throw new Error("代码格式有错误，请对比示例代码仔细检查");
 								}
-							} catch (e) {
-								var tip = lib.getErrorTip(e) || "";
-								alert("代码语法有错误，请仔细检查（" + e + "）" + tip);
-								window.focus();
-								view.dom.focus();
-								return;
-							}
-							game.saveConfig("character_four", character, "versus");
-							ui.window.classList.remove("shortcutpaused");
-							ui.window.classList.remove("systempaused");
-							container.delete();
-							delete window.saveNonameInput;
-						};
-						ui.create
-							.editor2(container, {
-								language: "javascript",
-								value: str,
-								saveInput,
-							})
-							.then(editor => {
-								window.saveNonameInput = () => saveInput(editor);
-							});
+								game.saveConfig("character_four", character, "versus");
+							},
+						});
 					},
 				},
 				reset_character_four: {
@@ -7847,67 +7763,37 @@ export class Library {
 				},
 				edit_character: {
 					name: "编辑将池",
+					intro: "这里是智斗三国模式的武将将池。<br/>您可以在这里编辑对武将将池进行编辑，然后点击“保存”按钮即可保存。<br/>将池中的Key势力武将，仅同时在没有被禁用的情况下，才会出现在选将框中。<br/>而非Key势力的武将，只要所在的武将包没有被隐藏，即可出现在选将框中。<br/>该将池为单机模式/联机模式通用将池。在这里编辑后，即使进入联机模式，也依然会生效。<br/>但联机模式本身禁用的武将（如神貂蝉）不会出现在联机模式的选将框中。",
 					clear: true,
 					onclick() {
 						if (get.mode() != "doudizhu") {
 							alert("请进入斗地主模式，然后再编辑将池");
 							return;
 						}
-						var container = ui.create.div(".popup-container.editor2", ui.window);
-						var node = container;
 						var map = get.config("character_online") || lib.characterOnline;
-						var code = "character=" + get.stringify(map) + "\n/*\n    这里是智斗三国模式的武将将池。\n    您可以在这里编辑对武将将池进行编辑，然后点击“保存”按钮即可保存。\n    将池中的Key势力武将，仅同时在没有被禁用的情况下，才会出现在选将框中。\n    而非Key势力的武将，只要所在的武将包没有被隐藏，即可出现在选将框中。\n    该将池为单机模式/联机模式通用将池。在这里编辑后，即使进入联机模式，也依然会生效。\n    但联机模式本身禁用的武将（如神貂蝉）不会出现在联机模式的选将框中。\n*/";
-						ui.window.classList.add("shortcutpaused");
-						ui.window.classList.add("systempaused");
-						var saveInput = function (/**@type {import("@codemirror/view").EditorView}*/ view) {
-							var code = view.state.doc.toString();
-							try {
-								var { character } = security.exec2(code);
+						ui.create.editor2({
+							language: "json",
+							value: JSON.stringify(map, null, 2),
+							saveInput: result => {
+								const character = JSON.parse(result);
 								if (!get.is.object(character)) {
-									throw "err";
+									throw new Error("代码格式有错误，请对比示例代码仔细检查");
 								}
 								var groups = [];
 								for (var i in character) {
 									if (!Array.isArray(character[i])) {
-										throw "type";
+										throw new Error("请严格按照格式填写，不要写入不为数组的数据");
 									}
 									if (character[i].length >= 3) {
 										groups.push(i);
 									}
 								}
 								if (groups.length < 3) {
-									throw "enough";
+									throw new Error("请保证至少写入了3个势力，且每个势力至少有3个武将");
 								}
-							} catch (e) {
-								if (e == "type") {
-									alert("请严格按照格式填写，不要写入不为数组的数据");
-								} else if (e == "enough") {
-									alert("请保证至少写入了3个势力，且每个势力至少有3个武将");
-								} else if (e == "err") {
-									alert("代码格式有错误，请对比示例代码仔细检查");
-								} else {
-									var tip = lib.getErrorTip(e) || "";
-									alert("代码语法有错误，请仔细检查（" + e + "）" + tip);
-								}
-								window.focus();
-								view.dom.focus();
-								return;
-							}
-							game.saveConfig("character_online", character, "doudizhu");
-							ui.window.classList.remove("shortcutpaused");
-							ui.window.classList.remove("systempaused");
-							container.delete();
-							delete window.saveNonameInput;
-						};
-						ui.create
-							.editor2(container, {
-								language: "javascript",
-								value: code,
-								saveInput,
-							})
-							.then(editor => {
-								window.saveNonameInput = () => saveInput(editor);
-							});
+								game.saveConfig("character_online", character, "doudizhu");
+							},
+						});
 					},
 				},
 				reset_character: {
@@ -8605,10 +8491,10 @@ export class Library {
 			try {
 				msg = msg.toString();
 				if (typeof msg != "string") {
-					throw "err";
+					throw new Error("err");
 				}
 			} catch (_) {
-				throw "传参错误:" + msg;
+				throw new Error("传参错误:" + msg);
 			}
 		}
 		if (msg.startsWith("Uncaught ")) {
@@ -8742,281 +8628,6 @@ export class Library {
 		}
 		if (newMessage != msg) {
 			return newMessage;
-		}
-	}
-	codeMirrorReady(node, editor) {
-		ui.window.appendChild(node);
-		node.style.fontSize = 20 / game.documentZoom + "px";
-		const mirror = window.CodeMirror(editor, {
-			value: node.code,
-			mode: "javascript",
-			lineWrapping: !lib.config.touchscreen && lib.config.mousewheel,
-			lineNumbers: true,
-			indentUnit: 4,
-			autoCloseBrackets: true,
-			fixedGutter: false,
-			hintOptions: { completeSingle: false },
-			theme: lib.config.codeMirror_theme || "mdn-like",
-			extraKeys: {
-				"Ctrl-Z": "undo", //撤销
-				"Ctrl-Y": "redo", //恢复撤销
-				//"Ctrl-A":"selectAll",//全选
-			},
-		});
-		lib.setScroll(editor.querySelector(".CodeMirror-scroll"));
-		node.aced = true;
-		node.editor = mirror;
-		setTimeout(() => mirror.refresh(), 0);
-		node.editor.on("change", (e, change) => {
-			let code;
-			if (node.editor) {
-				code = node.editor.getValue();
-			} else if (node.textarea) {
-				code = node.textarea.value;
-			}
-			//动态绑定文本
-			if (code.length && change.origin == "+input" && /{|}|\s|=|;|:|,|，|。|？|！|!|\?|&|#|%|@|‘|’|；/.test(change.text[0]) == false && change.text.length == 1) {
-				//输入了代码，并且不包括空格，{}，=， ; ， : ， 逗号等，才可以自动提示
-				node.editor.showHint();
-			}
-		});
-		//防止每次输出字符都创建以下元素
-		const event = _status.event;
-		const trigger = _status.event;
-		const player = ui.create.player().init("sunce");
-		const target = player;
-		const targets = [player];
-		const source = player;
-		const card = game.createCard();
-		const cards = [card];
-		const result = { bool: true };
-		function forEach(arr, f) {
-			Array.from(arr).forEach(v => f(v));
-		}
-		function forAllProps(obj, callback) {
-			if (!Object.getOwnPropertyNames || !Object.getPrototypeOf) {
-				for (let name in obj) {
-					callback(name);
-				}
-			} else {
-				for (let o = obj; o; o = Object.getPrototypeOf(o)) {
-					Object.getOwnPropertyNames(o).forEach(callback);
-				}
-			}
-		}
-		function scriptHint(editor, keywords, getToken, options) {
-			//Find the token at the cursor
-			let cur = editor.getCursor(),
-				token = editor.getTokenAt(cur);
-			if (/\b(?:string|comment)\b/.test(token.type)) {
-				return;
-			}
-			const innerMode = CodeMirror.innerMode(editor.getMode(), token.state);
-			if (innerMode.mode.helperType === "json") {
-				return;
-			}
-			token.state = innerMode.state;
-			//If it's not a 'word-style' token, ignore the token.
-			if (!/^[\w$_]*$/.test(token.string)) {
-				token = {
-					start: cur.ch,
-					end: cur.ch,
-					string: "",
-					state: token.state,
-					type: token.string == "." ? "property" : null,
-				};
-			} else if (token.end > cur.ch) {
-				token.end = cur.ch;
-				token.string = token.string.slice(0, cur.ch - token.start);
-			}
-			let tprop = token,
-				context;
-			//If it is a property, find out what it is a property of.
-			while (tprop.type == "property") {
-				tprop = editor.getTokenAt(CodeMirror.Pos(cur.line, tprop.start));
-				if (tprop.string != ".") {
-					return;
-				}
-				tprop = editor.getTokenAt(CodeMirror.Pos(cur.line, tprop.start));
-				if (!context) {
-					context = [];
-				}
-				context.push(tprop);
-			}
-			const list = [];
-			let obj;
-			if (Array.isArray(context)) {
-				try {
-					const code = context.length == 1 ? context[0].string : context.reduceRight((pre, cur) => (pre.string || pre) + "." + cur.string);
-					obj = security.exec(`return ${code};`, {
-						event,
-						trigger,
-						player,
-						card,
-						cards,
-						result,
-						source,
-						target,
-						targets,
-					});
-					if (![null, undefined].includes(obj)) {
-						const keys = Object.getOwnPropertyNames(obj)
-							.concat(Object.getOwnPropertyNames(Object.getPrototypeOf(obj)))
-							.filter(key => key.startsWith(token.string));
-						list.addArray(keys);
-					}
-				} catch (_) {
-					return;
-				}
-			} else if (token && typeof token.string == "string") {
-				//非开发者模式下，提示这些单词
-				list.addArray(["player", "card", "cards", "result", "trigger", "source", "target", "targets", "lib", "game", "ui", "get", "ai", "_status"]);
-			}
-			return {
-				list: [...new Set(getCompletions(token, context, keywords, options).concat(list))]
-					.filter(key => key.startsWith(token.string))
-					.sort((a, b) => (a + "").localeCompare(b + ""))
-					.map(text => {
-						return {
-							render(elt, data, cur) {
-								var icon = document.createElement("span");
-								var className = "cm-completionIcon cm-completionIcon-";
-								if (obj) {
-									// 解决访问caller报错等问题
-									let type;
-									try {
-										type = typeof obj[text];
-									} catch {
-										void 0;
-									}
-									if (type == "function") {
-										className += "function";
-									} else if (type == "string") {
-										className += "text";
-									} else if (type == "boolean") {
-										className += "variable";
-									} else {
-										className += "namespace";
-									}
-								} else {
-									if (javascriptKeywords.includes(text)) {
-										className += "keyword";
-									} else if (window[text]) {
-										const type = typeof window[text];
-										if (type == "function") {
-											className += "function";
-										} else if (type == "string") {
-											className += "text";
-										} else if (text == "window" || type == "boolean") {
-											className += "variable";
-										} else {
-											className += "namespace";
-										}
-									} else {
-										className += "namespace";
-									}
-								}
-								icon.className = className;
-								elt.appendChild(icon);
-								elt.appendChild(document.createTextNode(text));
-							},
-							displayText: text,
-							text: text,
-						};
-					}),
-				from: CodeMirror.Pos(cur.line, token.start),
-				to: CodeMirror.Pos(cur.line, token.end),
-			};
-		}
-		function javascriptHint(editor, options) {
-			return scriptHint(
-				editor,
-				javascriptKeywords,
-				function (e, cur) {
-					return e.getTokenAt(cur);
-				},
-				options
-			);
-		}
-		//覆盖原本的javascript提示
-		CodeMirror.registerHelper("hint", "javascript", javascriptHint);
-		const stringProps = Object.getOwnPropertyNames(String.prototype);
-		const arrayProps = Object.getOwnPropertyNames(Array.prototype);
-		const funcProps = Object.getOwnPropertyNames(Array.prototype);
-		const javascriptKeywords = ("break case catch class const continue debugger default delete do else export extends from false finally for function " + "if in import instanceof let new null return super switch this throw true try typeof var void while with yield").split(" ");
-		function getCompletions(token, context, keywords, options) {
-			let found = [],
-				start = token.string,
-				global = (options && options.globalScope) || window;
-			function maybeAdd(str) {
-				if (str.lastIndexOf(start, 0) == 0 && !found.includes(str)) {
-					found.push(str);
-				}
-			}
-			function gatherCompletions(obj) {
-				if (typeof obj == "string") {
-					forEach(stringProps, maybeAdd);
-				} else if (obj instanceof Array) {
-					forEach(arrayProps, maybeAdd);
-				} else if (obj instanceof Function) {
-					forEach(funcProps, maybeAdd);
-				}
-				forAllProps(obj, maybeAdd);
-			}
-			if (context && context.length) {
-				//If this is a property, see if it belongs to some object we can
-				//find in the current environment.
-				let obj = context.pop(),
-					base;
-				if (obj.type && obj.type.indexOf("variable") === 0) {
-					if (options && options.additionalContext) {
-						base = options.additionalContext[obj.string];
-					}
-					if (!options || options.useGlobalScope !== false) {
-						base = base || global[obj.string];
-					}
-				} else if (obj.type == "string") {
-					base = "";
-				} else if (obj.type == "atom") {
-					base = 1;
-				} else if (obj.type == "function") {
-					if (global.jQuery != null && (obj.string == "$" || obj.string == "jQuery") && typeof global.jQuery == "function") {
-						base = global.jQuery();
-					} else if (global._ != null && obj.string == "_" && typeof global._ == "function") {
-						base = global._();
-					}
-				}
-				while (base != null && context.length) {
-					base = base[context.pop().string];
-				}
-				if (base != null) {
-					gatherCompletions(base);
-				}
-			} else {
-				//If not, just look in the global object, any local scope, and optional additional-context
-				//(reading into JS mode internals to get at the local and global variables)
-				for (let v = token.state.localVars; v; v = v.next) {
-					maybeAdd(v.name);
-				}
-				for (let c = token.state.context; c; c = c.prev) {
-					for (let v = c.vars; v; v = v.next) {
-						maybeAdd(v.name);
-					}
-				}
-				for (let v = token.state.globalVars; v; v = v.next) {
-					maybeAdd(v.name);
-				}
-				if (options && options.additionalContext != null) {
-					for (let key in options.additionalContext) {
-						maybeAdd(key);
-					}
-				}
-				if (!options || options.useGlobalScope !== false) {
-					gatherCompletions(global);
-				}
-				forEach(keywords, maybeAdd);
-			}
-			return found.sort((a, b) => (a + "").localeCompare(b + ""));
 		}
 	}
 	setIntro(node, func, left) {
@@ -10638,7 +10249,7 @@ export class Library {
 				try {
 					message = JSON.parse(messageevent.data);
 					if (!Array.isArray(message) || typeof lib.message.client[message[0]] !== "function") {
-						throw "err";
+						throw new Error("err");
 					}
 					if (game.sandbox) {
 						security.enterSandbox(game.sandbox);

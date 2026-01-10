@@ -154,7 +154,7 @@ export default {
 	luoxian: "介然毕命",
 	zhangshiping: "中山大商",
 	lushi: "蝉蜕蛇解",
-	ol_wanglang: "凤鹛",
+	ol_wanglang: "龙袭星落",
 	ol_mengda: "腾挪反复",
 	haopu: "惭恨入地",
 	ol_wenqin: "企踵西望",

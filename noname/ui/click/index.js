@@ -1146,18 +1146,21 @@ export class Click {
 		list2.style.overflow = "scroll";
 		lib.setScroll(list2);
 		//uiintro.add(list2);
-		for (var i in lib.emotionList) {
-			var emotionPack = ui.create.div(".card.fullskin", '<img src="' + lib.assetURL + "image/emotion/" + i + '/1.gif" width="50" height="50">', function () {
-				emotionTitle.innerHTML = get.translation(this.pack);
-				for (var j = 1; j <= lib.emotionList[this.pack]; j++) {
-					var emotionButton = ui.create.div(".card.fullskin", '<img src="' + lib.assetURL + "image/emotion/" + this.pack + "/" + j + '.gif" width="50" height="50">', function () {
-						var player = game.me;
+		const createEmotion = function(name) {
+			const srcBase = `${lib.assetURL}image/emotion/${name}/`
+			game.getFileList(srcBase, function(folders, files) {
+				if (!files.length) {
+					return;
+				}
+				for (const file of files) {
+					const emotionButton = ui.create.div(".card.fullskin", `<img src="${srcBase}${file}" width="50" height="50">`, function () {
+						let player = game.me;
 						if (!player) {
 							if (game.connectPlayers) {
 								if (game.online) {
-									for (var i = 0; i < game.connectPlayers.length; i++) {
-										if (game.connectPlayers[i].playerid == game.onlineID) {
-											player = game.connectPlayers[i];
+									for (let j = 0; j < game.connectPlayers.length; j++) {
+										if (game.connectPlayers[j].playerid == game.onlineID) {
+											player = game.connectPlayers[j];
 											break;
 										}
 									}
@@ -1175,20 +1178,35 @@ export class Click {
 							player.emotion(this.pack, this.emotionID);
 						}
 					});
-					emotionButton.emotionID = j;
-					emotionButton.pack = this.pack;
+					emotionButton.emotionID = file;
+					emotionButton.pack = name;
 					emotionButton.style.height = "50px";
 					emotionButton.style.width = "50px";
 					list2.appendChild(emotionButton);
 				}
-				list1.remove();
-				uiintro.add(list2);
-			});
-			emotionPack.pack = i;
-			emotionPack.style.height = "50px";
-			emotionPack.style.width = "50px";
-			list1.appendChild(emotionPack);
-		}
+			}, () => { });
+		};
+		const srcBase = `${lib.assetURL}image/emotion/`;
+		game.getFileList(srcBase, function(folders, files) {
+			if (!folders.length) {
+				return;
+			}
+			for (const folder of folders) {
+				if (folder == "throw_emotion") {
+					continue;
+				}
+				const emotionPack = ui.create.div(".card.fullskin", `<img src="${srcBase}${folder}/1.gif" width="50" height="50">`, function () {
+					emotionTitle.innerHTML = get.translation(this.pack);
+					createEmotion(this.pack);
+					list1.remove();
+					uiintro.add(list2);
+				});
+				emotionPack.pack = folder;
+				emotionPack.style.height = "50px";
+				emotionPack.style.width = "50px";
+				list1.appendChild(emotionPack);
+			}
+		}, () => { });
 		list1.scrollTop = list1.scrollHeight;
 		uiintro.style.height = uiintro.content.scrollHeight + "px";
 		var list3 = ui.create.div(".caption");
@@ -3501,6 +3519,9 @@ export class Click {
 			applyViewMode("skill");
 		});
 		const applyViewMode = function (viewMode = "intro") {
+			if (viewMode !== "skill") {
+				viewMode = "intro";
+			}
 			// 控制显示的区域
 			const intro2Node = uiintro.querySelector(".intro2");
 			if (viewMode === "intro") {
@@ -4107,9 +4128,8 @@ export class Click {
 			}
 		};
 		refreshIntro();
-		// 默认显示人物简介
+		// 先打开介绍页
 		applyViewMode("intro");
-
 		// 创建皮肤容器并添加到intro底部
 		if (lib.characterSubstitute[name]) {
 			refreshSkin = function () {
@@ -4214,6 +4234,10 @@ export class Click {
 			};
 			refreshSkin();
 		}
+		
+		// 再跟设置走
+		applyViewMode(lib.config.show_charactercardMode);
+
 		var initskill = false;
 		let deri = [];
 		for (var i = 0; i < list.length; i++) {

@@ -145,14 +145,14 @@ export default {
 			if (typeof cost != "number" || !event.shanRequired) {
 				return;
 			}
-			event.addNumber(
-				"shanIgnored",
-				Math.min(
-					player.countCards(lib.skill._stratagem_add_buff.position, {
-						name: "shan",
-					}),
-					Math.floor(fury / cost)
-				)
+			if (!event.shanIgnored){
+				event.shanIgnored = 0;
+			}
+			event.shanIgnored += Math.min(
+				player.countCards(lib.skill._stratagem_add_buff.position, {
+					name: "shan",
+				}),
+				Math.floor(fury / cost)
 			);
 		},
 		check: card => {
@@ -1346,12 +1346,21 @@ export default {
 		priority: 25,
 		charlotte: true,
 		filter: function (event, player) {
-			return get.mode() != "guozhan" && get.is.double(player.name1) && !player._groupChosen;
+			const groups = get.selectGroup(player.name1),
+				type = get.selectGroup(player.name1, true);
+			return get.mode() != "guozhan" && groups.length > 0 && type == "double" && !player._groupChosen;
 		},
 		async content(event, trigger, player) {
-			player._groupChosen = "double";
-			const result = await player.chooseControl(get.is.double(player.name1, true)).set("prompt", "请选择你的势力").forResult();
-			player.changeGroup(result.control);
+			const groups = get.selectGroup(player.name1),
+				type = get.selectGroup(player.name1, true);
+			player._groupChosen = type;
+			const result = await player
+				.chooseButton(["请选择你的势力", [groups.map(group => ["", "", `group_${group}`]), "vcard"]], true)
+				.set("direct", true)
+				.forResult();
+			if (result?.bool && result.links?.length) {
+				await player.changeGroup(result.links[0][2].slice(6));
+			}
 		},
 	},
 	aozhan: {
@@ -1538,6 +1547,9 @@ export default {
 						}
 					}
 					var cfg = player.storage.dualside;
+					if(!Array.isArray(cfg)){
+						return;
+					}
 					if (get.mode() == "guozhan") {
 						if (player.name1 == cfg[0]) {
 							player.showCharacter(0);

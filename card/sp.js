@@ -688,9 +688,11 @@ game.import("card", function () {
 					}
 					return get.color(event.cards[0]) == "black" && player.hasHistory("lose", evt => evt.getParent() == event && evt.hs?.length == 1);
 				},
-				async cost(event, trigger, player) {
-					event.result = await player
-						.chooseToUse(`###${get.prompt(event.skill)}###对你攻击范围内的一名角色使用一张【杀】`)
+				direct: true,
+				clearTime: true,
+				async content(event, trigger, player) {
+					await player
+						.chooseToUse(`###${get.prompt(event.name)}###对你攻击范围内的一名角色使用一张【杀】`)
 						.set("filterCard", function (card, player, event) {
 							if (get.name(card) != "sha") {
 								return false;
@@ -698,13 +700,8 @@ game.import("card", function () {
 							return lib.filter.filterCard.apply(this, arguments);
 						})
 						.set("addCount", false)
-						.set("chooseonly", true)
-						.set("logSkill", event.name.slice(0, -5))
+						.set("logSkill", event.name)
 						.forResult();
-				},
-				async content(event, trigger, player) {
-					const { result } = event.cost_data;
-					await player.useResult(result, event);
 				},
 			},
 			caomu_skill: {

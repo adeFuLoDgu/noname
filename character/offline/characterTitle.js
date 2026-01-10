@@ -34,9 +34,9 @@ export default {
 	eu_Macrinus: "传奇的角斗士",
 	eu_Ardashir: "萨珊的创始人",
 	eu_luomalishi: "国王的精锐", //罗马力士等着打复活赛吧
-	eu_yujin: "欧陆于禁",
-	eu_zhangliao: "欧陆张辽",
-	eu_yuejin: "欧陆乐进",
+	eu_yujin: "驰援襄樊",
+	eu_zhangliao: "阵斩蹋顿", //但是在欧洲
+	eu_yuejin: "凯歌高进",
 	pe_xiahouxuan: "明皎月影",
 	drag_huaci: "献躯验方",
 	drag_guansuo: "蜃龙傲骨",

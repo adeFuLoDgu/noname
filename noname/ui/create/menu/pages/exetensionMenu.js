@@ -1,6 +1,5 @@
 import { menuContainer, popupContainer, updateActive, setUpdateActive, updateActiveCard, setUpdateActiveCard, menux, menuxpages, menuUpdates, openMenu, clickToggle, clickSwitcher, clickContainer, clickMenuItem, createMenu, createConfig } from "../index.js";
 import { ui, game, get, ai, lib, _status } from "noname";
-import { nonameInitialized } from "@/util/index.js";
 import { security } from "@/util/sandbox.js"
 import { Character } from "@/library/element/index.js";
 
@@ -111,12 +110,7 @@ export const extensionMenu = function (connectMenu) {
 	var createModeConfig = function (mode, position) {
 		var page = ui.create.div("");
 		page.style.paddingBottom = "10px";
-		var node;
-		if (mode.startsWith("extension_")) {
-			node = ui.create.div(".menubutton.large", mode.slice(10), position, clickMode);
-		} else {
-			node = ui.create.div(".menubutton.large", lib.translate[mode + "_play_config"], position, clickMode);
-		}
+		let node = ui.create.div(".menubutton.large", mode.startsWith("extension_") ? (lib.translate[mode] || mode.slice(10)) : lib.translate[`${mode}_play_config`], position, clickMode);
 		if (node.innerHTML.length >= 5) {
 			node.classList.add("smallfont");
 		}
@@ -342,14 +336,14 @@ export const extensionMenu = function (connectMenu) {
 							if (["arenaReady", "content", "prepare", "precontent"].includes(i)) {
 								ext[i] = security.exec2(`return (${dash4.content[i]});`).return;
 								if (typeof ext[i] != "function") {
-									throw "err";
+									throw new Error("err");
 								} else {
 									ext[i] = ext[i].toString();
 								}
 							} else {
 								ext[i] = security.exec2(dash4.content[i])[i];
 								if (ext[i] == null || typeof ext[i] != "object") {
-									throw "err";
+									throw new Error("err");
 								} else {
 									ext[i] = JSON.stringify(ext[i]);
 								}
@@ -360,7 +354,7 @@ export const extensionMenu = function (connectMenu) {
 						}
 					}
 					page.currentExtension = inputExtName.value || "无名扩展";
-					var str = '{name:"' + page.currentExtension + '"';
+					var str = '{name:"' + page.currentExtension + '",editable:true,connect:false';
 					for (var i in ext) {
 						str += "," + i + ":" + ext[i];
 					}
@@ -416,14 +410,12 @@ export const extensionMenu = function (connectMenu) {
 					for (const i in dash3.content.audio) {
 						files.skill.push(i);
 					}
-					str += ",files:" + JSON.stringify(files);
-					str += ",connect:false"; //不写的话，这里会变成undefined喵，所以默认是不能联机的哦
-					str += "}";
+					str += ",files:" + JSON.stringify(files) + "}";
 					const extension = {
 						"extension.js": `import { lib, game, ui, get, ai, _status } from "noname";\nexport const type = "extension";\nexport default function(){\n\treturn ${str} \n};`,
 						"info.json": JSON.stringify({
-							intro: introExtLine.querySelector("input").value ?? "",
 							name: page.currentExtension,
+							intro: introExtLine.querySelector("input").value ?? "",
 							author: authorExtLine.querySelector("input").value ?? "",
 							diskURL: diskExtLine.querySelector("input").value ?? "",
 							forumURL: forumExtLine.querySelector("input").value ?? "",
@@ -836,50 +828,11 @@ export const extensionMenu = function (connectMenu) {
 						page.content.image = {};
 						for (var i in page.content.pack.character) {
 							var file = i + ".jpg";
-							var loadImage = function (file, data) {
-								var img = new Image();
-								img.crossOrigin = "Anonymous";
-								img.onload = function () {
-									var canvas = document.createElement("CANVAS");
-									var ctx = canvas.getContext("2d");
-									var dataURL;
-									canvas.height = this.height;
-									canvas.width = this.width;
-									ctx.drawImage(this, 0, 0);
-									canvas.toBlob(function (blob) {
-										var fileReader = new FileReader();
-										fileReader.onload = function (e) {
-											page.content.image[file] = e.target.result;
-										};
-										fileReader.readAsArrayBuffer(blob, "UTF-8");
-									});
-								};
-								img.src = data;
-							};
-							if (game.readFile) {
-								var url = lib.assetURL + "extension/" + name + "/" + file;
-								createButton(i, url);
-								if (lib.device == "ios" || lib.device == "android") {
-									window.resolveLocalFileSystemURL(nonameInitialized + "extension/" + name, function (entry) {
-										entry.getFile(file, {}, function (fileEntry) {
-											fileEntry.file(function (fileToLoad) {
-												var fileReader = new FileReader();
-												fileReader.onload = function (e) {
-													page.content.image[file] = e.target.result;
-												};
-												fileReader.readAsArrayBuffer(fileToLoad, "UTF-8");
-											});
-										});
-									});
-								} else {
-									loadImage(file, url);
-								}
-							} else {
-								game.getDB("image", `extension-${name}:${file}`).then(value => {
-									createButton(i, value);
-									loadImage(file, value);
-								});
-							}
+							var url = lib.assetURL + "extension/" + name + "/" + file;
+							createButton(i, url);
+							game.promises.readFile(url).then(result => {
+								page.content.image[file] = result;
+							}).catch(e => console.error(e));
 						}
 					} else {
 						page.content = {
@@ -1460,50 +1413,11 @@ export const extensionMenu = function (connectMenu) {
 							} else {
 								file = i + ".jpg";
 							}
-							var loadImage = function (file, data) {
-								var img = new Image();
-								img.crossOrigin = "Anonymous";
-								img.onload = function () {
-									var canvas = document.createElement("CANVAS");
-									var ctx = canvas.getContext("2d");
-									var dataURL;
-									canvas.height = this.height;
-									canvas.width = this.width;
-									ctx.drawImage(this, 0, 0);
-									canvas.toBlob(function (blob) {
-										var fileReader = new FileReader();
-										fileReader.onload = function (e) {
-											page.content.image[file] = e.target.result;
-										};
-										fileReader.readAsArrayBuffer(blob, "UTF-8");
-									});
-								};
-								img.src = data;
-							};
-							if (game.readFile) {
-								var url = lib.assetURL + "extension/" + name + "/" + file;
-								createButton(i, url, fullskin);
-								if (lib.device == "ios" || lib.device == "android") {
-									window.resolveLocalFileSystemURL(nonameInitialized + "extension/" + name, function (entry) {
-										entry.getFile(file, {}, function (fileEntry) {
-											fileEntry.file(function (fileToLoad) {
-												var fileReader = new FileReader();
-												fileReader.onload = function (e) {
-													page.content.image[file] = e.target.result;
-												};
-												fileReader.readAsArrayBuffer(fileToLoad, "UTF-8");
-											});
-										});
-									});
-								} else {
-									loadImage(file, url);
-								}
-							} else {
-								game.getDB("image", `extension-${name}:${file}`).then(value => {
-									createButton(i, value, fullskin);
-									loadImage(file, value);
-								});
-							}
+							var url = lib.assetURL + "extension/" + name + "/" + file;
+							createButton(i, url, fullskin);
+							game.promises.readFile(url).then(result => {
+								page.content.image[file] = result;
+							}).catch(e => console.error(e));
 						}
 					} else {
 						page.content = {
@@ -1689,43 +1603,18 @@ export const extensionMenu = function (connectMenu) {
 				};
 
 				codeButton.onclick = function () {
-					ui.window.classList.add("shortcutpaused");
-					ui.window.classList.add("systempaused");
-					ui.window.appendChild(container);
-					ui.create.editor2(container, {
+					ui.create.editor2({
 						language: "javascript",
 						value: code,
-						saveInput,
-					}).then(editor => {
-						window.saveNonameInput = () => saveInput(editor);
+						saveInput: result => {
+							var { card } = security.exec2(result);
+							if (card == null || typeof card != "object") {
+								throw new Error("代码格式有错误，请对比示例代码仔细检查");
+							}
+							dash2.link.classList.add("active");
+							code = result;
+						},
 					});
-				};
-
-				var container = ui.create.div(".popup-container.editor2");
-				var saveInput = function (/**@type {import("@codemirror/view").EditorView}*/view) {
-					var inputCode = view.state.doc.toString();
-					try {
-						var { card } = security.exec2(inputCode);
-						if (card == null || typeof card != "object") {
-							throw "err";
-						}
-					} catch (e) {
-						if (e == "err") {
-							alert("代码格式有错误，请对比示例代码仔细检查");
-						} else {
-							var tip = lib.getErrorTip(e) || "";
-							alert("代码语法有错误，请仔细检查（" + e + "）" + tip);
-						}
-						window.focus();
-						view.dom.focus();
-						return;
-					}
-					dash2.link.classList.add("active");
-					ui.window.classList.remove("shortcutpaused");
-					ui.window.classList.remove("systempaused");
-					container.delete();
-					code = inputCode;
-					delete window.saveNonameInput;
 				};
 
 				code = 'card={\n    \n}\n\n/*\n示例：\ncard={\n    type:"basic",\n    enable:true,\n    filterTarget:true,\n    content:function(){\n        target.draw()\n    },\n    ai:{\n        order:1,\n        result:{\n            target:1\n        }\n    }\n}\n此例的效果为目标摸一张牌\n导出时本段代码中的换行、缩进以及注释将被清除\n*/';
@@ -1782,7 +1671,7 @@ export const extensionMenu = function (connectMenu) {
 					try {
 						var { card } = security.exec2(code);
 						if (card == null || typeof card != "object") {
-							throw "err";
+							throw new Error("err");
 						}
 						page.content.pack.card[name] = card;
 					} catch (e) {
@@ -2108,43 +1997,18 @@ export const extensionMenu = function (connectMenu) {
 				editbutton.innerHTML = "编辑代码";
 				commandline.appendChild(editbutton);
 				editbutton.onclick = function () {
-					ui.window.classList.add("shortcutpaused");
-					ui.window.classList.add("systempaused");
-					ui.window.appendChild(container);
-					ui.create.editor2(container, {
+					ui.create.editor2({
 						language: "javascript",
 						value: code,
-						saveInput,
-					}).then(editor => {
-						window.saveNonameInput = () => saveInput(editor);
+						saveInput: result => {
+							const { skill } = security.exec2(result);
+							if (skill == null || typeof skill != "object") {
+								throw new Error("代码格式有错误，请对比示例代码仔细检查");
+							}
+							dash3.link.classList.add("active");
+							code = result;
+						},
 					});
-				};
-
-				var container = ui.create.div(".popup-container.editor2");
-				var saveInput = function (/**@type {import("@codemirror/view").EditorView}*/view) {
-					var resultCode = view.state.doc.toString();
-					try {
-						var { skill } = security.exec2(resultCode);
-						if (skill == null || typeof skill != "object") {
-							throw "err";
-						}
-					} catch (e) {
-						if (e == "err") {
-							alert("代码格式有错误，请对比示例代码仔细检查");
-						} else {
-							var tip = lib.getErrorTip(e) || "";
-							alert("代码语法有错误，请仔细检查（" + e + "）" + tip);
-						}
-						window.focus();
-						view.dom.focus();
-						return;
-					}
-					dash3.link.classList.add("active");
-					ui.window.classList.remove("shortcutpaused");
-					ui.window.classList.remove("systempaused");
-					container.delete();
-					code = resultCode;
-					delete window.saveNonameInput;
 				};
 				let code = 'skill={\n    \n}\n\n/*\n示例：\nskill={\n    trigger:{player:"phaseJieshuBegin"},\n    frequent:true,\n    content:function(){\n        player.draw()\n    }\n}\n此例为闭月代码\n导出时本段代码中的换行、缩进以及注释将被清除\n*/';
 
@@ -2337,7 +2201,7 @@ export const extensionMenu = function (connectMenu) {
 						try {
 							var { skill } = security.exec2(code);
 							if (skill == null || typeof skill != "object") {
-								throw "err";
+								throw new Error("err");
 							}
 							page.content.pack.skill[name] = skill;
 						} catch (e) {
@@ -2408,9 +2272,6 @@ export const extensionMenu = function (connectMenu) {
 				page.reset = function (name) {
 					page.content = {};
 					if (lib.extensionPack[name]) {
-						for (var i in dashes) {
-							dashes[i].node.code = "";
-						}
 						for (var i in lib.extensionPack[name].code) {
 							switch (typeof lib.extensionPack[name].code[i]) {
 								case "function":
@@ -2421,92 +2282,51 @@ export const extensionMenu = function (connectMenu) {
 									break;
 							}
 						}
-						for (var i in page.content) {
-							dashes[i].node.code = page.content[i] || "";
-						}
-					} else {
-						dashes.arenaReady.node.code = "function(){\n    \n}\n\n/*\n函数执行时机为界面创建之后\n导出时本段代码中的换行、缩进以及注释将被清除\n*/";
-						dashes.content.node.code = "function(config,pack){\n    \n}\n\n/*\n函数执行时机为游戏数据加载之后、界面加载之前\n参数1扩展选项（见选项代码）；参数2为扩展定义的武将、卡牌和技能等（可在此函数中修改）\n导出时本段代码中的换行、缩进以及注释将被清除\n*/";
-						dashes.prepare.node.code = "function(){\n    \n}\n\n/*\n函数执行时机玩游戏扩展加载之后\n导出时本段代码中的换行、缩进以及注释将被清除\n*/";
-						dashes.precontent.node.code = "function(){\n    \n}\n\n/*\n函数执行时机为游戏数据加载之前，联机模式亦可加载\n除添加模式外请慎用\n导出时本段代码中的换行、缩进以及注释将被清除\n*/";
-						dashes.config.node.code = 'config={\n    \n}\n\n/*\n示例：\nconfig={\n    switcher_example:{\n    name:"示例列表选项",\n        init:"3",\n        item:{"1":"一","2":"二","3":"三"}\n    },\n    toggle_example:{\n        name:"示例开关选项",\n        init:true\n    }\n}\n此例中传入的主代码函数的默认参数为{switcher_example:"3",toggle_example:true}\n导出时本段代码中的换行、缩进以及注释将被清除\n*/';
-						dashes.help.node.code = 'help={\n    \n}\n\ns/*\n示例：\nhelp={\n    "帮助条目":"<ul><li>列表1-条目1<li>列表1-条目2</ul><ol><li>列表2-条目1<li>列表2-条目2</ul>"\n}\n帮助内容将显示在菜单－选项－帮助中\n导出时本段代码中的换行、缩进以及注释将被清除\n*/';
 					}
 				};
 				var dashes = {};
-				var createCode = function (str1, str2, sub, func, link, str) {
+				var createCode = function (shortName, fullName, link, defaultCode) {
 					var dash = ui.create.div(".menubutton.large.dashboard");
 					dashes[link] = dash;
-					sub.appendChild(dash);
-					dash.listen(func);
-					dash.link = link;
-					ui.create.div("", str1, dash);
-					ui.create.div("", str2, dash);
-					var container = ui.create.div(".popup-container.editor2");
-					var saveInput = function (/**@type {import("@codemirror/view").EditorView}*/view) {
-						var resultCode = view.state.doc.toString();
-						try {
-							if (["arenaReady", "content", "prepare", "precontent"].includes(link)) {
-								var { func } = security.exec2(`func = ${resultCode}`);
-								if (typeof func != "function") {
-									throw "err";
+					page.appendChild(dash);
+					dash.listen(() => {
+						ui.create.editor2({
+							language: "javascript",
+							value: page.content[link] || defaultCode,
+							saveInput: result => {
+								if (["arenaReady", "content", "prepare", "precontent"].includes(link)) {
+									var { func } = security.exec2(`func = ${result}`);
+									if (typeof func != "function") {
+										throw new Error("代码格式有错误，请对比示例代码仔细检查");
+									}
+								} else if (link == "config") {
+									var { config } = security.exec2(result);
+									if (config == null || typeof config != "object") {
+										throw new Error("代码格式有错误，请对比示例代码仔细检查");
+									}
+								} else if (link == "help") {
+									var { help } = security.exec2(result);
+									if (help == null || typeof help != "object") {
+										throw new Error("代码格式有错误，请对比示例代码仔细检查");
+									}
 								}
-							} else if (link == "config") {
-								var { config } = security.exec2(resultCode);
-								if (config == null || typeof config != "object") {
-									throw "err";
-								}
-							} else if (link == "help") {
-								var { help } = security.exec2(resultCode);
-								if (help == null || typeof help != "object") {
-									throw "err";
-								}
-							}
-						} catch (e) {
-							if (e == "err") {
-								alert("代码格式有错误，请对比示例代码仔细检查");
-							} else {
-								var tip = lib.getErrorTip(e) || "";
-								alert("代码语法有错误，请仔细检查（" + e + "）" + tip);
-							}
-							window.focus();
-							view.dom.focus();
-							return;
-						}
-						dash4.link.classList.add("active");
-						ui.window.classList.remove("shortcutpaused");
-						ui.window.classList.remove("systempaused");
-						container.delete();
-						container.code = resultCode;
-						page.content[link] = resultCode;
-						delete window.saveNonameInput;
-					};
-					container.code = str;
-					// dash.editor = editor;
-					dash.node = container;
-					dash.saveInput = saveInput;
-					page.content[link] = str;
-				};
-				var clickCode = function () {
-					var node = this.node;
-					ui.window.classList.add("shortcutpaused");
-					ui.window.classList.add("systempaused");
-					ui.window.appendChild(node);
-					ui.create.editor2(node, {
-						language: "javascript",
-						value: node.code,
-						saveInput: this.saveInput,
-					}).then(editor => {
-						window.saveNonameInput = () => this.saveInput(editor);
+								dash4.link.classList.add("active");
+								page.content[link] = result;
+							},
+						});
 					});
+					dash.link = link;
+					ui.create.div("", shortName, dash);
+					ui.create.div("", fullName, dash);
+					page.content[link] = defaultCode;
 				};
 				page.content = {};
-				createCode("辅", "辅助代码", page, clickCode, "arenaReady", "function(){\n    \n}\n\n/*\n函数执行时机为游戏界面创建之后\n导出时本段代码中的换行、缩进以及注释将被清除\n*/");
-				createCode("主", "主代码", page, clickCode, "content", "function(config,pack){\n    \n}\n\n/*\n函数执行时机为游戏数据加载之后、界面加载之前\n参数1扩展选项（见选项代码）；参数2为扩展定义的武将、卡牌和技能等（可在此函数中修改）\n导出时本段代码中的换行、缩进以及注释将被清除\n*/");
-				createCode("预", "预备代码", page, clickCode, "prepare", "function(){\n    \n}\n\n/*\n函数执行时机为游戏扩展全部加载之后\n导出时本段代码中的换行、缩进以及注释将被清除\n*/");
-				createCode("启", "启动代码", page, clickCode, "precontent", "function(){\n    \n}\n\n/*\n函数执行时机为游戏数据加载之前，联机模式亦可加载\n除添加模式外请慎用\n导出时本段代码中的换行、缩进以及注释将被清除\n*/");
-				createCode("选", "选项代码", page, clickCode, "config", 'config={\n    \n}\n\n/*\n示例：\nconfig={\n    switcher_example:{\n        name:"示例列表选项",\n        init:"3",\n     	  item:{"1":"一","2":"二","3":"三"}\n    },\n    toggle_example:{\n        name:"示例开关选项",\n        init:true\n    }\n}\n此例中传入的主代码函数的默认参数为{switcher_example:"3",toggle_example:true}\n导出时本段代码中的换行、缩进以及注释将被清除\n*/');
-				createCode("帮", "帮助代码", page, clickCode, "help", 'help={\n    \n}\n\n/*\n示例：\nhelp={\n    "帮助条目":"<ul><li>列表1-条目1<li>列表1-条目2</ul><ol><li>列表2-条目1<li>列表2-条目2</ul>"\n}\n帮助内容将显示在菜单－选项－帮助中\n导出时本段代码中的换行、缩进以及注释将被清除\n*/');
+				createCode("辅", "辅助代码", "arenaReady", "function(){\n    \n}\n\n/*\n函数执行时机为游戏界面创建之后\n导出时本段代码中的换行、缩进以及注释将被清除\n*/");
+				createCode("主", "主代码", "content", "function(config,pack){\n    \n}\n\n/*\n函数执行时机为游戏数据加载之后、界面加载之前\n参数1扩展选项（见选项代码）；参数2为扩展定义的武将、卡牌和技能等（可在此函数中修改）\n导出时本段代码中的换行、缩进以及注释将被清除\n*/");
+				createCode("预", "预备代码", "prepare", "function(){\n    \n}\n\n/*\n函数执行时机为游戏扩展全部加载之后\n导出时本段代码中的换行、缩进以及注释将被清除\n*/");
+				createCode("启", "启动代码", "precontent", "function(config){\n    \n}\n\n/*\n函数执行时机为游戏数据加载之前，联机模式亦可加载\n除添加模式外请慎用\n导出时本段代码中的换行、缩进以及注释将被清除\n*/");
+				createCode("选", "选项代码", "config", 'config={\n    \n}\n\n/*\n示例：\nconfig={\n    switcher_example:{\n        name:"示例列表选项",\n        init:"3",\n     	  item:{"1":"一","2":"二","3":"三"}\n    },\n    toggle_example:{\n        name:"示例开关选项",\n        init:true\n    }\n}\n此例中传入的主代码函数的默认参数为{switcher_example:"3",toggle_example:true}\n导出时本段代码中的换行、缩进以及注释将被清除\n*/');
+				createCode("帮", "帮助代码", "help", 'help={\n    \n}\n\n/*\n示例：\nhelp={\n    "帮助条目":"<ul><li>列表1-条目1<li>列表1-条目2</ul><ol><li>列表2-条目1<li>列表2-条目2</ul>"\n}\n帮助内容将显示在菜单－选项－帮助中\n导出时本段代码中的换行、缩进以及注释将被清除\n*/');
 
 				return page;
 			})();

@@ -47,14 +47,6 @@ const characters = {
 		hp: 3,
 		skills: ["mbshiju"],
 	},
-	sp_zhonghui: {
-		sex: "male",
-		group: "qun",
-		hp: 4,
-		skills: ["mbsizi", "mbxiezhi", "mbyunan", "mbkechang"],
-		isZhugong: true,
-		clans: ["颍川钟氏"],
-	},
 	mb_cuilingyi: {
 		sex: "female",
 		group: "wei",
@@ -137,6 +129,7 @@ const characters = {
 		names: "司马|昭",
 		dieAudios: ["jsrg_simazhao"],
 		groupBorder: "jin",
+		doubleGroup: ["wei", "qun"],
 	},
 	friend_cuijun: {
 		sex: "male",
