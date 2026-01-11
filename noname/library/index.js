@@ -10119,12 +10119,14 @@ export class Library {
 			group_qun: "群势力",
 			group_key: "键势力",
 			group_jin: "晋势力",
+			group_western: "西势力",
 			group_wei_bg: "魏",
 			group_shu_bg: "蜀",
 			group_wu_bg: "吴",
 			group_qun_bg: "群",
 			group_key_bg: "键",
 			group_jin_bg: "晋",
+			group_western_bg: "西",
 			zhengsu: "整肃",
 			zhengsu_leijin: "擂进",
 			zhengsu_bianzhen: "变阵",
@@ -10453,7 +10455,7 @@ export class Library {
 		group_qun: { fullskin: true },
 		group_key: { fullskin: true },
 		group_jin: { fullskin: true },
-
+		group_western: { fullskin: true },
 		db_atk1: {
 			type: "db_atk",
 			fullimage: true,
