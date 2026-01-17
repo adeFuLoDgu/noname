@@ -14,6 +14,7 @@ desktop.ini
 *.zip
 *.txt
 *.pdf
+*.bak
 
 # IDE
 .idea

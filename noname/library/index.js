@@ -197,34 +197,38 @@ export class Library {
 			_status.emotion_cache = {};
 			const findFiles = function (name) {
 				const srcBase = `${lib.assetURL}image/emotion/${name}/`;
+				if (location.href.indexOf("//localhost") != -1) {
+					game.getFileList(
+						srcBase,
+						function (folders, files) {
+							if (!files.length) {
+								return;
+							}
+							_status.emotion_cache[name] = files.sort((a, b) => parseInt(a.split(".")[0]) - parseInt(b.split(".")[0]));
+						},
+						() => {}
+					);
+				}
+			};
+			const srcBase = `${lib.assetURL}image/emotion/`;
+			if (location.href.indexOf("//localhost") != -1) {
 				game.getFileList(
 					srcBase,
 					function (folders, files) {
-						if (!files.length) {
+						if (!folders.length) {
 							return;
 						}
-						_status.emotion_cache[name] = files.sort((a, b) => parseInt(a.split(".")[0]) - parseInt(b.split(".")[0]));
+						for (const folder of folders) {
+							if (folder == "throw_emotion") {
+								continue;
+							}
+							_status.emotion_cache[folder] = [];
+							findFiles(folder);
+						}
 					},
 					() => {}
 				);
-			};
-			const srcBase = `${lib.assetURL}image/emotion/`;
-			game.getFileList(
-				srcBase,
-				function (folders, files) {
-					if (!folders.length) {
-						return;
-					}
-					for (const folder of folders) {
-						if (folder == "throw_emotion") {
-							continue;
-						}
-						_status.emotion_cache[folder] = [];
-						findFiles(folder);
-					}
-				},
-				() => {}
-			);
+			}
 		},
 		//增加ui.window的监听
 		function () {
