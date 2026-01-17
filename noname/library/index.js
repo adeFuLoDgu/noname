@@ -192,6 +192,40 @@ export class Library {
 	 * @type { Function[] | undefined }
 	 */
 	arenaReady = [
+		//提前缓存表情包
+		function () {
+			_status.emotion_cache = {};
+			const findFiles = function (name) {
+				const srcBase = `${lib.assetURL}image/emotion/${name}/`;
+				game.getFileList(
+					srcBase,
+					function (folders, files) {
+						if (!files.length) {
+							return;
+						}
+						_status.emotion_cache[name] = files.sort((a, b) => parseInt(a.split(".")[0]) - parseInt(b.split(".")[0]));
+					},
+					() => {}
+				);
+			};
+			const srcBase = `${lib.assetURL}image/emotion/`;
+			game.getFileList(
+				srcBase,
+				function (folders, files) {
+					if (!folders.length) {
+						return;
+					}
+					for (const folder of folders) {
+						if (folder == "throw_emotion") {
+							continue;
+						}
+						_status.emotion_cache[folder] = [];
+						findFiles(folder);
+					}
+				},
+				() => {}
+			);
+		},
 		//增加ui.window的监听
 		function () {
 			lib.poptip.init();
@@ -763,7 +797,7 @@ export class Library {
 							if (!evt.shanRequired) {
 								evt.shanRequired = 0;
 							}
-							evt.shanRequired --;
+							evt.shanRequired--;
 						});
 				},
 			],
@@ -781,7 +815,7 @@ export class Library {
 						})
 						.filter(evt => evt.getParent(2) == event && event.targets.includes(evt.player))
 						.step(async (event, trigger) => {
-							trigger.num ++;
+							trigger.num++;
 						});
 				},
 			],
@@ -793,7 +827,7 @@ export class Library {
 					}
 					game.log(event.player, "触发了强化效果");
 					game.log(event.card, "造成的伤害+1");
-					event.baseDamage ++;
+					event.baseDamage++;
 				},
 			],
 			[
@@ -804,7 +838,7 @@ export class Library {
 					}
 					game.log(event.player, "触发了强化效果");
 					game.log(event.card, "回复的体力+1");
-					event.baseDamage ++;
+					event.baseDamage++;
 				},
 			],
 		]),
@@ -11749,7 +11783,7 @@ export class Library {
 						lib.node.clients.remove(this);
 						this.closed = true;
 					}
-				} else if (lib.node.clients.length - (window.isNonameServer ? 1 : 0) >= parseInt(lib.configOL.number)) {
+				} else if (lib.node.clients.length >= parseInt(lib.configOL.number)) {
 					this.send("denied", "number");
 					lib.node.clients.remove(this);
 					this.closed = true;
@@ -11769,7 +11803,7 @@ export class Library {
 							break;
 						}
 					}
-					this.send("init", this.id, lib.configOL, game.ip, window.isNonameServer, game.roomId);
+					this.send("init", this.id, lib.configOL, game.ip, false, game.roomId);
 				}
 			},
 			/**
@@ -12129,23 +12163,16 @@ export class Library {
 				game.ws.close();
 			},
 			reloadroom: function (forced) {
-				if (window.isNonameServer && (forced || !_status.protectingroom)) {
-					game.reload();
-				}
+				// if (window.isNonameServer && (forced || !_status.protectingroom)) {
+				// 	game.reload();
+				// }
 			},
 			createroom: function (index, config, mode) {
 				game.online = false;
 				game.onlineroom = true;
 				game.roomId = index;
 				lib.node = {};
-				if (config && mode && window.isNonameServer) {
-					if (mode == "auto") {
-						mode = lib.configOL.mode;
-					}
-					game.switchMode(mode, config);
-				} else {
-					game.switchMode(lib.configOL.mode);
-				}
+				game.switchMode(lib.configOL.mode);
 				ui.create.connecting(true);
 			},
 			enterroomfailed: function () {
@@ -12258,23 +12285,7 @@ export class Library {
 						game.saveConfig("tmp_user_roomId");
 					}
 
-					if (window.isNonameServer) {
-						var cfg = "pagecfg" + window.isNonameServer;
-						if (lib.config[cfg]) {
-							lib.configOL = lib.config[cfg][0];
-							game.send("server", "server", lib.config[cfg].slice(1));
-							game.saveConfig(cfg);
-							_status.protectingroom = true;
-							setTimeout(function () {
-								_status.protectingroom = false;
-								if (!lib.node || !lib.node.clients || !lib.node.clients.length) {
-									game.reload();
-								}
-							}, 15000);
-						} else {
-							game.send("server", "server");
-						}
-					} else if (typeof game.roomId == "string") {
+					if (typeof game.roomId == "string") {
 						var room = findRoom(game.roomId);
 						if (game.roomIdServer && room && (room.serving || !room.version)) {
 							console.log();

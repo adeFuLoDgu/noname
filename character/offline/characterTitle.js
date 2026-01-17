@@ -35,7 +35,7 @@ export default {
 	eu_Ardashir: "萨珊的创始人",
 	eu_luomalishi: "国王的精锐", //罗马力士等着打复活赛吧
 	eu_yujin: "驰援襄樊",
-	eu_zhangliao: "阵斩蹋顿", //但是在欧洲
+	eu_zhangliao: "镇斩蹋顿", //但是在欧洲
 	eu_yuejin: "凯歌高进",
 	pe_xiahouxuan: "明皎月影",
 	drag_huaci: "献躯验方",

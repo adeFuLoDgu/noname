@@ -10,11 +10,7 @@ const skills = {
 			player: "changeHpAfter",
 		},
 		isOnlySuit(card, player) {
-			const hs = player.getCards("h");
-			if (!hs.some(i => i != card && get.suit(i) == get.suit(card))) {
-				return true;
-			}
-			return false;
+			return !player.hasCard(cardx => cardx != card && get.suit(cardx) == get.suit(card), "h");
 		},
 		init(player, skill) {
 			player.addSkill(`${skill}_mark`);
@@ -32,31 +28,33 @@ const skills = {
 				.set("filterCard", (card, player) => !get.info("clanqingjue").isOnlySuit(card, player))
 				.forResult();
 			const { cards } = result;
-			const resultx = await player
-				.chooseButton(
-					[
-						`清绝：执行${get.cnNumber(Math.min(cards.length, 2))}项`,
-						[
-							[
-								["give", `将${get.translation(cards)}交给其他角色`],
-								["gain", `获得未拥有花色的牌各一张（${get.translation(lib.suit.filter(suit => !player.hasCard({ suit: suit }, "h")))}）`],
-							],
-							"textbutton",
-						],
-					],
-					Math.min(cards.length, 2),
-					true
-				)
-				.set("ai", button => {
-					if (button.link == "give") {
-						if (game.hasPlayer(target => target != get.player() && get.attitude(get.player(), target) > 0)) {
-							return 2;
-						}
-						return 0.5;
-					}
-					return 1;
-				})
-				.forResult();
+			const resultx =
+				cards.length > 1
+					? { bool: true, links: ["give", "gain"] }
+					: await player
+							.chooseButton(
+								[
+									`清绝：执行${get.cnNumber(Math.min(cards.length, 2))}项`,
+									[
+										[
+											["give", `将${get.translation(cards)}交给其他角色`],
+											["gain", `获得未拥有花色的牌各一张（${get.translation(lib.suit.filter(suit => !player.hasCard({ suit: suit }, "h")))}）`],
+										],
+										"textbutton",
+									],
+								],
+								true
+							)
+							.set("ai", button => {
+								if (button.link == "give") {
+									if (game.hasPlayer(target => target != get.player() && get.attitude(get.player(), target) > 0)) {
+										return 2;
+									}
+									return 0.5;
+								}
+								return 1;
+							})
+							.forResult();
 			const { links } = resultx;
 			if (links?.includes("give") && game.hasPlayer(target => target != player) && cards?.someInD("d")) {
 				const toGive = cards?.filterInD("d");
@@ -118,12 +116,15 @@ const skills = {
 					player.removeGaintag(skill);
 				},
 				trigger: {
-					player: "loseEnd",
-					global: ["gainEnd", "equipEnd", "addJudgeEnd", "loseAsyncEnd", "addToExpansionEnd"],
+					player: ["loseEnd", "enterGame"],
+					global: ["gainEnd", "equipEnd", "addJudgeEnd", "loseAsyncEnd", "addToExpansionEnd", "phaseBefore"],
 				},
 				silent: true,
-				filter(event, player) {
-					return event.getg?.(player)?.length || event.getl?.(player)?.hs?.length;
+				filter(event, player, name) {
+					if (event.name == "phase") {
+						return game.phaseNumber == 0;
+					}
+					return name == "enterGame" || event.getg?.(player)?.length || event.getl?.(player)?.hs?.length;
 				},
 				async content(event, trigger, player) {
 					get.info(event.name).init(player, event.name);
@@ -719,24 +720,19 @@ const skills = {
 	clandingan: {
 		audio: 2,
 		trigger: {
-			player: "useCardAfter",
+			global: "useCardAfter",
 		},
-		locked: true,
 		filter(event, player) {
-			if (player.getStorage("clandingan_used").includes(event.card.name)) {
-				return false;
-			}
-			return game.getGlobalHistory("useCard", evt => evt.card.name == event.card.name).indexOf(event) > 0;
+			return game.getGlobalHistory("useCard", evt => evt.card.name == event.card.name).indexOf(event) == 1;
 		},
-		async cost(event, trigger, player) {
-			const targets = game.filterPlayer(current => {
-				if (trigger.targets?.includes(current)) {
-					return false;
-				}
-				return current != player;
+		forced: true,
+		async content(event, trigger, player) {
+			const skill = `${event.name}_used`;
+			const pre_targets = game.filterPlayer(target => {
+				return !trigger.targets.includes(target) && !player.getStorage(skill).includes(target);
 			});
 			const result =
-				targets.length > 1
+				pre_targets.length > 1
 					? await player
 							.chooseTarget(
 								`定安：与任意名不为此牌目标的其他角色各摸一张牌`,
@@ -744,10 +740,10 @@ const skills = {
 									return get.event().targetx.includes(target);
 								},
 								true,
-								[1, targets.length]
+								[1, pre_targets.length]
 							)
-							.set("targetx", targets)
-							.set("prompt2", "然后你令之中手牌最多的其他角色执行一项：1.受到你造成的1点伤害；2.弃置手牌中最多的同名牌。")
+							.set("targetx", pre_targets)
+							.set("prompt2", "然后你令手牌最多的其他角色执行一项：1.受到你造成的1点伤害；2.弃置手牌中最多的同名牌。")
 							.set("ai", target => {
 								const { player, targetx } = get.event(),
 									getD = current => get.effect(current, { name: "draw" }, player, player);
@@ -763,28 +759,16 @@ const skills = {
 							.forResult()
 					: {
 							bool: true,
-							targets: targets,
+							targets: pre_targets,
 						};
-			if (!result?.bool) {
+			if (!result?.bool || !result.targets) {
 				return;
 			}
-			let targets2 = [player];
-			if (result.targets?.length) {
-				targets2.addArray(result.targets);
-			}
-			event.result = {
-				bool: true,
-				targets: targets2,
-			};
-		},
-		async content(event, trigger, player) {
-			const { targets } = event,
-				skill = "clandingan_used";
-			player.addTempSkill(skill, "roundStart");
-			player.markAuto(skill, trigger.card.name);
-			targets.sortBySeat();
+			player.addTempSkill(skill);
+			player.markAuto(skill, result.targets);
+			const targets = [player, ...result.targets.sortBySeat()];
 			await game.asyncDraw(targets);
-			const currents = targets.filter(target => target != player && target.isMaxHandcard(false, current => current != player && targets.includes(current)));
+			const currents = game.filterPlayer(target => target != player && target.isMaxHandcard(false, current => current != player));
 			if (!currents?.length) {
 				return;
 			}
@@ -821,9 +805,6 @@ const skills = {
 							names = cards.map(card => get.name(card)),
 							maxName = names.toUniqued().maxBy(name => get.numOf(names, name));
 						const num = get.numOf(names, maxName);
-						if (num <= 1) {
-							return;
-						}
 						const name = names
 							.toUniqued()
 							.filter(name => get.numOf(names, name) == num)
@@ -852,7 +833,7 @@ const skills = {
 			player: "changeHpAfter",
 		},
 		filter(event, player) {
-			const evts = game.getGlobalHistory("changeHp", evt => evt.player == player && evt.num != 0);
+			const evts = game.getRoundHistory("changeHp", evt => evt.player == player && evt.num != 0);
 			if (evts.indexOf(event) !== 0) {
 				return false;
 			}
@@ -1884,7 +1865,7 @@ const skills = {
 	//族杨众 —— by 星の语
 	clanjuetu: {
 		audio: 2,
-		trigger: { player: "phaseDiscardBefore" },
+		trigger: { player: "phaseDiscardBegin" },
 		forced: true,
 		async content(event, trigger, player) {
 			trigger.setContent(lib.skill[event.name].phaseDiscard);
@@ -1941,16 +1922,22 @@ const skills = {
 					}
 					const target = result2.targets[0];
 					player.line(target);
-					const result3 = await target.chooseToDiscard("绝途：请弃置一张手牌", true, "h").forResult();
-					if (!result3?.cards?.length) {
-						event.finish();
-						return;
-					}
-					const card = result3.cards[0],
-						suit = get.suit(card, target);
-					if (!player.hasCard(cardx => get.suit(cardx, player) == suit, "h")) {
-						await target.damage();
-					}
+					//修复有些角色的牌不能在弃牌阶段弃置的bug
+					const next = game.createEvent("clanjuetu_discard", false);
+					next.player = player;
+					next.target = target;
+					next.setContent(async (event, trigger, player) => {
+						const result = await target.chooseToDiscard("绝途：请弃置一张手牌", true, "h").forResult();
+						if (!result?.cards?.length) {
+							event.finish();
+							return;
+						}
+						const suit = get.suit(result.cards[0], target);
+						if (!player.hasCard(cardx => get.suit(cardx, player) == suit, "h")) {
+							await target.damage();
+						}
+					});
+					await next;
 				}
 			},
 		],
@@ -3672,7 +3659,8 @@ const skills = {
 					})
 					.set("ai", button => {
 						return get.event().player.getUseValue(button.link);
-					}).forResult();
+					})
+					.forResult();
 				if (bool) {
 					const card = links[0];
 					player.$gain2(card, false);

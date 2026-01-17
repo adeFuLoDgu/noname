@@ -1470,9 +1470,9 @@ body > .background.land {
 	border-radius: 14px;
 }
 
-div:not(.handcards) > .card > .info,
+div:not(.handcards) > .card:not(.thrown) > .info,
 .handcards > .card:last-child > .info,
-div:not(.handcards) > .card > .name,
+div:not(.handcards) > .card:not(.thrown) > .name,
 .handcards > .card:last-child > .name {
 	transform: none !important;
 }
@@ -1485,7 +1485,7 @@ div:not(.handcards).menu-buttons > .button.card > .info {
 	transform: scale(0.9) !important;
 	transform-origin: top right;
 }
-div:not(.handcards) > .card > .info > span,
+div:not(.handcards) > .card:not(.thrown) > .info > span,
 .handcards > .card:last-child > .info > span {
 	display: inline !important;
 }

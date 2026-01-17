@@ -1526,19 +1526,22 @@ const skills = {
 		async cost(event, trigger, player) {
 			if (trigger.name == "useCard") {
 				const cards = trigger.cards.filterInD();
-				const { bool, targets } = await player.chooseTarget(get.prompt(event.name.slice(0, -5)), `令一名其他角色获得${get.translation(cards)}`, lib.filter.notMe).set("ai", target => {
-					let att = get.attitude(get.player(), target);
-					if (att < 3) {
-						return 0;
-					}
-					if (target.hasJudge("lebu")) {
-						att /= 2;
-					}
-					if (target.hasSkillTag("nogain")) {
-						att /= 10;
-					}
-					return att / (1 + get.distance(player, target, "absolute"));
-				}).forResult();
+				const { bool, targets } = await player
+					.chooseTarget(get.prompt(event.name.slice(0, -5)), `令一名其他角色获得${get.translation(cards)}`, lib.filter.notMe)
+					.set("ai", target => {
+						let att = get.attitude(get.player(), target);
+						if (att < 3) {
+							return 0;
+						}
+						if (target.hasJudge("lebu")) {
+							att /= 2;
+						}
+						if (target.hasSkillTag("nogain")) {
+							att /= 10;
+						}
+						return att / (1 + get.distance(player, target, "absolute"));
+					})
+					.forResult();
 				event.result = {
 					bool: bool,
 					targets: targets,
@@ -2182,7 +2185,18 @@ const skills = {
 		audio: 2,
 		locked: true,
 		clickableFilter(player) {
-			return player.isPhaseUsing();
+			//return player.isPhaseUsing();
+			return player.hasSkill("smyyingshi") && player.hasSkill("smyyingshi_viewTop");
+		},
+		init(player, skill) {
+			if (player.isPhaseUsing()) {
+				player.addTempSkill(`${skill}_viewTop`, { global: ["phaseChange", "phaseAfter", "phaseBeforeStart"] });
+			}
+		},
+		forced: true,
+		trigger: { player: "phaseUseBegin" },
+		async content(event, trigger, player) {
+			player.addTempSkill(`${event.name}_viewTop`, { global: ["phaseChange", "phaseAfter", "phaseBeforeStart"] });
 		},
 		clickable(player) {
 			if (player.isUnderControl(true)) {
@@ -2213,7 +2227,7 @@ const skills = {
 			const num = player.maxHp;
 			if (num > 0) {
 				if (game.online) {
-					return game.dataRequest("smyyingshi", "getTopCards", 10000);
+					return game.requestSkillData("smyyingshi", "getTopCards", 10000);
 				} else {
 					if (ui.cardPile.hasChildNodes !== false) {
 						return Array.from(ui.cardPile.childNodes).slice(0, num);
@@ -2246,6 +2260,11 @@ const skills = {
 					intronode.style.opacity = 0.5;
 				}
 				dialog.add(intronode);
+			},
+		},
+		subSkill: {
+			viewTop: {
+				charlotte: true,
 			},
 		},
 	},
@@ -2534,7 +2553,9 @@ const skills = {
 				.forResult();
 		},
 		async content(event, trigger, player) {
-			const { cards } = await player.respond(event.cards, event.name, "highlight", "noOrdering");
+			const next = player.respond(event.cards, event.name, "highlight", "noOrdering");
+			await next;
+			const { cards } = next;
 			if (cards?.length) {
 				if (trigger.player.judging[0].clone) {
 					trigger.player.judging[0].clone.classList.remove("thrownhighlight");

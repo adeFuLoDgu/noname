@@ -77,7 +77,7 @@ const skills = {
 				async content(event, trigger, player) {
 					const num = lib.skill.mbsizi.beginMarkCount;
 					player.addCharge(num);
-					await game.asyncDelayx();
+					await game.delayx();
 				},
 			},
 			extra: {
@@ -3110,7 +3110,7 @@ const skills = {
 		trigger: { global: "damageBegin4" },
 		usable: 1,
 		filter(event, player) {
-			return get.distance(event.player, player) <= 1 && player != event.player;
+			return get.distance(event.player, player) <= 1;// && player != event.player
 		},
 		popup: false,
 		logTarget: "player",

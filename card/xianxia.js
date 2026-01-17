@@ -10,6 +10,7 @@ game.import("card", function () {
 				type: "equip",
 				subtype: "equip1",
 				cardcolor: "spade",
+				loseDelay: false,
 				distance: {
 					attackRange(card, player) {
 						return player.storage.tiejili_skill || 2;
@@ -287,6 +288,7 @@ game.import("card", function () {
 				type: "equip",
 				subtype: "equip1",
 				bingzhu: ["刘备"],
+				loseDelay: false,
 				distance: { attackFrom: -1 },
 				ai: { basic: { equipValue: 2 } },
 				skills: ["ty_feilongduofeng_skill"],
@@ -331,6 +333,7 @@ game.import("card", function () {
 				nomod: true,
 				nopower: true,
 				skills: ["mengchong_skill"],
+				loseDelay: false,
 				onLose() {
 					delete player.storage.mengchong_skill;
 					player.unmarkSkill("mengchong_skill");

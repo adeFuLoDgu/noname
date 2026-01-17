@@ -1990,6 +1990,7 @@ const skills = {
 	},
 	//韩嵩
 	dcyinbi: {
+		audio: 2,
 		mod: {
 			targetInRange(card, player) {
 				if (!game.hasPlayer(current => current != player && current.countCards("h") == player.countCards("h"))) {

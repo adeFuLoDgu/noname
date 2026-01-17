@@ -28,7 +28,6 @@ export async function boot() {
 	// 现在不暴露到全局变量里了，直接传给onload
 	const resetGameTimeout = setTimeout(lib.init.reset, configLoadTime);
 
-	setServerIndex();
 	setBackground();
 
 	lib.get = get;
@@ -54,7 +53,7 @@ export async function boot() {
 		}
 	}
 
-	if (config.get("compatible")) {
+	if (config.get("compatible") ?? true) {
 		await import("./compatible.js");
 	}
 
@@ -619,9 +618,7 @@ export async function boot() {
 		});
 	}
 
-	if (window.isNonameServer) {
-		lib.cheat.i();
-	} else if (lib.config.dev && (!_status.connectMode || lib.config.debug)) {
+	if (lib.config.dev && (!_status.connectMode || lib.config.debug)) {
 		lib.cheat.i();
 	}
 	lib.config.sort_card = get.sortCard(lib.config.sort);
@@ -670,6 +667,7 @@ async function getExtensionList() {
 		}
 		return true;
 	})();
+	const searchParamsImportExtension = new URLSearchParams(location.search).get("importExtensionName");
 
 	window.resetExtension = () => {
 		for (let ext of config.get("extensions")) {
@@ -704,6 +702,13 @@ async function getExtensionList() {
 		});
 		await Promise.allSettled(promises);
 
+		await game.promises.saveConfig("extensions", extensions);
+	} else if (searchParamsImportExtension) {
+		extensions.push(searchParamsImportExtension);
+		toLoad.push(searchParamsImportExtension);
+		if (!config.has(`extension_${searchParamsImportExtension}_enable`)) {
+			await game.promises.saveConfig(`extension_${searchParamsImportExtension}_enable`, true);
+		}
 		await game.promises.saveConfig("extensions", extensions);
 	}
 
@@ -830,91 +835,60 @@ async function loadConfig() {
 	lib.configOL = {};
 	delete window.config;
 
-	let result;
-	if (localStorage.getItem(`${lib.configprefix}nodb`)) {
-		window.nodb = true;
+	if (!window.indexedDB) {
+		throw new Error("您的环境不支持indexedDB，无法保存配置");
 	}
-	if (window.indexedDB && !window.nodb) {
-		const event = await new Promise((resolve, reject) => {
-			const idbOpenDBRequest = window.indexedDB.open(`${lib.configprefix}data`, 4);
-			idbOpenDBRequest.onerror = reject;
-			idbOpenDBRequest.onsuccess = resolve;
-			idbOpenDBRequest.onupgradeneeded = idbVersionChangeEvent => {
-				// @ts-expect-error MaybeHave
-				const idbDatabase = idbVersionChangeEvent.target.result;
-				if (!idbDatabase.objectStoreNames.contains("video")) {
-					idbDatabase.createObjectStore("video", { keyPath: "time" });
-				}
-				if (!idbDatabase.objectStoreNames.contains("image")) {
-					idbDatabase.createObjectStore("image");
-				}
-				if (!idbDatabase.objectStoreNames.contains("audio")) {
-					idbDatabase.createObjectStore("audio");
-				}
-				if (!idbDatabase.objectStoreNames.contains("config")) {
-					idbDatabase.createObjectStore("config");
-				}
-				if (!idbDatabase.objectStoreNames.contains("data")) {
-					idbDatabase.createObjectStore("data");
-				}
-			};
-		});
-		lib.db = event.target.result;
 
-		const object = await game.getDB("config");
-
-		if (!object.storageImported) {
-			try {
-				const item = localStorage.getItem(`${lib.configprefix}config`);
-				if (!item) {
-					throw new Error();
-				}
-				result = JSON.parse(item);
-				if (!result || typeof result != "object") {
-					throw new Error();
-				}
-			} catch (err) {
-				result = {};
+	const event = await new Promise((resolve, reject) => {
+		const idbOpenDBRequest = window.indexedDB.open(`${lib.configprefix}data`, 4);
+		idbOpenDBRequest.onerror = reject;
+		idbOpenDBRequest.onsuccess = resolve;
+		idbOpenDBRequest.onupgradeneeded = idbVersionChangeEvent => {
+			// @ts-expect-error MaybeHave
+			const idbDatabase = idbVersionChangeEvent.target.result;
+			if (!idbDatabase.objectStoreNames.contains("video")) {
+				idbDatabase.createObjectStore("video", { keyPath: "time" });
 			}
-			Object.keys(result).forEach(key => game.saveConfig(key, result[key]));
-			Object.keys(lib.mode).forEach(key => {
-				try {
-					const item = localStorage.getItem(`${lib.configprefix}${key}`);
-					if (!item) {
-						throw new Error();
-					}
-					result = JSON.parse(item);
-					if (!result || typeof result != "object" || get.is.empty(result)) {
-						throw new Error();
-					}
-				} catch (err) {
-					result = false;
-				}
-				localStorage.removeItem(`${lib.configprefix}${key}`);
-				if (result) {
-					game.putDB("data", key, result);
-				}
-			});
-			game.saveConfig("storageImported", true);
-			lib.init.background();
-			localStorage.removeItem(`${lib.configprefix}config`);
-		} else {
-			result = object;
-		}
-	} else {
+			if (!idbDatabase.objectStoreNames.contains("image")) {
+				idbDatabase.createObjectStore("image");
+			}
+			if (!idbDatabase.objectStoreNames.contains("audio")) {
+				idbDatabase.createObjectStore("audio");
+			}
+			if (!idbDatabase.objectStoreNames.contains("config")) {
+				idbDatabase.createObjectStore("config");
+			}
+			if (!idbDatabase.objectStoreNames.contains("data")) {
+				idbDatabase.createObjectStore("data");
+			}
+		};
+	});
+	lib.db = event.target.result;
+
+	let result;
+	// 懒人包配置
+	const hasConfigTxt = (await game.promises.checkFile("noname.config.txt")) === 1;
+
+	if (hasConfigTxt) {
 		try {
-			const item = localStorage.getItem(lib.configprefix + "config");
-			if (!item) {
-				throw new Error();
+			const configStr = await game.promises.readFileAsText("noname.config.txt");
+
+			let data;
+			({ config: result = {}, data = {} } = JSON.parse(lib.init.decode(configStr)));
+			for (let i in result) {
+				game.saveConfig(i, result[i]);
 			}
-			result = JSON.parse(item);
-			if (!result || typeof result != "object") {
-				throw new Error();
+			for (let i in data) {
+				game.putDB("data", i, data[i]);
 			}
-		} catch (err) {
+		} catch (e) {
+			console.error(e);
 			result = {};
-			localStorage.setItem(lib.configprefix + "config", JSON.stringify({}));
 		}
+		lib.init.background();
+		await game.promises.removeFile("noname.config.txt").catch(e => console.error(e));
+	} else {
+		result = await game.getDB("config");
 	}
 
 	// 读取模式
@@ -952,7 +926,6 @@ async function loadConfig() {
 
 	config.set("duration", 500);
 
-	if (window.isNonameServer) config.set("mode", "connect");
 	if (!config.get("gameRecord")) config.set("gameRecord", {});
 
 	return result;
@@ -1005,24 +978,10 @@ function setBackground() {
 	}
 }
 
-function setServerIndex() {
-	const index = window.location.href.indexOf("index.html?server=");
-	if (index !== -1) {
-		window.isNonameServer = window.location.href.slice(index + 18);
-		window.nodb = true;
-	} else {
-		const savedIndex = localStorage.getItem(lib.configprefix + "asserver");
-		if (savedIndex) {
-			window.isNonameServer = savedIndex;
-			window.isNonameServerIp = lib.hallURL;
-		}
-	}
-}
-
 function setWindowListener() {
 	window.onkeydown = function (e) {
 		if (typeof ui.menuContainer == "undefined" || !ui.menuContainer.classList.contains("hidden")) {
-			if (e.code == "F5" || ((e.ctrlKey || e.metaKey) && e.code == "KeyR")) {
+			if (e.key === "F5" || ((e.ctrlKey || e.metaKey)  && e.key.toLowerCase() === "r")) {
 				if (e.shiftKey) {
 					if (confirm("是否重置游戏？")) {
 						var noname_inited = localStorage.getItem("noname_inited");
@@ -1043,14 +1002,14 @@ function setWindowListener() {
 				} else {
 					game.reload();
 				}
-			} else if (e.code == "KeyS" && (e.ctrlKey || e.metaKey)) {
+			} else if (e.key.toLowerCase() === "s" && (e.ctrlKey || e.metaKey)) {
 				if (typeof window.saveNonameInput == "function") {
 					window.saveNonameInput();
 				}
 				e.preventDefault();
 				e.stopPropagation();
 				return false;
-			} else if (e.code == "KeyJ" && (e.ctrlKey || e.metaKey) && typeof lib.node != "undefined") {
+			} else if (e.key.toLowerCase() === "j" && (e.ctrlKey || e.metaKey) && typeof lib.node != "undefined") {
 				lib.node.debug();
 			}
 		} else {
@@ -1060,24 +1019,24 @@ function setWindowListener() {
 				// @ts-expect-error ignore
 				dialogs[i].delete();
 			}
-			if (e.code == "Space") {
+			if (e.key == "Space") {
 				var node = ui.window.querySelector("pausedbg");
 				if (node) {
 					node.click();
 				} else {
 					ui.click.pause();
 				}
-			} else if (e.code == "KeyA") {
+			} else if (e.key.toLowerCase() === "a") {
 				if (typeof ui.auto != "undefined") {
 					ui.auto.click();
 				}
-			} else if (e.code == "KeyW") {
+			} else if (e.key.toLowerCase() === "w") {
 				if (typeof ui.wuxie != "undefined" && ui.wuxie.style.display != "none") {
 					ui.wuxie.classList.toggle("glow");
 				} else if (typeof ui.tempnowuxie != "undefined") {
 					ui.tempnowuxie.classList.toggle("glow");
 				}
-			} else if (e.code == "F5" || ((e.ctrlKey || e.metaKey) && e.code == "KeyR")) {
+			} else if (e.key === "F5" || ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "r")) {
 				if (e.shiftKey) {
 					if (confirm("是否重置游戏？")) {
 						var noname_inited = localStorage.getItem("noname_inited");
@@ -1098,19 +1057,19 @@ function setWindowListener() {
 				} else {
 					game.reload();
 				}
-			} else if (e.code == "KeyS" && (e.ctrlKey || e.metaKey)) {
+			} else if (e.key.toLowerCase() === "s" && (e.ctrlKey || e.metaKey)) {
 				e.preventDefault();
 				e.stopPropagation();
 				return false;
-			} else if (e.code == "KeyJ" && (e.ctrlKey || e.metaKey) && typeof lib.node != "undefined") {
+			} else if (e.key.toLowerCase() === "j" && (e.ctrlKey || e.metaKey) && typeof lib.node != "undefined") {
 				lib.node.debug();
 			}
-			// else if(e.code=="Escape"){
+			// else if(e.key=="Escape"){
 			// 	if(!ui.arena.classList.contains('paused')) ui.click.config();
 			// }
 		}
 	};
-	
+
 	window.onbeforeunload = function (e) {
 		if (config.get("confirm_exit") && !_status.reloading) {
 			e.preventDefault();

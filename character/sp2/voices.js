@@ -1,4 +1,9 @@
 export default {
+	"#dcyinbi1": "凤不栖枯木，君子不居危墙。",
+	"#dcyinbi2": "君不见，多少江鲫作了俎上脍。",
+	"#dcshuaiyan1": "将军拥众十万，安能坐观豪杰并争？",
+	"#dcshuaiyan2": "我为将军计，不若举州以附曹公。",
+	"#hansong:die": "刘景升外宽内忌，非明主。",
 	"#starjizhan1": "为将者，不可失其勇！",
 	"#starjizhan2": "阵前休得啰嗦，哪个敢来领死？",
 	"#starcuxia1": "本将纵横幽冀，不知何为敌手！",

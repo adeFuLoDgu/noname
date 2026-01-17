@@ -881,9 +881,7 @@ const skills = {
 		trigger: { global: "judge" },
 		async cost(event, trigger, player) {
 			let cardsx = get.cards(1, true).map(card => {
-				var cardx = ui.create.card();
-				cardx.init(get.cardInfo(card));
-				cardx._cardid = card.cardid;
+				const cardx = game.createFakeCards(card)[0];
 				cardx.preCard = card;
 				return cardx;
 			});
@@ -937,24 +935,9 @@ const skills = {
 							return card;
 						});
 					}
-					if (player.isOnline2()) {
-						player.send(
-							function (cards, player) {
-								cards.forEach(i => i.delete());
-								if (player == game.me) {
-									ui.updatehl();
-								}
-							},
-							cardsx,
-							player
-						);
-					}
-					cardsx.forEach(i => i.delete());
-					if (player == game.me) {
-						ui.updatehl();
-					}
 				}
 			}
+			game.deleteFakeCards(cardsx);
 			event.result = {
 				bool: result?.bool,
 				cards: cards,
@@ -963,7 +946,9 @@ const skills = {
 		},
 		popup: false,
 		async content(event, trigger, player) {
-			const { cards } = await player.respond(event.cards, event.name, "highlight", "noOrdering");
+			const next = player.respond(event.cards, event.name, "highlight", "noOrdering");
+			await next;
+			const { cards } = next;
 			if (!cards?.length) {
 				return;
 			}
@@ -9257,7 +9242,8 @@ const skills = {
 						}
 					}
 				});
-			const { cards } = await discard;
+			await discard;
+			const { cards } = discard;
 			event.num += cards.length;
 			if (event.num > 0) {
 				await player.draw(event.num);

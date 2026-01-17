@@ -1,4 +1,11 @@
 export default {
+	"#dccangming1": "沧溟起幕，万类归流，百川当濯我足！",
+	"#dccangming2": "乾坤浩荡，我主沉浮！",
+	"#dcchouxi1": "此间云雨，皆出我袖！",
+	"#dcchouxi2": "江表涛声，尽言吴音龙语。",
+	"#dcjichao1": "逆我者，沧浪覆之！",
+	"#dcjichao2": "鱼龙百变，挟沧海以令众生！",
+	"#dc_shen_sunquan:die": "潮浪昊天暮，孤帆终入溟。",
 	"#dcduzhang1": "黑水绕白雪，规日月之行次，自始绝地天通！",
 	"#dcduzhang2": "枷锁白驹，百代王侯，皆若蜉蝣！",
 	"#dcjianghuo1": "复仇、清算，即将开始。",

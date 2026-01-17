@@ -204,6 +204,7 @@ const skills = {
 		limited: true,
 		skillAnimation: true,
 		animationColor: "metal",
+		derivation: ["mbhuitian"],
 		trigger: {
 			player: "dying",
 		},
@@ -1421,7 +1422,8 @@ const skills = {
 				},
 				forced: true,
 				async content(event, trigger, player) {
-					await player.gain(player.getExpansions("dccangming"), "giveAuto");
+					game.log(player, "获得了", get.cnNumber(player.countExpansions("dccangming")), "张牌");
+					await player.gain(player.getExpansions("dccangming"), "draw");
 				},
 			},
 		},
@@ -1555,6 +1557,7 @@ const skills = {
 			},
 			backup(links, player) {
 				return {
+					audio: "dcjichao",
 					choice: links[0],
 					manualConfirm: true,
 					filterTarget(card, player, target) {
@@ -1859,6 +1862,7 @@ const skills = {
 		filter(event, player) {
 			return event.zc26_huaxiu?.length;
 		},
+		manualConfirm: true,
 		async content(event, trigger, player) {
 			const list = event.getParent(2).zc26_huaxiu.map(name => [get.type(name), "", name]);
 			const result = await player
@@ -6617,7 +6621,7 @@ const skills = {
 									await player.draw(3);
 									break;
 								case "猿": {
-									const targets = await player
+									const targets = (await player
 										.chooseTarget("五禽戏：获得一名其他角色装备区里的一张装备牌", function (card, player, target) {
 											return target != player && target.countGainableCards(player, "e");
 										})
@@ -6631,7 +6635,7 @@ const skills = {
 											});
 											return eff;
 										})
-										.forResultTargets();
+										.forResult()).targets;
 									player.line(targets, "green");
 									await player.gainPlayerCard(targets[0], "e", true);
 									break;

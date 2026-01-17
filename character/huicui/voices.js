@@ -1,4 +1,9 @@
 export default {
+	"#dczhangguan1": "大将军战于前，我等何患之有？",
+	"#dczhangguan2": "立国四十年，江油无战事！",
+	"#dccongfeng1": "生义孰轻孰重，马某还拎的清！",
+	"#dccongfeng2": "是他刘禅无德，非我等无义！",
+	"#mamiao:die": "娘子？娘子！娘子呀~",
 	"#dczouyi1": "今夜月黑风高，正乃除贼良时！",
 	"#dczouyi2": "效日磾讨莽何罗，使汉祚不移！",
 	"#dcyanxi1": "我等趁夜掩杀，曹贼必无可逃！",

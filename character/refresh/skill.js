@@ -540,7 +540,7 @@ const skills = {
 						next.setContent(lib.skill.huituo.content);
 						next.player = master;
 						next.forced = true;
-						next._trigger = map.trigger;
+						next._trigger = trigger;
 						await next;
 					}
 				},
@@ -13515,7 +13515,9 @@ const skills = {
 		},
 		popup: false,
 		async content(event, trigger, player) {
-			const { cards } = await player.respond(event.cards, event.name, "highlight", "noOrdering");
+			const next = player.respond(event.cards, event.name, "highlight", "noOrdering");
+			await next;
+			const { cards } = next;
 			if (cards?.length) {
 				player.$gain2(trigger.player.judging[0]);
 				await player.gain(trigger.player.judging[0]);
@@ -15638,7 +15640,9 @@ const skills = {
 		preHidden: true,
 		popup: false,
 		async content(event, trigger, player) {
-			const { cards } = await player.respond(event.cards, event.name, "highlight", "noOrdering");
+			const next = player.respond(event.cards, event.name, "highlight", "noOrdering");
+			await next;
+			const { cards } = next;
 			if (cards?.length) {
 				if (trigger.player.judging[0].clone) {
 					trigger.player.judging[0].clone.classList.remove("thrownhighlight");

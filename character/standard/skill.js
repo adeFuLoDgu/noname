@@ -406,7 +406,9 @@ const skills = {
 		//技能的logSkill跟着打出牌走 不进行logSkill
 		popup: false,
 		async content(event, trigger, player) {
-			const { cards } = await player.respond(event.cards, event.name, "highlight", "noOrdering");
+			const next = player.respond(event.cards, event.name, "highlight", "noOrdering");
+			await next;
+			const { cards } = next;
 			if (cards?.length) {
 				if (trigger.player.judging[0].clone) {
 					trigger.player.judging[0].clone.classList.remove("thrownhighlight");
@@ -1955,7 +1957,7 @@ const skills = {
 				return Math.max(num, [6.5, 4, 3, 2][Math.min(geti(), 2)]);
 			},
 			aiUseful() {
-				return lib.skill.kanpo.mod.aiValue.apply(this, arguments);
+				return lib.skill.jijiu.mod.aiValue.apply(this, arguments);
 			},
 		},
 		locked: false,
