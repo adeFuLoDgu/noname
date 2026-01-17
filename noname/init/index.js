@@ -867,7 +867,7 @@ async function loadConfig() {
 
 	let result;
 	// 懒人包配置
-	const hasConfigTxt = (await game.promises.checkFile("noname.config.txt")) === 1;
+	const hasConfigTxt = location.href.indexOf("//localhost") == -1 ? false : (await game.promises.checkFile("noname.config.txt")) === 1;
 
 	if (hasConfigTxt) {
 		try {
