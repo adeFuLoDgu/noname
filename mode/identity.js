@@ -180,6 +180,9 @@ export default () => {
 						Click_Left_Menu("更新");
 						await new Promise(resolve => ui.controls[0].replace("在其它-更新中，可以检查更新和下载素材", resolve));
 					}
+					ui.click.menuTab("其它");
+					Click_Left_Menu("帮助");
+					await new Promise(resolve => ui.controls[0].replace("在其它-帮助中，获取游戏相关说明及帮助", resolve));
 					ui.click.configMenu();
 					ui.window.classList.remove("noclick_important");
 					ui.control.classList.remove("noclick_click_important");
