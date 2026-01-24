@@ -1921,10 +1921,10 @@ export class Player extends HTMLDivElement {
 					card.classList.remove("drawinghidden");
 					card.classList.add("feichu");
 					delete card._transform;
-					const equipNum = get.sort_equipNum(get.equipNum(card));
+					const equipNum = get.equipNum(card);
 					let equipped = false;
 					for (let j = 0; j < this.node.equips.childNodes.length; j++) {
-						if (get.sort_equipNum(get.equipNum(this.node.equips.childNodes[j])) >= equipNum) {
+						if (get.sort_equipNum(get.equipNum(this.node.equips.childNodes[j])) >= get.sort_equipNum(equipNum)) {
 							this.node.equips.insertBefore(card, this.node.equips.childNodes[j]);
 							equipped = true;
 							break;
@@ -14091,10 +14091,10 @@ export class Player extends HTMLDivElement {
 				card.classList.add("emptyequip");
 				card.classList.add("hidden");
 				delete card._transform;
-				const equipNum = get.sort_equipNum(get.equipNum(card));
+				const equipNum = get.equipNum(card);
 				let equipped = false;
 				for (let j = 0; j < player.node.equips.childNodes.length; j++) {
-					if (get.sort_equipNum(get.equipNum(player.node.equips.childNodes[j])) >= equipNum) {
+					if (get.sort_equipNum(get.equipNum(player.node.equips.childNodes[j])) >= get.sort_equipNum(equipNum)) {
 						player.node.equips.insertBefore(card, player.node.equips.childNodes[j]);
 						equipped = true;
 						break;
@@ -14130,7 +14130,7 @@ export class Player extends HTMLDivElement {
 						equipped = true;
 						break;
 					}
-					if (get.equipNum(node) >= equipNum) {
+					if (get.sort_equipNum(get.equipNum(node)) >= get.sort_equipNum(equipNum)) {
 						player.node.equips.insertBefore(card, node);
 						equipped = true;
 						break;
@@ -14388,10 +14388,10 @@ export class Player extends HTMLDivElement {
 					cardx.classList.remove("fakeequip");
 				}
 				let equipped = false,
-					equipNum = get.sort_equipNum(get.equipNum(cardx));
+					equipNum = get.equipNum(cardx);
 				if (player.node.equips.childNodes.length) {
 					for (let i = 0; i < player.node.equips.childNodes.length; i++) {
-						if (get.sort_equipNum(get.equipNum(player.node.equips.childNodes[i])) >= equipNum) {
+						if (get.sort_equipNum(get.equipNum(player.node.equips.childNodes[i])) >= get.sort_equipNum(equipNum)) {
 							equipped = true;
 							player.node.equips.insertBefore(cardx, player.node.equips.childNodes[i]);
 							break;
@@ -14426,10 +14426,10 @@ export class Player extends HTMLDivElement {
 		card.classList.remove("drawinghidden");
 		delete card._transform;
 		var player = this;
-		var equipNum = get.sort_equipNum(get.equipNum(card));
+		var equipNum = get.equipNum(card);
 		var equipped = false;
 		for (var i = 0; i < player.node.equips.childNodes.length; i++) {
-			if (get.sort_equipNum(get.equipNum(player.node.equips.childNodes[i])) >= equipNum) {
+			if (get.sort_equipNum(get.equipNum(player.node.equips.childNodes[i])) >= get.sort_equipNum(equipNum)) {
 				player.node.equips.insertBefore(card, player.node.equips.childNodes[i]);
 				equipped = true;
 				break;
