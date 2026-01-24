@@ -2,6 +2,135 @@ import { lib, game, ui, get, ai, _status } from "noname";
 
 /** @type { importCharacterConfig['skill'] } */
 const skills = {
+	//哈基术
+	mbjimi: {
+		audio: 4,
+		forced: true,
+		trigger: {
+			global: "phaseBefore",
+			player: "enterGame",
+		},
+		filter(event, player) {
+			return event.name != "phase" || game.phaseNumber == 0;
+		},
+		logTarget: () => game.players,
+		async content(event, trigger, player) {
+			const { targets } = event;
+			const map = new Map();
+			targets.forEach(target =>
+				map.set(
+					target,
+					target.getCards("h", card => !["tao", "jiu"].includes(get.name(card)))
+				)
+			);
+			await game.loseAsync({ lose_list: Array.from(map.entries()) }).setContent("chooseToCompareLose");
+			await game.doAsyncInOrder(
+				targets.sortBySeat(game.findPlayer(i => i.getSeatNum() == 1)),
+				async target => {
+					const cards = [];
+					const list = [[], []];
+					const hs = map.get(target);
+					while (cards.length < hs.length) {
+						const card = get.cardPile(card => ["tao", "jiu"].includes(get.name(card)) && !cards.includes(card));
+						if (card) {
+							cards.push(card);
+							if (get.position(card) == "c") {
+								list[0].push(hs[list[0].length]);
+								list[1].push(card);
+							}
+						} else {
+							break;
+						}
+					}
+					if (list[0].length) {
+						await game.cardsGotoPile(list[0], (event, card) => event.list[1][event.list[0].indexOf(card)]).set("list", list);
+					}
+					if (cards.length) {
+						return target.gain(cards, "draw");
+					}
+				},
+				() => false
+			);
+		},
+		group: "mbjimi_gain",
+		subSkill: {
+			gain: {
+				forced: true,
+				trigger: {
+					global: ["loseAfter", "loseAsyncAfter", "cardsDiscardAfter", "equipAfter"],
+				},
+				filter(event, player) {
+					if (event.name == "cardsDiscard") {
+						const evt = event.getParent();
+						if ((evt.relatedEvent || evt.getParent()).name == "useCard") {
+							return false;
+						}
+					}
+					return event.getd?.().some(card => ["tao", "jiu"].includes(get.name(card)));
+				},
+				async content(event, trigger, player) {
+					const num = get.discarded().filter(card => ["tao", "jiu"].includes(get.name(card))).length;
+					const card = get.cardPile(card => get.tag(card, "damage") && get.cardNameLength(card) == num);
+					if (card) {
+						await player.gain(card, "gain2");
+					} else {
+						player.chat("哈基米哦南北路多");
+					}
+				},
+			},
+		},
+	},
+	mbmaodie: {
+		audio: 4,
+		forced: true,
+		trigger: { player: "useCardAfter" },
+		async content(event, trigger, player) {
+			if (player.hasHistory("sourceDamage", evt => evt.card == trigger.card)) {
+				player.addTempSkill(`${event.name}_limit`);
+				player.setStorage(`${event.name}_limit`, get.number(trigger.card), true);
+			} else {
+				if (trigger.targets?.length) {
+					const card = trigger.targets.flatMap(target => target._start_cards.filter(card => "cdhej".includes(get.position(card)) && get.owner(card) !== player)).randomGet();
+					if (card) {
+						let animate = ["gain2"];
+						if (get.owner(card)) {
+							animate = [get.owner(card), "giveAuto"];
+						}
+						await player.gain(card, ...animate);
+						return;
+					}
+				}
+				player.chat("啊西噶呀酷奶龙");
+			}
+		},
+		subSkill: {
+			limit: {
+				charlotte: true,
+				onremove: true,
+				silent: true,
+				trigger: { player: "useCard1" },
+				filter(event, player) {
+					return get.tag(event.card, "damage");
+				},
+				async content(event, trigger, player) {
+					player.removeSkill(event.name);
+				},
+				mod: {
+					cardEnabled(card, player) {
+						const storage = player.storage.mbmaodie_limit;
+						if (!storage || typeof storage != "number" || !get.tag(card, "damage")) {
+							return;
+						}
+						return get.number(card) > storage;
+					},
+				},
+				intro: {
+					markcount: storage => storage,
+					content: "下一次使用的伤害牌点数需大于#",
+				},
+			},
+		},
+	},
 	//魔白马
 	dmchongqi: {
 		audio: 2,
@@ -351,8 +480,8 @@ const skills = {
 					}
 					lib.skill[i] = mode.skill[i];
 				}
-				game.finishCard(Object.keys(mode.card));
-				Object.keys(mode.skill).forEach(value => game.finishSkill(value));
+				Object.keys(mode.card).forEach(i => game.finishCard(i));
+				Object.keys(mode.skill).forEach(i => game.finishSkill(i));
 
 				const list = [];
 				for (let pack in lib.cardPack) {
@@ -5545,7 +5674,10 @@ const skills = {
 					player.addMark("dcshuangbi_effect", num, false);
 					break;
 				case 1:
-					var result2 = await player.chooseToDiscard("双壁：弃置至多" + get.cnNumber(num) + "张牌，随机对其他角色造成等量火焰伤害", [1, num], "he").set("ai", card => 1 / (get.value(card) || 0.5)).forResult();
+					var result2 = await player
+						.chooseToDiscard("双壁：弃置至多" + get.cnNumber(num) + "张牌，随机对其他角色造成等量火焰伤害", [1, num], "he")
+						.set("ai", card => 1 / (get.value(card) || 0.5))
+						.forResult();
 					if (result2.bool) {
 						var map = {},
 							sum = result2.cards.length;
@@ -5571,7 +5703,10 @@ const skills = {
 						if (game.hasPlayer(target => player.canUse({ name: "huogong" }, target))) {
 							list.push(["锦囊", "", "huogong"]);
 						}
-						var result2 = await player.chooseButton(["双壁：请选择你要使用的牌", [list, "vcard"]], true).set("ai", button => (button.link[2] == "sha" ? 1 : 0)).forResult();
+						var result2 = await player
+							.chooseButton(["双壁：请选择你要使用的牌", [list, "vcard"]], true)
+							.set("ai", button => (button.link[2] == "sha" ? 1 : 0))
+							.forResult();
 						if (result2.bool) {
 							var card = {
 								name: result2.links[0][2],
@@ -5731,9 +5866,12 @@ const skills = {
 				return !player.hasStorage("dcfaqi", name) && player.hasUseTarget({ name: name, isCard: true });
 			});
 			if (list.length) {
-				var result = await player.chooseButton(["法器：视为使用一张普通锦囊牌", [list, "vcard"]], true).set("ai", button => {
-					return get.player().getUseValue({ name: button.link[2] });
-				}).forResult();
+				var result = await player
+					.chooseButton(["法器：视为使用一张普通锦囊牌", [list, "vcard"]], true)
+					.set("ai", button => {
+						return get.player().getUseValue({ name: button.link[2] });
+					})
+					.forResult();
 				if (result.bool) {
 					var name = result.links[0][2];
 					if (!player.storage.dcfaqi) {

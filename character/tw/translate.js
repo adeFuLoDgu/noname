@@ -914,6 +914,12 @@ const translates = {
 	tw_jsrg_liubei_prefix: "TW|起",
 	twjishan: "积善",
 	twjishan_info: "每回合每项各限一次。①当一名角色受到伤害时，你可以失去2点体力并防止此伤害，然后你与其各摸一张牌。②当你造成伤害后，你可以令一名体力值最小且你对其发动过〖积善①〗的角色回复1点体力。",
+	tw_jsrg_wangyun: "TW起王允",
+	tw_jsrg_wangyun_prefix: "TW|起",
+	twshelun: "赦论",
+	twshelun_info: "出牌阶段限一次，若你有手牌，你可以选择至多两名你攻击范围内的其他角色，然后令除其外所有手牌数不大于你的角色议事。若结果为：红色，你弃置其各两张牌；黑色，你对其各造成1点伤害。",
+	twfayi: "伐异",
+	twfayi_info: "当你参与议事结束后，你可以对两名意见与你不同的角色造成1点伤害。",
 };
 
 export default translates;

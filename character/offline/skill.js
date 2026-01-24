@@ -15311,6 +15311,7 @@ const skills = {
 					const count = game.countPlayer(current => current != player && current.hasSkill("psxiaolu"));
 					return count > 1 ? 1 : -1;
 				},
+				chessForceAll: true,
 				check(card) {
 					const player = get.player();
 					const hasFriend = game.hasPlayer(current => {
@@ -22161,6 +22162,7 @@ const skills = {
 					}
 					return -1;
 				},
+				chessForceAll: true,
 				check(card) {
 					let player = get.player();
 					if (get.damageEffect(player, player, player) > 0) {

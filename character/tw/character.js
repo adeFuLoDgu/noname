@@ -1,4 +1,12 @@
 const characters = {
+	tw_jsrg_wangyun: {
+		sex: "male",
+		group: "qun",
+		hp: 3,
+		skills: ["twshelun", "twfayi"],
+		img: "image/character/jsrg_wangyun.jpg",
+		dieAudios: ["jsrg_wangyun"],
+	},
 	tw_jsrg_liubei: {
 		sex: "male",
 		group: "qun",

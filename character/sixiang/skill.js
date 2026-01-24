@@ -22,7 +22,7 @@ const skills = {
 					add: {},
 					replace: { window() {} },
 				})
-				.backup(`${event.skill}_backup`)
+				.backup(`${event.name}_backup`)
 				.set("targetRequired", true)
 				.set("complexTarget", true)
 				.set("complexSelect", true)
@@ -4621,6 +4621,7 @@ const skills = {
 				filterCard(card) {
 					return get.type(card) == "basic";
 				},
+				chessForceAll: true,
 				position: "he",
 				check(card) {
 					return 4 - get.value(card);

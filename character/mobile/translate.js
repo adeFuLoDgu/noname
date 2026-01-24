@@ -1112,9 +1112,9 @@ const translates = {
 	hefei_yuejin: "手杀合乐进",
 	hefei_yuejin_prefix: "手杀合",
 	hefeichonglei: "冲垒",
-	hefeichonglei_info: "锁定技，你的出牌阶段内：①你响应其他角色使用的牌后，或你使用的牌被其他角色响应后，获得其一张牌。②其他角色不处于濒死状态时，所有非【杀】手牌只能当作【闪】使用或打出。",
+	hefeichonglei_info: "锁定技，你的出牌阶段内：①每回合限一次，你响应其他角色使用的牌后，或你使用的牌被其他角色响应后，获得其一张牌。②其他角色不处于濒死状态时，所有非【杀】手牌只能当作【闪】使用或打出。",
 	hefeidangshi: "荡势",
-	hefeidangshi_info: "你使用伤害牌结算结束后，可选择一名此牌目标，令其选择一项执行：1.对你使用一张同名牌；2.弃置X张牌（X为其选择此项的次数+1）；3.受到1点伤害。若为本阶段首次执行此项，你摸一张牌且本阶段出杀次数+1。",
+	hefeidangshi_info: "你使用伤害牌结算结束后，可选择一名此牌目标，令其选择一项执行：1.对你使用一张同名牌；2.弃置X张牌（X为其选择此项的次数+1）；3.受到1点伤害。若为本阶段首次执行此项，你摸一张牌。",//且本阶段出杀次数+1
 	hefeiheyuzhangliao: "合御",
 	hefeiheyuzhangliao_info: `锁定技，①若${get.poptip({
 		id: "characterx_hefei_lidian",

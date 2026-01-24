@@ -594,10 +594,7 @@ const skills = {
 					return cards.filterInD("d");
 				},
 				filter(event, player, name) {
-					let key = "damage";
-					if (name == "damageSource") {
-						return (key = "sourceDamage");
-					}
+					const key = name == "damageSource" ? "sourceDamage" : "damage";
 					return player.getHistory(key, evt => evt.num > 0).indexOf(event) == 0 && get.info("dcsblingshu_gain").getCards(player).length > 0;
 				},
 				async cost(event, trigger, player) {
@@ -1188,7 +1185,9 @@ const skills = {
 				},
 				locked: false,
 				async content(event, trigger, player) {
-					trigger.targets.addArray(event.targets);
+					const { targets } = event;
+					game.log(targets, "成为", trigger.card, "的额外目标");
+					trigger.targets.addArray(targets);
 				},
 				mod: {
 					inRange(from, to) {
@@ -1228,15 +1227,12 @@ const skills = {
 				return false;
 			}
 			if (event.name == "useCard") {
-				if (!player.countDiscardableCards(player, "he")) {
-					return false;
-				}
 				return target.getHistory("useCard", evt => evt.card.name == "sha" || get.type(evt.card) == "trick").indexOf(event) == 0;
 			}
 			if (event.targets?.length != 1) {
 				return false;
 			}
-			const evts = game.getGlobalHistory("useCard", evt => (evt.card.name == "sha" || get.type(evt.card) == "trick") && evt.targets?.includes(target) && evt.player != target);
+			const evts = game.getGlobalHistory("useCard", evt => (evt.card.name == "sha" || get.type(evt.card) == "trick") && evt.targets?.includes(target) && evt.player != player);
 			return evts.indexOf(event.getParent()) == 0;
 		},
 		logTarget(event, player) {
@@ -1259,11 +1255,12 @@ const skills = {
 			await player.draw();
 			if (trigger.name == "useCard") {
 				const card = get.autoViewAs({ name: trigger.card.name, nature: trigger.card.nature, isCard: true });
-				if (player.hasUseTarget(card)) {
+				if (player.hasUseTarget(card) || (get.info(card).notarget && lib.filter.cardEnabled(card, player))) {
 					await player.chooseUseTarget(card, false, true);
 				}
 				return;
 			}
+			game.log(trigger.card, "被无效了");
 			const evt = trigger.getParent();
 			evt.all_excluded = true;
 		},
@@ -4675,7 +4672,7 @@ const skills = {
 						return att;
 					})
 					.forResult();
-				if (result?.bool && result?.targets) {
+				if (result?.bool && result?.targets?.length) {
 					target = result.targets[0];
 				}
 			}
@@ -8489,16 +8486,17 @@ const skills = {
 			backup(result, player) {
 				return {
 					audio: "dcjiesi",
+					len: result.control,
 					async content(event, trigger, player) {
-						const len = result.control;
+						const len = get.info(event.name).len;
 						const card = get.cardPile(cardx => get.cardNameLength(cardx) == len);
 						if (!card) {
-							player.chat(`一张${num}字牌都没有？！`);
+							player.chat(`一张${len}字牌都没有？！`);
 							return;
 						}
 						await player.gain(card, "gain2");
 						const skill = "dcjiesi_used";
-						player.addTempSkill(skill, "phaseUseAfter");
+						player.addTempSkill(skill, { player: ["phaseUseAfter", "phaseChange"] });
 						const bool = !player.getStorage(skill).some(cardx => cardx.name == card.name);
 						player.markAuto(skill, card);
 						if (bool) {
@@ -11318,7 +11316,7 @@ const skills = {
 			return lib.filter.filterTarget(card, player, target);
 		},
 		async precontent(event, trigger, player) {
-			const result = event.forResult();
+			const { result } = event;
 			event.getParent().addCount = false;
 			player.addTempSkill("twodcspshichou_used");
 			const storage = player.getStorage("twodcspshichou_used");
@@ -16276,6 +16274,7 @@ const skills = {
 					});
 				},
 				filterCard: true,
+				chessForceAll: true,
 				filterTarget(card, player, target) {
 					return target.hasSkill("dcwuyou");
 				},
@@ -19412,7 +19411,7 @@ const skills = {
 						if (cardsToDiscard.length === 1) {
 							await target.loseToDiscardpile(cardsToDiscard);
 						} else if (cardsToDiscard.length > 1) {
-							const result = await source.chooseButton([`请选择移去${get.translation(source)}的一张“硝引”牌`, cardsToDiscard], true).forResult();
+							const result = await source.chooseButton([`请选择移去${get.translation(target)}的一张“硝引”牌`, cardsToDiscard], true).forResult();
 							await target.loseToDiscardpile(result.links);
 						}
 						trigger.num++;
@@ -19422,7 +19421,7 @@ const skills = {
 						if (cards.length === 1) {
 							await source.gain(cards, target, "give");
 						} else if (cards.length > 1) {
-							const result = await source.chooseButton([`请选择获得${get.translation(source)}的一张“硝引”牌`, cards], true).forResult();
+							const result = await source.chooseButton([`请选择获得${get.translation(target)}的一张“硝引”牌`, cards], true).forResult();
 							await source.gain(result.links, target, "give");
 						}
 						game.setNature(trigger, "fire");

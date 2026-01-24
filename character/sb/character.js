@@ -1,4 +1,10 @@
 const characters = {
+	sb_zhuran: {
+		sex: "male",
+		group: "wu",
+		hp: 4,
+		skills: ["sbzhenwei", "sbheyuan"],
+	},
 	sb_lvbu: {
 		sex: "male",
 		group: "qun",
@@ -108,7 +114,7 @@ const characters = {
 		sex: "male",
 		group: "wei",
 		hp: 4,
-		skills: ["sbqiaobian"],
+		skills: ["sbqiaobian", "sbliaoshi"],
 	},
 	sb_yujin: {
 		sex: "male",

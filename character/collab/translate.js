@@ -370,6 +370,12 @@ const translates = {
 	dmchongqi_info: `每回合限一次，你使用【杀】指定目标后，可以弃置目标角色一张牌。${get.poptip("rule_youji")}：此【杀】伤害+1。`,
 	dmfanquan: "反拳",
 	dmfanquan_info: `你受到伤害后，可以选择一名其他角色，令其受到1点伤害。${get.poptip("rule_boji")}：其受到X点伤害，本回合你计算与其他角色距离+1（X为你受到的伤害值）。`,
+	jm_yuanshu: "集蜜袁术",
+	jm_yuanshu_prefix: "集蜜",
+	mbjimi: "集蜜",
+	mbjimi_info: "锁定技，游戏开始时，所有角色将所有手牌替换为等量张【桃】或【酒】。当有【桃】或【酒】不因使用进入弃牌堆后，你获得一张字数为X的伤害牌(X为本回合【桃】、【酒】进入弃牌堆的张数)。",
+	mbmaodie: "冒迭",
+	mbmaodie_info: "锁定技，你使用牌后，若造成伤害，你本回合下一次使用的伤害牌需大于此牌字数，若未造成伤害，你获得一张目标角色的初始手牌。",
 };
 
 export default translates;

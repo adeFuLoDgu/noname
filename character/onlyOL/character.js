@@ -52,7 +52,6 @@ const characters = {
 		group: "qun",
 		hp: 4,
 		skills: ["olfendi", "oljuxiang"],
-		img: "image/character/jsrg_zhujun.jpg",
 	},
 	ol_jsrg_sunjian: {
 		sex: "male",
