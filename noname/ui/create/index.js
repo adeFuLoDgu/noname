@@ -2889,9 +2889,9 @@ export class Create {
 		lib.arenaReady?.push(function () {
 			if (lib.config.show_deckMonitor) {
 				ui.deckMonitor.style.display = "";
-				if (_status.connectMode && !lib.config.show_deckMonitor_online) {
+				/*if (_status.connectMode && !lib.config.show_deckMonitor_online) {
 					ui.deckMonitor.style.display = "none";
-				}
+				}*/
 			} else {
 				ui.deckMonitor.style.display = "none";
 			}

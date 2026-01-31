@@ -1617,7 +1617,7 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 						}
 						set group(group) {
 							this._decadeGroup = group;
-							this.node.campWrap.dataset.camp = get.bordergroup(this.name, true) || group;
+							this.node.campWrap.dataset.camp = get.character(this.name)?.groupBorder || group;
 							if (!group) return;
 							if (!decadeUI.config.campIdentityImageMode) {
 								this.node.campWrap.node.campName.innerHTML = group ? get.translation(group)[0] : '';

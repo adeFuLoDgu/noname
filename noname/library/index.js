@@ -3684,7 +3684,7 @@ export class Library {
 				animation_choose_to_move: {
 					name: "移动卡牌动画",
 					intro: "开启后将启用chooseToMove（观星类）的动画",
-					init: true,
+					init: false,
 					unfrequent: false,
 				},
 				skill_animation_type: {
