@@ -832,14 +832,14 @@ export class GameEvent implements PromiseLike<void> {
 					const card = get.card(),
 						player = get.player();
 					const filter = evt._backup.filterCard;
-					if (typeof info.viewAs !== "function" && filter && !filter(card, player, evt)) {
-						return false;
-					}
-					if (evt._backup.filterOk && !evt._backup.filterOk()) {
+					if (info.viewAs && filter && !filter(card, player, evt)) {//typeof info.viewAs !== "function" && 
 						return false;
 					}
 					if (info.filterOk != undefined) {
 						return info.filterOk();
+					}
+					if (evt._backup.filterOk) {
+						return evt._backup.filterOk();
 					}
 					return true;
 				};

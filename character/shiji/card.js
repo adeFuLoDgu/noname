@@ -7,32 +7,26 @@ const cards = {
 		derivation: "sp_xunchen",
 		fullskin: true,
 		filterTarget: lib.filter.notMe,
-		content() {
-			"step 0";
+		async content(event, trigger, player) {
+			const { target } = event;
 			if (!player.isIn() || !target.isIn()) {
 				event.finish();
 				return;
 			}
-			event.showCards = get.cards(4);
-			game.cardsGotoOrdering(event.showCards);
-			player.showCards(event.showCards);
-			"step 1";
+			event.showCards = get.cards(4, true);
+			await game.cardsGotoOrdering(event.showCards);
+			await player.showCards(event.showCards, `${get.translation(player)}使用了【${get.translation(event.card)}】`, true).set("clearArena", false);
 			if (player.isIn() && target.isIn() && event.showCards.length) {
-				for (var i of event.showCards) {
-					if (i.name == "sha" && player.canUse(i, target, false)) {
-						player.useCard(i, target, false);
-						event.showCards.remove(i);
-						event.redo();
-						break;
+				for (const card of event.showCards.slice()) {
+					if (get.name(card) == "sha" && player.canUse(card, target, false)) {
+						event.showCards.remove(card);
+						await player.useCard(card, target, false);
 					}
 				}
 			}
-			"step 2";
+			game.broadcastAll(ui.clear);
 			if (event.showCards.length) {
-				while (event.showCards.length) {
-					ui.cardPile.insertBefore(event.showCards.pop().fix(), ui.cardPile.firstChild);
-				}
-				game.updateRoundNumber();
+				await game.cardsGotoPile(event.showCards.reverse(), "insert");
 			}
 		},
 		ai: {

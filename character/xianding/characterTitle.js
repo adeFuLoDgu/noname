@@ -1,4 +1,7 @@
 export default {
+	dc_chenzhi: "朝野弄权",
+	dc_sb_liuzhang: "半圭黯暗",
+	v_gongsunzan: "武勇戾猛",
 	v_liubei: "志昭义烈",
 	dc_sb_jianggan: "反笺沉江",
 	dc_sb_chunyuqiong: "殊死难当",

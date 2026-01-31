@@ -21,7 +21,7 @@ const characters = {
 		sex: "male",
 		group: "wei",
 		hp: 4,
-		skills: ["hefeixianjian", "hefeizheji", "hefeiheyuyuejin"],
+		skills: ["hefeixianjian", "hefeizherui", "hefeiheyuyuejin"],
 	},
 	mb_liuhui: {
 		sex: "male",

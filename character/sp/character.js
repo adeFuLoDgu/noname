@@ -52,7 +52,7 @@ const characters = {
 	ol_qiaoxuan: {
 		sex: "male",
 		group: "qun",
-		hp: 3,
+		hp: 4,
 		skills: ["oltingji", "olxuanliu"],
 	},
 	ol_caizhenji: {
@@ -800,7 +800,7 @@ const characters = {
 		sex: "male",
 		group: "qun",
 		hp: 1,
-		skills: ["yinka", "zhuixi"],
+		skills: ["yinka", "zhuishe"],
 		isAiForbidden: true,
 		isUnseen: true,
 	},

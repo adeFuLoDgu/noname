@@ -144,9 +144,7 @@ game.import("card", function () {
 						}
 					} while (true);
 					if (putback) {
-						while (gain.length) {
-							ui.cardPile.insertBefore(gain.pop().fix(), ui.cardPile.firstChild);
-						}
+						await game.cardsGotoPile(gain.reverse(), "insert");
 					}
 				},
 				ai: {

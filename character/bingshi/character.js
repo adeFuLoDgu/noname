@@ -29,7 +29,7 @@ const characters = {
 	pot_dengai: {
 		sex: "male",
 		group: "wei",
-		hp: 3,
+		hp: 4,
 		skills: ["pottuntian", "potjixi", "potzaoxian"],
 	},
 	pot_huanjie: {

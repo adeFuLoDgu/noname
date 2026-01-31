@@ -15,18 +15,17 @@ const skills = {
 			global: ["loseAsyncAfter", "gainAfter", "addToExpansionAfter", "addJudgeAfter", "equipAfter", "phaseBegin"],
 		},
 		filter(event, player) {
-			return event.name == "phase" ? !player.countCharge(true) : player.countCharge(true);
-		},
-		getIndex(event, player) {
 			if (event.name == "phase") {
-				return 1;
+				return !player.countCharge(true);
 			}
-			return event.getl?.(player)?.cards2.filter(card => !get.tag(card, "damage"));
+			return player.countCharge(true) && event.getl?.(player)?.cards2.some(card => !get.tag(card, "damage"));
 		},
 		async content(event, trigger, player) {
 			if (trigger.name == "phase") {
+				await player.draw();
 				game.log(player, "的蓄力值上限+1");
 				player.addMark(event.name, 1, false);
+				player.markSkill("charge");
 			} else {
 				player.addCharge(1);
 			}
@@ -38,25 +37,51 @@ const skills = {
 		},
 		subSkill: {
 			phaseUse: {
+				audio: "potjixi",
 				enable: "phaseUse",
 				filter(event, player) {
 					return player.countCharge() > 0;
 				},
 				usable: 1,
-				filterTarget: true,
-				selectTarget() {
-					return [1, get.player().countCharge()];
+				async precontent(event, trigger, player) {
+					const skill = event.name.slice(4);
+					const result = await player
+						.chooseNumbers(`###${get.translation(skill)}###出牌阶段限一次，你可以消耗任意点蓄力点，令至多等量名角色从牌堆或弃牌堆中各获得一张红桃牌`, [{ prompt: "请选择要移去的蓄力值", min: 1, max: player.countCharge() }])
+						.set("processAI", () => {
+							const player = get.player();
+							const num = Math.min(player.countCharge(), 3);
+							return [num];
+						})
+						.forResult();
+					if (result?.bool && result.numbers?.length) {
+						event.result = {
+							bool: true,
+						};
+						event.getParent().set(skill, result.numbers[0]);
+					} else {
+						event.getParent().goto(0);
+					}
 				},
-				multitarget: true,
-				multiline: true,
 				async content(event, trigger, player) {
-					const { targets } = event;
-					player.removeCharge(targets.length);
+					const { [event.name]: num } = event.getParent(2);
+					if (!num) {
+						return;
+					}
+					player.removeCharge(num);
+					const result = await player
+						.chooseTarget(`屯田：令至多${num}名角色各获得一张红桃牌`, [1, num], true)
+						.set("ai", target => get.attitude(get.player(), target) > 0)
+						.forResult();
+					const { targets } = result;
+					if (!targets?.length) {
+						return;
+					}
+					player.line(targets);
 					await game.doAsyncInOrder(targets, async target => {
 						const card = get.cardPile(card => get.suit(card) == "heart");
 						if (card) {
 							return target.gain(card, "gain2");
-						} else {
+						} else if (target != player) {
 							//牢萌最爱的免费鸡蛋
 							target.throwEmotion(player, "egg");
 							target.chat("我的免费鸡蛋呢");
@@ -66,7 +91,7 @@ const skills = {
 				ai: {
 					order: 8,
 					result: {
-						target: 1,
+						player: 1,
 					},
 				},
 			},
@@ -77,16 +102,18 @@ const skills = {
 		forced: true,
 		trigger: { player: "removeMark" },
 		filter(event, player) {
-			return event.markName == "charge" && event.num >= 2;
+			return event.markName == "charge" && event.num >= 3;
 		},
 		async content(event, trigger, player) {
 			const { num } = trigger;
 			const list = ["wuzhong", "wuxie", "wugu"];
 			for (let i = 0; i < 3; i++) {
-				if (num >= (i + 1) * 2) {
+				if (num >= (i + 1) * 2 + 1) {
 					const card = get.discardPile(card => get.name(card) == list[i]);
 					if (card) {
 						await player.gain(card, "gain2");
+					} else {
+						player.chat(`没有${get.translation(list[i])}!`);
 					}
 				}
 			}
@@ -123,9 +150,8 @@ const skills = {
 				.getTargets(player)
 				.filter(target => player.canUse(card, target, false));
 			if (targets.length && player.getMaxCharge() > 0) {
-				const num = Math.min(targets.length, player.getMaxCharge());
 				const result = await player
-					.chooseTarget(`凿险：视为对至多${num}名其他角色使用一张无距离限制的【顺手牵羊】`, [1, num], true, (card, player, target) => {
+					.chooseTarget(`凿险：视为对任意名其他角色使用一张无距离限制的【顺手牵羊】`, [1, Infinity], (card, player, target) => {
 						return get.event().targets.includes(target) && player.canUse(card, target, false);
 					})
 					.set("_get_card", card)

@@ -1,4 +1,6 @@
 export default {
+	ylyg_xiaoqiao: "秋水并蒂",
+	ylyg_yuji: "江东的福神",
 	//pe_guozhao: "",
 	//scl_lvbu: "",
 	//jun_lvbu: "",

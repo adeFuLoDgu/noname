@@ -46,7 +46,8 @@ const skills = {
 						await game.cardsGotoPile(list[0], (event, card) => event.list[1][event.list[0].indexOf(card)]).set("list", list);
 					}
 					if (cards.length) {
-						return target.gain(cards, "draw");
+						target._start_cards = target.getCards("h").concat(cards);
+						return target.gain(cards, "draw").set("delay", false);
 					}
 				},
 				() => false
@@ -84,26 +85,38 @@ const skills = {
 		audio: 4,
 		forced: true,
 		trigger: { player: "useCardAfter" },
+		filter(event, player) {
+			if (player.hasHistory("sourceDamage", evt => evt.card == event.card)) {
+				return true;
+			}
+			return player.countMark(`mbmaodie_used`) < 2 && get.info("mbmaodie").getCards(player, event.targets || []).length > 0;
+		},
+		getCards(player, targets) {
+			return targets.flatMap(target => target._start_cards.filter(card => "cdhej".includes(get.position(card)) && get.owner(card) !== player));
+		},
 		async content(event, trigger, player) {
 			if (player.hasHistory("sourceDamage", evt => evt.card == trigger.card)) {
 				player.addTempSkill(`${event.name}_limit`);
-				player.setStorage(`${event.name}_limit`, get.number(trigger.card), true);
+				player.setStorage(`${event.name}_limit`, get.cardNameLength(trigger.card), true);
 			} else {
-				if (trigger.targets?.length) {
-					const card = trigger.targets.flatMap(target => target._start_cards.filter(card => "cdhej".includes(get.position(card)) && get.owner(card) !== player)).randomGet();
-					if (card) {
-						let animate = ["gain2"];
-						if (get.owner(card)) {
-							animate = [get.owner(card), "giveAuto"];
-						}
-						await player.gain(card, ...animate);
-						return;
+				player.addTempSkill(`${event.name}_used`);
+				player.addMark(`${event.name}_used`, 1, false);
+				const card = get.info(event.name).getCards(player, trigger.targets).randomGet();
+				if (card) {
+					let animate = ["gain2"];
+					if (get.owner(card)) {
+						animate = [get.owner(card), "giveAuto"];
 					}
+					await player.gain(card, ...animate);
+					return;
 				}
-				player.chat("啊西噶呀酷奶龙");
 			}
 		},
 		subSkill: {
+			used: {
+				charlotte: true,
+				onremove: true,
+			},
 			limit: {
 				charlotte: true,
 				onremove: true,
@@ -121,12 +134,12 @@ const skills = {
 						if (!storage || typeof storage != "number" || !get.tag(card, "damage")) {
 							return;
 						}
-						return get.number(card) > storage;
+						return get.cardNameLength(card) > storage;
 					},
 				},
 				intro: {
 					markcount: storage => storage,
-					content: "下一次使用的伤害牌点数需大于#",
+					content: "下一次使用的伤害牌字数需大于#",
 				},
 			},
 		},
@@ -1539,7 +1552,7 @@ const skills = {
 									}
 								});
 						}
-						const next = await player
+						const next = player
 							.chooseToCompare(event.targets, card => {
 								return get.number(card);
 							})

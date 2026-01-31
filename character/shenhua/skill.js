@@ -3025,7 +3025,7 @@ const skills = {
 			},
 		},
 		enable: "phaseUse",
-		trigger: { player: "damageEnd" },
+		trigger: { global: "damageSource" },
 		filter(event, player) {
 			if (!player.countCards("he")) {
 				return false;
@@ -3033,7 +3033,7 @@ const skills = {
 			if (event.name == "chooseToUse") {
 				return !player.storage.nzry_shenshi && !player.hasSkill("nzry_shenshi_used", null, null, false) && game.hasPlayer(current => get.info("nzry_shenshi").filterTarget(null, player, current));
 			}
-			return event.source?.isIn() && event.source != player && player.storage.nzry_shenshi;
+			return event.source?.isIn() && event.source != player && event.player == player && player.storage.nzry_shenshi;
 		},
 		discard: false,
 		line: true,
@@ -5760,19 +5760,25 @@ const skills = {
 		selectCard: [0, Infinity],
 		selectTarget: 2,
 		complexCard: true,
+		complexTarget: true,
 		filterTarget(card, player, target) {
 			if (player == target) {
 				return false;
 			}
-			return true;
-		},
-		filterOk() {
 			const targets = ui.selected.targets;
+			if (!targets?.length) {
+				return true;
+			} else if (targets.concat([target]).every(target => !target.countCards("h"))) {
+				return false;
+			}
+			return Math.abs(targets[0].countCards("h") - target.countCards("h")) == ui.selected.cards.length;
+		},
+		/*filterOk() {
 			if (targets.length != 2) {
 				return false;
 			}
 			return Math.abs(targets[0].countCards("h") - targets[1].countCards("h")) == ui.selected.cards.length;
-		},
+		},*/
 		multitarget: true,
 		multiline: true,
 		async content(event, trigger, player) {

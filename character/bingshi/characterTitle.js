@@ -1,5 +1,5 @@
 export default {
-	//pot_dengai: "",
+	pot_dengai: "勇气陵云",
 	//pot_chenjiao: "",
 	//pot_zanghong: "",
 	sp_zhonghui: "荡蜚缴志",

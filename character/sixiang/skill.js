@@ -3248,9 +3248,7 @@ const skills = {
 					const cardx = moved[0].slice();
 					if (cardx.length) {
 						await game.cardsGotoOrdering(cardx);
-						for (let i = cardx.length - 1; i >= 0; i--) {
-							ui.cardPile.insertBefore(cardx[i], ui.cardPile.firstChild);
-						}
+						await game.cardsGotoPile(cardx.slice().reverse(), "insert");
 						game.updateRoundNumber();
 					}
 				}

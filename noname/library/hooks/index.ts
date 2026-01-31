@@ -188,8 +188,7 @@ export const defaultHooks: {
 				return;
 			}
 			const str = event.targetprompt2
-				.map(func => func(target) || "")
-				.flat()
+				.flatMap(func => func(target) || "")
 				.filter(prompt => prompt.length)
 				.toUniqued()
 				.join("<br>");

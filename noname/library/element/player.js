@@ -1463,7 +1463,7 @@ export class Player extends HTMLDivElement {
 	 * @param { (player: Player, cards: Card[]) => any } [recastingLose]
 	 * @param { (player: Player, cards: Card[]) => any } [recastingGain]
 	 */
-	recast(cards, recastingLose = (player, cards) => (player.loseToDiscardpile(cards).log = false), recastingGain = (player, cards) => (player.draw(cards.length).log = false)) {
+	recast(cards, recastingLose, recastingGain) {
 		const recast = game.createEvent("recast");
 		recast.player = this;
 		const isArray = Array.isArray(cards);
@@ -1479,7 +1479,11 @@ export class Player extends HTMLDivElement {
 			if (recastingLose === null) {
 				console.trace(`recast的recastingLose参数不应传入null,可以用void 0或undefined占位`);
 			}
-			recastingLose = (player, cards) => (player.loseToDiscardpile(cards).log = false);
+			recastingLose = (player, cards) => {
+				const next = player.loseToDiscardpile(cards);
+				next.log = false;
+				return next;
+			};
 		}
 		recast.recastingLose = recastingLose;
 		recast.recastingLosingEvents = [];
@@ -1487,7 +1491,11 @@ export class Player extends HTMLDivElement {
 			if (recastingLose === null) {
 				console.trace(`recast的recastingGain参数不应传入null,可以用void 0或undefined占位`);
 			}
-			recastingGain = (player, cards) => (player.draw(cards.length).log = false);
+			recastingGain = (player, cards) => {
+				const next = player.draw(cards.length);
+				next.log = false;
+				return next;
+			};
 		}
 		recast.recastingGain = recastingGain;
 		recast.recastingGainingEvents = [];
@@ -4718,7 +4726,8 @@ export class Player extends HTMLDivElement {
 		let max = 0;
 		for (let skill of skills) {
 			let info = get.info(skill);
-			if (!info || typeof info.chargeSkill != "number") {//|| !info.chargeSkill
+			if (!info || typeof info.chargeSkill != "number") {
+				//|| !info.chargeSkill
 				continue;
 			}
 			if (info.chargeSkill == Infinity) {
@@ -6575,8 +6584,7 @@ export class Player extends HTMLDivElement {
 		next.flashAnimation = flashAnimation;
 		if (flashAnimation && !isFlash) {
 			next.isFlash = true;
-		}
-		else {
+		} else {
 			next.isFlash = false;
 		}
 		next.getShown = function (player, key) {
@@ -8714,11 +8722,9 @@ export class Player extends HTMLDivElement {
 	}
 	addJudgeNext(card, unlimited) {
 		if (!card.expired) {
-			let target = this.getNext();
 			const name = card.viewAs || card.name;
 			const cards = get.itemtype(card) == "card" ? [card] : (card.cards ?? []);
 			//if (get.itemtype(cards) != "cards") return;
-			let bool = false;
 			if (
 				!unlimited &&
 				cards.some(card => {
@@ -8729,14 +8735,20 @@ export class Player extends HTMLDivElement {
 				game.log(card, "已被移出处理区，无法置入判定区");
 				return;
 			}
-			for (let iwhile = 0; iwhile < 20; iwhile++) {
+			let target = this;
+			do {
+				target = target.getNext();
+				if (!target) {
+					target = this;
+				}
 				if (lib.filter.judge(card, target, target)) {
-					bool = true;
 					break;
 				}
-				target = target.getNext();
-			}
-			if (bool) {
+				if (target == this) {
+					target = null;
+				}
+			} while (target);
+			if (target) {
 				return target.addJudge(card, cards);
 			}
 		} else {
@@ -10385,7 +10397,8 @@ export class Player extends HTMLDivElement {
 	}
 	/**
 	 * 中流（×）批量重置技能
-	 * @param { string[] | string } [skills]
+	 * @param { string[] | string } [skills] 需要被重置的技能，不填默认武将牌上的所有技能
+	 * @returns { string [] } 返回被重置的技能
 	 */
 	refreshSkill(skills) {
 		const player = this;
@@ -10439,7 +10452,7 @@ export class Player extends HTMLDivElement {
 			}
 			game.log(player, "重置了技能", "#g" + str.slice(0, -1));
 		}
-		return player;
+		return resetSkills;
 	}
 	awakenSkill(skill, nounmark) {
 		if (!nounmark) {

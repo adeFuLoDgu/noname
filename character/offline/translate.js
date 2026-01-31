@@ -1,6 +1,18 @@
 import { lib, game, ui, get, ai, _status } from "noname";
 
 const translates = {
+	ylyg_xiaoqiao: "雁翎小乔",
+	ylyg_xiaoqiao_prefix: "雁翎",
+	ylygtianxiang: "天香",
+	ylygtianxiang_info: "当你受到伤害时，你可以弃置一张♥牌防止之；当你正面失去♥牌时，你可以将之交给一名其他角色，其于此回合结束时失去1点体力（不叠加）。",
+	ylyghongyan: "红颜",
+	ylyghongyan_info: "锁定技，你的♠牌视为♥；游戏开始时，你选择获得其他男性角色的一个含颜色或花色的技能。",
+	ylyg_yuji: "雁翎于吉",
+	ylyg_yuji_prefix: "雁翎",
+	ylygguhuo: "蛊惑",
+	ylygguhuo_info: `每回合每种类别限一次，你可以扣置一张手牌当任意基本牌或普通锦囊牌使用，手牌数大于你的角色依次选择是否质疑，然后翻开此牌：若为假，且有角色质疑则此牌作废，选择不质疑的角色各交给你一张手牌；若为真，质疑的角色依次失去1点体力并获得${get.poptip("ylyghuinu")}`,
+	ylyghuinu: "恚怒",
+	ylyghuinu_info: `锁定技，你必须质疑${get.poptip("ylygguhuo")}`,
 	zc26_sp_xushi: "26SP徐氏",
 	zc26_sp_xushi_prefix: "26|SP",
 	zc26_longchen: "龙谶",

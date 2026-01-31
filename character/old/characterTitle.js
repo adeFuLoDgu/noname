@@ -1,4 +1,4 @@
-export default {	
+export default {
 	//two_yj_hanbing: "",
 	//two_yj_tengjia: "",
 	old_zhangxingcai: "将门红妆",
@@ -43,7 +43,7 @@ export default {
 	new_caoren: "神勇可撼",
 	old_liyan: "督运粮草",
 	old_chendao: "白毦统领",
-	old_caocao: "超世之英杰",
+	old_caocao: "挟汉临诸夏",
 	old_caochun: "长坂败备",
 	old_guanyinping: "将门虎女",
 	panfeng: "联军上将",

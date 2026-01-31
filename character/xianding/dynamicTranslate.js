@@ -1,6 +1,19 @@
 import { lib, game, ui, get, ai, _status } from "noname";
 
 const dynamicTranslates = {
+	dcquanshi(player, skill) {
+		const bool = player.storage[skill];
+		let yang = "摸此牌名字数张牌，若此牌造成伤害此技能视为未发动过",
+			yin = "弃此牌名字数张牌，若此牌未造成伤害此技能视为未发动过";
+		if (bool) {
+			yin = `<span class="bluetext">${yin}</span>`;
+		} else {
+			yang = `<span class="firetext">${yang}</span>`;
+		}
+		const start = `转换技，每回合限一次，你使用牌时可令此牌不可响应，`,
+			end = "。";
+		return `${start}阳：${yang}；阴：${yin}${end}`;
+	},
 	dcliexiang(player, skill) {
 		let info = lib.translate[`${skill}_info`];
 		if (player.hasSkill("dcliexiang_extra")) {

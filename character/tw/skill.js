@@ -4545,7 +4545,7 @@ const skills = {
 						await target.recast(event.cards);
 						card = event.cards[0];
 					} else {
-						const result = await target.draw().forResult();
+						const result = (await target.draw().forResult()).cards;
 						card = result[0];
 					}
 					if (nums[0] > nums[1]) {
@@ -5893,12 +5893,8 @@ const skills = {
 					if (result.bool) {
 						const cards = result.moved[1];
 						target.$throw(cards.length, 1000);
-						await target.lose(cards, ui.cardPile);
 						game.log(target, "的" + get.cnNumber(cards.length) + "张牌被置入了", "#y牌堆顶");
-						for (let i = cards.length - 1; i--; i >= 0) {
-							ui.cardPile.insertBefore(cards[i], ui.cardPile.firstChild);
-						}
-						game.updateRoundNumber();
+						await target.lose(cards.reverse(), ui.cardPile, "insert");
 					}
 				},
 			},
@@ -18993,17 +18989,15 @@ const skills = {
 				return "于当前回合的结束阶段获得牌堆顶的牌并亮出牌堆底的牌，若展示的牌能被使用，你使用之";
 			}
 		},
-		content() {
-			if (trigger.player != player) {
+		async content(event, trigger, player) {
+			const {
+				targets: [target],
+			} = event;
+			if (target != player) {
 				trigger.cancel();
-				player.loseHp();
+				await player.loseHp();
 			}
-			if (
-				trigger.player == player ||
-				!game.hasPlayer(function (current) {
-					return current != player && current.maxHp > player.maxHp;
-				})
-			) {
+			if (target == player || player.isMaxMaxHp()) {
 				player.addTempSkill("twwanwei_effect");
 			}
 		},
@@ -19013,17 +19007,12 @@ const skills = {
 				charlotte: true,
 				trigger: { global: "phaseJieshuBegin" },
 				prompt2: "获得牌堆顶的牌并亮出牌堆底的牌，若展示的牌能被使用，你使用之",
-				content() {
-					"step 0";
-					var card = get.cards()[0];
-					player.gain(card, "gain2");
-					"step 1";
-					var card = get.bottomCards()[0];
-					ui.cardPile.appendChild(card);
-					game.updateRoundNumber();
-					player.showCards([card], get.translation(player) + "挽危：牌堆底的牌");
+				async content(event, trigger, player) {
+					await player.gain(get.cards(1, true), "gain2");
+					const card = get.bottomCards(1, true)[0];
+					await player.showCards(card, get.translation(player) + "挽危：牌堆底的牌", true);
 					if (player.hasUseTarget(card)) {
-						player.chooseUseTarget(card, true);
+						await player.chooseUseTarget(card, true);
 					}
 				},
 			},
@@ -19040,9 +19029,10 @@ const skills = {
 		},
 		complexCard: true,
 		discard: false,
-		loseTo: "cardPile",
+		/*loseTo: "cardPile",
 		insert: true,
-		visible: true,
+		visible: true,*/
+		lose: false,
 		delay: false,
 		position: "he",
 		usable: 1,
@@ -19063,10 +19053,9 @@ const skills = {
 			}
 			return 0;
 		},
-		content() {
-			"step 0";
-			player.$throw(cards.length);
-			var next = player.chooseToMove();
+		async content(event, trigger, player) {
+			const { cards } = event;
+			const next = player.chooseToMove();
 			next.set("list", [["牌堆顶", cards], ["牌堆底"]]);
 			next.set("prompt", "约俭：将这些牌置于牌堆顶或牌堆底");
 			next.set("processAI", function (list) {
@@ -19108,31 +19097,33 @@ const skills = {
 				});
 				return [top, bottom];
 			});
-			"step 1";
-			var top = result.moved[0];
-			var bottom = result.moved[1];
-			top.reverse();
-			for (var i = 0; i < top.length; i++) {
-				top[i].fix();
-				ui.cardPile.insertBefore(top[i], ui.cardPile.firstChild);
+			const result = await next.forResult();
+			if (result.moved?.length) {
+				const {
+					moved: [top, bottom],
+				} = result;
+				top.reverse();
+				player.$throw(cards.length, 1000);
+				player.popup(get.cnNumber(top.length) + "上" + get.cnNumber(bottom.length) + "下");
+				game.log(player, `将${get.cnNumber(top.length)}张牌置于牌堆顶`);
+				game.log(player, `将${get.cnNumber(bottom.length)}张牌置于牌堆底`);
+				await player
+					.lose(top.concat(bottom), ui.cardPile)
+					.set("top_cards", top)
+					.set("insert_index", (event, card) => {
+						if (event.top_cards.includes(card)) {
+							return ui.cardPile.firstChild;
+						}
+						return null;
+					});
+				await game.delayx();
 			}
-			for (i = 0; i < bottom.length; i++) {
-				bottom[i].fix();
-				ui.cardPile.appendChild(bottom[i]);
-			}
-			player.popup(get.cnNumber(top.length) + "上" + get.cnNumber(bottom.length) + "下");
-			game.log(player, "将" + get.cnNumber(top.length) + "张牌置于牌堆顶");
-			game.updateRoundNumber();
-			game.delayx();
-			"step 2";
 			if (cards.length >= 3) {
-				player.gainMaxHp();
+				await player.gainMaxHp();
 			}
-			"step 3";
 			if (cards.length >= 2) {
-				player.recover();
+				await player.recover();
 			}
-			"step 4";
 			if (cards.length >= 1) {
 				player.addSkill("twyuejian_effect");
 				player.addMark("twyuejian_effect", 1, false);
@@ -21539,7 +21530,9 @@ const skills = {
 	//田豫
 	twzhenxi: {
 		audio: 2,
-		trigger: { player: "useCardToPlayered" },
+		trigger: {
+			player: "useCardToPlayered",
+		},
 		filter(event, player) {
 			const { target } = event;
 			return (
@@ -21577,7 +21570,8 @@ const skills = {
 				list[1] = '<span style="opacity:0.5">' + list[1] + "</span>";
 			}
 			if (choices.length == 2 && (target.hp > player.hp || target.isMaxHp())) {
-				choices.push("全部执行");
+				list.push("背水！依次执行以上两项");
+				choices.push("背水！");
 			}
 			choices.push("cancel2");
 			const { control } = await player
@@ -21637,8 +21631,8 @@ const skills = {
 					}
 					if (eff1 > 0) {
 						if (eff2 > 0) {
-							if (choices.includes("全部执行")) {
-								return "全部执行";
+							if (choices.includes("背水！")) {
+								return "背水！";
 							} else if (eff2 >= eff1) {
 								return "选项二";
 							}
@@ -21724,6 +21718,7 @@ const skills = {
 						return num + player.countMark("twyangshi_distance");
 					},
 				},
+				markimage: "image/card/attackRange.png",
 				intro: { content: "攻击范围+#" },
 			},
 		},

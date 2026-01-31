@@ -1,4 +1,23 @@
 const characters = {
+	dc_chenzhi: {
+		sex: "male",
+		group: "shu",
+		hp: 3,
+		skills: ["dcquanshi", "dcczchouxi"],
+	},
+	dc_sb_liuzhang: {
+		sex: "male",
+		group: "qun",
+		hp: 3,
+		skills: ["dcsbjutu", "dcsbrenshan", "dcsbyizhi"],
+	},
+	v_gongsunzan: {
+		sex: "male",
+		group: "qun",
+		hp: 4,
+		skills: ["dcjuxi", "dczhuitao"],
+		names: "公孙|瓒",
+	},
 	v_liubei: {
 		sex: "male",
 		group: "shu",

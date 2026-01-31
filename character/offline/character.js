@@ -1,4 +1,19 @@
 const characters = {
+	ylyg_xiaoqiao: {
+		sex: "female",
+		group: "wu",
+		hp: 3,
+		skills: ["ylygtianxiang", "ylyghongyan"],
+		names: "桥|null",
+		dieAudios: ["xiaoqiao"],
+	},
+	ylyg_yuji: {
+		sex: "male",
+		group: "qun",
+		hp: 3,
+		skills: ["ylygguhuo"],
+		dieAudios: ["reyuji"],
+	},
 	ol_manchong: {
 		sex: "male",
 		group: "wei",

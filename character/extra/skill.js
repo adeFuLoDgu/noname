@@ -5248,6 +5248,9 @@ const skills = {
 				return false;
 			}
 			if (event.name == "_wuxie") {
+				if (!event.list.includes(player)) {
+					return false;
+				}
 				if (event.wuxieresult && event.wuxieresult == player) {
 					return false;
 				}
@@ -5624,7 +5627,8 @@ const skills = {
 			let cards2 = [];
 			const makeDraw = result.index === 0;
 			if (makeDraw) {
-				cards2 = await target.draw(round).forResult();
+				const result = await target.draw(round).forResult();
+				cards2 = result.cards;
 			} else {
 				if (cards.length > 0) {
 					const evt = target.randomDiscard(round);
@@ -8093,16 +8097,15 @@ const skills = {
 				},
 				forced: true,
 				locked: false,
-				content() {
-					"step 0";
+				async content(event, trigger, player) {
 					player.addTempSkill("twshelie_round", "roundStart");
+					let result;
 					if (typeof player.storage.twshelie == "number") {
-						event._result = { index: player.storage.twshelie };
+						result = { index: player.storage.twshelie };
 					} else {
-						player.chooseControl("摸牌阶段", "出牌阶段").set("prompt", "涉猎：请选择要执行的额外阶段");
+						result = await player.chooseControl("摸牌阶段", "出牌阶段").set("prompt", "涉猎：请选择要执行的额外阶段").forResult();
 					}
-					"step 1";
-					player.storage.twshelie = 1 - result.index;
+					player.setStorage("twshelie", 1 - result.index);
 					const evt = trigger.getParent("phase", true, true);
 					if (result.index == 0) {
 						if (evt?.phaseList) {
@@ -8130,53 +8133,50 @@ const skills = {
 			return target != player && target.countCards("h") > 0;
 		},
 		usable: 1,
-		content() {
-			"step 0";
-			event.num = target.getCards("h").reduce(function (arr, card) {
+		async content(event, trigger, player) {
+			const { target } = event;
+			const cards = target.getCards("h");
+			const num = cards.reduce(function (arr, card) {
 				arr.add(get.suit(card, player));
 				return arr;
 			}, []).length;
-			"step 1";
-			var cards = target.getCards("h");
-			var next = player.chooseToMove_new("攻心");
-			next.set("list", [
-				[get.translation(target) + "的手牌", cards],
-				[["弃置"], ["置于牌堆顶"]],
-			]);
-			next.set("filterOk", moved => {
-				return moved[1].slice().concat(moved[2]).length == 1;
-			});
-			next.set("processAI", list => {
-				let card = list[0][1].slice().sort((a, b) => {
-					return get.value(b) - get.value(a);
-				})[0];
-				if (!card) {
-					return false;
-				}
-				return [list[0][1].slice().remove(card), [card], []];
-			});
-			"step 2";
+			const result = await player
+				.chooseToMove_new("攻心")
+				.set("list", [
+					[get.translation(target) + "的手牌", cards],
+					[["弃置"], ["置于牌堆顶"]],
+				])
+				.set("filterOk", moved => {
+					return moved[1].slice().concat(moved[2]).length == 1;
+				})
+				.set("processAI", list => {
+					let card = list[0][1].slice().sort((a, b) => {
+						return get.value(b) - get.value(a);
+					})[0];
+					if (!card) {
+						return false;
+					}
+					return [list[0][1].slice().remove(card), [card], []];
+				})
+				.forResult();
 			if (result.bool) {
 				if (result.moved[1].length) {
-					target.discard(result.moved[1]);
+					await target.modedDiscard(result.moved[1]);
 				} else {
-					player.showCards(result.moved[2], get.translation(player) + "对" + get.translation(target) + "发动了【攻心】");
-					target.lose(result.moved[2], ui.cardPile, "visible", "insert");
+					await player.showCards(result.moved[2], get.translation(player) + "对" + get.translation(target) + "发动了【攻心】");
+					await target.lose(result.moved[2], ui.cardPile, "visible", "insert");
 				}
-			} else {
-				event.finish();
-			}
-			"step 3";
-			if (
-				event.num >
-				target.getCards("h").reduce(function (arr, card) {
-					arr.add(get.suit(card, target));
-					return arr;
-				}, []).length
-			) {
-				player.line(target);
-				player.addTempSkill("twgongxin3", { player: ["twgongxin3After", "phaseAfter"] });
-				player.markAuto("twgongxin3", [target]);
+				if (
+					num >
+					target.getCards("h").reduce(function (arr, card) {
+						arr.add(get.suit(card, target));
+						return arr;
+					}, []).length
+				) {
+					player.line(target);
+					player.addTempSkill("twgongxin3", { player: ["twgongxin3After", "phaseAfter"] });
+					player.markAuto("twgongxin3", [target]);
+				}
 			}
 		},
 		ai: {
@@ -8210,11 +8210,9 @@ const skills = {
 		forced: true,
 		popup: false,
 		sourceSkill: "twgongxin",
-		content() {
-			"step 0";
-			game.delayx();
-			"step 1";
-			var targets = player.getStorage("twgongxin3");
+		async content(event, trigger, player) {
+			await game.delayx();
+			const targets = player.getStorage("twgongxin3");
 			player.line(targets, "fire");
 			trigger.directHit.addArray(targets);
 		},
@@ -14943,62 +14941,29 @@ const skills = {
 		filter(event, player) {
 			return !event.numFixed;
 		},
-		content() {
-			"step 0";
+		async content(event, trigger, player) {
 			trigger.changeToZero();
-			event.cards = get.cards(5);
-			game.cardsGotoOrdering(event.cards);
-			event.videoId = lib.status.videoId++;
-			game.broadcastAll(
-				function (player, id, cards) {
-					var str;
-					if (player == game.me && !_status.auto) {
-						str = "涉猎：获取花色各不相同的牌";
-					} else {
-						str = "涉猎";
+			const cards = get.cards(5, true);
+			await player.showCards(cards, `${get.translation(player)}发动了【${get.translation(event.name)}】`, true).set("clearArena", false);
+			const list = cards.map(card => get.suit(card)).unique();
+			const result = await player
+				.chooseCardButton(`涉猎：获取花色各不相同的牌`, cards, list.length, true)
+				.set("filterButton", function (button) {
+					for (let i = 0; i < ui.selected.buttons.length; i++) {
+						if (get.suit(ui.selected.buttons[i].link) == get.suit(button.link)) {
+							return false;
+						}
 					}
-					var dialog = ui.create.dialog(str, cards);
-					dialog.videoId = id;
-				},
-				player,
-				event.videoId,
-				event.cards
-			);
-			event.time = get.utc();
-			game.addVideo("showCards", player, ["涉猎", get.cardsInfo(event.cards)]);
-			game.addVideo("delay", null, 2);
-			"step 1";
-			var list = [];
-			for (var i of cards) {
-				list.add(get.suit(i, false));
+					return true;
+				})
+				.set("ai", function (button) {
+					return get.value(button.link, _status.event.player);
+				})
+				.forResult();
+			game.broadcastAll(ui.clear);
+			if (result?.links?.length) {
+				await player.gain(result.links, "gain2");
 			}
-			var next = player.chooseButton(list.length, true);
-			next.set("dialog", event.videoId);
-			next.set("filterButton", function (button) {
-				for (var i = 0; i < ui.selected.buttons.length; i++) {
-					if (get.suit(ui.selected.buttons[i].link) == get.suit(button.link)) {
-						return false;
-					}
-				}
-				return true;
-			});
-			next.set("ai", function (button) {
-				return get.value(button.link, _status.event.player);
-			});
-			"step 2";
-			if (result.bool && result.links) {
-				event.cards2 = result.links;
-			} else {
-				event.finish();
-			}
-			var time = 1000 - (get.utc() - event.time);
-			if (time > 0) {
-				game.delay(0, time);
-			}
-			"step 3";
-			game.broadcastAll("closeDialog", event.videoId);
-			var cards2 = event.cards2;
-			player.gain(cards2, "log", "gain2");
 		},
 		ai: {
 			threaten: 1.2,
@@ -15013,49 +14978,50 @@ const skills = {
 		filterTarget(card, player, target) {
 			return target != player && target.countCards("h");
 		},
-		content() {
-			"step 0";
-			var cards = target.getCards("h");
-			var next = player.chooseToMove_new("攻心");
-			next.set("list", [
-				[get.translation(target) + "的手牌", cards],
-				[["弃置"], ["置于牌堆顶"]],
-			]);
-			next.set("filterOk", moved => {
-				return (
-					moved[1]
+		async content(event, trigger, player) {
+			const { target } = event;
+			const cards = target.getCards("h");
+			const result = await player
+				.chooseToMove_new("攻心")
+				.set("list", [
+					[get.translation(target) + "的手牌", cards],
+					[["弃置"], ["置于牌堆顶"]],
+				])
+				.set("filterOk", moved => {
+					return (
+						moved[1]
+							.slice()
+							.concat(moved[2])
+							.filter(card => get.suit(card) == "heart").length == 1
+					);
+				})
+				.set("filterMove", (from, to, moved) => {
+					if (moved[0].includes(from.link) && moved[1].length + moved[2].length >= 1 && [1, 2].includes(to)) {
+						return false;
+					}
+					return get.suit(from) == "heart";
+				})
+				.set("processAI", list => {
+					let card = list[0][1]
 						.slice()
-						.concat(moved[2])
-						.filter(card => get.suit(card) == "heart").length == 1
-				);
-			});
-			next.set("filterMove", (from, to, moved) => {
-				if (moved[0].includes(from.link) && moved[1].length + moved[2].length >= 1 && [1, 2].includes(to)) {
-					return false;
-				}
-				return get.suit(from) == "heart";
-			});
-			next.set("processAI", list => {
-				let card = list[0][1]
-					.slice()
-					.filter(card => {
-						return get.suit(card) == "heart";
-					})
-					.sort((a, b) => {
-						return get.value(b) - get.value(a);
-					})[0];
-				if (!card) {
-					return false;
-				}
-				return [list[0][1].slice().remove(card), [card], []];
-			});
-			"step 1";
+						.filter(card => {
+							return get.suit(card) == "heart";
+						})
+						.sort((a, b) => {
+							return get.value(b) - get.value(a);
+						})[0];
+					if (!card) {
+						return false;
+					}
+					return [list[0][1].slice().remove(card), [card], []];
+				})
+				.forResult();
 			if (result.bool) {
 				if (result.moved[1].length) {
-					target.discard(result.moved[1]);
+					await target.discard(result.moved[1]);
 				} else {
-					player.showCards(result.moved[2], get.translation(player) + "对" + get.translation(target) + "发动了【攻心】");
-					target.lose(result.moved[2], ui.cardPile, "visible", "insert");
+					await player.showCards(result.moved[2], get.translation(player) + "对" + get.translation(target) + "发动了【攻心】");
+					await target.lose(result.moved[2], ui.cardPile, "visible", "insert");
 				}
 			}
 		},

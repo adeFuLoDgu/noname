@@ -12,12 +12,7 @@ const translates = {
 	sxrm_liubei: "疑刘备",
 	sxrm_liubei_prefix: "疑",
 	sxrmchengbian: "乘变",
-	sxrmchengbian_info: `准备阶段和结束阶段，你可以与一名角色进行${get.poptip({
-		id: "sxrm_compare",
-		name: "延时拼点",
-		type: "character",
-		info: "延时拼点是一种特殊的拼点机制，在拼点结束后不会立即公布结果，而是将两张拼点牌扣置并移出游戏，满足特定条件后再公开结果。",
-	})}，然后视为对其使用一张【决斗】，你与其可以将至少一半的手牌当【杀】打出直到此【决斗】结算完成。此【决斗】结算结束后，揭示拼点结果，赢的角色摸至体力上限。`,
+	sxrmchengbian_info: `准备阶段和结束阶段，你可以与一名角色进行${get.poptip("sxrm_compare")}，然后视为对其使用一张【决斗】，你与其可以将至少一半的手牌当【杀】打出直到此【决斗】结算完成。此【决斗】结算结束后，揭示拼点结果，赢的角色摸至体力上限。`,
 	sxrm_jianggan: "疑蒋干",
 	sxrm_jianggan_prefix: "疑",
 	sxrmzongheng: "纵横",

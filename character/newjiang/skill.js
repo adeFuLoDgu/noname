@@ -174,7 +174,7 @@ const skills = {
 			return player.getStorage("youtan").length;
 		},
 		prompt() {
-			const num = get.player().getStorage("youtan").length
+			const num = get.player().getStorage("youtan").length;
 			return `摸${get.cnNumber(num)}张牌，然后移去一个记录的花色`;
 		},
 		manualConfirm: true,
@@ -1407,7 +1407,10 @@ const skills = {
 					.set("ai", button => {
 						return get.player().getUseValue(button.link);
 					})
-					.set("canUse", cards.filter(card => player.hasUseTarget(card) && get.position(card) == "d"))
+					.set(
+						"canUse",
+						cards.filter(card => player.hasUseTarget(card) && get.position(card) == "d")
+					)
 					.forResult();
 				if (result?.bool && result.links?.length) {
 					const card = result.links[0];
@@ -1727,7 +1730,10 @@ const skills = {
 						return;
 					}
 					num++;
-					const result2 = await player.chooseBool(`是否继续与${get.translation(trigger.source)}拼点？（已赢${num}次）`).set("choice", Math.random() > 0.7).forResult();
+					const result2 = await player
+						.chooseBool(`是否继续与${get.translation(trigger.source)}拼点？（已赢${num}次）`)
+						.set("choice", Math.random() > 0.7)
+						.forResult();
 					if (!result2.bool) {
 						return;
 					}
@@ -3047,10 +3053,7 @@ const skills = {
 					await player.gain(result.links, "gain2");
 					cards.removeArray(result.links);
 				}
-				cards.reverse();
-				for (var i = 0; i < cards.length; i++) {
-					ui.cardPile.insertBefore(cards[i], ui.cardPile.firstChild);
-				}
+				await game.cardsGotoPile(cards.reverse(), "insert");
 				if (!result.bool || result.links.length < num) {
 					await player.addAdditionalSkills(event.name, get.info(event.name)?.derivation);
 				}
@@ -3450,12 +3453,14 @@ const skills = {
 					if (resultx?.bool) {
 						const moved = resultx.moved[0];
 						if (moved.length) {
-							await player.lose(cards, ui.cardPile);
-							for (let i = 0; i < moved.length; i++) {
+							game.log(player, `将${get.cnNumber(moved.length)}张牌置于牌堆底`);
+							player.$throw(moved.length, 1000);
+							await player.lose(moved, ui.cardPile);
+							/*for (let i = 0; i < moved.length; i++) {
 								const card = moved[i];
 								card.fix();
 								ui.cardPile.appendChild(card);
-							}
+							}*/
 						}
 					}
 				}
@@ -4048,10 +4053,7 @@ const skills = {
 				return;
 			}
 			const result = await player
-				.chooseButton([
-					`###${get.prompt(event.skill)}###<div class='text center'>选择任意个花色，令你本轮不能使用这些花色的牌</div>`, 
-					[lib.suit.map(i => ["", "", "lukai_" + i]), "vcard"],
-				], [1, 4])
+				.chooseButton([`###${get.prompt(event.skill)}###<div class='text center'>选择任意个花色，令你本轮不能使用这些花色的牌</div>`, [lib.suit.map(i => ["", "", "lukai_" + i]), "vcard"]], [1, 4])
 				.set("ai", button => {
 					const player = get.player(),
 						suit = button.link[2].slice(6),
@@ -4079,7 +4081,7 @@ const skills = {
 				event.result = {
 					bool: true,
 					cost_data: result.links,
-				}
+				};
 			}
 		},
 		async content(event, trigger, player) {
@@ -4227,30 +4229,28 @@ const skills = {
 			return player != target && target.countCards("he") > 0;
 		},
 		audio: "duliang",
-		content() {
-			"step 0";
-			player.gainPlayerCard(target, "he", true);
-			"step 1";
-			var name = get.translation(target);
-			player
+		async content(event, trigger, player) {
+			const { target } = event;
+			await player.gainPlayerCard(target, "he", true);
+			const name = get.translation(target);
+			const result = await player
 				.chooseControl(function () {
 					return Math.random() < 0.5 ? "选项一" : "选项二";
 				})
 				.set("prompt", "督粮：请选择一项")
-				.set("choiceList", ["你观看牌堆顶的两张牌，然后令" + name + "获得其中的一或两张基本牌", "令" + name + "于下回合的摸牌阶段额外摸一张牌"]);
-			"step 2";
+				.set("choiceList", ["你观看牌堆顶的两张牌，然后令" + name + "获得其中的一或两张基本牌", "令" + name + "于下回合的摸牌阶段额外摸一张牌"])
+				.forResult();
 			if (result.control == "选项一") {
-				var cards = get.cards(2),
-					bool = false;
-				event.cards = cards;
-				game.cardsGotoOrdering(cards);
-				for (var card of cards) {
+				const cards = get.cards(2, true);
+				let bool = false;
+				await game.cardsGotoOrdering(cards);
+				for (const card of cards) {
 					if (get.type(card) == "basic") {
 						bool = true;
 						break;
 					}
 				}
-				player
+				const result = await player
 					.chooseButton(["督粮：选择令" + get.translation(target) + "获得的牌", cards], [1, 2], bool)
 					.set("filterButton", button => {
 						return get.type(button.link) == "basic";
@@ -4258,24 +4258,19 @@ const skills = {
 					.set("ai", button => {
 						return _status.event.sgn * get.value(button.link);
 					})
-					.set("sgn", get.sgnAttitude(player, target) > 0);
+					.set("sgn", get.sgnAttitude(player, target) > 0)
+					.forResult();
+				if (result.links?.length) {
+					const cardsx = result.links;
+					await target.gain(cardsx, "draw");
+					game.log(target, "获得了" + get.cnNumber(cardsx.length) + "张牌");
+					cards.removeArray(cardsx);
+					await game.cardsGotoPile(cards.reverse(), "insert");
+				}
 			} else {
 				target.addTempSkill("dcduliang2", { player: "phaseAfter" });
 				target.addMark("dcduliang2", 1, false);
-				event.finish();
 			}
-			"step 3";
-			if (result.bool) {
-				var cardsx = result.links;
-				target.gain(cardsx, "draw");
-				game.log(target, "获得了" + get.cnNumber(cardsx.length) + "张牌");
-				cards.removeArray(cardsx);
-				cards.reverse();
-			}
-			for (var i = 0; i < cards.length; i++) {
-				ui.cardPile.insertBefore(cards[i], ui.cardPile.firstChild);
-			}
-			game.updateRoundNumber();
 		},
 		ai: {
 			order: 4,
@@ -4376,11 +4371,13 @@ const skills = {
 			return true; //get.attitude(player,event.player)<0||get.damageEffect(event.player,event.player,player)>0;
 		},
 		logTarget: "player",
-		content() {
-			"step 0";
+		async content(event, trigger, player) {
 			player.addTempSkill("shiming_round", "roundStart");
-			var cards = get.cards(3);
-			player
+			const {
+				targets: [target],
+			} = event;
+			const cards = get.cards(3, true);
+			const result = await player
 				.chooseButton(["识命：是否将其中一张置于牌堆底？", cards.slice(0)])
 				.set("ai", button => {
 					var att = _status.event.att,
@@ -4391,33 +4388,25 @@ const skills = {
 					}
 					return val - 5.99;
 				})
-				.set("att", get.attitude(player, trigger.player))
-				.set("damage", get.damageEffect(trigger.player, trigger.player, player) > 0 && trigger.player.hp <= 3 ? 1 : -1);
-			while (cards.length) {
-				ui.cardPile.insertBefore(cards.pop(), ui.cardPile.firstChild);
-			}
-			"step 1";
-			if (result.bool) {
-				var card = result.links[0];
-				card.fix();
-				ui.cardPile.appendChild(card);
+				.set("att", get.attitude(player, target))
+				.set("damage", get.damageEffect(target, target, player) > 0 && target.hp <= 3 ? 1 : -1)
+				.forResult();
+			if (result.bool && result.links?.length) {
+				const { links: cards } = result;
 				player.popup("一下", "wood");
 				game.log(player, "将一张牌置于了牌堆底");
+				await game.cardsGotoPile(cards);
 			}
-			"step 2";
-			trigger.player
+			const result2 = await target
 				.chooseBool("是否跳过摸牌阶段并对自己造成1点伤害，然后从牌堆底摸三张牌？")
 				.set("ai", () => _status.event.bool)
-				.set("bool", get.damageEffect(trigger.player, trigger.player) >= -6 || trigger.player.hp > 3);
-			"step 3";
-			if (result.bool) {
+				.set("bool", get.damageEffect(target, target) >= -6 || target.hp > 3)
+				.forResult();
+			if (result2.bool) {
 				trigger.cancel();
-				trigger.player.damage(trigger.player);
-			} else {
-				event.finish();
+				await target.damage(target);
+				await target.draw(3);
 			}
-			"step 4";
-			trigger.player.draw(3, "bottom");
 		},
 		subSkill: {
 			round: {
@@ -6576,6 +6565,73 @@ const skills = {
 		audio: 2,
 		trigger: { global: "phaseJieshuBegin" },
 		filter(event, player) {
+			return player.hasHistory("damage");
+		},
+		async cost(event, trigger, player) {
+			event.result = await player
+				.chooseTarget(get.prompt2(event.skill), [1, 3])
+				.set("ai", target => {
+					const player = get.player();
+					if (get.attitude(player, target) <= 0) {
+						return 0;
+					}
+					var len = lib.skill.mbquesong.getNum(target),
+						hp = target.getHp();
+					return len + target.isTurnedOver() * 2 + (1.5 * Math.min(4, target.getDamagedHp())) / (hp + 1);
+				})
+				.forResult();
+		},
+		async content(event, trigger, player) {
+			const { targets } = event;
+			const num = targets.length;
+			const list = [`摸${get.cnNumber(4 - num)}张牌并复原武将牌`, `${num > 1 ? `弃置${get.cnNumber(num - 1)}张牌然后` : ""}回复一点体力`];
+			if (player.getHistory("damage").length > num) {
+				list.push(`依次执行以上两项，然后非锁定失效直到你下个回合开始`);
+			}
+			await game.doAsyncInOrder(targets, async target => {
+				const result = await target
+					.chooseControl()
+					.set("choiceList", list)
+					.set("prompt", "雀颂：请选择一项")
+					.set("ai", () => {
+						const { num, player } = get.event();
+						return get.effect(player, { name: "draw" }, player, player) * (4 - num) >= get.effect(player, { name: "guohe_copy2" }, player, player) + get.recoverEffect(player, player, player) ? 0 : 1;
+					})
+					.set("num", num)
+					.forResult();
+				if (typeof result.index == "number") {
+					const { index } = result;
+					if (index % 2 == 0) {
+						await target.draw(4 - num);
+						await target.link(false);
+						await target.turnOver(false);
+					}
+					if (index > 0) {
+						if (num > 1) {
+							await target.chooseToDiscard(num - 1, "he", true);
+						}
+						await target.recover();
+					}
+					if (index == 2) {
+						target.addTempSkill("fengyin", { player: "phaseBeforeStart" });
+					}
+				}
+			});
+		},
+		ai: {
+			expose: 0.2,
+			maixie: true,
+			skillTagFilter(player, tag) {
+				if (player.getStat().damaged) {
+					return false;
+				}
+			},
+		},
+	},
+	old_mbquesong: {
+		audio: "mbquesong",
+		trigger: { global: "phaseJieshuBegin" },
+		filter(event, player) {
 			return player.getHistory("damage").length;
 		},
 		direct: true,
@@ -6976,7 +7032,7 @@ const skills = {
 			targets.remove(event.player);
 			return targets.length == game.countPlayer() - 2;
 		},
-		*content() {},
+		async content(event, trigger, player) {},
 		mod: {
 			targetEnabled(card) {
 				if (get.type2(card) == "trick" && get.tag(card, "damage") > 0) {

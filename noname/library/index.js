@@ -14184,11 +14184,21 @@ export class Library {
 		[
 			"集蜜",
 			{
-				//showName: "徐",
 				color: "#e3d660",
 				nature: "metalmm",
 			},
 		],
+		[
+			"雁翎",
+			{
+				getSpan: () => {
+					const span = document.createElement("span");
+					span.style.fontFamily = "NonameSuits";
+					span.textContent = "🪶";
+					return span.outerHTML;
+				},
+			},
+		]
 	]);
 	groupnature = {
 		shen: "shen",

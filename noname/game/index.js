@@ -1887,9 +1887,9 @@ export class Game {
 		}
 	}
 	/**
-	 * @template { any[] } T
-	 * @param { (...args: T) => any } func
-	 * @param { ...T } args
+	 * @template { (...args: any[]) => unknown } T
+	 * @param { T } func
+	 * @param { Parameters<T> } args
 	 * @returns { void }
 	 */
 	broadcast(func, ...args) {
@@ -1903,9 +1903,9 @@ export class Game {
 		}
 	}
 	/**
-	 * @template { any[] } T
-	 * @param { (...args: T) => any } func
-	 * @param { ...T } args
+	 * @template { (...args: any[]) => unknown } T
+	 * @param { T } func
+	 * @param { Parameters<T> } args
 	 * @returns { void }
 	 */
 	broadcastAll(func, ...args) {
@@ -10326,7 +10326,7 @@ ${(e instanceof Error ? e.stack : String(e))}`);
 		let sortedTargets = targets.sort(sort);
 		for (let i = 0; i < sortedTargets.length; i++) {
 			let target = sortedTargets[i];
-			await Promise.resolve(asyncFunc(target, i));
+			await Promise.try(asyncFunc, target, i);
 		}
 	}
 	/**
@@ -10350,8 +10350,8 @@ ${(e instanceof Error ? e.stack : String(e))}`);
 	 * 用于玩家使用非自己手牌时生成的可以选择的假牌（其实就是复制一份出来）。
 	 *
 	 * @param { Card[] | Card } cards 需要被复制的真牌，允许传入单张卡牌或者卡牌数组
-	 * @param { Boolean } isBlank 是否生成只有牌背没有其他牌面信息的牌
-	 * @param { string } tempname 生成的假牌的临时名字，只有isBlank为true才会用到
+	 * @param { Boolean } [isBlank] 是否生成只有牌背没有其他牌面信息的牌
+	 * @param { string } [tempname] 生成的假牌的临时名字，只有isBlank为true才会用到
 	 * @returns { Card[] }
 	 */
 	createFakeCards(cards, isBlank = false, tempname) {
@@ -10453,9 +10453,9 @@ ${(e instanceof Error ? e.stack : String(e))}`);
 	 * find the skillname of the event
 	 * 获取触发事件的技能
 	 * @param { GameEvent } event
-	 * @param { Boolean } includeCharlotteSkill 是否包含夏洛特技
-	 * @param { Boolean } includeEquipSkill 是否包含装备技能
-	 * @param { Boolean } includeGlobalSkill 是否包含全局技能
+	 * @param { Boolean } [includeCharlotteSkill] 是否包含夏洛特技
+	 * @param { Boolean } [includeEquipSkill] 是否包含装备技能
+	 * @param { Boolean } [includeGlobalSkill] 是否包含全局技能
 	 * @returns { string | null }
 	 */
 	findSkill(event, includeCharlotteSkill = false, includeEquipSkill = false, includeGlobalSkill = false) {
