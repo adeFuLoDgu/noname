@@ -4,8 +4,7 @@ on:
   # Runs on pushes targeting the default branch
   push:
     paths-ignore:
-      - 'docker/**'
-      - 'docs/**'
+      - 'apps/core/docs/**'
       - .dockerignore
       - .eslintrc.json
       - .gitignore
@@ -58,16 +57,18 @@ jobs:
           node-version: 25
           cache: 'pnpm'
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm -F noname... install --frozen-lockfile
       - name: Run Build
-        run: pnpm build:full
+        run: |
+          pnpm -F noname^... build
+          pnpm -F noname build:full
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact
         # Use v3, as v4 excludes certain files and cannot be configured.
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './dist'
+          path: './apps/core/dist'
           retention-days: 1
       - name: Deploy to GitHub Pages
         id: deployment

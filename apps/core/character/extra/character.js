@@ -474,27 +474,6 @@ const characters = {
 		skills: ["boss_juejing", "xinlonghun", "zhanjiang"],
 		groupInGuozhan: "shu",
 	},
-	mini_zhugeliang:{
-		sex: "male",
-		group: "shen",
-		hp: 3,
-		skills: ["qixing", "minikuangfeng", "minidawu"],
-		groupInGuozhan: "shu",
-	},
-	mini_lvbu:{
-		sex: "male",
-		group: "shen",
-		hp: 6,
-		skills: ["miniwuqian", "minishenfen"],
-		groupInGuozhan: "qun",
-	},
-	mini_lvmeng:{
-		sex: "male",
-		group: "shen",
-		hp: 3,
-		skills: ["shelie", "minigongxin"],
-		groupInGuozhan: "wu",
-	},
 };
 
 export default characters;
