@@ -1,11 +1,9 @@
-/**
- * @type {import("prettier").Config}
- */
-const config = {
+/** @type {import("prettier").Config} */
+export default {
 	arrowParens: "avoid",
 	bracketSpacing: true,
 	endOfLine: "lf",
-	printWidth: 999,
+	printWidth: 100,
 	proseWrap: "preserve",
 	quoteProps: "as-needed",
 	semi: true,
@@ -13,5 +11,3 @@ const config = {
 	trailingComma: "es5",
 	useTabs: true,
 };
-
-export default config;

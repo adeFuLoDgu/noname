@@ -1,8 +1,4 @@
-audio/*.TXT
-image/*.TXT
-
 dist
-dist-types
 output
 node_modules
 package-lock.json
@@ -17,8 +13,8 @@ desktop.ini
 *.bak
 
 # IDE
-.idea
-.vscode
+.idea/
+.vscode/
 
 # macOS
 ._*
@@ -26,15 +22,3 @@ desktop.ini
 .Trashes
 .DS_Store
 .DS_Store?
-
-# Windows
-ehthumbs.db
-Thumbs.db
-
-# electron
-app
-app.html
-/main.js
-Home
-noname.ico
-# localStorage.json

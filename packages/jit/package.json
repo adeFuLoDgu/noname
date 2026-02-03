@@ -1,0 +1,26 @@
+{
+  "name": "@noname/jit",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsx build.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@vue/compiler-sfc": "^3.5.25",
+    "dedent": "^1.7.0",
+    "typescript": "^5.9.3"
+  },
+  "devDependencies": {
+    "vite": "^7.3.0"
+  }
+}

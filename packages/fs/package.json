@@ -1,0 +1,34 @@
+{
+  "name": "@noname/fs",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "bin": {
+    "noname-fs": "dist/index.cjs"
+  },
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "build": "tsup",
+    "build:win": "tsx build.ts win32",
+    "build:mac": "tsx build.ts macos",
+    "build:linux": "tsx build.ts linux"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@fastify/cors": "^11.1.0",
+    "@fastify/static": "^8.3.0",
+    "fastify": "^5.6.2",
+    "minimist": "^1.2.8"
+  },
+  "devDependencies": {
+    "@types/minimist": "^1.2.5"
+  }
+}
