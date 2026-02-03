@@ -12,7 +12,7 @@ Click [here](https://adeFuLoDgu.github.io/noname) to play with browser. **(Bette
 + For hosting instructions, please visit [this repository](https://github.com/adeFuLoDgu/Simple_Noname_Master_Server).
 
 ## Note
-+ Certain dependencies are needed to run this repository locally. Please refer to the [official repository](https://github.com/libnoname/noname/tree/PR-Branch) for details.
++ Certain dependencies are needed to run this repository locally. Please refer to the [official repository](https://github.com/libnoname/noname) for details.
 
 ## Known Issues
 + Zoom level is not work properly in Firefox.
