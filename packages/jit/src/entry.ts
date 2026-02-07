@@ -15,7 +15,9 @@
 	};
 
 	if (!("serviceWorker" in navigator)) {
-		alert(globalText.SERVICE_WORKER_NOT_SUPPORT);
+		if (location.href.indexOf("//localhost") != -1) {
+			alert(globalText.SERVICE_WORKER_NOT_SUPPORT);
+		}
 		return;
 	}
 
@@ -44,14 +46,16 @@
 		// navigator.serviceWorker.controller?.postMessage({ action: "reload" });
 		// await registration.update().catch(e => console.error("worker update失败", e));
 		if (sessionStorage.getItem("canUseTs") !== "true") {
-			const path = "/jit-test.ts";
+			const path = location.href.indexOf("//localhost") == -1 ? "/noname/jit-test.ts" : "/jit-test.ts";
 			console.log((await import(/* @vite-ignore */ path)).text);
 			sessionStorage.setItem("canUseTs", "true");
 		}
 	} catch (e) {
 		if (sessionStorage.getItem("canUseTs") === "false") {
 			console.log("serviceWorker加载失败: ", e);
-			alert(globalText.SERVICE_WORKER_LOAD_FAILED);
+			if (location.href.indexOf("//localhost") != -1) {
+				alert(globalText.SERVICE_WORKER_LOAD_FAILED);
+			}
 		} else {
 			sessionStorage.setItem("canUseTs", "false");
 			window.location.reload();

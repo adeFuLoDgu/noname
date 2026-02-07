@@ -834,7 +834,7 @@ function initSheet() {
 }
 
 async function loadConfig() {
-	const path = location.href.indexOf("//localhost") == -1 ? "noname/game/config.json" : "game/config.json";
+	lib.config = await lib.init.promises.json(lib.assetURL + "game/config.json");
 	let Character_bannedList = [
 		"bozai",
 		"bulianshi",
@@ -981,7 +981,6 @@ async function loadConfig() {
 		"zombie_jiaxu",
 	];
 	let min_screen_width = Math.min(screen.width, screen.height);
-	lib.config = await lib.init.promises.json(lib.assetURL + path);
 	lib.config.ui_zoom = min_screen_width >= 1080 ? "150%" : min_screen_width < 768 ? "100%" : "120%";
 	lib.config.identity_banned = [...Character_bannedList];
 	lib.config.connect_identity_banned = [...Character_bannedList];
