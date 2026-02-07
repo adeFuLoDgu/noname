@@ -877,7 +877,7 @@ const skills = {
 				targets: [target],
 				cost_data: cards,
 			} = event;
-			const { cards: discards } = await target.modedDiscard(cards, player);
+			const { cards: discards } = await target.modedDiscard(cards, player).forResult();
 			player.line(trigger.source);
 			await trigger.source.damage(player);
 			if (discards.filter(card => get.name(card) == "sha")?.someInD("od")) {

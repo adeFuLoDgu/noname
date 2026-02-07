@@ -44,14 +44,6 @@ export async function boot() {
 	for (const name in get.config("translate")) {
 		lib.translate[name] = get.config("translate")[name];
 	}
-	if (config.get("debug")) {
-		await lib.init.promises.js(`${lib.assetURL}game`, "asset");
-		if (window.noname_skin_list) {
-			lib.skin = window.noname_skin_list;
-			delete window.noname_skin_list;
-			delete window.noname_asset_list;
-		}
-	}
 
 	if (config.get("compatible") ?? true) {
 		await import("./compatible.js");
@@ -451,19 +443,25 @@ export async function boot() {
 				if (ui.css.hp_stylesheet1) {
 					ui.css.hp_stylesheet1.remove();
 				}
-				ui.css.hp_stylesheet1 = lib.init.sheet(`.hp:not(.text):not(.actcount)[data-condition="high"]>div:not(.lost){background-image:url(${data})}`);
+				ui.css.hp_stylesheet1 = lib.init.sheet(
+					`.hp:not(.text):not(.actcount)[data-condition="high"]>div:not(.lost){background-image:url(${data})}`
+				);
 			},
 			hp_style2(data) {
 				if (ui.css.hp_stylesheet2) {
 					ui.css.hp_stylesheet2.remove();
 				}
-				ui.css.hp_stylesheet2 = lib.init.sheet(`.hp:not(.text):not(.actcount)[data-condition="mid"]>div:not(.lost){background-image:url(${data})}`);
+				ui.css.hp_stylesheet2 = lib.init.sheet(
+					`.hp:not(.text):not(.actcount)[data-condition="mid"]>div:not(.lost){background-image:url(${data})}`
+				);
 			},
 			hp_style3(data) {
 				if (ui.css.hp_stylesheet3) {
 					ui.css.hp_stylesheet3.remove();
 				}
-				ui.css.hp_stylesheet3 = lib.init.sheet(`.hp:not(.text):not(.actcount)[data-condition="low"]>div:not(.lost){background-image:url(${data})}`);
+				ui.css.hp_stylesheet3 = lib.init.sheet(
+					`.hp:not(.text):not(.actcount)[data-condition="low"]>div:not(.lost){background-image:url(${data})}`
+				);
 			},
 			hp_style4(data) {
 				if (ui.css.hp_stylesheet4) {
@@ -490,19 +488,26 @@ export async function boot() {
 			}
 			ui.css.border_stylesheet = lib.init.sheet();
 			ui.css.border_stylesheet.sheet.insertRule(`#window .player>.framebg{display:block;background-image:url("${data}")}`, 0);
-			ui.css.border_stylesheet.sheet.insertRule(".player>.count{z-index: 3 !important;border-radius: 2px !important;text-align: center !important;}", 0);
+			ui.css.border_stylesheet.sheet.insertRule(
+				".player>.count{z-index: 3 !important;border-radius: 2px !important;text-align: center !important;}",
+				0
+			);
 		}),
 		tryLoadCustomStyle("control_style", data => {
 			if (ui.css.control_stylesheet) {
 				ui.css.control_stylesheet.remove();
 			}
-			ui.css.control_stylesheet = lib.init.sheet(`#window .control,.menubutton:not(.active):not(.highlight):not(.red):not(.blue),#window #system>div>div{background-image:url("${data}")}`);
+			ui.css.control_stylesheet = lib.init.sheet(
+				`#window .control,.menubutton:not(.active):not(.highlight):not(.red):not(.blue),#window #system>div>div{background-image:url("${data}")}`
+			);
 		}),
 		tryLoadCustomStyle("menu_style", data => {
 			if (ui.css.menu_stylesheet) {
 				ui.css.menu_stylesheet.remove();
 			}
-			ui.css.menu_stylesheet = lib.init.sheet(`html #window>.dialog.popped,html .menu,html .menubg{background-image:url("${fileLoadedEvent.target.result}");background-size:cover}`);
+			ui.css.menu_stylesheet = lib.init.sheet(
+				`html #window>.dialog.popped,html .menu,html .menubg{background-image:url("${fileLoadedEvent.target.result}");background-size:cover}`
+			);
 		}),
 	];
 
@@ -561,12 +566,12 @@ export async function boot() {
 		Object.values(lib.imported.character).forEach(loadCharacter);
 	}
 
-	// 我不好说，但我尊重水乎的想法
-	Object.keys(lib.character)
-		.toSorted(lib.sort.capt)
-		.forEach(character => {
-			lib.mode.connect.config.connect_avatar.item[character] = lib.translate[character];
-		});
+	// 联机头像改为输入模式，不再需要填充item
+	// Object.keys(lib.character)
+	// 	.toSorted(lib.sort.capt)
+	// 	.forEach(character => {
+	// 		lib.mode.connect.config.connect_avatar.item[character] = lib.translate[character];
+	// 	});
 
 	loadCardPile();
 
@@ -829,11 +834,159 @@ function initSheet() {
 }
 
 async function loadConfig() {
-	const path = location.href.indexOf("//localhost") == -1 ? "/noname/game/config.js" : "/game/config.js";
-	await import(/*@vite-ignore*/ path);
-	lib.config = window.config;
+	const path = location.href.indexOf("//localhost") == -1 ? "noname/game/config.json" : "game/config.json";
+	let Character_bannedList = [
+		"bozai",
+		"bulianshi",
+		"caocao",
+		"caochong",
+		"caopi",
+		"caozhen",
+		"chengong",
+		"chengpu",
+		"daqiao",
+		"dianwei",
+		"diaochan",
+		"diy_weiyan",
+		"dongzhuo",
+		"fazheng",
+		"fuhuanghou",
+		"ganning",
+		"gaoshun",
+		"goblin",
+		"gongsunzan",
+		"guanping",
+		"guanyu",
+		"guanzhang",
+		"guohuanghou",
+		"guojia",
+		"guotufengji",
+		"guyong",
+		"gz_yuejin",
+		"handang",
+		"huanggai",
+		"huangyueying",
+		"huangzhong",
+		"huatuo",
+		"huaxiong",
+		"jiangwei",
+		"jsp_huangyueying",
+		"jsp_liubei",
+		"liaohua",
+		"lingtong",
+		"liru",
+		"liubei",
+		"liuchen",
+		"lord_goblin",
+		"luxun",
+		"lvbu",
+		"lvmeng",
+		"machao",
+		"manchong",
+		"masu",
+		"mayunlu",
+		"menghuo",
+		"new_caoren",
+		"ol_huaxiong",
+		"ol_liaohua",
+		"ol_yuanshu",
+		"old_caochong",
+		"old_caochun",
+		"old_caoren",
+		"old_caoxiu",
+		"old_caozhen",
+		"old_chendao",
+		"old_chenqun",
+		"old_dingfeng",
+		"old_gaoshun",
+		"old_guanqiujian",
+		"old_guanzhang",
+		"old_huaxiong",
+		"old_lingtong",
+		"old_re_lidian",
+		"old_shixie",
+		"old_wangyi",
+		"old_xiaoqiao",
+		"old_xusheng",
+		"old_zhangfei",
+		"old_zhaoyun",
+		"old_zhonghui",
+		"old_zhoutai",
+		"old_zhuhuan",
+		"old_zhuzhi",
+		"panfeng",
+		"pangde",
+		"panzhangmazhong",
+		"ps_shen_machao",
+		"quancong",
+		"re_gongsunzan",
+		"re_handang",
+		"re_huangzhong",
+		"re_huaxiong",
+		"re_liufeng",
+		"re_pangde",
+		"re_sp_zhugeliang",
+		"re_weiyan",
+		"re_xiahouyuan",
+		"re_xushu",
+		"re_yuanshao",
+		"re_yuanshu",
+		"re_yujin",
+		"re_zhangzhang",
+		"shinin_dongwan",
+		"shinin_lvlingqi",
+		"shinin_ruiji",
+		"shinin_wuguotai",
+		"shinin_zhenji",
+		"simayi",
+		"sp_jiaxu",
+		"sp_zhangjiao",
+		"sp_zhugeliang",
+		"std_panfeng",
+		"sunce",
+		"sunjian",
+		"sunquan",
+		"sunshangxiang",
+		"sunxiu",
+		"taishici",
+		"weiyan",
+		"wuguotai",
+		"xiahoudun",
+		"xiahouyuan",
+		"xiangjiaoduanwu",
+		"xiaoqiao",
+		"xiaoyuehankehan",
+		"xin_chengpu",
+		"xin_gongsunzan",
+		"xin_yujin",
+		"xuhuang",
+		"xusheng",
+		"xushu",
+		"xuzhu",
+		"yanwen",
+		"yuanshao",
+		"yufan",
+		"yujin",
+		"zhangbao",
+		"zhangfei",
+		"zhangjiao",
+		"zhangliang",
+		"zhangliao",
+		"zhangzhang",
+		"zhaoyun",
+		"zhenji",
+		"zhouyu",
+		"zhugeliang",
+		"zhurong",
+		"zombie_jiaxu",
+	];
+	let min_screen_width = Math.min(screen.width, screen.height);
+	lib.config = await lib.init.promises.json(lib.assetURL + path);
+	lib.config.ui_zoom = min_screen_width >= 1080 ? "150%" : min_screen_width < 768 ? "100%" : "120%";
+	lib.config.identity_banned = [...Character_bannedList];
+	lib.config.connect_identity_banned = [...Character_bannedList];
+	Character_bannedList = null;
 	lib.configOL = {};
-	delete window.config;
 
 	if (!window.indexedDB) {
 		throw new Error("您的环境不支持indexedDB，无法保存配置");
@@ -981,7 +1134,7 @@ function setBackground() {
 function setWindowListener() {
 	window.onkeydown = function (e) {
 		if (typeof ui.menuContainer == "undefined" || !ui.menuContainer.classList.contains("hidden")) {
-			if (e.key === "F5" || ((e.ctrlKey || e.metaKey)  && e.key.toLowerCase() === "r")) {
+			if (e.key === "F5" || ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "r")) {
 				if (e.shiftKey) {
 					if (confirm("是否重置游戏？")) {
 						var noname_inited = localStorage.getItem("noname_inited");
@@ -1132,7 +1285,10 @@ function createTouchDraggedFilter() {
 		if (_status.dragged) {
 			return;
 		}
-		if (Math.abs(e.touches[0].clientX / game.documentZoom - this.startX) > 10 || Math.abs(e.touches[0].clientY / game.documentZoom - this.startY) > 10) {
+		if (
+			Math.abs(e.touches[0].clientX / game.documentZoom - this.startX) > 10 ||
+			Math.abs(e.touches[0].clientY / game.documentZoom - this.startY) > 10
+		) {
 			_status.dragged = true;
 		}
 	});

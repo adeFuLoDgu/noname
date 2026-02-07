@@ -1,4 +1,9 @@
 export default {
+	"#dcsbzhenyu1": "敌如浪、城如礁，碎之如雪！",
+	"#dcsbzhenyu2": "纵有千军来犯，吾亦不退半分！",
+	"#dcsbjielu1": "刘备望风披靡，我等釜底抽薪！",
+	"#dcsbjielu2": "取兵断其归途，汉王必成瓮中之鳖。",
+	"#dc_sb_zhuran:die": "不好！叫刘备那厮逃了！",
 	"#dcsbmingfang1": "丞相勿忧，待我说得周瑜来降。",
 	"#dcsbmingfang2": "公瑾，有朋来谒，何不远迎？",
 	"#dcsbjibian1": "且以某三寸之舌，搅动万顷之水！",

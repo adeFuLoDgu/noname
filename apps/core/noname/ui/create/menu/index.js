@@ -167,7 +167,8 @@ export function createMenu(connectMenu, tabs, config) {
 			active._link.remove();
 		}
 		this.classList.add("active");
-		menuTabBar.style.transform = "translateX(" + (this.getBoundingClientRect().left - this.parentNode.firstChild.getBoundingClientRect().left) / get.menuZoom() + "px)";
+		menuTabBar.style.transform =
+			"translateX(" + (this.getBoundingClientRect().left - this.parentNode.firstChild.getBoundingClientRect().left) / get.menuZoom() + "px)";
 		menuContent.appendChild(this._link);
 	};
 	ui.click.menuTab = function (tab) {
@@ -332,6 +333,11 @@ export function createConfig(config, position) {
 				game.saveConfig("connect_nickname", input.innerHTML);
 				game.saveConfig("connect_nickname", input.innerHTML, "connect");
 			};
+		} else if (config.name == "联机头像") {
+			// 显示当前配置的武将名称（直接使用翻译，不额外添加前缀）
+			const currentId = lib.config.connect_avatar || config.init || "caocao";
+			input.innerHTML = lib.translate[currentId] || "曹操";
+			input.onblur = config.onblur;
 		} else if (config.name == "联机大厅") {
 			input.innerHTML = config.init || lib.hallURL;
 			input.onblur = function () {

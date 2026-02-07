@@ -5916,7 +5916,7 @@ const skills = {
 						return false;
 					}
 					const cards = cardx.slice().remove(card);
-					return !cards.length || number > Math.max(...cards.map(i => get.number(i, player)));
+					return !cards.length || number >= Math.max(...cards.map(i => get.number(i, player)));
 				}),
 				number = get.number(card, player);
 			return "弃置" + get.translation(card) + "并摸三张牌，本局游戏发动此技能弃置牌的点数须大于" + number;
@@ -5932,7 +5932,7 @@ const skills = {
 					return false;
 				}
 				const cards = cardx.slice().remove(card);
-				return !cards.length || number > Math.max(...cards.map(i => get.number(i, player)));
+				return !cards.length || number >= Math.max(...cards.map(i => get.number(i, player)));
 			});
 			return get.effect(player, { name: "draw" }, player, player) * 3 > get.value(card, player);
 		},
@@ -5950,7 +5950,7 @@ const skills = {
 					return false;
 				}
 				const cards = cardx.slice().remove(card);
-				return !cards.length || number > Math.max(...cards.map(i => get.number(i, player)));
+				return !cards.length || number >= Math.max(...cards.map(i => get.number(i, player)));
 			});
 			if (card) {
 				const number = get.number(card, player);

@@ -1597,7 +1597,7 @@ const skills = {
 					const targets = game.filterPlayer(current => current == player || current.isDamaged());
 					let target = player;
 					if (targets.length > 1) {
-						const { targets } = await player
+						const result = await player
 							.chooseTarget("请选择【五谷丰登】的起点", true, function (card, player, target) {
 								return get.event().targets.includes(target);
 							})
@@ -1606,7 +1606,7 @@ const skills = {
 								return get.attitude(get.player(), target);
 							})
 							.forResult();
-						target = targets[0];
+						target = result.targets[0];
 					}
 					trigger.getParent().targets = trigger.getParent().targets.sortBySeat(target);
 					trigger.getParent().triggeredTargets4 = trigger.getParent().triggeredTargets4.sortBySeat(target);

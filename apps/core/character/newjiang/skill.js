@@ -6568,7 +6568,7 @@ const skills = {
 					if (get.attitude(player, target) <= 0) {
 						return 0;
 					}
-					var len = lib.skill.mbquesong.getNum(target),
+					var len = 4 - (ui.selected.taragets.length + 1),
 						hp = target.getHp();
 					return len + target.isTurnedOver() * 2 + (1.5 * Math.min(4, target.getDamagedHp())) / (hp + 1);
 				})
@@ -6635,7 +6635,7 @@ const skills = {
 				if (get.attitude(player, target) <= 0) {
 					return 0;
 				}
-				var len = lib.skill.mbquesong.getNum(target),
+				var len = lib.skill.old_mbquesong.getNum(target),
 					hp = target.getHp();
 				return len + target.isTurnedOver() * 2 + (1.5 * Math.min(4, target.getDamagedHp())) / (hp + 1);
 			});
@@ -6644,7 +6644,7 @@ const skills = {
 				var target = result.targets[0];
 				event.target = target;
 				player.logSkill("mbquesong", target);
-				var len = lib.skill.mbquesong.getNum(target);
+				var len = lib.skill.old_mbquesong.getNum(target);
 				if (target.isHealthy()) {
 					event._result = { index: 0 };
 				} else {
@@ -6667,7 +6667,7 @@ const skills = {
 				target.recover();
 				event.finish();
 			} else {
-				target.draw(lib.skill.mbquesong.getNum(target));
+				target.draw(lib.skill.old_mbquesong.getNum(target));
 			}
 			"step 3";
 			target.link(false);

@@ -17,7 +17,12 @@ export const NonameToggle = {
  */
 export const NonameConfig = {
 	template: html`
-		<div ref="node" :class="{ config: true, switcher: config.item || config.input, toggle: !config.item && !config.range && !config.clear && !config.input }" @click="nodeClick" :style="nodeStyle">
+		<div
+			ref="node"
+			:class="{ config: true, switcher: config.item || config.input, toggle: !config.item && !config.range && !config.clear && !config.input }"
+			@click="nodeClick"
+			:style="nodeStyle"
+		>
 			<span>{{ config.name }}</span>
 			<div v-if="config.item">{{ config.item[config.init] }}</div>
 			<div v-else-if="config.range">
@@ -150,6 +155,11 @@ export const NonameConfig = {
 						game.saveConfig("connect_nickname", input.innerHTML);
 						game.saveConfig("connect_nickname", input.innerHTML, "connect");
 					};
+				} else if (config.name == "联机头像") {
+					// 显示当前配置的武将名称（直接使用翻译，不额外添加前缀）
+					const currentId = lib.config.connect_avatar || config.init || "caocao";
+					input.innerHTML = lib.translate[currentId] || "曹操";
+					input.onblur = config.onblur;
 				} else if (config.name == "联机大厅") {
 					input.innerHTML = config.init || lib.hallURL;
 					input.onblur = function () {

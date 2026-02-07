@@ -18618,7 +18618,7 @@ const skills = {
 		visible: true,
 		insert: true,
 		async content(event, trigger, player) {
-			const { cards } = event;
+			const { cards, targets } = event;
 			game.log(player, "将", cards, "置于牌堆顶");
 			await player.useCard({ name: "sha", isCard: true, storage: { cxliushi: true } }, false, targets);
 		},
