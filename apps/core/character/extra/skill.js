@@ -14952,7 +14952,7 @@ const skills = {
 					const next = player.chooseTarget("请选择【结营】的目标");
 					next.set("forced", true);
 					next.set("filterTarget", (card, player, target) => target != player && !target.isLinked());
-					next.set("ai", function (button) {
+					next.set("ai", function (target) {
 						if (get.attitude(player, target) < 0) {
 							return 2;
 						}
