@@ -14501,6 +14501,7 @@ const skills = {
 					await player.gain(gain, "draw");
 				}
 			}
+			await game.cardsGotoPile(cards.filterInD().reverse(), "insert");
 			cards = get.cards(3, true);
 			const result = await player
 				.chooseButton([`天候：请选择要展示的牌`, cards], true)
@@ -14538,7 +14539,6 @@ const skills = {
 			}
 			const [card] = links;
 			await player.showCards(card, get.translation(player) + "发动了【天候】");
-			await game.cardsGotoPile(cards.filterInD().reverse(), "insert");
 			const suit = get.suit(card, false),
 				skill = "oltianhou_" + suit;
 			if (!lib.skill.oltianhou.derivation.includes(skill)) {

@@ -13465,20 +13465,25 @@ export const Content = {
 			game.addVideo("judge2", null, event.videoId);
 			ui.arena.classList.remove("thrownhighlight");
 			game.log(player, "的判定结果为", event.result.card);
-			await event.trigger("judgeFixing");
+			const triggerFixing = event.trigger("judgeFixing");
+			let callback = null;
 			if (event.callback) {
 				const next = game.createEvent("judgeCallback", false);
 				next.player = player;
 				next.card = event.result.card;
 				next.judgeResult = get.copy(event.result);
 				next.setContent(event.callback);
-				await next;
+				callback = next;
 			} else {
 				if (!get.owner(event.result.card)) {
 					if (event.position != ui.discardPile) {
 						event.position.appendChild(event.result.card);
 					}
 				}
+			}
+			await triggerFixing;
+			if (event.next.includes(callback)) {
+				await callback;
 			}
 		},
 	],
