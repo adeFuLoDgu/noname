@@ -1034,30 +1034,13 @@ const skills = {
 					source: "damageSource",
 					player: "damageEnd",
 				},
-				getCards(player) {
-					const cards = player.getHistory("lose").flatMap(evt => evt.cards2 || []);
-					return cards.filterInD("d");
-				},
 				filter(event, player, name) {
 					const key = name == "damageSource" ? "sourceDamage" : "damage";
-					return player.getHistory(key, evt => evt.num > 0).indexOf(event) == 0 && get.info("dcsblingshu_gain").getCards(player).length > 0;
+					return player.getHistory(key, evt => evt.num > 0).indexOf(event) == 0 && _status.discarded?.length > 0;
 				},
-				async cost(event, trigger, player) {
-					const cards = get.info(event.skill).getCards(player);
-					const result = await player
-						.chooseButton([`###${get.prompt(event.skill)}###获得弃牌堆一张你本回合失去的牌`, cards])
-						.set("ai", button => get.value(button.link))
-						.forResult();
-					if (result?.bool && result.links?.length) {
-						event.result = {
-							bool: true,
-							cost_data: result.links,
-						};
-					}
-				},
+				prompt2: "随机获得一张本回合进入弃牌堆的牌",
 				async content(event, trigger, player) {
-					const { cost_data: cards } = event;
-					await player.gain(cards, "gain2");
+					await player.gain(_status.discarded.randomGet(), "gain2");
 				},
 			},
 		},
@@ -1970,9 +1953,8 @@ const skills = {
 			return player.countDiscardableCards(player, "h") > 0;
 		},
 		async cost(event, trigger, player) {
-			const num = Math.min(5, Math.ceil(player.countCards("h") / 2));
 			event.result = await player
-				.chooseToDiscard(get.prompt2(event.skill, trigger.player), num, "h", "chooseonly")
+				.chooseToDiscard(get.prompt2(event.skill, trigger.player), [1, 5], "h", "chooseonly")
 				.set("allowChooseAll", true)
 				.set("ai", card => {
 					const target = get.event().getTrigger().player;
@@ -2058,10 +2040,6 @@ const skills = {
 		audio: 2,
 		enable: "phaseUse",
 		usable: 1,
-		filterCard: true,
-		lose: false,
-		discard: false,
-		delay: false,
 		filterTarget(card, player, target) {
 			return target != player && target.countCards("h") > 0;
 		},
@@ -2069,35 +2047,53 @@ const skills = {
 			return 6 - get.value(card);
 		},
 		async content(event, trigger, player) {
-			const { cards, target } = event;
-			await player.showCards(cards, `${get.translation(player)}发动了【${get.translation(event.name)}】`);
-			const result = await target.chooseCard(`和戎：请选择一张手牌展示`, "h", true).forResult();
+			const { target } = event;
+			const result = await player.choosePlayerCard(`和戎：请选择展示${get.translation(target)}一张手牌`, target, "h", true).forResult();
 			if (result?.bool && result.cards?.length) {
-				await target.showCards(result.cards, `${get.translation(target)}展示的手牌`);
+				await player.showCards(result.cards, `${get.translation(target)}被展示的手牌`);
 			} else {
 				return;
 			}
-			const next = player
-				.chooseCardOL([player, target], "和戎：请选择要交换的手牌", true)
-				.set("ai", function (card) {
-					return -get.value(card);
+			if (!player.countCards("h")) {
+				return;
+			}
+			const card1 = result.cards[0];
+			const result2 = await player
+				.chooseCard(`和戎：请选择一张手牌与其交换`, true, "h")
+				.set("promptx", [[card1], [dialog => dialog.buttons.forEach(i => (i.style.opacity = 1)), "handle"]])
+				.set("ai", card => {
+					const { target, player, cardx } = get.event();
+					const bool = get.type2(card) == get.type2(cardx);
+					const att = get.attitude(player, target);
+					if (att > 0 && bool) {
+						return 7.5 - get.value(card);
+					}
+					if (att < 0 && !bool) {
+						return 6 - get.value(card);
+					}
+					return 5 - get.value(card);
 				})
-				.set("source", player);
-			next.aiCard = function (target) {
-				var hs = target.getCards("h");
-				return { bool: true, cards: [hs.randomGet()] };
-			};
-			next._args.remove("glow_result");
-			const result2 = await next.forResult();
-			const card1 = result2[0].cards[0];
-			const card2 = result2[1].cards[0];
-			await player.swapHandcards(target, [card1], [card2]);
+				.set("cardx", card1)
+				.set("target", target)
+				.forResult();
+			if (!result2.bool || !result2.cards?.length) {
+				return;
+			}
+			const card2 = result2.cards[0];
+			await player.swapHandcards(target, [card2], [card1]);
 			if (get.type2(card1) == get.type2(card2)) {
 				player.popup("洗具");
 				player.addSkill(`${event.name}_defend`);
-				player.markAuto(`${event.name}_defend`, target);
-				player.addSkill(`${event.name}_gain`);
-				player.markAuto(`${event.name}_gain`, target);
+				await game.doAsyncInOrder(
+					[player, target],
+					async target => {
+						const card = get.cardPile2(card => get.type(card) == "equip", "random");
+						if (card) {
+							await target.gain(card, "gain2");
+						}
+					},
+					(a, b) => false
+				);
 			} else {
 				player.popup("杯具");
 				await player.discardPlayerCard(target, "he", true, 2);
@@ -2107,69 +2103,33 @@ const skills = {
 		ai: {
 			order: 5,
 			result: {
-				target: 1,
+				target(player, target) {
+					const sgn = get.sgnAttitude(player, target);
+					if (sgn > 0) {
+						return sgn * (get.effect(target, { name: "draw" }, player, player) + get.effect(player, { name: "draw" }, player, player));
+					} else if (sgn < 0) {
+						return sgn * (get.effect(target, { name: "guohe_copy2" }, player, player) + get.damageEffect(target, player, player));
+					}
+					return 0;
+				},
 			},
 		},
 		subSkill: {
-			gain: {
-				charlotte: true,
-				forced: true,
-				onremove: true,
-				logTarget: "source",
-				trigger: { global: "damageSource" },
-				filter(event, player) {
-					return player.getStorage("dcherong_gain").includes(event.source);
-				},
-				intro: {
-					content: "$下次造成伤害后你与其从牌堆获得一张装备牌",
-				},
-				async content(event, trigger, player) {
-					const {
-						targets: [target],
-					} = event;
-					player.unmarkAuto(event.name, target);
-					if (!player.getStorage(event.name).length) {
-						player.removeSkill(event.name);
-					}
-					await game.doAsyncInOrder(
-						[player, target],
-						async target => {
-							const card = get.cardPile2(card => get.type(card) == "equip", "random");
-							if (card) {
-								await target.gain(card, "gain2");
-							}
-						},
-						() => false
-					);
-				},
-			},
 			defend: {
+				audio: "dcherong",
 				charlotte: true,
 				forced: true,
-				onremove: true,
-				trigger: { global: "damageBegin4" },
+				trigger: { player: "damageBegin4" },
 				filter(event, player) {
-					return event.player == player || player.getStorage(`dcherong_defend`).includes(event.player);
+					return event.num > 0;
 				},
 				logTarget: "player",
+				mark: true,
 				intro: {
-					content: "防止你与$下次受到的伤害",
+					content: "防止你下次受到的伤害",
 				},
 				async content(event, trigger, player) {
-					const {
-						targets: [target],
-					} = event;
-					if (player == target) {
-						player.removeSkill(event.name);
-					}
-					game.players.forEach(current => {
-						if (current.getStorage(event.name).includes(target)) {
-							current.unmarkAuto(event.name, target);
-							if (!current.getStorage(event.name).length) {
-								current.removeSkill(event.name);
-							}
-						}
-					});
+					player.removeSkill(event.name);
 					trigger.cancel();
 				},
 			},

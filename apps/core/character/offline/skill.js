@@ -11805,7 +11805,8 @@ const skills = {
 						.set("ai", () => {
 							if (
 								get
-									.event("card")
+									.event()
+									.card
 									.map(c => get.value(c))
 									.reduce((sum, cur) => sum + cur, 0) > 4
 							) {
