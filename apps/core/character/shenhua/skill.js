@@ -6847,14 +6847,15 @@ const skills = {
 			return [0, 1];
 		},
 		async content(event, trigger, player) {
+			const { target, cards } = event;
 			const stat = player.getStat();
 			stat._qiangxix ??= [];
 			stat._qiangxix.push(target);
 
-			if (!event.cards.length) {
+			if (!cards?.length) {
 				await player.loseHp();
 			}
-			await event.target.damage("nocard");
+			await target.damage("nocard");
 		},
 		ai: {
 			damage: true,
