@@ -402,6 +402,8 @@ const skills = {
 					list.remove(name)
 				);
 				if (card) {
+					player.addSkill(`${event.name}_destroy`);
+					player.markAuto(`${event.name}_destroy`, card);
 					player.$gain2(card);
 					await player.equip(card);
 					await game.delayx();
@@ -410,6 +412,43 @@ const skills = {
 		},
 		group: "olzhuangrong_count",
 		subSkill: {
+			destroy: {
+				trigger: { global: ["loseEnd", "cardsDiscardEnd"] },
+				forced: true,
+				charlotte: true,
+				popup: false,
+				onremove: true,
+				filter(event, player) {
+					if (event.name == "lose" && event.position != ui.discardPile) {
+						return false;
+					}
+					const storage = player.getStorage("olzhuangrong_destroy");
+					if (!storage) {
+						return false;
+					}
+					for (const i of event.cards) {
+						if (storage.includes(i)) {
+							return true;
+						}
+					}
+					return false;
+				},
+				async content(event, trigger, player) {
+					const cards = [];
+					const storage = player.getStorage(event.name);
+					for (const i of trigger.cards) {
+						if (storage.includes(i)) {
+							player.unmarkAuto(event.name, i);
+							cards.push(i);
+						}
+					}
+					game.cardsGotoSpecial(cards);
+					game.log(cards, "被移出了游戏");
+					if (!storage.length) {
+						player.removeSkill("olzhuangrong_destroy");
+					}
+				},
+			},
 			count: {
 				audio: "olzhuangrong",
 				trigger: {
@@ -494,9 +533,9 @@ const skills = {
 		round: 1,
 		enable: "chooseToUse",
 		filter(event, player) {
-			if (player.countCards("h") == player.hp) {
+			/*if (player.countCards("h") == player.hp) {
 				return false;
-			}
+			}*/
 			return get.inpileVCardList(info => {
 				if (info[0] !== "basic") {
 					return false;
