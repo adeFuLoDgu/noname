@@ -4785,7 +4785,7 @@ export const Content = {
 							}
 						}
 					}
-					await event.trigger("roundStart");
+					//await event.trigger("roundStart");
 				}
 			}
 			_status.globalHistory.push({
@@ -4816,6 +4816,7 @@ export const Content = {
 			}
 			if (isRound) {
 				game.getGlobalHistory().isRound = true;
+				await event.trigger("roundStart");
 			}
 		},
 		async (event, trigger, player) => {
