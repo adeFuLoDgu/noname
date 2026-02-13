@@ -12807,7 +12807,7 @@ export const Content = {
 				const starts = [_status.currentPhase, event.source, event.player, game.me, game.players[0]];
 				for (var i = 0; i < starts.length; i++) {
 					if (get.itemtype(starts[i]) == "player" && game.players.concat(game.dead).includes(starts[i])) {
-						start = starts[i];
+						start = game.players.slice().sortBySeat(starts[i])[0];
 						break;
 					}
 				}
