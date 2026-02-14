@@ -8316,10 +8316,10 @@ export class Player extends HTMLDivElement {
 	}
 	/**
 	 * 令玩家死亡或进入休整状态
-	 * @param { GameEvent } reason 导致角色死亡的事件
+	 * @param { GameEvent } [reason] 导致角色死亡的事件
 	 * @returns { GameEvent }
 	 */
-	die(reason, restMap = { type: null, count: null, audio: null }) {
+	die(reason) {
 		var next = game.createEvent("die");
 		next.player = this;
 		next.reason = reason;

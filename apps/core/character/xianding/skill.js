@@ -67,14 +67,11 @@ const skills = {
 		},
 		filter(event, player) {
 			const card = get.autoViewAs({ name: "sha", isCard: true });
-			return player
-				.getRoundHistory("damage", evt => evt.source?.isIn() && player.canUse(card, evt.source, false, false))
-				.map(evt => evt.source)
-				.unique().length;
+			return game.hasPlayer(target => player.canUse(card, target, false, false));
 		},
 		filterTarget(card, player, target) {
 			const cardx = get.autoViewAs({ name: "sha", isCard: true });
-			return player.getRoundHistory("damage", evt => evt.source == target).length > 0 && player.canUse(cardx, target, false, false);
+			return target != player && player.canUse(cardx, target, false, false);
 		},
 		async cost(event, trigger, player) {
 			event.result = await player
@@ -89,6 +86,9 @@ const skills = {
 			} = event;
 			player.addSkill(`${event.name}_refresh`);
 			await player.useCard(get.autoViewAs({ name: "sha", isCard: true }), target, false);
+			if (player.getRoundHistory("damage", evt => evt.source == target).length && target.countDiscardableCards(target, "h")) {
+				await target.randomDiscard("h");
+			}
 		},
 		ai: {
 			order: 7,
@@ -2931,9 +2931,9 @@ const skills = {
 								return sum + get.effect(current, card, source, player);
 							}, 0);
 							if (att > 0) {
-								return player.countCards("h") - eff >= 0;
+								return (-eff - 4) * (114514 - target.countCards("h"));
 							}
-							return -eff - player.countCards("h") >= 0;
+							return 0;
 						})
 						.forResult();
 				},
@@ -3625,31 +3625,41 @@ const skills = {
 				await player.gain(links, "gain2");
 			}
 			const result = await player
-				.chooseButtonTarget({
+				.chooseTarget(`淑任：可令一名其他角色获得其中一张牌`, lib.filter.notMe)
+				.set("ai", target => get.attitude(get.player(), target) * (114514 - target.countCards("h")))
+				.forResult();
+			if (result.bool && result.targets?.length) {
+				const {
+					targets: [target],
+				} = result;
+				player.line(target);
+				const result2 = await target
+					.chooseCardButton(`淑任：选择获得其中一张`, cards, true)
+					.set("ai", button => get.buttonValue(button))
+					.forResult();
+				if (result2?.links?.length) {
+					const { links } = result2;
+					await target.gain(links, "gain2");
+				}
+			}
+			/**
+			 	.chooseButtonTarget({
 					createDialog: [`淑任：可令一名其他角色获得其中一张牌`, cards],
 					filterButton: true,
 					filterTarget: lib.filter.notMe,
 					ai1(button) {
 						if (game.hasPlayer(target => get.attitude(get.player(), target) > 0)) {
-							return get.value(button.link);
+							return get.buttonValue(button);
 						}
 						return 0;
 					},
 					ai2(target) {
 						const player = get.player(),
-							card = ui.selected.cards[0];
+							card = ui.selected.buttons[0].link;
 						return get.value(card, target) * get.attitude(player, target);
 					},
 				})
-				.forResult();
-			if (result?.bool) {
-				const {
-					links,
-					targets: [target],
-				} = result;
-				player.line(target, "green");
-				await target.gain(links, "gain2");
-			}
+			 */
 			game.broadcastAll(ui.clear);
 			if (restore) {
 				if (player.getStat("skill")[event.name]) {
@@ -8362,7 +8372,7 @@ const skills = {
 							{ name: button.link[2], nature: button.link[3] },
 							ui.selected.buttons.map(i => i.link)
 						);
-						return player.hasUseTarget(cardx, true, true) && ui.selected.buttons.length;
+						return get.player().hasUseTarget(cardx, true, true) && ui.selected.buttons.length;
 					})
 					.set("complexSelect", true)
 					.set("ai", button => {
@@ -8373,7 +8383,7 @@ const skills = {
 							return 0;
 						}
 						const cardx = get.autoViewAs({ name: button.link[2] });
-						return player.getUseValue(cardx, true, true);
+						return get.player().getUseValue(cardx, true, true);
 					})
 					.forResult();
 				if (!result.bool) {
@@ -14620,7 +14630,7 @@ const skills = {
 					break;
 				}
 				let result;
-				if (cards.length >= game.players.length) {
+				if (cards.length > game.players.length) {
 					result = { index: 1 };
 				} else {
 					result = await target
