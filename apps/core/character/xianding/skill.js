@@ -3633,7 +3633,10 @@ const skills = {
 					targets: [target],
 				} = result;
 				player.line(target);
-				const result2 = await target.chooseCardButton(`淑任：选择获得其中一张`, cards, true).forResult();
+				const result2 = await target
+					.chooseCardButton(`淑任：选择获得其中一张`, cards, true)
+					.set("ai", button => get.buttonValue(button))
+					.forResult();
 				if (result2?.links?.length) {
 					const { links } = result2;
 					await target.gain(links, "gain2");
