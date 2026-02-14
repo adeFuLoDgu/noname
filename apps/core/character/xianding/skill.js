@@ -3625,7 +3625,22 @@ const skills = {
 				await player.gain(links, "gain2");
 			}
 			const result = await player
-				.chooseButtonTarget({
+				.chooseTarget(`淑任：可令一名其他角色获得其中一张牌`, lib.filter.notMe)
+				.set("ai", target => get.attitude(get.player(), target) * (114514 - target.countCards("h")))
+				.forResult();
+			if (result.bool && result.targets?.length) {
+				const {
+					targets: [target],
+				} = result;
+				player.line(target);
+				const result2 = await target.chooseCardButton(`淑任：选择获得其中一张`, cards, true).forResult();
+				if (result2?.links?.length) {
+					const { links } = result2;
+					await target.gain(links, "gain2");
+				}
+			}
+			/**
+			 	.chooseButtonTarget({
 					createDialog: [`淑任：可令一名其他角色获得其中一张牌`, cards],
 					filterButton: true,
 					filterTarget: lib.filter.notMe,
@@ -3641,15 +3656,7 @@ const skills = {
 						return get.value(card, target) * get.attitude(player, target);
 					},
 				})
-				.forResult();
-			if (result?.bool) {
-				const {
-					links,
-					targets: [target],
-				} = result;
-				player.line(target, "green");
-				await target.gain(links, "gain2");
-			}
+			 */
 			game.broadcastAll(ui.clear);
 			if (restore) {
 				if (player.getStat("skill")[event.name]) {
