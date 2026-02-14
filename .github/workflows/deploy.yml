@@ -4,7 +4,8 @@ on:
   # Runs on pushes targeting the default branch
   push:
     paths-ignore:
-      - 'apps/core/docs/**'
+      - 'docs/**'
+      - '**/*.md'
       - .dockerignore
       - .eslintrc.json
       - .gitignore
@@ -12,7 +13,6 @@ on:
       - .nomedia
       - .prettierrc
       - Dockerfile
-      - README.md
       - deno.json
       - docker-compose.yml
       - eslint.config.js
@@ -59,14 +59,14 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       - name: Run Build
-        run: pnpm build:full
+        run: pnpm build
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact
         # Use v3, as v4 excludes certain files and cannot be configured.
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './apps/core/dist'
+          path: './dist'
           retention-days: 1
       - name: Deploy to GitHub Pages
         id: deployment
