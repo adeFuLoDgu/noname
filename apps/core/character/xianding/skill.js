@@ -67,14 +67,11 @@ const skills = {
 		},
 		filter(event, player) {
 			const card = get.autoViewAs({ name: "sha", isCard: true });
-			return player
-				.getRoundHistory("damage", evt => evt.source?.isIn() && player.canUse(card, evt.source, false, false))
-				.map(evt => evt.source)
-				.unique().length;
+			return game.hasPlayer(target => player.canUse(card, target, false, false));
 		},
 		filterTarget(card, player, target) {
 			const cardx = get.autoViewAs({ name: "sha", isCard: true });
-			return player.getRoundHistory("damage", evt => evt.source == target).length > 0 && player.canUse(cardx, target, false, false);
+			return target != player && player.canUse(cardx, target, false, false);
 		},
 		async cost(event, trigger, player) {
 			event.result = await player
@@ -89,6 +86,9 @@ const skills = {
 			} = event;
 			player.addSkill(`${event.name}_refresh`);
 			await player.useCard(get.autoViewAs({ name: "sha", isCard: true }), target, false);
+			if (player.getRoundHistory("damage", evt => evt.source == target).length && target.countDiscardableCards(target, "h")) {
+				await target.randomDiscard("h");
+			}
 		},
 		ai: {
 			order: 7,
@@ -8369,7 +8369,7 @@ const skills = {
 							{ name: button.link[2], nature: button.link[3] },
 							ui.selected.buttons.map(i => i.link)
 						);
-						return player.hasUseTarget(cardx, true, true) && ui.selected.buttons.length;
+						return get.player().hasUseTarget(cardx, true, true) && ui.selected.buttons.length;
 					})
 					.set("complexSelect", true)
 					.set("ai", button => {
@@ -8380,7 +8380,7 @@ const skills = {
 							return 0;
 						}
 						const cardx = get.autoViewAs({ name: button.link[2] });
-						return player.getUseValue(cardx, true, true);
+						return get.player().getUseValue(cardx, true, true);
 					})
 					.forResult();
 				if (!result.bool) {
