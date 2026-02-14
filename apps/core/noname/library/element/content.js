@@ -12812,15 +12812,15 @@ export const Content = {
 						}
 					}
 				}
-				if (!start) {
-					return;
+				if (start) {
+					const next = game.createEvent("_save");
+					next.player = start;
+					next._trigger = event;
+					next.triggername = "_save";
+					next.forceDie = true;
+					next.setContent("_save");
+					await next;
 				}
-				const next = game.createEvent("_save");
-				next.player = start;
-				next._trigger = event;
-				next.triggername = "_save";
-				next.forceDie = true;
-				next.setContent("_save");
 			}
 		},
 		async (event, trigger, player) => {
