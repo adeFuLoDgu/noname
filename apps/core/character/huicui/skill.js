@@ -86,7 +86,7 @@ const skills = {
 			const targetsx = game.filterPlayer(target => target != player && target.isMaxHandcard(void 0, target => target != player));
 			await game.doAsyncInOrder(targetsx, async target => {
 				await target.showHandcards();
-				const hs = target.getCards("h", card => get.type2(card) == type);
+				const hs = target.getCards("he", card => get.type2(card) == type);
 				if (hs.length) {
 					//const bool = target.isMinHandcard(void 0, target => target != player);
 					target.$throw(hs.length, 1000);

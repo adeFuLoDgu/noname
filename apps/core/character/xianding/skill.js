@@ -3631,13 +3631,13 @@ const skills = {
 					filterTarget: lib.filter.notMe,
 					ai1(button) {
 						if (game.hasPlayer(target => get.attitude(get.player(), target) > 0)) {
-							return get.value(button.link);
+							return get.buttonValue(button);
 						}
 						return 0;
 					},
 					ai2(target) {
 						const player = get.player(),
-							card = ui.selected.cards[0];
+							card = ui.selected.buttons[0].link;
 						return get.value(card, target) * get.attitude(player, target);
 					},
 				})
@@ -14620,7 +14620,7 @@ const skills = {
 					break;
 				}
 				let result;
-				if (cards.length >= game.players.length) {
+				if (cards.length > game.players.length) {
 					result = { index: 1 };
 				} else {
 					result = await target
