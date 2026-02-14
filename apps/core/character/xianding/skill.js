@@ -2931,9 +2931,9 @@ const skills = {
 								return sum + get.effect(current, card, source, player);
 							}, 0);
 							if (att > 0) {
-								return player.countCards("h") - eff >= 0;
+								return (-eff - 4) * (114514 - target.countCards("h"));
 							}
-							return -eff - player.countCards("h") >= 0;
+							return 0;
 						})
 						.forResult();
 				},
