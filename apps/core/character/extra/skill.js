@@ -8412,7 +8412,7 @@ const skills = {
 				for (const target of targets) {
 					const num = Math.max(1, target.countCards("h", "shan"));
 					const next = target.damage(num, "thunder");
-					event.push(next);
+					events.push(next);
 				}
 
 				await Promise.all(events);
@@ -8440,7 +8440,7 @@ const skills = {
 			result: { target: -1 },
 		},
 		async contentx(event) {
-			const { card } = event.judgeResult.card;
+			const { card } = event.judgeResult;
 			const { player, target } = event.getParent(2);
 			if (get.position(card, true) == "o") {
 				await player.gain(card, "gain2");
@@ -14680,7 +14680,7 @@ const skills = {
 					if (target.getHp() > 1) {
 						return;
 					}
-					if (get.tag(card, "damage") || get.tag(card, "losehp")) {
+					if (get.tag(card, "damage") || get.tag(card, "loseHp")) {
 						return [1, 1];
 					}
 				},

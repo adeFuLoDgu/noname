@@ -15,7 +15,6 @@ export default defineConfig({
 			"@": path.resolve(__dirname, "noname"),
 			"noname": path.resolve(__dirname, "noname.js"),
 		},
-		extensions: [".tsx", ".ts", ".js", ".vue"],
 	},
 	plugins: [vue()],
 	server: {

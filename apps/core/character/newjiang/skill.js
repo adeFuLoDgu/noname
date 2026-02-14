@@ -6568,7 +6568,7 @@ const skills = {
 					if (get.attitude(player, target) <= 0) {
 						return 0;
 					}
-					var len = 4 - (ui.selected.taragets.length + 1),
+					var len = 4 - (ui.selected.targets.length + 1),
 						hp = target.getHp();
 					return len + target.isTurnedOver() * 2 + (1.5 * Math.min(4, target.getDamagedHp())) / (hp + 1);
 				})

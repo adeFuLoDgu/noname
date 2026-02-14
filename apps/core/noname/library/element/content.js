@@ -4798,7 +4798,7 @@ export const Content = {
 							}
 						}
 					}
-					await event.trigger("roundStart");
+					//await event.trigger("roundStart");
 				}
 			}
 			_status.globalHistory.push({
@@ -4829,6 +4829,7 @@ export const Content = {
 			}
 			if (isRound) {
 				game.getGlobalHistory().isRound = true;
+				await event.trigger("roundStart");
 			}
 		},
 		async (event, trigger, player) => {
@@ -13030,7 +13031,7 @@ export const Content = {
 				const starts = [_status.currentPhase, event.source, event.player, game.me, game.players[0]];
 				for (var i = 0; i < starts.length; i++) {
 					if (get.itemtype(starts[i]) == "player" && game.players.concat(game.dead).includes(starts[i])) {
-						start = starts[i];
+						start = game.players.slice().sortBySeat(starts[i])[0];
 						break;
 					}
 				}
@@ -13693,21 +13694,26 @@ export const Content = {
 			game.addVideo("judge2", null, event.videoId);
 			ui.arena.classList.remove("thrownhighlight");
 			game.log(player, "的判定结果为", event.result.card);
-			await event.trigger("judgeFixing");
+			const triggerFixing = event.trigger("judgeFixing");
 			if (window.decadeUI) event.triggerMessage('judgeresult');
+			let callback = null;
 			if (event.callback) {
 				const next = game.createEvent("judgeCallback", false);
 				next.player = player;
 				next.card = event.result.card;
 				next.judgeResult = get.copy(event.result);
 				next.setContent(event.callback);
-				await next;
+				callback = next;
 			} else {
 				if (!get.owner(event.result.card)) {
 					if (event.position != ui.discardPile) {
 						event.position.appendChild(event.result.card);
 					}
 				}
+			}
+			await triggerFixing;
+			if (event.next.includes(callback)) {
+				await callback;
 			}
 		},
 	],

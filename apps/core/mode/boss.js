@@ -7839,7 +7839,7 @@ export default () => {
 											return [1, 0, 1, 6 / (1 + target.countCards("h"))];
 										}
 									}
-									if (get.tag(card, "damage") || get.tag(card, "losehp")) {
+									if (get.tag(card, "damage") || get.tag(card, "loseHp")) {
 										if (target.countCards("h")) {
 											return [1, 7, 1, -7];
 										}
@@ -7849,7 +7849,7 @@ export default () => {
 									if (typeof card === "object" && game.hasNature(card, "fire")) {
 										return;
 									}
-									if (get.tag(card, "damage") || get.tag(card, "losehp")) {
+									if (get.tag(card, "damage") || get.tag(card, "loseHp")) {
 										return [1, 6, 1, -6];
 									}
 									break;
@@ -7857,7 +7857,7 @@ export default () => {
 									if (typeof card !== "object" || game.hasNature(card, "thunder")) {
 										return;
 									}
-									if (get.tag(card, "damage") || get.tag(card, "losehp")) {
+									if (get.tag(card, "damage") || get.tag(card, "loseHp")) {
 										return [1, 5, 1, -5];
 									}
 									break;
@@ -7865,12 +7865,12 @@ export default () => {
 									if (get.tag(card, "damage")) {
 										return [1, 2, 1, -2];
 									}
-									if (get.tag(card, "losehp")) {
+									if (get.tag(card, "loseHp")) {
 										return [1, -4];
 									}
 									break;
 								case 3:
-									if (get.tag(card, "damage") || get.tag(card, "losehp")) {
+									if (get.tag(card, "damage") || get.tag(card, "loseHp")) {
 										if (
 											!game.hasPlayer(current => {
 												return current !== target && current.countCards("e") >= 4;
@@ -7886,7 +7886,7 @@ export default () => {
 											return [1, -4];
 										}
 									}
-									if (get.tag(card, "damage") || get.tag(card, "losehp")) {
+									if (get.tag(card, "damage") || get.tag(card, "loseHp")) {
 										if (target.countCards("j") <= 2) {
 											return [1, 2, 1, -3];
 										}

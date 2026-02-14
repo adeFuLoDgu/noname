@@ -1,4 +1,23 @@
 const characters = {
+	o_tanshihuai: {
+		sex: "male",
+		group: "qun",
+		hp: 4,
+		skills: ["mblianzhan", "mbkoulve"],
+		names: "null|檀石槐",
+	},
+	o_lvbu: {
+		sex: "male",
+		group: "qun",
+		hp: 4,
+		skills: ["mblvezhen", "mbhengwei"],
+	},
+	o_gaoshun: {
+		sex: "male",
+		group: "qun",
+		hp: 4,
+		skills: ["mbjiren", "mbjuezhi"],
+	},
 	hanxuan: {
 		sex: "male",
 		group: "qun",

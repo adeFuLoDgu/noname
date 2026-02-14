@@ -3730,7 +3730,7 @@ const skills = {
 					return (event.name != "phase" || game.phaseNumber == 0) && game.hasPlayer(target => target._start_cards?.length);
 				},
 				async content(event, trigger, player) {
-					game.filterPlayer().forEach(target => target.addGaintag(target._start_cards, "eternal_olduoqi_tag"));
+					game.filterPlayer().forEach(target => target.addGaintag(target._start_cards || [], "eternal_olduoqi_tag"));
 				},
 			},
 			tag: {},

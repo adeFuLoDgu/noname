@@ -1,4 +1,7 @@
 export default {
+	//o_tanshihuai: "", 
+	//o_lvbu: "", 
+	//o_gaoshun: "",
 	//mb_zhangzhi: "",
 	//mb_caozhi: "",
 	//mb_zhouyu: "",
