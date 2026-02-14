@@ -12521,7 +12521,7 @@ const skills = {
 			return evt.cards2.length > player.hp;
 		},
 		async cost(event, trigger, player) {
-			const cards = event.triggername == trigger.getd().filterInD("d");
+			const cards = trigger.getd().filterInD("d");
 			let map = {},
 				targetx = [];
 			if (_status.connectMode) {
