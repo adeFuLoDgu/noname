@@ -3587,6 +3587,7 @@ const skills = {
 	//威孙尚香
 	dcshuren: {
 		audio: 2,
+		audioname: ["v_sunshangxiang_shadow"],
 		usable: 1,
 		enable: "phaseUse",
 		filter(event, player) {
@@ -3679,6 +3680,7 @@ const skills = {
 	},
 	dcsaran: {
 		audio: 2,
+		audioname: ["v_sunshangxiang_shadow"],
 		locked: false,
 		mod: {
 			cardUsable(card, player, num) {
