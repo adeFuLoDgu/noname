@@ -9,16 +9,17 @@ const skills = {
 			player: "phaseJieshuBegin",
 		},
 		filter(event, player) {
-			return ["h", "e", "j"].some(pos => player.countDiscardableCards(player, pos));
+			//return ["h", "e", "j"].some(pos => player.countDiscardableCards(player, pos));
+			return true;
 		},
 		forced: true,
 		async content(event, trigger, player) {
-			const position = ["h", "e", "j"].filter(pos => player.countDiscardableCards(player, pos)),
+			const position = ["h", "e", "j"],//.filter(pos => player.countDiscardableCards(player, pos)),
 				map = { h: "手牌区", e: "装备区", j: "判定区" };
 			let list = position.map(i => map[i]);
 			const result = await player
 				.chooseControl(list)
-				.set("prompt", `###${get.translation(event.name)}：选择弃置自己一个区域内的所有牌###然后选择弃置任意名其他角色对应区域内的各一张牌。`)
+				.set("prompt", `###${get.translation(event.name)}：选择一个区域并弃置其中所有牌###然后选择弃置任意名其他角色对应区域内的各一张牌。`)
 				.set("ai", (event, player) => {
 					const targets = game.filterPlayer(current => current != player),
 						{ position, controls } = get.event(),
@@ -26,11 +27,10 @@ const skills = {
 					for (const pos of position) {
 						let info = targets
 							.filter(target => target.countDiscardableCards(player, pos))
-							.map(target => get.effect(target, { name: "guohe_copy", position: pos }, player, player))
-							.filter(num => num >= 0)
-							.sort((a, b) => b - a)
-							.slice(0, player.countDiscardableCards(player, pos))
-							.reduce((sum, num) => sum + num, 0);
+							.reduce((sum, target) => {
+								const eff = get.effect(target, { name: "guohe_copy", position: pos }, player, player);
+								return eff > 0 ? sum + eff : sum;
+							}, 0);
 						list[pos] = info - (pos == "j" ? -1 : 1) * get.value(player.getDiscardableCards(player, pos));
 					}
 					let choice = Object.entries(list).sort((a, b) => b[1] - a[1])[0];
@@ -42,14 +42,14 @@ const skills = {
 				return;
 			}
 			const pos = { 手牌区: "h", 装备区: "e", 判定区: "j" }[result.control];
-			const cards = await player.discard(player.getDiscardableCards(player, pos)).cards;
-			let doneList = new Map([[player, cards]]);
+			const result2 = await player.modedDiscard(player.getCards(pos)).forResult();
+			let doneList = new Map([[player, result2?.cards || []]]);
 			while (true) {
 				if (!game.hasPlayer(current => current != player && !doneList.has(current) && current.countDiscardableCards(player, pos))) {
 					break;
 				}
 				let result = await player
-					.chooseTarget(`孤悬：选择一名其他角色，弃置其${{ h: "手牌区", e: "装备区", j: "判定区" }[pos]}内的一张牌`)
+					.chooseTarget(`天涛：选择一名其他角色，弃置其${{ h: "手牌区", e: "装备区", j: "判定区" }[pos]}内的一张牌`)
 					.set(
 						"filterTarget",
 						(_, player, target) =>
@@ -106,8 +106,10 @@ const skills = {
 					cards.removeArray(sha);
 					const hs = [];
 					let num = Math.ceil(sha.length / 2);
-					hs.addArray(sha.slice(0, num));
-					sha.removeArray(hs);
+					if (num <= player.countCards("h")) {
+						hs.addArray(sha.slice(0, num));
+						sha.removeArray(hs);
+					}
 					if (hs.length < player.countCards("h")) {
 						hs.addArray(cards.slice(0, player.countCards("h") - hs.length));
 						cards.removeArray(hs);
@@ -131,15 +133,16 @@ const skills = {
 							originPile = cards.slice().removeArray(hs);
 						//将手牌中有变动的和牌堆顶的牌送入处理区
 						if (puts.length) {
+							player.$throw(puts.length, 1000);
 							await player.lose(puts, ui.ordering).set("getlx", false);
 						}
 						await game.cardsGotoOrdering(originPile);
 						//手牌部分
 						if (gain.length) {
-							await player.gain(gain, "draw");
+							await player.gain(gain, "draw").set("getlx", false);
 							//调整手牌顺序
-							player.getCards("h").forEach(i => i.goto(ui.special));
-							player.directgain(moved[1].slice().reverse(), false);
+							/*player.getCards("h").forEach(i => i.goto(ui.special));
+							player.directgain(moved[1].slice().reverse(), false);*/
 						}
 						//牌堆部分
 						await game.cardsGotoPile(moved[0].slice().reverse(), ["insert_card", true]);
@@ -13111,7 +13114,7 @@ const skills = {
 			return player.getStat("kill") > 0;
 		},
 		async content(event, trigger, player) {
-			await player.insertPhase();
+			player.insertPhase();
 		},
 	},
 	baonu: {

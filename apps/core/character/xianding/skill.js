@@ -3593,9 +3593,11 @@ const skills = {
 			return player.hasEnabledSlot();
 		},
 		async content(event, trigger, player) {
-			const storage = player.getStorage(event.name, false);
-			player.changeSkin(event.name, `v_sunshangxiang${!storage ? "_shadow" : ""}`);
-			player.setStorage(event.name, !storage);
+			const storage = player.getStorage("v_sunshangxiang_changeSkin", false);
+			if (!storage) {
+				player.changeSkin(event.name, "v_sunshangxiang_shadow");
+				player.setStorage("v_sunshangxiang_changeSkin", !storage);
+			}
 			const { control } = await player.chooseToDisable().forResult();
 			if (!control) {
 				return;
@@ -3698,6 +3700,11 @@ const skills = {
 			return true;
 		},
 		async content(event, trigger, player) {
+			const storage = player.getStorage("v_sunshangxiang_changeSkin", false);
+			if (storage) {
+				player.changeSkin(event.name, "v_sunshangxiang");
+				player.setStorage("v_sunshangxiang_changeSkin", !storage);
+			}
 			if (player.hasDisabledSlot()) {
 				const { bool } = await player
 					.chooseBool("飒然：是否恢复一个废弃装备栏？")
@@ -4876,6 +4883,7 @@ const skills = {
 		},
 	},
 	dcweijing: {
+		audio: 2,
 		trigger: { global: "phaseBegin" },
 		derivation: "dczhifeng",
 		filter(event, player) {

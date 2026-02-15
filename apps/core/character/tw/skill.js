@@ -10,7 +10,7 @@ const skills = {
 		},
 		usable: 1,
 		filter(event, player) {
-			return event.result && player.countDiscardableCards(player, "he", card => get.color(card) == get.color(event.result.card));
+			return event.result && player.countDiscardableCards(player, "he", card => get.color(card) == event.result.color) > 0;
 		},
 		async cost(event, trigger, player) {
 			const color = trigger.result.color;
