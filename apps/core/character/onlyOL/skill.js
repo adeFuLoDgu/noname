@@ -9302,13 +9302,29 @@ const skills = {
 									"令其中一个目标摸" + get.cnNumber(num) + "张牌，或失去1点体力"
 								)
 								.set("ai", target => {
-									const { player, num } = get.event();
-									let eff = get.effect(target, { name: "draw" }, player, player) * num;
-									if (eff < 0) {
-										eff -= get.effect(player, { name: "losehp" }, player, player);
-									}
-									return eff;
+									const { finalTarget } = get.event();
+									return finalTarget == target;
 								})
+								.set(
+									"finalTarget",
+									(function () {
+										const [finalTarget, drawEff] = trigger.targets.reduce(([targetx, effx = 0], target) => {
+											if (!targetx?.isIn()) {
+												return [target, 0];
+											}
+											const eff = get.effect(target, { name: "draw" }, player, player);
+											return eff > effx ? [target, eff] : [targetx, effx];
+										}, []);
+										if (drawEff <= 0) {
+											const losehpEff = get.effect(player, { name: "losehp" }, player, player);
+											if (losehpEff >= 0) {
+												return 0;
+											}
+											return drawEff * num - losehpEff > 0 ? finalTarget : 0;
+										}
+										return finalTarget;
+									})()
+								)
 								.set("num", num)
 								.forResult();
 					if (result?.targets?.length) {

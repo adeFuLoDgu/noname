@@ -10,7 +10,7 @@ const skills = {
 		},
 		usable: 1,
 		filter(event, player) {
-			return event.result && player.countDiscardableCards(player, "he", card => get.color(card) == get.color(event.result.card));
+			return event.result && player.countDiscardableCards(player, "he", card => get.color(card) == event.result.color) > 0;
 		},
 		async cost(event, trigger, player) {
 			const color = trigger.result.color;
@@ -11567,7 +11567,7 @@ const skills = {
 					return event.player.getHistory("damage").indexOf(event) == 0;
 				},
 				async content(event, trigger, player) {
-					await player.draw(2);
+					await player.draw(3);
 					if (trigger.source?.isIn() && trigger.source.countMark("twyanshi_mark") < 3) {
 						const target = trigger.source;
 						player.line(target, "green");
