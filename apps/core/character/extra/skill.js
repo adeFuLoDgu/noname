@@ -256,7 +256,7 @@ const skills = {
 		},
 	},
 	mbhuitian: {
-		audio: 2,
+		audio: 4,
 		trigger: {
 			global: ["roundStart", "phaseEnd"],
 		},
