@@ -10596,6 +10596,9 @@ ${(e instanceof Error ? e.stack : String(e))}`);
 			}
 			setTimeout(() => player.removeAttribute("style"), 500);
 		}, player);
+		if (_status.connectMode) {
+			delete lib.playerOL[player.playerid];
+		}
 		return player;
 	}
 }

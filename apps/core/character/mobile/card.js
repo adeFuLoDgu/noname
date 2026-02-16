@@ -176,23 +176,31 @@ const cards = {
 		subtype: "equip1",
 		ai: {
 			equipValue(card, player) {
-				if (
-					!game.hasPlayer(function (current) {
-						return player.canUse("sha", current) && get.effect(current, { name: "sha" }, player, player) > 0;
-					})
-				) {
+				if (player._rewrite_zhuge_temp) {
 					return 1;
 				}
-				if (player.hasSha() && _status.currentPhase == player) {
-					if (player.getEquip("zhuge") || player.getCardUsable("sha") == 0) {
-						return 10;
+				player._rewrite_zhuge_temp = true;
+				const result = (function() {
+					if (
+						!game.hasPlayer(function (current) {
+							return player.canUse("sha", current) && get.effect(current, { name: "sha" }, player, player) > 0;
+						})
+					) {
+						return 1;
 					}
-				}
-				var num = player.countCards("h", "sha");
-				if (num > 1) {
-					return 6 + num;
-				}
-				return 3 + num;
+					if (player.hasSha() && _status.currentPhase == player) {
+						if (player.getEquip("zhuge") || player.getCardUsable("sha") == 0) {
+							return 10;
+						}
+					}
+					var num = player.countCards("h", "sha");
+					if (num > 1) {
+						return 6 + num;
+					}
+					return 3 + num;
+				})();
+				delete player._rewrite_zhuge_temp;
+				return result;
 			},
 			basic: {
 				equipValue: 5,

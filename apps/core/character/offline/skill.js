@@ -4150,12 +4150,12 @@ const skills = {
 				},
 				async cost(event, trigger, player) {
 					let check,
-						str = `弃置一张手牌并跳过${get.translation(trigger.name)}`;
+						str = `弃置一张手牌并跳过其${get.translation(trigger.name)}`;
 					if (trigger.name == "phaseDraw") {
-						str += "，然后可以获得至多两名角色各一张手牌";
+						str += "，然后其可以获得至多两名角色各一张手牌";
 					}
 					if (trigger.name == "phaseUse") {
-						str += "，然后可以移动场上的一张牌";
+						str += "，然后其可以移动场上的一张牌";
 					}
 					switch (trigger.name) {
 						case "phaseJudge":
@@ -4209,7 +4209,7 @@ const skills = {
 							break;
 					}
 					event.result = await player
-						.chooseToDiscard(get.prompt(event.skill, trigger.player), str, lib.filter.cardDiscardable)
+						.chooseToDiscard(get.prompt(event.skill, trigger.player), str)
 						.set("ai", card => {
 							if (!_status.event.check) {
 								return -1;
@@ -4218,7 +4218,6 @@ const skills = {
 						})
 						.set("check", check)
 						.set("chooseonly", true)
-						.setHiddenSkill(event.skill)
 						.forResult();
 				},
 				async content(event, trigger, player) {

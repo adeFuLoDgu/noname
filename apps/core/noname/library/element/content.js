@@ -32,8 +32,8 @@ export const Content = {
 				lib.config.mode != "guozhan" &&
 				!dying.hasSkillTag("revertsave");
 			/** @type {Partial<Result>} */
-			let result;
-			if (!taoEnemyConfig && player.canSave(dying)) {
+			let result = { bool: false };
+			if (!taoEnemyConfig && player.canSave(dying) && player.isIn()) {
 				result = await player
 					.chooseToUse({
 						filterCard(card, player, event) {
@@ -87,9 +87,9 @@ export const Content = {
 						dying,
 					})
 					.forResult();
-			} else {
+			}/* else {
 				result = { bool: false };
-			}
+			}*/
 
 			if (event.finished) {
 				break;
@@ -13026,20 +13026,25 @@ export const Content = {
 				}, _status.dying);
 				event.finish();
 			} else if (!event.skipTao) {
-				const next = game.createEvent("_save");
 				let start = false;
 				const starts = [_status.currentPhase, event.source, event.player, game.me, game.players[0]];
 				for (var i = 0; i < starts.length; i++) {
 					if (get.itemtype(starts[i]) == "player" && game.players.concat(game.dead).includes(starts[i])) {
-						start = game.players.slice().sortBySeat(starts[i])[0];
-						break;
+						start = game.players.slice().sortBySeat(starts[i]).find(i => !i.isOut());
+						if (start) {
+							break;
+						}
 					}
 				}
-				next.player = start;
-				next._trigger = event;
-				next.triggername = "_save";
-				next.forceDie = true;
-				next.setContent("_save");
+				if (start) {
+					const next = game.createEvent("_save");
+					next.player = start;
+					next._trigger = event;
+					next.triggername = "_save";
+					next.forceDie = true;
+					next.setContent("_save");
+					await next;
+				}
 			}
 		},
 		async (event, trigger, player) => {

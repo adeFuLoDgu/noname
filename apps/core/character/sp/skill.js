@@ -413,15 +413,12 @@ const skills = {
 		group: "olzhuangrong_count",
 		subSkill: {
 			destroy: {
-				trigger: { global: ["loseEnd", "cardsDiscardEnd"] },
+				trigger: { global: "loseBegin" },
 				forced: true,
 				charlotte: true,
 				popup: false,
 				onremove: true,
 				filter(event, player) {
-					if (event.name == "lose" && event.position != ui.discardPile) {
-						return false;
-					}
 					const storage = player.getStorage("olzhuangrong_destroy");
 					if (!storage) {
 						return false;
@@ -434,16 +431,13 @@ const skills = {
 					return false;
 				},
 				async content(event, trigger, player) {
-					const cards = [];
 					const storage = player.getStorage(event.name);
-					for (const i of trigger.cards) {
-						if (storage.includes(i)) {
-							player.unmarkAuto(event.name, i);
-							cards.push(i);
+					for (const card of trigger.cards) {
+						if (storage.includes(card)) {
+							player.unmarkAuto(event.name, card);
+							card._destroy = true;
 						}
 					}
-					game.cardsGotoSpecial(cards);
-					game.log(cards, "被移出了游戏");
 					if (!storage.length) {
 						player.removeSkill("olzhuangrong_destroy");
 					}
@@ -7063,7 +7057,7 @@ const skills = {
 		audio: 2,
 		mod: {
 			inRange(from, to) {
-				if (!to.isDamaged()) {
+				if (_status.currentPhase == from && !to.isDamaged()) {
 					return true;
 				}
 			},

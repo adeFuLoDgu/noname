@@ -629,7 +629,7 @@ const skills = {
 		},
 	},
 	hefeidangshi: {
-		audio: 2,
+		audio: 4,
 		trigger: { player: "useCardAfter" },
 		filter(event, player) {
 			if (!event.targets?.length) {
@@ -851,7 +851,7 @@ const skills = {
 		},
 	},
 	hefeigaigong: {
-		audio: 2,
+		audio: 4,
 		trigger: {
 			source: "damageSource",
 			player: "damageEnd",
@@ -1122,7 +1122,7 @@ const skills = {
 		},
 	},
 	hefeizherui: {
-		audio: 2,
+		audio: 4,
 		trigger: {
 			global: "useCardToPlayered",
 		},

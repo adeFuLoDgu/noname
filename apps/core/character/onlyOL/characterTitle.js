@@ -15,7 +15,7 @@ export default {
 	ol_jsrg_sunjian: "拔定烈志",
 	ol_sb_xizhicai: "薪火相传",
 	ol_sb_guojia: "纵才扬军",
-	ol_re_yujing: "征战沙场",
+	ol_re_yujin: "治法御人",
 	ol_sb_xuyou: "帷幄擎炬",
 	ol_sb_lusu: "渊谟肇石城",
 	ol_sb_zhugeliang: "武侯",
