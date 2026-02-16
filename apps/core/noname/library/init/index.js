@@ -17,6 +17,7 @@ export class LibInit {
 		if (window.inSplash) {
 			return;
 		}
+		/*
 		if (window.resetExtension) {
 			if (confirm("游戏似乎未正常载入，有可能因为部分扩展未正常载入，或者因为部分扩展未载入完毕。\n是否禁用扩展并重新打开？")) {
 				window.resetExtension();
@@ -74,6 +75,7 @@ export class LibInit {
 				}
 			}
 		}
+		*/
 	}
 
 	startOnline = [

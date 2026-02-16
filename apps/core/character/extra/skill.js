@@ -10955,16 +10955,17 @@ const skills = {
 						if (result.control == "选项二") {
 							player.logSkill("tspowei_use", target);
 							await player.gainPlayerCard(target, "h", true);
-							event.goto(3);
+						}
+						if (result.control == "选项一") {
+							await player.chooseToDiscard("h", true).set("logSkill", ["tspowei_use", target]);
+							if (get.mode() != "identity" || player.identity != "nei") {
+								player.addExpose(0.2);
+							}
+							await target.damage();
 						}
 					} else {
 						return;
 					}
-					await player.chooseToDiscard("h", true).set("logSkill", ["tspowei_use", target]);
-					if (get.mode() != "identity" || player.identity != "nei") {
-						player.addExpose(0.2);
-					}
-					await target.damage();
 					player.addTempSkill("tspowei_inRange");
 				},
 				ai: { expose: 0.2 },
