@@ -19689,7 +19689,7 @@ const skills = {
 					if (!result2.bool) {
 						if (storage) {
 							target.popup("杯具");
-							target.loseHp(num + 1);
+							await target.loseHp(num + 1);
 						}
 						break;
 					}

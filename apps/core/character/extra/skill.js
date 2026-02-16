@@ -42,8 +42,11 @@ const skills = {
 				return;
 			}
 			const pos = { 手牌区: "h", 装备区: "e", 判定区: "j" }[result.control];
+			let doneList = new Map();
 			const result2 = await player.modedDiscard(player.getCards(pos)).forResult();
-			let doneList = new Map([[player, result2?.cards || []]]);
+			if (result2?.cards?.length) {
+				doneList.set(player, result2.cards);
+			}
 			while (true) {
 				if (!game.hasPlayer(current => current != player && !doneList.has(current) && current.countDiscardableCards(player, pos))) {
 					break;
@@ -241,7 +244,7 @@ const skills = {
 			if (num > 0) {
 				await player.recover(num);
 				const result = await player
-					.chooseTarget(`绝烬：选择一名角色对其造成${num}点雷电伤害`, true)
+					.chooseTarget(`神霈：选择一名角色对其造成${num}点雷电伤害`, true)
 					.set("ai", target => {
 						const { player } = get.event();
 						return get.damageEffect(target, player, player, "thunder");
