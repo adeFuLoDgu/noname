@@ -244,7 +244,7 @@ const skills = {
 			if (num > 0) {
 				await player.recover(num);
 				const result = await player
-					.chooseTarget(`绝烬：选择一名角色对其造成${num}点雷电伤害`, true)
+					.chooseTarget(`神霈：选择一名角色对其造成${num}点雷电伤害`, true)
 					.set("ai", target => {
 						const { player } = get.event();
 						return get.damageEffect(target, player, player, "thunder");
