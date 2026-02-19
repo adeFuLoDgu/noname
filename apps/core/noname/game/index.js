@@ -17,7 +17,7 @@ import { DynamicStyle } from "./dynamic-style/index.js";
 import { GamePromises } from "./promises.js";
 import { Check } from "./check.js";
 
-import { security } from "@/util/sandbox.js"
+import { security } from "@/util/sandbox.js";
 import { save } from "@/util/config.js";
 import { debounce } from "@/util/utils.js";
 
@@ -268,7 +268,10 @@ export class Game {
 			await game.$elementSwap(elementB, elementA, duration, timefun);
 		} else {
 			// 否则我们直接入队交换就好哦喵
-			await Promise.all([game.$elementGoto(elementA, parentB, elementB.nextElementSibling || "last", duration, timefun), game.$elementGoto(elementB, parentA, elementA.nextElementSibling || "last", duration, timefun)]);
+			await Promise.all([
+				game.$elementGoto(elementA, parentB, elementB.nextElementSibling || "last", duration, timefun),
+				game.$elementGoto(elementB, parentA, elementA.nextElementSibling || "last", duration, timefun),
+			]);
 		}
 	}
 	/**
@@ -852,10 +855,18 @@ export class Game {
 		return game.broadcastAll((yingbianCondition, color) => lib.yingbian.condition.color.set(yingbianCondition, color), yingbianCondition, color);
 	}
 	setComplexYingbianCondition(yingbianCondition, condition) {
-		return game.broadcastAll((yingbianCondition, condition) => lib.yingbian.condition.complex.set(yingbianCondition, condition), yingbianCondition, condition);
+		return game.broadcastAll(
+			(yingbianCondition, condition) => lib.yingbian.condition.complex.set(yingbianCondition, condition),
+			yingbianCondition,
+			condition
+		);
 	}
 	setSimpleYingbianCondition(yingbianCondition, condition) {
-		return game.broadcastAll((yingbianCondition, condition) => lib.yingbian.condition.simple.set(yingbianCondition, condition), yingbianCondition, condition);
+		return game.broadcastAll(
+			(yingbianCondition, condition) => lib.yingbian.condition.simple.set(yingbianCondition, condition),
+			yingbianCondition,
+			condition
+		);
 	}
 	setYingbianEffect(yingbianEffect, effect) {
 		return game.broadcastAll((yingbianEffect, effect) => lib.yingbian.effect.set(yingbianEffect, effect), yingbianEffect, effect);
@@ -2127,8 +2138,10 @@ export class Game {
 
 			tempUrl = new URL(tempHref);
 
-			const ipv4Regex = /^(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
-			const ipv6Regex = /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$/;
+			const ipv4Regex =
+				/^(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+			const ipv6Regex =
+				/^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$/;
 
 			// 如果给定的地址是纯ip地址，则自动添加8080端口，兼容以前的地址
 			if (ipv4Regex.test(ip) || ipv6Regex.test(ip)) {
@@ -2975,15 +2988,17 @@ export class Game {
 	async loadExtension(object) {
 		let stopImporting = false;
 		if (typeof object === "function") {
-			const extensionFilter = object.filter || function () {
-				return true;
-			}
+			const extensionFilter =
+				object.filter ||
+				function () {
+					return true;
+				};
 			if (isClass(object)) {
 				object = (await object.init?.()) ?? new object();
 			} else {
 				object = await object(lib, game, ui, get, ai, _status);
 			}
-			if (await extensionFilter() !== true) {
+			if ((await extensionFilter()) !== true) {
 				stopImporting = true;
 			}
 		}
@@ -3107,7 +3122,7 @@ export class Game {
 					skill: [],
 					audio: [],
 					...object.package.files,
-				}
+				};
 			} else {
 				extensionPack = {};
 			}
@@ -3137,7 +3152,7 @@ export class Game {
 					alert(`加载《${name}》扩展的precontent时出现错误。
 该错误本身可能并不影响扩展运行。您可以在“设置→通用→无视扩展报错”中关闭此弹窗。
 错误信息: 
-${(e instanceof Error ? e.stack : String(e))}`);
+${e instanceof Error ? e.stack : String(e)}`);
 				}
 			}
 
@@ -3245,7 +3260,7 @@ ${(e instanceof Error ? e.stack : String(e))}`);
 	 * @type { (data: any, name?: string) => void }
 	 */
 	export;
-	
+
 	async importExtension(data, finishLoad, exportExtension) {
 		//by 来瓶可乐加冰、Rintim、Tipx-L、诗笺
 		const zip = await get.promises.zip();
@@ -3620,7 +3635,10 @@ ${(e instanceof Error ? e.stack : String(e))}`);
 					if (_status.mode == "stratagem") {
 						game.players[i].init(players[i].name, players[i].name2);
 						game.players[i].identity = players[i].identity;
-						if ((game.players[i].identity == "fan" && game.players[i].isCamouflaged && game.me.identity == "nei") || game.players[i] == game.me) {
+						if (
+							(game.players[i].identity == "fan" && game.players[i].isCamouflaged && game.me.identity == "nei") ||
+							game.players[i] == game.me
+						) {
 							game.players[i].setIdentity(players[i].identity);
 						}
 					} else {
@@ -3999,7 +4017,9 @@ ${(e instanceof Error ? e.stack : String(e))}`);
 			}
 			player.smoothAvatar(map.avatar2);
 			const skinImg = !lib.config.skin[map.to] && lib.character[map.to]?.img;
-			skinImg ? player.node["avatar" + map.name.slice(4)].setBackgroundImage(skinImg) : player.node["avatar" + name.slice(4)].setBackground(map.to, "character");
+			skinImg
+				? player.node["avatar" + map.name.slice(4)].setBackgroundImage(skinImg)
+				: player.node["avatar" + name.slice(4)].setBackground(map.to, "character");
 			player.node["avatar" + map.name.slice(4)].show();
 			if (goon) {
 				delete lib.character[map.to];
@@ -5618,7 +5638,11 @@ ${(e instanceof Error ? e.stack : String(e))}`);
 					var imgs_num = 0;
 					for (var i = 0; i < num_frame; i++) {
 						var img = new Image();
-						img.src = folder_frame + (animation.qianzhui == undefined ? "" : animation.qianzhui) + (animation.liang == true ? (i < 10 ? "0" + i : i) : i) + type_frame;
+						img.src =
+							folder_frame +
+							(animation.qianzhui == undefined ? "" : animation.qianzhui) +
+							(animation.liang == true ? (i < 10 ? "0" + i : i) : i) +
+							type_frame;
 						if (i >= num_frame - 1) {
 							img.zhx_final = true;
 						}
@@ -5754,7 +5778,14 @@ ${(e instanceof Error ? e.stack : String(e))}`);
 				setTimeout(
 					function () {
 						div2.style.transition = "all " + (timeS * 2) / 3 + "s";
-						div2.style.transform = "rotate(" + getAngle(x0, y0, x1, y1) + "deg) translateX(" + (Math.pow(Math.pow(x1 - x0, 2) + Math.pow(y1 - y0, 2), 0.5) + 2 - Math.pow(Math.pow(div.offsetHeight / 2, 2) + Math.pow(div.offsetWidth / 2, 2), 0.5)) + "px) scaleX(0.01)";
+						div2.style.transform =
+							"rotate(" +
+							getAngle(x0, y0, x1, y1) +
+							"deg) translateX(" +
+							(Math.pow(Math.pow(x1 - x0, 2) + Math.pow(y1 - y0, 2), 0.5) +
+								2 -
+								Math.pow(Math.pow(div.offsetHeight / 2, 2) + Math.pow(div.offsetWidth / 2, 2), 0.5)) +
+							"px) scaleX(0.01)";
 					},
 					50 + ((timeS * 4) / 3) * 1000
 				);
@@ -6013,7 +6044,16 @@ ${(e instanceof Error ? e.stack : String(e))}`);
 	addCharacter(name, information) {
 		//TODO: 这一坨也要改
 		const extensionName = _status.extension || information.extension,
-			character = [information.sex, information.group, information.hp, information.skills || [], [_status.evaluatingExtension ? `db:extension-${extensionName}:${name}.jpg` : `ext:${extensionName}/${name}.jpg`, `die:ext:${extensionName}/${name}.mp3`]];
+			character = [
+				information.sex,
+				information.group,
+				information.hp,
+				information.skills || [],
+				[
+					_status.evaluatingExtension ? `db:extension-${extensionName}:${name}.jpg` : `ext:${extensionName}/${name}.jpg`,
+					`die:ext:${extensionName}/${name}.mp3`,
+				],
+			];
 		if (information.tags) {
 			character[4] = character[4].concat(information.tags);
 		}
@@ -6068,7 +6108,7 @@ ${(e instanceof Error ? e.stack : String(e))}`);
 		return;
 
 		/**
-		 * @param {Record<string, Character>} content 
+		 * @param {Record<string, Character>} content
 		 */
 		function processCharacter(content) {
 			for (const name in content) {
@@ -6093,7 +6133,7 @@ ${(e instanceof Error ? e.stack : String(e))}`);
 					lib.config.forbidai.add(name);
 				}
 				if (lib.config.forbidai_user && lib.config.forbidai_user.includes(name)) {
-					lib.config.forbidai.add(name)
+					lib.config.forbidai.add(name);
 				}
 
 				// 将武将技能加入技能列表
@@ -6115,7 +6155,7 @@ ${(e instanceof Error ? e.stack : String(e))}`);
 		}
 
 		/**
-		 * @param {Record<string, Skill>} content 
+		 * @param {Record<string, Skill>} content
 		 */
 		function processSkill(content) {
 			for (const name in content) {
@@ -6125,7 +6165,7 @@ ${(e instanceof Error ? e.stack : String(e))}`);
 					skill.audio = `ext:${extname}:${skill.audio}`;
 				}
 
-				lib.skill[name] ??= skill
+				lib.skill[name] ??= skill;
 			}
 		}
 	}
@@ -7373,7 +7413,15 @@ ${(e instanceof Error ? e.stack : String(e))}`);
 			auto_confirm = false;
 		}
 		player.node.equips.classList.remove("popequip");
-		if (event.filterCard && lib.config.popequip && !_status.nopopequip && get.is.phoneLayout() && typeof event.position === "string" && event.position.includes("e") && player.node.equips.querySelector(".card.selectable")) {
+		if (
+			event.filterCard &&
+			lib.config.popequip &&
+			!_status.nopopequip &&
+			get.is.phoneLayout() &&
+			typeof event.position === "string" &&
+			event.position.includes("e") &&
+			player.node.equips.querySelector(".card.selectable")
+		) {
 			player.node.equips.classList.add("popequip");
 			auto_confirm = false;
 		}
@@ -8167,7 +8215,8 @@ ${(e instanceof Error ? e.stack : String(e))}`);
 					if (event.deciding) {
 						let str = "px," + (event.margin / 2 - event.height * 0.5) + "px)";
 						for (let i = 0; i < event.friendlist.length; i++) {
-							event.friendlist[i].style.transform = "scale(1.2) translate(" + ((-(event.width + 14) * event.friendlist.length) / 2 + 7 + i * (event.width + 14)) + str;
+							event.friendlist[i].style.transform =
+								"scale(1.2) translate(" + ((-(event.width + 14) * event.friendlist.length) / 2 + 7 + i * (event.width + 14)) + str;
 						}
 					}
 				};
@@ -8191,12 +8240,14 @@ ${(e instanceof Error ? e.stack : String(e))}`);
 						}
 						if (event.config.update) {
 							for (let i = 0; i < event.friendlist.length; i++) {
-								event.friendlist[i].nodename.innerHTML = event.config.update(i, event.friendlist.length) || event.friendlist[i].nodename.innerHTML;
+								event.friendlist[i].nodename.innerHTML =
+									event.config.update(i, event.friendlist.length) || event.friendlist[i].nodename.innerHTML;
 							}
 						}
 						let str = "px," + (event.margin / 2 - event.height * 0.5) + "px)";
 						for (let i = 0; i < event.friendlist.length; i++) {
-							event.friendlist[i].style.transform = "scale(1.2) translate(" + ((-(event.width + 14) * event.friendlist.length) / 2 + 7 + i * (event.width + 14)) + str;
+							event.friendlist[i].style.transform =
+								"scale(1.2) translate(" + ((-(event.width + 14) * event.friendlist.length) / 2 + 7 + i * (event.width + 14)) + str;
 						}
 					} else {
 						if (!event.imchoosing) {
@@ -8755,7 +8806,10 @@ ${(e instanceof Error ? e.stack : String(e))}`);
 				popup: false,
 				silent: true,
 				content: async (event, trigger, player) => {
-					if (lib.skill[event.name.slice(0, event.name.indexOf("_roundcount"))].round - (game.roundNumber - player.storage[event.name]) > 0) {
+					if (
+						lib.skill[event.name.slice(0, event.name.indexOf("_roundcount"))].round - (game.roundNumber - player.storage[event.name]) >
+						0
+					) {
 						player.updateMarks();
 					} else {
 						player.unmarkSkill(event.name);
@@ -10447,12 +10501,34 @@ ${(e instanceof Error ? e.stack : String(e))}`);
 			if (!info || !Object.keys(info).length) {
 				continue;
 			}
-			if ((!includeCharlotteSkill && info.charlotte) || (!includeEquipSkill && info.equipSkill) || (!includeGlobalSkill && lib.skill.global.includes(skill))) {
+			if (
+				(!includeCharlotteSkill && info.charlotte) ||
+				(!includeEquipSkill && info.equipSkill) ||
+				(!includeGlobalSkill && lib.skill.global.includes(skill))
+			) {
 				return null;
 			}
 			return skill;
 		} while (++count < 5);
 		return null;
+	}
+	/**
+	 * 用于主机同步手牌状态
+	 * @param { Player } player 要同步的角色
+	 * @param { string[] } id_list 要同步的手牌id序列
+	 */
+	syncHandcard(player, id_list) {
+		game.broadcastAll(
+			(player, id_list) => {
+				if (game.me == player) {
+					return;
+				}
+				const sortFunc = (a, b) => id_list.indexOf(a.cardid) - id_list.indexOf(b.cardid);
+				player.sortHandcard(sortFunc);
+			},
+			player,
+			id_list.slice().reverse()
+		);
 	}
 	/**
 	 * 添加一个新玩家到target的上家或下家（默认为上家）
