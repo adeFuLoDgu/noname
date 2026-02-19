@@ -14,7 +14,7 @@ const skills = {
 		},
 		forced: true,
 		async content(event, trigger, player) {
-			const position = ["h", "e", "j"],//.filter(pos => player.countDiscardableCards(player, pos)),
+			const position = ["h", "e", "j"], //.filter(pos => player.countDiscardableCards(player, pos)),
 				map = { h: "手牌区", e: "装备区", j: "判定区" };
 			let list = position.map(i => map[i]);
 			const result = await player
@@ -93,7 +93,7 @@ const skills = {
 			const num = 5;
 			const cards = get.cards(num, true);
 			let result = await player
-				.chooseToMove_new("星魂：选择任意张手牌牌进行交换", true)
+				.chooseToMove_new("星魂：选择任意张手牌进行交换", true)
 				.set("list", [
 					["牌堆顶的牌", cards],
 					["你的手牌", player.getCards("h")],
@@ -167,26 +167,59 @@ const skills = {
 			if (result?.bool && result.targets?.length) {
 				const [target] = result.targets;
 				player.line(target, "thunder");
-				let numx = 0;
+				let showCards = [];
+				const top = get.cards(5, true);
 				if (player.countCards("h")) {
-					let min = Math.min(player.countCards("h"), num);
-					result = await target
-						.chooseNumbers(
-							`###${get.translation(player)}对你发动了“${get.translation(event.name)}”，请选择一个数字X###然后展示其X张手牌和牌堆顶${num}-X张牌，其对你依次使用其中的【杀】`,
-							min,
-							[Array.from({ length: min + 1 }, (_, i) => i)],
+					const result = await target
+						.chooseButton(
+							[
+								`星魂：请展示五张牌`,
+								`<div class="text center">牌堆顶</div>`,
+								[top, "blank"],
+								`<div class="text center">${get.translation(player)}的手牌</div>`,
+								player.getCards("h").slice().randomSort(),
+								[
+									dialog => {
+										const { target, player, top } = get.event();
+										dialog.buttons.forEach(button => {
+											const card = button.link;
+											if (top.includes(card)) {
+												return;
+											}
+											if (
+												!target.isUnderControl(true) &&
+												!player.hasSkillTag("viewHandcard", null, target, true) &&
+												!get.is.shownCard(card)
+											) {
+												button.classList.add("infoflip");
+												button.classList.add("infohidden");
+											}
+										});
+									},
+									"handle",
+								],
+							],
+							5,
 							true
 						)
-						.set("processAI", ({ list: [numbers] }) => [numbers.at(-1)])
+						.set("top", top)
+						.set("target", player)
+						.set("ai", () => Math.random())
 						.forResult();
-					if (result?.bool && result.numbers?.length) {
-						numx = result.numbers[0];
-					}
+					showCards = result.links;
+				} else {
+					showCards = top;
 				}
-				const top = get.cards(num - numx, true);
-				const showCards = player.getCards("h").randomGets(numx).concat(top);
-				await game.cardsGotoOrdering(top);
-				await target.showCards(showCards, `${get.translation(target)}因“${get.translation(event.name)}”展示`);
+				//await game.cardsGotoOrdering(top);
+				await target
+					.showCards(showCards, `${get.translation(target)}因“${get.translation(event.name)}”展示`)
+					.set("customButton", button => {
+						if (get.event().top.includes(button.link)) {
+							button.node.gaintag.innerHTML = "牌堆顶";
+						}
+					})
+					.set("top", top)
+					.set("delay_time", 5);
 				if (showCards.some(card => get.name(card) == "sha")) {
 					let sha = showCards.filter(card => get.name(card) == "sha");
 					while (sha.length) {
@@ -199,9 +232,9 @@ const skills = {
 						}
 					}
 				}
-				if (top.length) {
+				/*if (top.length) {
 					await game.cardsGotoPile(top.slice().reverse(), "insert");
-				}
+				}*/
 			}
 		},
 		ai: {
