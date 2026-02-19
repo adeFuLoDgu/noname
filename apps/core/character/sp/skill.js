@@ -711,7 +711,7 @@ const skills = {
 			} else {
 				event.result = await player
 					.chooseCard(`温宜：是否交给${get.translation(trigger.player)}一张装备牌并令其使用之？`, "he")
-					.set("filterCard", (card, palyer) => {
+					.set("filterCard", (card, player) => {
 						return get.type(card, player) == "equip";
 					})
 					.set("ai", card => {
@@ -37412,18 +37412,36 @@ const skills = {
 		subSkill: {
 			effect: {
 				audio: "canshi",
+				mod: {
+					aiOrder(player, card, num) {
+						if (!["basic", "trick"].includes(get.type2(card))) {
+							return;
+						}
+						if (!player.needsToDiscard()) {
+							return 0.1;
+						}
+					},
+				},
 				trigger: { player: "useCard" },
 				forced: true,
 				filter(event, player) {
 					if (player.countCards("he") == 0) {
 						return false;
 					}
-					var type = get.type(event.card, "trick");
+					let type = get.type(event.card, "trick");
 					return type == "basic" || type == "trick";
 				},
 				autodelay: true,
-				content() {
-					player.chooseToDiscard(true, "he");
+				async content(event, trigger, player) {
+					await player
+						.chooseToDiscard(true, "he", card => {
+							const { player, usefulCards } = get.event();
+							if (usefulCards.includes(card)) {
+								return 0.1;
+							}
+							return 20 - get.value(card);
+						})
+						.set("usefulCards", player.getDiscardableCards(player, "h", card => player.getUseValue(card)));
 				},
 			},
 		},
@@ -37465,7 +37483,7 @@ const skills = {
 			) {
 				return true;
 			}
-			var num = game.countPlayer(function (current) {
+			let num = game.countPlayer(current => {
 				if (player.hasZhuSkill("guiming") && current.group == "wu") {
 					return true;
 				}
@@ -37474,7 +37492,7 @@ const skills = {
 			return num > 1;
 		},
 		prompt(event, player) {
-			var num = game.countPlayer(function (current) {
+			let num = game.countPlayer(current => {
 				if (player.hasZhuSkill("guiming") && current.group == "wu" && current != player) {
 					return true;
 				}
@@ -37485,7 +37503,7 @@ const skills = {
 		filter(event, player) {
 			return (
 				!event.numFixed &&
-				game.hasPlayer(function (current) {
+				game.hasPlayer(current => {
 					if (player.hasZhuSkill("guiming") && current.group == "wu" && current != player) {
 						return true;
 					}
@@ -37493,8 +37511,8 @@ const skills = {
 				})
 			);
 		},
-		content() {
-			var num = game.countPlayer(function (current) {
+		async content(event, trigger, player) {
+			let num = game.countPlayer(current => {
 				if (player.hasZhuSkill("guiming") && current.group == "wu" && current != player) {
 					return true;
 				}
@@ -37507,9 +37525,19 @@ const skills = {
 		},
 	},
 	recanshi2: {
+		sourceSkill: "recanshi",
+		mod: {
+			aiOrder(player, card, num) {
+				if (!get.type(card) == "trick" && get.name(card, player) != "sha") {
+					return;
+				}
+				if (!player.needsToDiscard()) {
+					return 0.1;
+				}
+			},
+		},
 		trigger: { player: "useCard" },
 		forced: true,
-		sourceSkill: "recanshi",
 		filter(event, player) {
 			if (player.countCards("he") == 0) {
 				return false;
@@ -37520,8 +37548,16 @@ const skills = {
 			return get.type(event.card) == "trick";
 		},
 		autodelay: true,
-		content() {
-			player.chooseToDiscard(true, "he");
+		async content(event, trigger, player) {
+			await player
+				.chooseToDiscard(true, "he", card => {
+					const { player, usefulCards } = get.event();
+					if (usefulCards.includes(card)) {
+						return 0.1;
+					}
+					return 20 - get.value(card);
+				})
+				.set("usefulCards", player.getDiscardableCards(player, "h", card => player.getUseValue(card)));
 		},
 	},
 	rechouhai: {
