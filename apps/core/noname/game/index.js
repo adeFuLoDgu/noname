@@ -10536,14 +10536,20 @@ ${e instanceof Error ? e.stack : String(e)}`);
 	 * @param { string|undefined|null } [character] 新玩家主将
 	 * @param { string|undefined|null } [character2] 新玩家副将
 	 * @param { boolean } [isNext] 是否添加到下家
+	 * @param { object } [config] 一些别的参数塞这来！
+	 * @param { Player } [config.source] addPlayer的来源，不填就是没有
+	 * @param { (player: Player) => Promise } [config.animate] 添加player的动画，有默认动画，须返回一个promise
 	 * @returns { Player }
 	 */
-	addPlayerOL(target, character, character2, isNext) {
+	async addPlayerOL(target, character, character2, isNext, config = {}) {
 		if (get.itemtype(target) != "player") {
 			return;
 		}
-		const addPlayer = function (id, target, character, character2, isNext) {
+		//用来加入角色的部分，要广播
+		const addPlayer = async function (id, target, character, character2, isNext, config) {
+			let { source, animate } = config;
 			const players = game.players.concat(game.dead);
+			//先把布局安排好空个位置出来
 			ui.arena.setNumber(parseInt(ui.arena.dataset.number) + 1);
 			let position = !isNext ? parseInt(target.dataset.position) : parseInt(target.dataset.position) + 1;
 			if (position == 0) {
@@ -10554,8 +10560,10 @@ ${e instanceof Error ? e.stack : String(e)}`);
 					value.dataset.position = parseInt(value.dataset.position) + 1;
 				}
 			});
+			//创建角色的dom，把需要的属性赋值
 			const player = ui.create.player(ui.arena).addTempClass("start");
 			player.playerid = id;
+			player._source = source || true;
 			if (_status.connectMode) {
 				lib.playerOL[id] = player;
 			} else {
@@ -10564,15 +10572,113 @@ ${e instanceof Error ? e.stack : String(e)}`);
 			if (character) {
 				player.init(character, character2);
 			}
+			//push！然后arrangePlayers
 			game.players.push(player);
 			player.dataset.position = position;
 			game.arrangePlayers();
+			//动画，默认动画是天降陨石
+			animate ??= function (player) {
+				const parent = player.parentElement;
+				//创建角色的陨石坠落动画
+				const drop = player.animate(
+					[
+						{
+							transform: "translate(200px, -1000px) scale(0.5) rotate(-15deg)",
+							filter: "brightness(5) blur(10px)",
+							opacity: 0,
+						},
+						{
+							transform: "translate(0, 0) scale(1) rotate(0deg)",
+							filter: "brightness(1) blur(0px)",
+							opacity: 1,
+							offset: 1,
+						},
+					],
+					{
+						duration: 600,
+						easing: "cubic-bezier(0.85, 0, 0.15, 1)",
+					}
+				);
+				return drop.finished.then(result => {
+					const list = [];
+					//落地后开始震动
+					const shock = parent.animate(
+						[
+							{ transform: "translate(0, 0)" },
+							{ transform: "translate(-10px, 15px)" },
+							{ transform: "translate(10px, -10px)" },
+							{ transform: "translate(-5px, 5px)" },
+							{ transform: "translate(0, 0)" },
+						],
+						{
+							duration: 300,
+							easing: "ease-out",
+						}
+					).finished;
+					list.push(shock);
+					//生成冲击波
+					const wave = document.createElement("div");
+					Object.assign(wave.style, {
+						position: "absolute",
+						top: `50%`,
+						left: `50%`,
+						width: "10px",
+						height: "10px",
+						marginLeft: "-5px",
+						marginTop: "-5px",
+						borderRadius: "50%",
+						border: "4px solid #FFFFFF",
+						boxShadow: "0 0 15px #FFD700, 0 0 30px #FF4500",
+						zIndex: "5",
+						pointerEvents: "none",
+						mixBlendMode: "screen",
+					});
+					player.appendChild(wave);
+					const shockWave = wave
+						.animate(
+							[
+								{
+									transform: "scale(1)",
+									opacity: 1,
+									borderWidth: "10px",
+									borderColor: "#FFFFFF",
+									boxShadow: "0 0 20px #FFF, 0 0 40px #FFD700",
+								},
+								{
+									transform: "scale(10)",
+									opacity: 0.8,
+									borderWidth: "8px",
+									borderColor: "#FF8C00",
+									boxShadow: "0 0 50px #FF4500, 0 0 100px #8B0000",
+									offset: 0.3,
+								},
+								{
+									transform: "scale(40)",
+									opacity: 0,
+									borderWidth: "0px",
+									borderColor: "#8B0000",
+									boxShadow: "0 0 60px #FF4500, 0 0 100px transparent",
+								},
+							],
+							{
+								duration: 1000,
+								easing: "cubic-bezier(0.1, 0.5, 0.2, 1)",
+								fill: "forwards",
+							}
+						)
+						.finished.then(() => wave.remove());
+					list.push(shockWave);
+					return Promise.all(list);
+				});
+			};
+			await animate(player);
 			return player;
 		};
 		const id = get.id();
 		const players = game.players.concat(game.dead);
-		game.broadcast(addPlayer, id, target, character, character2, isNext);
-		const player = addPlayer(id, target, character, character2, isNext);
+		game.broadcast(addPlayer, id, target, character, character2, isNext, config);
+		const player = await addPlayer(id, target, character, character2, isNext, config);
+		//分配座位号
 		const firstSeat = players.find(value => value.getSeatNum() == 1);
 		if (firstSeat) {
 			const targetSeat = target.getSeatNum();
@@ -10584,6 +10690,7 @@ ${e instanceof Error ? e.stack : String(e)}`);
 				}
 			});
 		}
+		//初始化history和stat
 		player.actionHistory = new Array(players[0].actionHistory.length).fill({
 			useCard: [],
 			respond: [],
@@ -10605,15 +10712,23 @@ ${e instanceof Error ? e.stack : String(e)}`);
 	/**
 	 * 移除一名玩家，单机联机都可用
 	 * @param { Player } player 要移除的玩家
+	 * @param { object } [config] 一些别的参数塞这来！
+	 * @param { (player: Player) => Promise } [config.animate] 移除player的动画，有默认动画，须返回一个promise
 	 * @returns { Player }
 	 */
-	removePlayerOL(player) {
+	async removePlayerOL(player, config = {}) {
 		if (get.itemtype(player) != "player") {
 			return;
 		}
+		//把牌都弃置掉，不然移除也跟着没了
+		const cards = player.getCards("hejsx");
+		if (cards.length) {
+			//player.$throw(cards, 100);
+			game.log(player, "将", cards, "置入弃牌堆");
+			await player.lose(cards, ui.discardPile).set("_triggered", null);
+		}
+		//处理座位号
 		const players = game.players.concat(game.dead);
-		player.style.left = `${player.getLeft()}px`;
-		player.style.top = `${player.getTop()}px`;
 		if (player.getSeatNum() > 0) {
 			const seatNum = player.getSeatNum();
 			players.forEach(value => {
@@ -10622,38 +10737,172 @@ ${e instanceof Error ? e.stack : String(e)}`);
 				}
 			});
 		}
-		game.broadcastAll(player => {
+		//处理旁观
+		const ClientElement = lib.element.Client;
+		if (player.ws instanceof ClientElement || player == game.me) {
+			const ws = player.ws;
+			lib.node?.observing?.push(ws);
+			delete player.ws;
+			if (!ui.removeObserve && lib.node?.observing?.length) {
+				ui.removeObserve = ui.create.system(
+					"移除旁观",
+					function () {
+						lib.configOL.observe = false;
+						if (game.onlineroom) {
+							game.send("server", "config", lib.configOL);
+						}
+						while (lib.node.observing.length) {
+							lib.node.observing.shift().ws.close();
+						}
+						this.remove();
+						delete ui.removeObserve;
+					},
+					true,
+					true
+				);
+			}
+		}
+		//移除角色的具体步骤
+		const removePlayer = async (player, config, configOL) => {
+			let { animate } = config;
+			//轮首角色变更
 			if (_status.roundStart == player) {
 				_status.roundStart = player.next || player.getNext() || game.players[0];
 			}
-			const players = game.players.concat(game.dead);
-			const position = parseInt(player.dataset.position);
-			players.forEach(value => {
-				if (parseInt(value.dataset.position) > position) {
-					value.dataset.position = parseInt(value.dataset.position) - 1;
-				}
-			});
+			player.style.left = `${player.getLeft()}px`;
+			player.style.top = `${player.getTop()}px`;
+			//修改存活角色的上下家
 			if (player.isAlive()) {
 				player.next.previous = player.previous;
 				player.previous.next = player.next;
 			}
 			player.nextSeat.previousSeat = player.previousSeat;
 			player.previousSeat.nextSeat = player.nextSeat;
-			player.delete();
 			game.players.remove(player);
 			game.dead.remove(player);
-			ui.arena.setNumber(parseInt(ui.arena.dataset.number) - 1);
-			player.removed = true;
-			if (player == game.me) {
-				ui.me.hide();
-				ui.auto.hide();
-				ui.wuxie.hide();
-			}
-			setTimeout(() => player.removeAttribute("style"), 500);
-		}, player);
-		if (_status.connectMode) {
-			delete lib.playerOL[player.playerid];
-		}
+			//移除角色的动画，默认为变成碎片消逝
+			animate ??= function (player) {
+				const rect = player.getBoundingClientRect();
+				const shardCount = 30;
+				const container = player.parentElement;
+				const list = [];
+				//生成碎片
+				for (let i = 0; i < shardCount; i++) {
+					const shard = document.createElement("div");
+					shard.style.cssText = `
+						position: absolute;
+						pointer-events: none;
+						background: #e0f7fa;
+						border: 1px solid #222;
+						z-index: 100;
+					`;
+
+					//随机碎片的尺寸
+					const size = Math.random() * 15 + 5;
+					shard.style.width = `${size}px`;
+					shard.style.height = `${size}px`;
+
+					//直接挂在玩家的dom上
+					shard.style.left = `50%`;
+					shard.style.top = `50%`;
+
+					player.appendChild(shard);
+
+					//为每个碎片创建随机爆炸轨迹
+					const destinationX = (Math.random() - 0.5) * 500; // 水平扩散范围
+					const destinationY = (Math.random() - 0.5) * 500; // 垂直扩散范围
+					const rotation = Math.random() * 720 - 360; // 旋转角度
+
+					list.push(
+						shard
+							.animate(
+								[
+									{
+										transform: "translate(0, 0) rotate(0deg) scale(1)",
+										opacity: 1,
+									},
+									{
+										transform: `translate(${destinationX}px, ${destinationY}px) rotate(${rotation}deg) scale(0)`,
+										opacity: 0,
+									},
+								],
+								{
+									duration: 1000 + Math.random() * 500,
+									easing: "cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+									fill: "forwards",
+								}
+							)
+							.finished.then(() => shard.remove())
+					);
+				}
+
+				//玩家dom自身的溃散动画（缩小并变灰），建议removePlayer的不要加onfinish后续移除角色的dom需要用到onfinish
+				const animation = player.animate(
+					[
+						{ transform: "scale(1)", filter: "brightness(1) grayscale(0)", opacity: 1 },
+						{ transform: "scale(1.1)", filter: "brightness(2) grayscale(1)", opacity: 0.5, offset: 0.2 },
+						{ transform: "scale(0.8)", filter: "brightness(0) grayscale(1)", opacity: 0 },
+					],
+					{
+						duration: 1000,
+						fill: "forwards",
+					}
+				).finished;
+				list.push(animation);
+				return Promise.all(list);
+			};
+			await animate(player).then(() => {
+				//移除角色的dom，隐藏dom是为了避免动画结束后的拖影（）
+				player.classList.add("dead");
+				player.classList.add("out");
+				player.style.display = "none";
+				player.delete();
+				//联机需要删除掉，不然重进会多一个dead（）
+				if (_status.connectMode) {
+					delete lib.playerOL[player.playerid];
+				}
+				//调整布局
+				const players = game.players.concat(game.dead);
+				const position = parseInt(player.dataset.position);
+				players.forEach(value => {
+					if (parseInt(value.dataset.position) > position) {
+						value.dataset.position = parseInt(value.dataset.position) - 1;
+					}
+				});
+				ui.arena.setNumber(parseInt(ui.arena.dataset.number) - 1);
+				player.removed = true;
+				if (player == game.me) {
+					//把角色移入旁观，主机不可能真的进旁观的，所以不必在意
+					const func = (player, config) => {
+						game.swapPlayer(game.players.find(i => i != player));
+						const replacePlayer = function (e) {
+							if (!_status.auto || !game.notMe) {
+								return;
+							}
+							game.swapPlayer(this || e.target.parentElement);
+						};
+						game.players.forEach(p => p.addEventListener(lib.config.touchscreen ? "touchend" : "click", replacePlayer));
+						game.notMe = true;
+						_status.auto = true;
+						if (game.online) {
+							if (!config.observe_handcard) {
+								ui.arena.classList.add("observe");
+							}
+							game.observe = true;
+						}
+					};
+					func(player, configOL);
+					//ui.me.hide();
+					ui.auto.hide();
+					ui.wuxie.hide();
+				}
+				setTimeout(() => player.removeAttribute("style"), 500);
+			});
+		};
+		game.broadcast(removePlayer, player, config, get.copy(lib.configOL));
+		await removePlayer(player, config, get.copy(lib.configOL));
+		//判断胜负，避免移除后对局变成死局
+		player.dieAfter();
 		return player;
 	}
 }
