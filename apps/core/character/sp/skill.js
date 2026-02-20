@@ -7612,7 +7612,7 @@ const skills = {
 					}
 				})
 				.set("delay_time", 3)
-				.set("showers", [player, target]);
+				.set("multipleShow", true);
 			if (
 				gains
 					.map(i => i[1])

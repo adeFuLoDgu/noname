@@ -6250,7 +6250,7 @@ const skills = {
 				const suits = cards.map(card => get.suit(card)).unique();
 				const next = player
 					.showCards(cards, `${get.translation(player)} 发动了【${get.translation(event.name)}】`, false)
-					.set("showers", targets)
+					.set("multipleShow", true)
 					.set("customButton", button => {
 						const target = get.owner(button.link);
 						if (target) {
