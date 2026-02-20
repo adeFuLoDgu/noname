@@ -543,7 +543,10 @@ export const Content = {
 		} else {
 			const map = new Map();
 			for (const hidingCard of hidingCards) {
-				for (const tag of hidingCard) {
+				for (const tag of hidingCard.gaintag) {
+					if (tag.startsWith("eternal_") && !tag.slice(8).startsWith("visible_")) {
+						continue;
+					}
 					if (!tag.startsWith("visible_")) {
 						continue;
 					}

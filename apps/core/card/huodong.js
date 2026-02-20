@@ -1964,6 +1964,11 @@ game.import("card", function () {
 						}
 					},
 				},
+				marktext: "梅",
+				mark: true,
+				intro: {
+					content: "梅花牌视为【桃】",
+				},
 			},
 			khquanjiux_skill: {
 				charlotte: true,
@@ -2014,6 +2019,10 @@ game.import("card", function () {
 				},
 				async content(event, trigger, player) {
 					await player.gainPlayerCard(trigger.target, "he", true);
+				},
+				mark: true,
+				intro: {
+					content: "使用牌指定目标后获得其一张牌",
 				},
 				ai: {
 					effect: {
