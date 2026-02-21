@@ -12889,7 +12889,7 @@ const skills = {
 					}
 				})
 				.set("delay_time", 4)
-				.set("showers", targets);
+				.set("multipleShow", true);
 			const card = cards[targets.indexOf(player)];
 			const cardx = cards.filter(cardy => cardy != card && get.color(cardy, targets[cards.indexOf(cardy)]) == get.color(card, player));
 			if (cardx.length) {

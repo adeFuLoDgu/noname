@@ -7612,7 +7612,7 @@ const skills = {
 					}
 				})
 				.set("delay_time", 3)
-				.set("showers", [player, target]);
+				.set("multipleShow", true);
 			if (
 				gains
 					.map(i => i[1])
@@ -8640,15 +8640,7 @@ const skills = {
 						return;
 					}
 					let hs = result.moved[0].reverse();
-					game.addVideo("lose", player, [get.cardsInfo(hs), [], [], []]);
-					game.broadcastAll(
-						function (hs, player) {
-							hs.forEach(i => i.goto(ui.special));
-							player.directgain(hs, false);
-						},
-						hs,
-						player
-					);
+					player.sortHandcardOL(hs);
 				},
 				ai: {
 					order: 10,
