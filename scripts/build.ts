@@ -5,10 +5,12 @@ spawnSync("pnpm -F noname... build", {
 	stdio: "inherit",
 });
 
+/*
 spawnSync("pnpm -F @noname/server build", {
 	shell: true,
 	stdio: "inherit",
 });
+*/
 
 spawnSync("pnpm -F ./packages/extension/** build", {
 	shell: true,
@@ -18,9 +20,9 @@ spawnSync("pnpm -F ./packages/extension/** build", {
 console.log("合并打包结果");
 await fs.rm("dist", { recursive: true, force: true });
 await fs.mkdir("dist", { recursive: true });
-await fs.mkdir("dist/master_server", { recursive: true });
+//await fs.mkdir("dist/master_server", { recursive: true });
 await Promise.all([
-	fs.cp("packages/server/dist", "dist/master_server", { recursive: true }),
+	//fs.cp("packages/server/dist", "dist/master_server", { recursive: true }),
 	fs.cp("apps/core/dist", "dist", { recursive: true }),
 	fs.cp("apps/core/audio", "dist/audio", { recursive: true }),
 	fs.cp("apps/core/image", "dist/image", { recursive: true }),
