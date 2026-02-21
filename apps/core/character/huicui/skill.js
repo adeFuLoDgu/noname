@@ -1241,7 +1241,7 @@ const skills = {
 			}
 			await player
 				.showCards(cards, `${get.translation(player)} 发动了【${get.translation(event.name)}】`, false)
-				.set("showers", targets)
+				.set("multipleShow", true)
 				.set("customButton", button => {
 					const target = get.owner(button.link);
 					if (target) {
@@ -12010,10 +12010,7 @@ const skills = {
 						}
 					})
 					.set("delay_time", 4)
-					.set(
-						"showers",
-						shown.flatMap(item => item[1])
-					);
+					.set("multipleShow", true);
 			}
 			event.videoId = lib.status.videoId++;
 			game.broadcastAll(
@@ -16458,7 +16455,7 @@ const skills = {
 					}
 				})
 				.set("delay_time", 4)
-				.set("showers", targets);
+				.set("multipleShow", true);
 
 			const list = [],
 				map = {};
