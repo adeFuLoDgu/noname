@@ -5089,7 +5089,7 @@ const skills = {
 			await player.showCards(cards, `${get.translation(player)}发动了【${get.translation(event.name)}】`);
 			const num = cards.length + 1;
 			const name = `${event.name}_effect`;
-			player.addMark(name, num, false);
+			player.setMark(name, num, false);
 			player.setStorage(`${event.name}_shown`, [...cards.map(i => get.color(i)), ...cards.map(i => get.type2(i))].unique());
 			player.addSkill(name);
 		},

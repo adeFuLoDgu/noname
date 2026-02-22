@@ -3679,6 +3679,9 @@ const skills = {
 				if (color == "black") {
 					let num = cards.length;
 					while (num > 0) {
+						if (!game.hasPlayer(current => current.countExpansions("caweijue_tag") > 0)) {
+							break;
+						}
 						const result2 = await player
 							.chooseTarget("获得一名角色的“威”", true, (card, player, target) => {
 								return target.countExpansions("caweijue_tag");
@@ -3702,9 +3705,6 @@ const skills = {
 						player.line(target);
 						await player.gain(cards, "give", target, "bySelf");
 						num -= cards.length;
-						if (!game.hasPlayer(current => current.countExpansions("caweijue_tag"))) {
-							break;
-						}
 					}
 				} else if (color == "red") {
 					const targets = game

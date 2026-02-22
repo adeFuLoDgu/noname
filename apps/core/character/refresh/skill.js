@@ -270,8 +270,7 @@ const skills = {
 			await judgeEvent;
 		},
 		async callback(event, trigger, player) {
-			const judgeEvent = event.judgingEvent || event;
-			const card = judgeEvent.card || judgeEvent.result;
+			const { card } = event;
 			if (typeof card?.number == "number") {
 				const next = player.addToExpansion(card, "gain2");
 				next.gaintag.add("rejijun");
@@ -295,7 +294,7 @@ const skills = {
 		audio: 2,
 		trigger: { player: "phaseJieshuBegin" },
 		filter(event, player) {
-			return player.countCards("h");
+			return player.countCards("h") > 0;
 		},
 		async cost(event, trigger, player) {
 			event.result = await player
@@ -15649,13 +15648,14 @@ const skills = {
 		},
 		async content(event, trigger, player) {
 			// step 0
+			const { cards } = event;
 			await player.discard(cards);
 			event.num = 1;
-			var hs = player.getCards("h");
+			const hs = player.getCards("h");
 			if (!hs.length) {
 				event.num = 0;
 			}
-			for (var i = 0; i < hs.length; i++) {
+			for (let i = 0; i < hs.length; i++) {
 				if (!cards.includes(hs[i])) {
 					event.num = 0;
 					break;
@@ -17534,6 +17534,7 @@ const skills = {
 			return 7 - get.value(card);
 		},
 		async content(event, trigger, player) {
+			const { target } = event;
 			if (event.target.hasJudge("lebu")) {
 				await player.discard(event.cards);
 				await target.discard(event.target.getJudge("lebu"));
@@ -17878,7 +17879,7 @@ const skills = {
 		},
 		async callback(event, trigger, player) {
 			let result;
-
+			const { card } = event;
 			// step 0
 			if (event.judgeResult.suit == "heart") {
 				player.gain(card, "gain2");
@@ -17900,7 +17901,9 @@ const skills = {
 				//game.cardsDiscard(card);
 				return;
 			}
-			player.addToExpansion(card, "gain2").gaintag.add("tuntian");
+			const next = player.addToExpansion(card, "gain2");
+			next.gaintag.add("tuntian");
+			await next;
 		},
 		group: "tuntian_dist",
 		locked: false,
