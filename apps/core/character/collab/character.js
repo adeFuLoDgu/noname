@@ -1,4 +1,22 @@
 const characters = {
+	mb_chitu: {
+		sex: "male",
+		group: "shu",
+		hp: 4,
+		skills: ["mbjunkui", "mbchiyuan"],
+	},
+	mb_jueying: {
+		sex: "male",
+		group: "qun",
+		hp: 4,
+		skills: ["mbjiguan", "mbzhengpeng"],
+	},
+	mb_dilu: {
+		sex: "male",
+		group: "qun",
+		hp: 4,
+		skills: ["mbjunkui", "mbyuetan"],
+	},
 	mb_muniu: {
 		sex: "male",
 		group: "shu",
