@@ -11,7 +11,7 @@ const skills = {
 		},
 		forced: true,
 		filter(event, player) {
-			return (event.name != "phase" || game.phaseNumber == 0);
+			return event.name != "phase" || game.phaseNumber == 0;
 		},
 		async content(event, trigger, player) {
 			const cards = ["cardPile", "discardPile"].flatMap(pos => Array.from(ui[pos].childNodes));
@@ -131,7 +131,7 @@ const skills = {
 		},
 		forced: true,
 		filter(event, player) {
-			return (event.name != "phase" || game.phaseNumber == 0);
+			return event.name != "phase" || game.phaseNumber == 0;
 		},
 		async content(event, trigger, player) {
 			const cards = ["cardPile", "discardPile"].map(pos => Array.from(ui[pos].childNodes)).flat();
@@ -240,7 +240,7 @@ const skills = {
 			global: "useCardToTargeted",
 		},
 		filter: function (event, player) {
-			return get.is.damageCard(event.card, true) && get.distance(player, event.target) <= 1 && event.target != player;
+			return get.is.damageCard(event.card, true) && get.distance(player, event.target) <= 1;
 		},
 		check: function (event, player) {
 			return get.attitude(player, event.target) >= 0;
@@ -290,13 +290,14 @@ const skills = {
 					}
 					return (
 						player.isDamaged() &&
-						player
+						(player
 							.getAllHistory("lose", evt => {
 								return evt.cards2?.length && evt.getParent().name == "gain" && evt.getParent(2).name == "mbyuetan";
 							})
 							.map(evt => evt.getParent())
 							.indexOf(event) +
-							(1 % 2) ==
+							1) %
+							2 ==
 							0
 					);
 				},
