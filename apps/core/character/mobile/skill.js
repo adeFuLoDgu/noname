@@ -2362,7 +2362,8 @@ const skills = {
 				trigger: {
 					global: "useCard1",
 				},
-				async cost(event, trigger, player) {
+				silent: true,
+				async content(event, trigger, player) {
 					get.info(event.skill).init(player, event.skill);
 				},
 				intro: {
@@ -2455,7 +2456,7 @@ const skills = {
 				.getHistory("useCard")
 				.map(evt => get[key](evt.card))
 				.toUniqued();
-			if (list.length) {
+			if (_status.currentPhase == player) {
 				if (key == "number") {
 					list = list.filter(i => typeof i == "number").sort((a, b) => a - b);
 				}
@@ -2471,9 +2472,8 @@ const skills = {
 		subSkill: {
 			guanjue: {
 				trigger: {
-					player: "useCardAfter",
+					player: ["useCard1", "phaseBeginStart"],
 				},
-				lastDo: true,
 				popup: false,
 				forced: true,
 				locked: false,
@@ -2499,7 +2499,7 @@ const skills = {
 								key = ["颜色", "花色", "点数"][level];
 							return `仅能使用${key}为${get.translation(list)}的牌`;
 						}
-						return "无效果";
+						return "不能使用牌";
 					},
 				},
 				mod: {

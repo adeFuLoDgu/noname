@@ -10762,6 +10762,10 @@ ${e instanceof Error ? e.stack : String(e)}`);
 				);
 			}
 		}
+		//联机需要删除掉，不然重进会多一个dead（）
+		if (_status.connectMode) {
+			delete lib.playerOL[player.playerid];
+		}
 		//移除角色的具体步骤
 		const removePlayer = async (player, config, configOL) => {
 			let { animate } = config;
@@ -10857,10 +10861,6 @@ ${e instanceof Error ? e.stack : String(e)}`);
 				player.classList.add("out");
 				player.style.display = "none";
 				player.delete();
-				//联机需要删除掉，不然重进会多一个dead（）
-				if (_status.connectMode) {
-					delete lib.playerOL[player.playerid];
-				}
 				//调整布局
 				const players = game.players.concat(game.dead);
 				const position = parseInt(player.dataset.position);
