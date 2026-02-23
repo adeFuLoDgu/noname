@@ -2316,9 +2316,9 @@ const skills = {
 			}
 			if (event.player == player) {
 				const num = player.countCards("h");
-				return event.targets.some(target => target.countCards("h") < num);
+				return event.targets.some(target => target.countCards("h") <= num);
 			}
-			return event.player.getHp() > player.getHp();
+			return event.player.getHp() >= player.getHp();
 		},
 		logTarget(event, player) {
 			if (event.player == player) {

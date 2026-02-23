@@ -8990,12 +8990,12 @@ const skills = {
 		filter(event, player) {
 			return (
 				(get.itemtype(event.cards) == "cards" && event.cards.some(i => get.position(i, true) == "o")) ||
-				1 - player.countMark("sbjianxiong") > 0
+				3 - player.countMark("sbjianxiong") > 0
 			);
 		},
 		prompt2(event, player) {
 			var gain = get.itemtype(event.cards) == "cards" && event.cards.some(i => get.position(i, true) == "o"),
-				draw = 1 - player.countMark("sbjianxiong");
+				draw = 3 - player.countMark("sbjianxiong");
 			var str = "";
 			if (gain) {
 				str += "获得" + get.translation(event.cards);
@@ -9022,7 +9022,7 @@ const skills = {
 			}
 			if (num) {
 				const result = await player
-					.chooseBool("是否弃1枚“治世”？")
+					.chooseBool("奸雄：是否弃1枚“治世”？")
 					.set("ai", () => {
 						const player = _status.event.player,
 							current = _status.currentPhase;
@@ -9033,7 +9033,7 @@ const skills = {
 					})
 					.forResult();
 				if (result.bool) {
-					player.removeMark(event.num, 1);
+					player.removeMark(event.name, 1);
 				}
 			}
 		},
