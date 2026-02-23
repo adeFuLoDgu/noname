@@ -429,7 +429,7 @@ const skills = {
 			global: "damageEnd",
 		},
 		filter(event, player) {
-			return !player.getStorage("olsbshunji_used").includes(event.player);
+			return !player.getStorage("olsbshunji_used").includes(event.player) && event.player?.isIn();
 		},
 		logTarget: "player",
 		check(event, player) {

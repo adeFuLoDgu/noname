@@ -78,6 +78,9 @@ const skills = {
 		},
 		mod: {
 			targetInRange(card, player, target, now) {
+				if (card.name != "sha") {
+					return;
+				}
 				if (game.online) {
 					if (!player.countUsed("sha")) {
 						return true;
@@ -248,23 +251,33 @@ const skills = {
 		logTarget: "target",
 		async cost(event, trigger, player) {
 			const target = trigger.target;
-			event.result = await player
-				.chooseCard("he", `###${get.prompt(event.skill, target)}###你可交给其一张牌且此牌结算结束后若其未受到伤害，你摸一张牌。`)
-				.set("ai", card => {
-					if (get.attitude(player, get.event().target) < 0) {
-						return 0;
-					}
-					return 6 - get.value(card);
-				})
-				.set("target", target)
-				.forResult();
+			if (target == player) {
+				event.result = await player
+					.chooseBool(`###${get.prompt(event.skill, target)}###此牌结算结束后若其未受到伤害，你摸一张牌。`)
+					.set("choice", true)
+					.forResult();
+			} else {
+				event.result = await player
+					.chooseCard("he", `###${get.prompt(event.skill, target)}###你可交给其一张牌且此牌结算结束后若其未受到伤害，你摸一张牌。`)
+					.set("ai", card => {
+						if (get.attitude(player, get.event().target) < 0) {
+							return 0;
+						}
+						return 6 - get.value(card);
+					})
+					.set("target", target)
+					.forResult();
+			}
 		},
 		async content(event, trigger, player) {
 			const {
 				targets: [target],
+				cards,
 			} = event;
-			await player.give(event.cards, target);
-			await game.delay();
+			if (cards.length) {
+				await player.give(cards, target);
+				await game.delay();
+			}
 			player
 				.when({ global: "useCardAfter" })
 				.filter(evt => evt.card == trigger.card)

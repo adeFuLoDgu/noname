@@ -351,7 +351,11 @@ game.import("card", function () {
 							game.log(target, "选择了", "#y" + color);
 							target.popup(color);
 							const judgeEvent = target.judge(card => {
-								if (get.color(card) == get.event().haoyun_color) {
+								let event = get.event();
+								if (event.name != "judge") {
+									event = event.getParent("judge", true);
+								}
+								if (get.color(card) == event?.haoyun_color) {
 									return 1.5;
 								}
 								return -1.5;
