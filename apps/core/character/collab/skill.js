@@ -1,7 +1,456 @@
+import { parse } from "error-stack-parser";
 import { lib, game, ui, get, ai, _status } from "noname";
+import { h } from "vue";
 
 /** @type { importCharacterConfig['skill'] } */
 const skills = {
+	//宫百万
+	mbhaoshi: {
+		trigger: {
+			global: ["phaseEnd"],
+		},
+		forced: true,
+		filter(event, player) {
+			return (
+				player.getExpansions("mbhaoshi").reduce((num, card) => {
+					return (num += get.number(card));
+				}, 0) >= 100
+			);
+		},
+		async content(event, trigger, player) {
+			let cards = player.getExpansions("mbhaoshi");
+			await player.gain(cards, "gain2");
+			player.insertPhase(event.skill);
+		},
+		group: ["mbhaooshi_effect"],
+		subSkill: {
+			effect: {
+				trigger: {
+					player: ["damageAfter"],
+					source: ["damageSource"],
+				},
+				force: true,
+				async content(event, trigger, player) {
+					let { cards } = await player.chooseCard("he", "将一张牌置于武将牌上", true).forResult();
+					let next = player.addToExpansion(cards);
+					next.gaintag.add("mbhaoshi");
+					await next;
+				},
+			},
+		},
+	},
+	//美腿之神
+	mbshentui: {
+		mod: {
+			attackRange(player, num) {
+				return (num += player.getStorage("mbshentui"));
+			},
+			targetInRange(card, player) {
+				if (get.name(card, false) == "sha" && get.number(card, false) > player.getAttackRange()) {
+					return true;
+				}
+			},
+			cardUsable(card, player) {
+				if (get.name(card, false) == "sha" && get.number(card, false) < player.getAttackRange()) {
+					return Infinity;
+				}
+			},
+		},
+		usable: 1,
+		enable: ["phaseUse"],
+		selectCard: 0,
+		selectTarget: 0,
+		async content(event, trigger, player) {
+			let num = player.getStorage("mbshentui") ?? 0;
+			num++;
+			player.setStorage("mbshentui", num);
+		},
+		group: ["mbshentui_effect"],
+		subSkill: {
+			effect: {
+				trigger: {
+					player: "useCard",
+				},
+				async content(event, trigger, player) {
+					let num = player.getAttackRange();
+					let number = get.number(trigger.card, false);
+					if (number < num) {
+						trigger.directHit.addArray(game.players);
+					} else if (number > num) {
+						trigger.baseDamage += 1;
+					}
+				},
+			},
+		},
+	},
+	mbxurui: {
+		trigger: {
+			player: "phaseEnd",
+		},
+		forced: true,
+		filter(event, player) {
+			return !player.hasHistory("sourceDamage");
+		},
+		async content(event, triggger, player) {
+			await player.draw(player.getAttackRange());
+		},
+	},
+	//逆转之神
+	mbfanzhuan: {
+		trigger: {
+			global: ["phaseBegin"],
+		},
+		round: 1,
+		async content(event, trigger, player) {
+			let hp = player.hp;
+			let damageHp = player.getDamagedHp();
+			let num = hp - damageHp;
+			await player.changeHp(-num);
+			let draw = num > 0 ? num : -num;
+			await player.draw(draw);
+		},
+	},
+	mbniyun: {
+		mod: {
+			cardUsable(card, player, num) {
+				if (card.name == "sha") {
+					return (num += player.getDamagedHp());
+				}
+			},
+			attackRange(player, num) {
+				return (num += player.getDamagedHp());
+			},
+		},
+	},
+	//睡眠之神
+	mbkeshui: {
+		trigger: {
+			player: ["phaseAnyBegin"],
+		},
+		usable: 1,
+		filter(event, player) {
+			return !["phaseZhunbei", "phaseJieshu"].includes(event.name) && !event.skipped;
+		},
+		async content(event, trigger, player) {
+			trigger.cancel();
+			let card = get.cardPile2(true);
+			if (player.hasUseTarget(card, undefined, false)) {
+				let next = player.chooseUseTarget(card, false);
+				await next;
+				let cardx = get.autoViewAs({ name: card.name });
+				let useEvent = player.getHistory("useCard", evt => evt.getParent() == next)?.[0];
+				if (useEvent?.targets && ["basic", "trick"].includes(get.type(card))) {
+					let useNext = player.useCard(cardx, useEvent.targets.slice().randomGet(), false);
+					useNext.set("_triggered", null);
+					await useNext;
+				}
+			} else {
+				await player.gain(card, "draw");
+				player.addTempSkill("mbkeshui_effect");
+				game.broadcastAll(player => {
+					player.getStat("triggerSkill").mbkeshui--;
+				}, player);
+			}
+		},
+		subSkill: {
+			effect: {
+				trigger: {
+					player: ["phaseAnyBegin"],
+				},
+				forced: true,
+				popup: false,
+				firstDo: true,
+				async content(event, trigger, player) {
+					trigger.cancel();
+					trigger.skipped = true;
+					player.removeSkill(event.skill);
+				},
+			},
+		},
+	},
+	//变幻之神
+	mbbaibian: {
+		trigger: {
+			player: ["damageAfter", "phaseBegin"],
+		},
+		forced: true,
+		skillList: [
+			"mbshentui",
+			"mbxurui",
+			"mbhaoshi",
+			"mbniyun",
+			"mbfanzhuan",
+			"mbkeshui",
+			"mbhuibian",
+			"mb_weiqu",
+			"mbmaimeng",
+			"mbzuandai",
+			"mbgunyuan",
+		],
+		filter(event, player) {
+			return get.info("mbbaibian").skillList.some(skill => !player.hasSkill(skill, null, false, true));
+		},
+		async content(event, trigger, player) {
+			let skill = get
+				.info("mbbaibian")
+				.skillList.filter(skill => !player.hasSkill(skill, null, false, true))
+				.randomGet();
+			await player.addTempSkills(skill, { player: ["phaseEnd"] });
+		},
+	},
+	//抉择之神
+	mbhuibian: {
+		enable: ["phaseUse"],
+		filterTarget: (card, player, target) => {
+			return target.countCards("h") > 0;
+		},
+		selectTarget: 2,
+		multitarget: true,
+		multiline: true,
+		selectCard: 0,
+		filter(event, player) {
+			return game.countPlayer(curr => curr.countCards("h") > 0) > 1;
+		},
+		async content(event, trigger, player) {
+			let cards = [];
+			await game.doAsyncInOrder(
+				event.targets,
+				async (target, index) => {
+					if (index > 0 && cards.length == 0) {
+						return;
+					}
+					let result = await player.choosePlayerCard("he", target).forResult();
+					if (result.bool) {
+						cards.push(result.cards[0]);
+					}
+				},
+				() => 0
+			);
+			if (cards.length > 1) {
+				let bool = get.color(cards[0]) == get.color(cards[1]);
+				let result = await player.chooseControl(["一样", "不一样"]).set("prompt", "猜测两张牌颜色是否一样").forResult();
+				if ((result.control == "一样" && bool) || (result.control == "不一样" && !bool)) {
+					await player.showCards(cards);
+					await player.gain(cards, "draw");
+				} else {
+					player.tempBanSkill("mbhuibian");
+					await game
+						.loseAsync({
+							lose_list: [
+								[event.targets[0], [cards[0]]],
+								[event.targets[1], [cards[1]]],
+							],
+							discarder: player,
+						})
+						.setContent("discardMultiple");
+				}
+			}
+		},
+	},
+	//委屈之神
+	mb_weiqu: {
+		trigger: {
+			target: "useCardToTargeted",
+		},
+		filter(event, player) {
+			return event.targets.length == 1;
+		},
+		async cost(event, trigger, player) {
+			let result = await player
+				.chooseButton([
+					"选择一项",
+					[
+						[
+							["e", "弃置装备区所有牌并令此牌无效"],
+							["h", "弃置所有手牌并摸等量牌"],
+						],
+						"textbutton",
+					],
+				])
+				.set("filterButton", button => {
+					return button.link == "h" || player.countCards("e") > 0;
+				})
+				.set("ai", button => {
+					let player = get.player();
+					if (button.link == "e") {
+						return player.getCards("e").reduce((value, card) => {
+							return (value += get.equipValue(card, player));
+						}, 0);
+					}
+					return (
+						10 -
+						player.getCards("h").reduce((value, card) => {
+							return (value += get.value(card, player));
+						}, 0)
+					);
+				})
+				.forResult();
+			event.result = {
+				bool: result.bool,
+				cost_data: result.links,
+			};
+		},
+		async content(event, trigger, player) {
+			if (event.cost_data[0] == "e") {
+				let cards = player.getCards("e");
+				await player.discard(cards);
+				trigger.getParent()?.cancel();
+				player.addTempSkill("mb_weiqu_e");
+			} else {
+				let cards = player.getCards("h");
+				await player.discard(cards);
+				await player.draw(cards.length);
+				player.addTempSkill("mb_weiqu_h");
+			}
+			if (player.hasSkill("mb_weiqu_e") && player.hasSkill("mb_weiqu_h")) {
+				await player.draw(2);
+			}
+		},
+		subSkill: {
+			e: {},
+			h: {},
+		},
+	},
+	//可爱之神
+	mbmaimeng: {
+		trigger: {
+			player: "changeHpAfter",
+		},
+		async cost(event, trigger, player) {
+			let num = player.getHistory("useSkill", evt => evt.skill == event.skill).length + 1;
+			let result = await player
+				.chooseButton([
+					"选择一项",
+					[
+						[
+							["draw", `摸${num}张牌并防止本回合你下次受到的伤害`],
+							["give", `令一名其他角色交给你${num}张牌且其本回合使用的下一张牌无效`],
+						],
+						"textbutton",
+					],
+				])
+				.set("ai", button => {
+					let event = get.event();
+					let player = get.player();
+					let give = game.hasPlayer(curr => curr.countCards("he") >= event.num && get.attitude(player, curr) < 0);
+					if (button.link == "give" && give) {
+						return 2;
+					}
+					return 1;
+				})
+				.forResult();
+			event.result = {
+				bool: result.bool,
+				cost_data: result.links,
+			};
+		},
+		async content(event, trigger, player) {
+			console.log(event.cost_data);
+			let num = player.getHistory("useSkill", evt => evt.skill == event.skill).length + 1;
+			if (event.cost_data[0] == "draw") {
+				await player.draw(num);
+				player.addTempSkill("mbmaimeng_effect");
+			} else {
+				let result = await player.chooseTarget().set("filterTarget", lib.filter.notMe).forResult();
+				let target = result.targets?.[0];
+				if (target) {
+					await target
+						.chooseToGive(
+							player,
+							num,
+							true,
+							"he",
+							(card, player, target) => {
+								player = get.player();
+								target = get.event().currentTarget;
+								return lib.filter.canBeGained(card, target, player);
+							},
+							(card, player, target) => {
+								return -get.attitude(player, target);
+							}
+						)
+						.set("currentTarget", player);
+					await target.addTempSkill("mbmaimeng_deEffect");
+				}
+			}
+		},
+		subSkill: {
+			effect: {
+				trigger: {
+					player: "damageBegin",
+				},
+				marktext: "萌",
+				intro: {
+					content: "防止本回合下一次受到的伤害",
+				},
+				onremove: true,
+				forced: true,
+				mark: true,
+				async content(event, trigger, player) {
+					trigger.cancel();
+					player.removeSkill(event.name);
+				},
+			},
+			deEffect: {
+				trigger: {
+					player: "useCard",
+				},
+				forced: true,
+				mark: true,
+				marktext: "萌",
+				intro: {
+					content: "本回合使用的下一张牌无效",
+				},
+				onremove: true,
+				async content(event, trigger, player) {
+					trigger.cancel();
+					player.removeSkill(event.name);
+				},
+			},
+		},
+	},
+	//体重之神
+	mbgunyuan: {
+		trigger: {
+			player: "dying",
+		},
+		forced: true,
+		mod: {
+			maxHandcardBase(player) {
+				return player.maxHp;
+			},
+		},
+		filter(event, player) {
+			if (player.countMark("mbgunyuanHp") >= 3) {
+				return false;
+			}
+			console.log(game.getRoundHistory("everything", evt => evt.player != player && evt.name == "dying", event).slice(0, -1).length);
+			return !game.getRoundHistory("everything", evt => evt.player == player && evt.name == "dying", event).slice(0, -1).length;
+		},
+		async content(event, trigger, player) {
+			await player.recoverTo(1);
+			await player.gainMaxHp();
+			player.addMark("mbgunyuanHp", 1, false);
+			await player.draw();
+		},
+	},
+	mbzuandai: {
+		trigger: {
+			player: "phaseUseBegin",
+		},
+		filter(event, player) {
+			if (!get.cardPile(card => get.type(card) == "equip" && player.canEquip(card))) {
+				return false;
+			}
+			return true;
+		},
+		async content(event, trigger, player) {
+			let card = get.cardPile(card => get.type(card) == "equip" && player.canEquip(card));
+			await player.useCard(card, player);
+			await player.draw();
+			trigger.cancel();
+		},
+	},
 	//赤兔
 	mbjunkui: {
 		audio: 2,
