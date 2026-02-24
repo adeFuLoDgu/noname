@@ -13,7 +13,7 @@ const skills = {
 		filter(event, player) {
 			return (
 				player.getExpansions("mbhaoshi").reduce((num, card) => {
-					return (num += parseInt(get.number(card)));
+					return (num += get.number(card));
 				}, 0) >= 100
 			);
 		},
@@ -46,12 +46,12 @@ const skills = {
 				return (num += player.getStorage("mbshentui"));
 			},
 			targetInRange(card, player) {
-				if (get.name(card, false) == "sha" && parseInt(get.number(card, false)) > player.getAttackRange()) {
+				if (get.name(card, false) == "sha" && get.number(card, false) > player.getAttackRange()) {
 					return true;
 				}
 			},
 			cardUsable(card, player) {
-				if (get.name(card, false) == "sha" && parseInt(get.number(card, false)) < player.getAttackRange()) {
+				if (get.name(card, false) == "sha" && get.number(card, false) < player.getAttackRange()) {
 					return Infinity;
 				}
 			},
@@ -73,7 +73,7 @@ const skills = {
 				},
 				async content(event, trigger, player) {
 					let num = player.getAttackRange();
-					let number = parseInt(get.number(trigger.card, false));
+					let number = get.number(trigger.card, false);
 					if (number < num) {
 						trigger.directHit.addArray(game.players);
 					} else if (number > num) {
@@ -174,7 +174,19 @@ const skills = {
 			player: ["damageAfter", "phaseBegin"],
 		},
 		forced: true,
-		skillList: ["mbhaoshi", "mbniyun", "mbfanzhuan", "mbkeshui", "mbhuibian", "mb_weiqu", "mbmaimeng", "mbzuandai", "mbgunyuan"],
+		skillList: [
+			"mbshentui",
+			"mbxurui",
+			"mbhaoshi",
+			"mbniyun",
+			"mbfanzhuan",
+			"mbkeshui",
+			"mbhuibian",
+			"mb_weiqu",
+			"mbmaimeng",
+			"mbzuandai",
+			"mbgunyuan",
+		],
 		filter(event, player) {
 			return get.info("mbbaibian").skillList.some(skill => !player.hasSkill(skill, null, false, true));
 		},
