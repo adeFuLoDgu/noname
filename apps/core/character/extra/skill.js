@@ -53,11 +53,9 @@ const skills = {
 				}
 				let result = await player
 					.chooseTarget(`天涛：选择一名其他角色，弃置其${{ h: "手牌区", e: "装备区", j: "判定区" }[pos]}内的一张牌`)
-					.set(
-						"filterTarget",
-						(_, player, target) =>
-							target != player && !get.event().doneList.get(target) && target.countDiscardableCards(player, get.event().pos)
-					)
+					.set("filterTarget", (_, player, target) => {
+						return target != player && !get.event().doneList.has(target) && target.countDiscardableCards(player, get.event().pos);
+					})
 					.set("ai", target => {
 						const { pos, player } = get.event();
 						return get.effect(target, { name: "guohe_copy", position: pos }, player, player);
@@ -306,7 +304,7 @@ const skills = {
 			if (event.triggername == "roundStart") {
 				event.result = {
 					bool: true,
-					die: true
+					die: true,
 				};
 			} else {
 				event.result = await player
@@ -332,7 +330,7 @@ const skills = {
 					.forResult();
 			}
 		},
-		logAudio: (a, b, c, d, costResult) => costResult.die ? ["mbhuitian3.mp3", "mbhuitian4.mp3"] : 2,
+		logAudio: (a, b, c, d, costResult) => (costResult.die ? ["mbhuitian3.mp3", "mbhuitian4.mp3"] : 2),
 		async content(event, tigger, player) {
 			if (event.triggername == "roundStart") {
 				await player.die();
@@ -11275,17 +11273,17 @@ const skills = {
 						if (result.control == "选项二") {
 							player.logSkill("tspowei_use", target);
 							await player.gainPlayerCard(target, "h", true);
-							event.goto(3);
+						} else if (result.control == "选项一") {
+							await player.chooseToDiscard("h", true).set("logSkill", ["tspowei_use", target]);
+							if (get.mode() != "identity" || player.identity != "nei") {
+								player.addExpose(0.2);
+							}
+							await target.damage();
 						}
+						player.addTempSkill("tspowei_inRange");
 					} else {
 						return;
 					}
-					await player.chooseToDiscard("h", true).set("logSkill", ["tspowei_use", target]);
-					if (get.mode() != "identity" || player.identity != "nei") {
-						player.addExpose(0.2);
-					}
-					await target.damage();
-					player.addTempSkill("tspowei_inRange");
 				},
 				ai: { expose: 0.2 },
 			},
