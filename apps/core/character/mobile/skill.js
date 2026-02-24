@@ -2364,7 +2364,7 @@ const skills = {
 				},
 				silent: true,
 				async content(event, trigger, player) {
-					get.info(event.skill).init(player, event.skill);
+					get.info(event.name).init(player, event.name);
 				},
 				intro: {
 					markcount() {
