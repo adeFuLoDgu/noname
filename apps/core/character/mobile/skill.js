@@ -2463,7 +2463,8 @@ const skills = {
 				for (const target of game.filterPlayer(current => current != player).sortBySeat()) {
 					const name = "mbkubai_guanjued";
 					target.addTempSkill(name);
-					target.setStorage(name, list, true);
+					target.storage[name] = list;
+					target.markSkill(name);
 				}
 			}
 		},
@@ -2491,15 +2492,19 @@ const skills = {
 				mark: true,
 				marktext: "白",
 				intro: {
+					markcount: (storage) => storage?.length || 0,
 					content(_1, player) {
 						const list = player.getStorage("mbkubai_guanjued"),
 							target = _status.currentPhase;
 						if (target.hasSkill("mbkubai")) {
+							if (!list.length) {
+								return "不能使用牌";
+							}
 							const level = Math.min(2, target.countMark("mbkubai")),
 								key = ["颜色", "花色", "点数"][level];
 							return `仅能使用${key}为${get.translation(list)}的牌`;
 						}
-						return "不能使用牌";
+						return "无效果";
 					},
 				},
 				mod: {

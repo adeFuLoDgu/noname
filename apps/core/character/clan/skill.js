@@ -286,7 +286,7 @@ const skills = {
 			order: 3,
 			result: {
 				target(player, target) {
-					return -get.effect(target, { name: "guohe_copy2" }, player, player);
+					return -get.effect(target, { name: "guohe_copy2" }, target, player);
 				},
 			},
 		},
