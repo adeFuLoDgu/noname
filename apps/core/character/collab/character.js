@@ -1,4 +1,10 @@
 const characters = {
+	mbmeitui: {
+		sex: "male",
+		group: "qun",
+		hp: 4,
+		skills: ["mbshentui", "mbxurui"],
+	},
 	gongbaiwan: {
 		sex: "male",
 		group: "shen",
@@ -36,13 +42,13 @@ const characters = {
 		hp: 3,
 		skills: ["mb_weiqu"],
 	},
-	mb_keai: {
+	mbkeai: {
 		sex: "male",
 		group: "shen",
 		hp: 3,
 		skills: ["mbmaimeng"],
 	},
-	mb_tizhong: {
+	mbtizhong: {
 		sex: "male",
 		group: "shen",
 		hp: 5,
