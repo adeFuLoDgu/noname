@@ -1,5 +1,5 @@
 const characters = {
-	meitui: {
+	meituizhishen: {
 		sex: "male",
 		group: "shen",
 		hp: 4,
@@ -12,7 +12,7 @@ const characters = {
 		hp: 4,
 		skills: ["dchaoshi"],
 	},
-	nizhuan: {
+	nizhuanzhishen: {
 		sex: "male",
 		group: "shen",
 		hp: 4,
@@ -20,42 +20,42 @@ const characters = {
 		skills: ["dcfanzhuan", "dcniyun"],
 		names: "null|null",
 	},
-	shuimian: {
+	shuimianzhishen: {
 		sex: "male",
 		group: "shen",
 		hp: 3,
 		skills: ["dckeshui"],
 		names: "null|null",
 	},
-	bianhuan: {
+	bianhuanzhishen: {
 		sex: "male",
 		group: "shen",
 		hp: 3,
 		skills: ["dcbaibian"],
 		names: "null|null",
 	},
-	jueze: {
+	juezezhishen: {
 		sex: "male",
 		group: "shen",
 		hp: 3,
 		skills: ["dchuibian"],
 		names: "null|null",
 	},
-	weiqu: {
+	weiquzhishen: {
 		sex: "male",
 		group: "shen",
 		hp: 3,
 		skills: ["dcweiqu"],
 		names: "null|null",
 	},
-	keai: {
+	keaizhishen: {
 		sex: "male",
 		group: "shen",
 		hp: 3,
 		skills: ["dcmaimeng"],
 		names: "null|null",
 	},
-	tizhong: {
+	tizhongzhishen: {
 		sex: "male",
 		group: "shen",
 		hp: 5,
