@@ -9736,6 +9736,7 @@ export const Content = {
 				await new Promise(resolve => {
 					ui.create.confirm("o", resolve);
 				});
+				ui?.confirm?.close();
 			} else {
 				event.result = "viewed";
 				const wait = delay(2 * lib.config.duration).then(() => {

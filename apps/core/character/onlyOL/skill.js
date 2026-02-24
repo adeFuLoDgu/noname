@@ -7055,7 +7055,10 @@ const skills = {
 							const player = get.player(),
 								target = get.event().getParent().indexedData;
 							const vcard = new lib.element.VCard({ name: "sha", isCard: true });
-							return get.effect(target, vcard, player, player) - get.value(card);
+							if (get.effect(target, vcard, player, player) > 0) {
+								return 7 - get.value(card);
+							}
+							return 0;
 						})
 						.set("logSkill", list)
 						.forResult();
@@ -7117,8 +7120,8 @@ const skills = {
 			return !player.hasHistory("sourceDamage", evt => evt.card == evtx.card);
 		},
 		forced: true,
-		content() {
-			player.draw();
+		async content(event, trigger, player) {
+			await player.draw();
 			trigger.baseDamage++;
 			player.addTempSkill("olsbzhuijiao_debuff");
 			trigger.olsbzhuijiao = true;

@@ -509,9 +509,9 @@ export class Player extends HTMLDivElement {
 			}
 		});
 
-		this.node.handcards1.append(...cards1);
+		this.node.handcards1.prepend(...cards1);
 		if (cards2) {
-			this.node.handcards2.append(...cards2);
+			this.node.handcards2.prepend(...cards2);
 		}
 		this.node.handcards1.style.visibility = "visible";
 		this.node.handcards2.style.visibility = "visible";

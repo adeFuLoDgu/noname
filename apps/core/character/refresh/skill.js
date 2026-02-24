@@ -5771,7 +5771,7 @@ const skills = {
 							return current != player && get.attitude(player, current) > 0 && !current.hasSkillTag("nogain");
 						}),
 						ai2(target) {
-							const card = ui.selected.button[0].link,
+							const card = ui.selected.buttons[0].link,
 								player = get.player();
 							let eff = Math.max(0.1, get.value(card, target)) * get.attitude(player, target);
 							if (target.hasSkill("nogain")) {
