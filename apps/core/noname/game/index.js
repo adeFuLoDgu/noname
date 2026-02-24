@@ -1417,12 +1417,12 @@ export class Game {
 	 * @template { keyof GameHistory } T
 	 * @param {T} key
 	 * @param {(event:GameEvent)=>boolean} filter 筛选条件，不填写默认为lib.filter.all
+	 * @param {GameEvent} last 代表最后一个事件，获取该事件之前的历史
 	 * @param {number} [num] 获取倒数第num轮的历史，默认为0，表示当前轮
 	 * @param {boolean} [keep] 若为true,则获取倒数第num轮到现在的所有历史
-	 * @param {GameEvent} last 代表最后一个事件，获取该事件之前的历史
 	 * @returns { GameHistory[T] }
 	 */
-	getRoundHistory(key, filter = lib.filter.all, num = 0, keep, last) {
+	getRoundHistory(key, filter = lib.filter.all, last, num = 0, keep) {
 		if (!filter || typeof filter != "function") {
 			filter = lib.filter.all;
 		}
