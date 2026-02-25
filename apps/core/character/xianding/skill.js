@@ -2017,7 +2017,7 @@ const skills = {
 			await player.discard(cards);
 			const gain = [];
 			while (gain.length < cards.length) {
-				const card = get.cardPile2(card => get.color(card) == "black", "random");
+				const card = get.cardPile2(card => get.color(card) == "black" && !gain.includes(card), "random");
 				if (card) {
 					gain.push(card);
 				} else {
@@ -2086,9 +2086,6 @@ const skills = {
 		filterTarget(card, player, target) {
 			return target != player && target.countCards("h") > 0;
 		},
-		check(card) {
-			return 6 - get.value(card);
-		},
 		async content(event, trigger, player) {
 			const { target } = event;
 			const result = await player.choosePlayerCard(`和戎：请选择展示${get.translation(target)}一张手牌`, target, "h", true).forResult();
@@ -2109,12 +2106,12 @@ const skills = {
 					const bool = get.type2(card) == get.type2(cardx);
 					const att = get.attitude(player, target);
 					if (att > 0 && bool) {
-						return 7.5 - get.value(card);
+						return 8 - get.value(card);
 					}
 					if (att < 0 && !bool) {
-						return 6 - get.value(card);
+						return 7 - get.value(card);
 					}
-					return 5 - get.value(card);
+					return 0;
 				})
 				.set("cardx", card1)
 				.set("target", target)
@@ -2135,7 +2132,7 @@ const skills = {
 							await target.gain(card, "gain2");
 						}
 					},
-					(a, b) => false
+					() => 0
 				);
 			} else {
 				player.popup("杯具");
@@ -2175,6 +2172,15 @@ const skills = {
 					player.removeSkill(event.name);
 					trigger.cancel();
 				},
+				ai: {
+					filterDamage: true,
+					//纯放屁！
+					skillTagFilter(player, tag, arg) {
+						if (tag == "filterDamage") {
+							return true;
+						}
+					}
+				}
 			},
 		},
 	},
@@ -19201,7 +19207,7 @@ const skills = {
 	dcsbronghuo: {
 		audio: 2,
 		audioname: ["dc_sb_zhouyu_shadow"],
-		trigger: { player: "useCard1" },
+		trigger: { player: "useCard" },
 		filter(event, player) {
 			return (event.card.name == "sha" && game.hasNature(event.card, "fire")) || event.card.name == "huogong";
 		},

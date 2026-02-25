@@ -9688,7 +9688,8 @@ export const Content = {
 		//添加知情者
 		game.addCardKnower(cards, "everyone");
 		//增加延迟，允许自定义
-		await game.delayx(event.delay_time || Math.min(5, cards.length));
+		const delay = Math.max(2, Math.min(5, cards.length));
+		await game.delayx(event.delay_time || delay);
 
 		//关闭对话框，结束动画
 		if (!flashAnimation) {

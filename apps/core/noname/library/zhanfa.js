@@ -3084,15 +3084,6 @@ export class ZhanfaManager {
 	#zhanfa = {};
 
 	/**
-	 * @type {Record<string, {
-	 * 	skill: Skill | string,
-	 *  rarity: string,
-	 *  [p: string]: any
-	 * }>}
-	 */
-	//#customZhanfa = {};
-
-	/**
 	 * @param {Library} lib
 	 */
 	constructor(lib) {
