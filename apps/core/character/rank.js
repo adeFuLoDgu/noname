@@ -1972,6 +1972,7 @@ window.noname_character_rank = {
 		"tw_jsrg_hejin",
 	],
 	c: [
+		"star_zhangsong",
 		"xy_caocao",
 		"xy_chengyu",
 		"xy_chengong",
@@ -3118,6 +3119,7 @@ window.noname_character_rank = {
 			"dc_sb_chunyuqiong",
 		],
 		rare: [
+			"star_zhangsong",
 			"tizhongzhishen",
 			"keaizhishen",
 			"nizhuanzhishen",

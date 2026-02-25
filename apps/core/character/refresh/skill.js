@@ -10932,8 +10932,9 @@ const skills = {
 		},
 		async content(event, trigger, player) {
 			player.awakenSkill(event.name);
-			await player.recover(player.maxHp - player.hp);
-			await player.draw(player.maxHp - player.hp);
+			const num = player.getDamagedHp(true);
+			await player.recover(num);
+			await player.draw(num);
 		},
 	},
 	rexuanfeng: {
@@ -14751,9 +14752,8 @@ const skills = {
 			return !event.numFixed;
 		},
 		async content(event, trigger, player) {
-			const cards = get.cards(3);
-			await game.cardsGotoOrdering(cards);
-			await player.showCards(cards, "裸衣");
+			const cards = get.cards(3, true);
+			await player.showCards(cards, "裸衣", true);
 
 			const cardsx = [];
 			for (const c of cards) {
@@ -14767,14 +14767,14 @@ const skills = {
 			const prompt = "是否放弃摸牌" + (cardsx.length ? "，改为获得" + get.translation(cardsx) : "") + "？";
 			const result = await player
 				.chooseBool(prompt)
-				.set("ai", () => cardsx.length >= trigger.num)
+				.set("choice", cardsx.length >= trigger.num)
 				.forResult();
 
 			if (result.bool) {
-				if (cards.length) {
-					await player.gain(cards, "gain2");
+				if (cardsx.length) {
+					await player.gain(cardsx, "gain2");
 				}
-				player.addTempSkill("new_reluoyi_buff", { player: "phaseBefore" });
+				player.addTempSkill("new_reluoyi_buff", { player: "phaseBeforeStart" });
 				trigger.changeToZero();
 			}
 		},

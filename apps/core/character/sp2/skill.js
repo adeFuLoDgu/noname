@@ -2,6 +2,215 @@ import { lib, game, ui, get, ai, _status } from "noname";
 
 /** @type { importCharacterConfig['skill'] } */
 const skills = {
+	//星张松
+	starxisong: {
+		audio: 2,
+		trigger: {
+			global: "phaseUseBegin",
+		},
+		round: 1,
+		filter(event, player) {
+			return event.player != player && event.player.countCards("h") > 0;
+		},
+		logTarget: "player",
+		check(event, player) {
+			return get.attitude(player, event.player) < 0;
+		},
+		getList: card => [get.type2(card), get.suit(card), get.number(card)],
+		async content(event, trigger, player) {
+			const {
+				targets: [target],
+			} = event;
+			await player.viewHandcards(target);
+			player.addTempSkill(`${event.name}_mark`, "phaseChange");
+			player.markAuto(`${event.name}_mark`, target.getCards("h"));
+			player
+				.when({ global: "phaseUseEnd" })
+				.filter(evt => evt == trigger)
+				.then(async (event, trigger, player) => {
+					if (!target.isIn() || !target.countCards("h")) {
+						return;
+					}
+					//开透视吧，不喜欢ai折磨人的话（）
+					const known = target.getCards("h", card => card.isKnownBy(player));
+					const types = ["basic", "trick", "equip"];
+					const suits = lib.suit.slice();
+					const numbers = Array.from({ length: 13 }).map((val, i) => i + 1);
+					const getList = get.info("starxisong").getList;
+					const result = await player
+						.chooseButton(
+							[
+								`悉诵：请声明一个类别、花色和点数并展示${get.translation(target)}的手牌`,
+								[types.map(i => [i, get.translation(i)]), "tdnodes"],
+								[suits.map(i => [i, get.translation(i)]), "tdnodes"],
+								[numbers.map(i => [i, get.strNumber(i)]), "tdnodes"],
+							],
+							3,
+							true
+						)
+						.set("filterButton", button => {
+							const { buttons } = ui.selected;
+							const { link } = button;
+							if (!buttons.length) {
+								return ["basic", "trick", "equip"].includes(link);
+							} else if (buttons.length == 1) {
+								return lib.suit.includes(link);
+							} else {
+								return typeof link == "number";
+							}
+							return false;
+						})
+						.set(
+							"list",
+							known.randomGets(1).flatMap(i => getList(i))
+						)
+						.set("ai", button => {
+							const { list } = get.event();
+							if (!list?.length) {
+								return Math.random();
+							}
+							return list.includes(button.link);
+						})
+						.forResult();
+					const { links } = result;
+					if (links?.length) {
+						game.log(player, "声明了", `#g${get.translation(links[0])}、${get.translation(links[1])}、${get.strNumber(links[2])}`);
+						await target.showHandcards();
+						const hs = target.getCards("h").filter(card => getList(card).every((val, idx) => val == links[idx]));
+						if (hs.length) {
+							player.popup("洗具");
+							await target.modedDiscard(hs);
+							player.refreshSkill("starxisong");
+							while (hs.length) {
+								const card = hs.shift();
+								if (
+									get.position(card) == "d" &&
+									(player.hasUseTarget(card, void 0, true) || (get.info(card).notarget && lib.filter.cardEnabled(card, player)))
+								) {
+									await player.chooseUseTarget(card, true, false);
+								}
+							}
+						} else {
+							player.popup("杯具");
+						}
+					}
+				});
+		},
+		subSkill: {
+			mark: {
+				charlotte: true,
+				onremove: true,
+				intro: {
+					name: "悉诵（观看的牌）",
+					markcount: () => 0,
+					mark(dialog, storage, player) {
+						if (player.isUnderControl(true)) {
+							dialog.add(storage);
+						} else {
+							dialog.addText("与女无瓜");
+						}
+					},
+				},
+			},
+		},
+	},
+	starfanglang: {
+		audio: 2,
+		trigger: { player: "phaseDrawBegin2" },
+		filter(event, player) {
+			return !event.numFixed;
+		},
+		check: () => true,
+		async content(event, trigger, player) {
+			trigger.num = 1;
+			trigger.numFixed = true;
+			player
+				.when("drawEnd")
+				.filter(evt => evt.getParent() == trigger)
+				.then(async (event, trigger, player) => {
+					let { cards } = trigger.result;
+					cards = cards?.filter(card => get.owner(card) == player);
+					if (cards?.length) {
+						player.addTempSkill("starfanglang_draw", { player: "phaseBeforeStart" });
+						player.markAuto("starfanglang_draw", cards);
+						await player.showCards(cards);
+					}
+				});
+		},
+		group: ["starfanglang_gain"],
+		subSkill: {
+			draw: {
+				audio: "starfanglang",
+				charlotte: true,
+				onremove: true,
+				intro: {
+					content: "cards",
+				},
+				trigger: {
+					player: ["useCard", "respond"],
+				},
+				forced: true,
+				filter(event, player) {
+					const storage = player.getStorage("starfanglang_draw");
+					return (
+						storage.length > 0 &&
+						(player.getHistory("useCard").indexOf(event) == 0 || player.getHistory("respond").indexOf(event) == 0) &&
+						!event.cards.containsSome(...storage) &&
+						get.info("starfanglang_draw").getNum(player, event.card) > 0
+					);
+				},
+				getNum(player, card) {
+					const getList = get.info("starxisong").getList;
+					const storage = player.getStorage("starfanglang_draw");
+					const list = storage.map(i => getList(i));
+					const keys = ["type2", "suit", "number"];
+					return keys.filter((key, idx) => list.some(i => i[idx] == get[key](card))).length;
+				},
+				async content(event, trigger, player) {
+					await player.draw(get.info(event.name).getNum(player, trigger.card));
+				},
+			},
+			gain: {
+				audio: "starfanglang",
+				trigger: {
+					player: "phaseJieshuBegin",
+				},
+				filter(event, player) {
+					return player.countDiscardableCards(player, "he") > 0 && player.getStorage("starfanglang_draw").length > 0;
+				},
+				async cost(event, trigger, player) {
+					event.result = await player
+						.chooseToDiscard(
+							`###${get.prompt(event.skill)}###你可以弃置一张牌，然后你获得弃牌堆中与放浪展示牌类别、点数、花色相同的牌各一张牌。`,
+							"he",
+							"chooseonly"
+						)
+						.set("ai", card => 6 - get.value(card))
+						.forResult();
+				},
+				async content(event, trigger, player) {
+					const { cards } = event;
+					await player.discard(cards);
+					const getList = get.info("starxisong").getList;
+					const gain = [];
+					const keys = ["type2", "suit", "number"];
+					const list = player.getStorage("starfanglang_draw").map(i => getList(i));
+					keys.forEach((key, idx) => {
+						const card = get.discardPile(card => {
+							const val = get[key](card);
+							return !gain.includes(card) && list.some(i => i[idx] == val);
+						});
+						if (card) {
+							gain.push(card);
+						}
+					});
+					if (gain.length) {
+						await player.gain(gain, "gain2");
+					}
+				},
+			},
+		},
+	},
 	//星张郃
 	starjunxi: {
 		audio: 2,

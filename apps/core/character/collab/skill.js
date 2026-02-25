@@ -1,6 +1,4 @@
-import { parse } from "error-stack-parser";
 import { lib, game, ui, get, ai, _status } from "noname";
-import { h } from "vue";
 
 /** @type { importCharacterConfig['skill'] } */
 const skills = {
@@ -144,9 +142,11 @@ const skills = {
 			let hp = player.hp;
 			let damageHp = player.getDamagedHp();
 			let num = hp - damageHp;
-			await player.changeHp(-num);
-			let draw = Math.abs(num);
-			await player.draw(draw);
+			if (num != 0) {
+				const numx = Math.abs(num);
+				await player[num > 0 ? "loseHp" : "recover"](numx);
+				await player.draw(numx);
+			}
 		},
 	},
 	dcniyun: {
@@ -270,7 +270,7 @@ const skills = {
 					if (index > 0 && cards.length == 0) {
 						return;
 					}
-					let result = await player.choosePlayerCard("he", target, true).forResult();
+					let result = await player.choosePlayerCard("h", target, true).forResult();
 					if (result.bool) {
 						cards.push(result.cards[0]);
 					}
@@ -281,8 +281,8 @@ const skills = {
 				let bool = get.color(cards[0]) == get.color(cards[1]);
 				let result = await player.chooseControl(["一样", "不一样"]).set("prompt", "猜测两张牌颜色是否一样").forResult();
 				if ((result.control == "一样" && bool) || (result.control == "不一样" && !bool)) {
-					get.owner(cards[0]).$giveAuto(cards[0], player);
-					get.owner(cards[1]).$giveAuto(cards[1], player);
+					get.owner(cards[0])?.$giveAuto(cards[0], player);
+					get.owner(cards[1])?.$giveAuto(cards[1], player);
 					await player.gain(cards);
 					await player.showCards(cards);
 				} else {
@@ -312,7 +312,7 @@ const skills = {
 			target: "useCardToTargeted",
 		},
 		filter(event, player) {
-			return event.targets.length == 1 && event.cards.length > 0;
+			return event.targets.length == 1 && event.cards.length > 0 && player.countCards(player, "he") > 0;
 		},
 		async cost(event, trigger, player) {
 			let result = await player
@@ -327,7 +327,7 @@ const skills = {
 					],
 				])
 				.set("filterButton", button => {
-					return button.link == "h" || player.countCards("e") > 0;
+					return player.countCards(button.link) > 0;
 				})
 				.set("ai", button => {
 					let player = get.player();
@@ -359,8 +359,10 @@ const skills = {
 				player.addTempSkill("dcweiqu_e");
 			} else {
 				let cards = player.getCards("h");
-				const { cards: discard } = await player.modedDiscard(cards).forResult();
-				await player.draw(discard.length);
+				const result = await player.modedDiscard(cards).forResult();
+				if (result.cards?.length) {
+					await player.draw(result.cards.length);
+				}
 				player.addTempSkill("dcweiqu_h");
 			}
 			if (player.hasSkill("dcweiqu_e") && player.hasSkill("dcweiqu_h")) {

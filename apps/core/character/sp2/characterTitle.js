@@ -1,4 +1,5 @@
 export default {
+	star_zhangsong: "",
 	star_zhanghe: "河北之庭柱",
 	dc_yanxiang: "冢中鸣鸮",
 	cuilie: "镇纲责僭",

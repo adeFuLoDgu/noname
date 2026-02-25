@@ -463,6 +463,7 @@ export default {
 			if (typeof num == "function") {
 				num = num(event, trigger, player);
 			}
+			game.log(trigger.card, `基础伤害+${num}`);
 			trigger.baseDamage += num;
 		},
 	},
