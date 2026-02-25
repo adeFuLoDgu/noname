@@ -25,7 +25,7 @@ const characterSortTranslate = {
 	collab_mbdoudizhu: "移动版·限时地主",
 	collab_anime: "三国杀·动画",
 	collab_shengxiao: "三国杀·十二生肖",
-	collab_hajimi: "三国杀·哈基米",
+	collab_hajimi: "三国杀·喵喵杀",
 };
 
 export { characterSort, characterSortTranslate };
