@@ -7166,7 +7166,7 @@ const skills = {
 									["recover", "回复1点体力"],
 									["draw", "摸两张牌"],
 									["use", "使用的下一张牌无任何次数限制"],
-									["drawx", "令一名其他角色摸两张牌"],
+									["drawx", "令一名其他角色摸三张牌"],
 								],
 								"textbutton",
 							],
@@ -7216,7 +7216,7 @@ const skills = {
 							break;
 						case "drawx": {
 							const result = await player
-								.chooseTarget(`启诲：令一名其他角色摸两张牌`, true, lib.filter.notMe)
+								.chooseTarget(`启诲：令一名其他角色摸三张牌`, true, lib.filter.notMe)
 								.set("ai", target => get.effect(target, { name: "draw" }, get.player(), get.player()))
 								.forResult();
 							const {
@@ -7224,7 +7224,7 @@ const skills = {
 							} = result;
 							if (target) {
 								player.line(target);
-								await target.draw(2);
+								await target.draw(3);
 							}
 							break;
 						}
