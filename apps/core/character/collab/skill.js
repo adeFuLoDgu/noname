@@ -312,7 +312,7 @@ const skills = {
 			target: "useCardToTargeted",
 		},
 		filter(event, player) {
-			return event.targets.length == 1 && event.cards.length > 0;
+			return event.targets.length == 1 && event.cards.length > 0 && player.countCards(player, "he") > 0;
 		},
 		async cost(event, trigger, player) {
 			let result = await player
@@ -327,7 +327,7 @@ const skills = {
 					],
 				])
 				.set("filterButton", button => {
-					return button.link == "h" || player.countCards("e") > 0;
+					return player.countCards(button.link) > 0;
 				})
 				.set("ai", button => {
 					let player = get.player();
@@ -359,8 +359,10 @@ const skills = {
 				player.addTempSkill("dcweiqu_e");
 			} else {
 				let cards = player.getCards("h");
-				const { cards: discard } = await player.modedDiscard(cards).forResult();
-				await player.draw(discard.length);
+				const result = await player.modedDiscard(cards).forResult();
+				if (result.cards?.length) {
+					await player.draw(result.cards.length);
+				}
 				player.addTempSkill("dcweiqu_h");
 			}
 			if (player.hasSkill("dcweiqu_e") && player.hasSkill("dcweiqu_h")) {
