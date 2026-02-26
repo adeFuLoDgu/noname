@@ -559,7 +559,15 @@ export class Player extends HTMLDivElement {
 		}
 		this.addAdditionalSkill("zhanfa", skill, true);
 		this.markAuto("zhanfa", id);
-		game.log(this, "获得战法", `#g【${get.translation(id)}】`);
+		const next = game.createEvent("addZhanfa", false, get.event());
+		next.player = this;
+		next.zhanfaId = id;
+		next.forceDie = true;
+		next.includeOut = true;
+		next.setContent(async (event, trigger, player) => {
+			game.log(player, "获得战法", `#g【${get.translation(event.zhanfaId)}】`);
+			await event.trigger(event.name);
+		});
 	}
 	/**
 	 * 失去对应战法
@@ -573,7 +581,15 @@ export class Player extends HTMLDivElement {
 		}
 		this.removeAdditionalSkill("zhanfa", skill);
 		this.unmarkAuto("zhanfa", id);
-		game.log(this, "失去战法", `#g【${get.translation(id)}】`);
+		const next = game.createEvent("removeZhanfa", false, get.event());
+		next.player = this;
+		next.zhanfaId = id;
+		next.forceDie = true;
+		next.includeOut = true;
+		next.setContent(async (event, trigger, player) => {
+			game.log(player, "失去战法", `#g【${get.translation(event.zhanfaId)}】`);
+			await event.trigger(event.name);
+		});
 	}
 	/**
 	 * 获取一名角色的名字翻译
@@ -1383,9 +1399,9 @@ export class Player extends HTMLDivElement {
 	 *
 	 * 执行延时锦囊牌效果
 	 * @param { Card | string } card
-	 * @param { Player } target
-	 * @param {*} judge
-	 * @param {*} judge2
+	 * @param { Player } [target]
+	 * @param {*} [judge]
+	 * @param {*} [judge2]
 	 * @returns
 	 */
 	executeDelayCardEffect(card, target, judge, judge2) {
@@ -6124,7 +6140,7 @@ export class Player extends HTMLDivElement {
 		const next = game.createEvent("chooseButton");
 
 		const args = [...arguments];
-		if (args.length == 1 && get.is.object(args) && get.itemtype(args) == null) {
+		if (args.length == 1 && get.is.object(params) && get.itemtype(params) == null) {
 			Object.assign(next, params);
 			if (typeof next.selectButton === "number") {
 				next.selectButton = [next.selectButton, next.selectButton];
@@ -11754,7 +11770,7 @@ export class Player extends HTMLDivElement {
 	 * @param {(event:GameEvent)=>boolean} filter 筛选条件，不填写默认为lib.filter.all
 	 * @param {number} [num] 获取倒数第num轮的历史，默认为0，表示当前轮
 	 * @param {boolean} [keep] 若为true,则获取倒数第num轮到现在的所有历史
-	 * @param {GameEvent} last 代表最后一个事件，获取该事件之前的历史
+	 * @param {GameEvent} [last] 代表最后一个事件，获取该事件之前的历史
 	 */
 	getRoundHistory(key, filter = lib.filter.all, num, keep, last) {
 		if (!num) {

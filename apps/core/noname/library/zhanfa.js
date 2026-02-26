@@ -280,12 +280,12 @@ const _zhanfa = {
 		skill: {
 			mod: {
 				ignoredHandcard(card, player) {
-					if (card.name == "tao") {
+					if (get.name(card) == "tao") {
 						return true;
 					}
 				},
 				cardDiscardable(card, player, name) {
-					if (name === "phaseDiscard" && card.name == "tao") {
+					if (name === "phaseDiscard" && get.name(card) == "tao") {
 						return false;
 					}
 				},
@@ -349,7 +349,7 @@ const _zhanfa = {
 	zf_chenqibubei: {
 		rarity: "epic",
 		translate: "趁其不备",
-		info: "	你使用【过河拆桥】时，至多弃置目标两张牌",
+		info: "你使用【过河拆桥】时，至多弃置目标两张牌",
 		card: {
 			ai: { basic: { value: 5.5 } },
 		},
@@ -374,7 +374,7 @@ const _zhanfa = {
 	zf_chenqibubei2: {
 		rarity: "legend",
 		translate: "趁其不备Ⅱ",
-		info: "	你使用【过河拆桥】时，至多弃置目标三张牌",
+		info: "你使用【过河拆桥】时，至多弃置目标三张牌",
 		card: {
 			cardimage: "zf_chenqibubei",
 			ai: { basic: { value: 7.5 } },
@@ -538,19 +538,21 @@ const _zhanfa = {
 				}
 				return true;
 			},
+			num: 3,
 			async content(event, trigger, player) {
+				const { num } = get.info(event.name);
 				if (player == trigger.player) {
-					trigger.num1 += 3;
+					trigger.num1 += num;
 					if (trigger.num1 > 13) {
 						trigger.num1 = 13;
 					}
 				} else {
-					trigger.num2 += 3;
+					trigger.num2 += num;
 					if (trigger.num2 > 13) {
 						trigger.num2 = 13;
 					}
 				}
-				game.log(player, "的拼点牌点数+3");
+				game.log(player, `的拼点牌点数+${num}`);
 			},
 		},
 	},
@@ -564,20 +566,7 @@ const _zhanfa = {
 		},
 		skill: {
 			inherit: "zf_dushu",
-			async content(event, trigger, player) {
-				if (player == trigger.player) {
-					trigger.num1 += 6;
-					if (trigger.num1 > 13) {
-						trigger.num1 = 13;
-					}
-				} else {
-					trigger.num2 += 6;
-					if (trigger.num2 > 13) {
-						trigger.num2 = 13;
-					}
-				}
-				game.log(player, "的拼点牌点数+6");
-			},
+			num: 6,
 		},
 	},
 	//断粮草Ⅱ
@@ -739,7 +728,7 @@ const _zhanfa = {
 			},
 			async content(event, trigger, player) {
 				await player.loseHp();
-				await player.draw(2);
+				await player.draw({ num: 2 });
 			},
 		},
 	},
@@ -904,7 +893,7 @@ const _zhanfa = {
 		skill: {
 			mod: {
 				targetInRange(card) {
-					if (get.suit(card) == "diamond" && card.name == "sha") {
+					if (get.suit(card) == "diamond" && get.name(card) == "sha") {
 						return true;
 					}
 				},
@@ -979,12 +968,12 @@ const _zhanfa = {
 		skill: {
 			mod: {
 				ignoredHandcard(card, player) {
-					if (card.name == "shan") {
+					if (get.name(card) == "shan") {
 						return true;
 					}
 				},
 				cardDiscardable(card, player, name) {
-					if (name === "phaseDiscard" && card.name == "shan") {
+					if (name === "phaseDiscard" && get.name(card) == "shan") {
 						return false;
 					}
 				},
@@ -1002,7 +991,7 @@ const _zhanfa = {
 		skill: {
 			mod: {
 				selectTarget(card, player, range) {
-					if (card.name == "tiesuo" && range[1] > 0) {
+					if (get.name(card) == "tiesuo" && range[1] > 0) {
 						range[1] = Infinity;
 					}
 				},
@@ -1027,26 +1016,35 @@ const _zhanfa = {
 			filter(event, player, name) {
 				if (name == "damageBegin1") {
 					return (
-						game
-							.getRoundHistory(
-								"everything",
-								evt => evt.name == "damage" && evt.source == player && evt.getParent("phase")?.player == player
-							)
-							.indexOf(event) == 0
+						_status.currentPhase == player &&
+						game.getGlobalHistory("everything", evt => evt.name == "damage" && evt.source == player).indexOf(event) == 0
 					);
 				} else {
-					return (
-						game
-							.getRoundHistory(
-								"everything",
-								evt => evt.name == "damage" && evt.player == player && evt.getParent("phase")?.player != player
-							)
-							.indexOf(event) == 0
-					);
+					return _status.currentPhase != player && !player.hasSkill("zf_hengfeng_triggered");
 				}
 			},
 			async content(event, trigger, player) {
+				if (event.triggername == "damageBegin3") {
+					player.addTempSkill(`${event.name}_triggered`, { player: "phaseBeginStart" });
+				}
 				trigger.num += get.info(event.name).num;
+			},
+			init(player, skill) {
+				const histories = player.actionHistory.slice();
+				for (const history of histories.reverse()) {
+					if (history.isMe) {
+						break;
+					}
+					if (history["damage"].length) {
+						player.addTempSkill(`${skill}_triggered`, { player: "phaseBeginStart" });
+						break;
+					}
+				}
+			},
+			subSkill: {
+				triggered: {
+					charlotte: true,
+				},
 			},
 		},
 	},
@@ -1062,6 +1060,16 @@ const _zhanfa = {
 		skill: {
 			inherit: "zf_hengfeng",
 			num: 2,
+			filter(event, player, name) {
+				if (name == "damageBegin1") {
+					return (
+						_status.currentPhase == player &&
+						game.getGlobalHistory("everything", evt => evt.name == "damage" && evt.source == player).indexOf(event) == 0
+					);
+				} else {
+					return _status.currentPhase != player && !player.hasSkill("zf_hengfeng2_triggered");
+				}
+			},
 		},
 	},
 	//后发先至
@@ -1085,7 +1093,7 @@ const _zhanfa = {
 			},
 			async content(event, trigger, player) {
 				if (trigger.name == "phase") {
-					await player.draw(3);
+					await player.draw({ num: 3 });
 				} else {
 					trigger.num--;
 				}
@@ -1209,7 +1217,7 @@ const _zhanfa = {
 				return evt && evt.player == player && evt.hs && evt.hs.length > 0 && _status.currentPhase != player;
 			},
 			async content(event, trigger, player) {
-				await player.draw(2);
+				await player.draw({ num: 2 });
 			},
 		},
 	},
@@ -1560,7 +1568,7 @@ const _zhanfa = {
 		skill: {
 			inherit: "zf_cardDamage",
 			filter(event, player) {
-				return player.getHistory("useCard", evt => get.type2(evt.card) == "trick").indexOf(event) == 0 && get.tag(event.card, "damage");
+				return player.getHistory("useCard", evt => get.type2(evt.card) == "trick").indexOf(event) == 0 && get.is.damageCard(event.card);
 			},
 		},
 	},
@@ -1576,7 +1584,7 @@ const _zhanfa = {
 			inherit: "zf_cardDamage",
 			filter(event, player) {
 				const index = player.getHistory("useCard", evt => get.type2(evt.card) == "trick").indexOf(event);
-				return index >= 0 && index < 2 && get.tag(event.card, "damage");
+				return index >= 0 && index < 2 && get.is.damageCard(event.card);
 			},
 		},
 	},
@@ -1591,7 +1599,7 @@ const _zhanfa = {
 		skill: {
 			mod: {
 				targetInRange(card, player) {
-					if (card.name == "shunshou") {
+					if (get.name(card) == "shunshou") {
 						return true;
 					}
 				},
@@ -1866,27 +1874,8 @@ const _zhanfa = {
 			ai: { basic: { value: 7.3 } },
 		},
 		skill: {
-			init(player, skill) {
-				const enemies = player.getEnemies(() => true, false);
-				player.storage[skill] = game.filterPlayer(target => enemies.includes(target) && target.maxHp > 1);
-				const next = game.createEvent(skill + "_init", false, get.event());
-				next.set("player", player);
-				next.set("targets", player.storage[skill]);
-				next.setContent(async (event, trigger, player) => {
-					const { targets } = event;
-					await game.doAsyncInOrder(targets, (target, i) => target.loseMaxHp(), lib.sort.seat);
-				});
-			},
-			onremove(player, skill) {
-				const next = game.createEvent(skill + "_onremove", false, get.event());
-				next.set("player", player);
-				next.set("targets", player.storage[skill].slice());
-				next.setContent(async (event, trigger, player) => {
-					const { targets } = event;
-					await game.doAsyncInOrder(targets, (target, i) => target.gainMaxHp(), lib.sort.seat);
-				});
-				delete player.storage[skill];
-			},
+			inherit: "zf_loseMaxHp",
+			getTargets: (event, player) => player.getEnemies(),
 		},
 	},
 	//噬血I
@@ -2043,7 +2032,7 @@ const _zhanfa = {
 		skill: {
 			inherit: "zf_anyDamage",
 			filter(event, player) {
-				return event.player.hujia > 0;
+				return event.player.hujia > 0 && !event.nohujia && !player.hasSkillTag("nohujia");
 			},
 			num: (event, trigger, player) => Math.min(Math.floor(trigger.player.hujia / 2), trigger.num),
 		},
@@ -2058,16 +2047,11 @@ const _zhanfa = {
 		},
 		skill: {
 			num: 1,
-			init(player, skill) {
-				const num = get.info(skill).num;
-				const next = game.createEvent(skill + "_init", false, get.event());
-				next.set("player", player);
-				next.set("num", num);
-				next.setContent(async (event, trigger, player) => {
-					const { num } = event;
-					await player.gainMaxHp(num);
-					await player.recover(num);
-				});
+			inherit: "zf_onAdd",
+			async callback(event, trigger, player) {
+				const { num } = get.info(event.name);
+				await player.gainMaxHp({ num });
+				await player.recover({ num });
 			},
 		},
 	},
@@ -2164,9 +2148,10 @@ const _zhanfa = {
 		},
 		skill: {
 			num: 1,
-			init(player, skill) {
-				const num = get.info(skill).num;
-				player.changeHujia(num);
+			inherit: "zf_onAdd",
+			async callback(event, trigger, player) {
+				const { num } = get.info(event.name);
+				await player.changeHujia(num);
 			},
 		},
 	},
@@ -2221,22 +2206,25 @@ const _zhanfa = {
 			ai: { basic: { value: 7.3 } },
 		},
 		skill: {
-			forced: true,
-			init(player, skill) {
-				const next = game.createEvent(skill + "_init", false, get.event());
-				next.set("player", player);
-				next.setContent(async (event, trigger, player) => {
-					const num = 7 - player.maxHp;
-					await player[num > 0 ? "gainMaxHp" : "loseMaxHp"](Math.abs(num));
-					await player.recover(Math.abs(num));
-				});
+			inherit: "zf_onAdd",
+			async callback(event, trigger, player) {
+				const num = 7 - player.maxHp;
+				await player[num > 0 ? "gainMaxHp" : "loseMaxHp"]({ num: Math.abs(num) });
+				await player.recover({ num: Math.abs(num) });
 			},
-			trigger: { player: ["gainMaxHpBefore", "loseMaxHpBefore"] },
-			filter(event, player) {
-				return event.parent?.name !== "zf_wendingtizhi_init";
-			},
-			async content(event, trigger, player) {
-				trigger.cancel();
+			group: "zf_wendingtizhi_effect",
+			subSkill: {
+				effect: {
+					forced: true,
+					charlotte: true,
+					trigger: { player: ["gainMaxHpBefore", "loseMaxHpBefore"] },
+					filter(event, player) {
+						return event.parent?.name !== "zf_wendingtizhi";
+					},
+					async content(event, trigger, player) {
+						trigger.cancel();
+					},
+				},
 			},
 		},
 	},
@@ -2250,6 +2238,7 @@ const _zhanfa = {
 		},
 		skill: {
 			inherit: "zf_phaseDraw",
+			lastDo: true,
 			async content(event, trigger, player) {
 				trigger.num = 5;
 				trigger.set("numFixed", true);
@@ -2486,39 +2475,33 @@ const _zhanfa = {
 			ai: { basic: { value: 6.3 } },
 		},
 		skill: {
-			num: 1,
-			init(player, skill) {
-				if (player.maxHp < 2) {
-					return;
-				}
-				let num = get.info(skill).num;
-				num = Math.min(num, player.maxHp - 1);
-				player.storage[skill] = num;
-				const next = game.createEvent(skill + "_init", false, get.event());
-				next.set("player", player);
-				next.set("num", num);
-				next.setContent(async (event, trigger, player) => {
-					const { num } = event;
-					await player.loseMaxHp(num);
-				});
-			},
+			inherit: "zf_loseMaxHp",
 			onremove(player, skill) {
-				if (!player.storage[skill]) {
-					return;
-				}
-				const next = game.createEvent(skill + "_onremove", false, get.event());
-				next.set("player", player);
-				next.set("num", player.storage[skill]);
-				next.setContent(async (event, trigger, player) => {
-					const { num } = event;
-					await player.gainMaxHp(num);
-				});
-				delete player.storage[skill];
+				player.addTempSkill(`${skill}_onremove`);
+				player.removeSkill(`${skill}_effect`);
 			},
-			forced: true,
-			trigger: { global: "roundStart" },
-			async content(event, trigger, player) {
-				await player.recover(get.info(event.name).num);
+			getNum(event, player, target) {
+				const { num } = get.info(event.name);
+				return Math.min(target.maxHp - 1, num);
+			},
+			async callback(event, player, target) {
+				target.addSkill(`${event.name}_effect`);
+				target.setMark(`${event.name}_effect`, get.info(event.name).num);
+			},
+			num: 1,
+			subSkill: {
+				effect: {
+					forced: true,
+					charlotte: true,
+					onremove: true,
+					trigger: { global: "roundStart" },
+					async content(event, trigger, player) {
+						await player.recover({ num: player.countMark(event.name) });
+					},
+				},
+				onremove: {
+					inherit: "zf_loseMaxHp_onremove",
+				},
 			},
 		},
 	},
@@ -2651,7 +2634,7 @@ const _zhanfa = {
 			forced: true,
 			trigger: { player: "useCard" },
 			filter(event, player) {
-				return get.type(event.card) == "trick" && get.tag(event.card, "damage");
+				return get.type(event.card) == "trick" && get.is.damageCard(event.card);
 			},
 			async content(event, trigger, player) {
 				trigger.directHit.addArray(player.getEnemies(() => true, false));
@@ -2673,15 +2656,18 @@ const _zhanfa = {
 				if (_status.currentPhase == player || event.targets.length != 1) {
 					return false;
 				}
-				return get.type2(event.card) == "basic" && event.player.isEnemiesOf(player, false);
+				return (
+					get.type2(event.card) == "basic" &&
+					event.player.isEnemiesOf(player, false) &&
+					event.player.countDiscardableCards(player, "he") > 0
+				);
 			},
 			logTarget: "player",
 			async content(event, trigger, player) {
-				const target = trigger.player;
-				const cards = target.getDiscardableCards(player, "he", () => true);
-				if (cards.length) {
-					await target.randomDiscard(player, "random");
-				}
+				const {
+					targets: [target],
+				} = event;
+				await target.randomDiscard({ discarder: player, position: "he" });
 			},
 		},
 	},
@@ -2699,7 +2685,11 @@ const _zhanfa = {
 				if (_status.currentPhase == player || event.targets.length != 1) {
 					return false;
 				}
-				return get.type2(event.card) == "trick" && event.player.isEnemiesOf(player, false);
+				return (
+					get.type2(event.card) == "trick" &&
+					event.player.isEnemiesOf(player, false) &&
+					event.player.countDiscardableCards(player, "he") > 0
+				);
 			},
 		},
 	},
@@ -2717,7 +2707,7 @@ const _zhanfa = {
 				if (_status.currentPhase == player || event.targets.length != 1) {
 					return false;
 				}
-				return event.player.isEnemiesOf(player, false);
+				return event.player.isEnemiesOf(player, false) && event.player.countDiscardableCards(player, "he") > 0;
 			},
 		},
 	},
@@ -2916,15 +2906,10 @@ const _zhanfa = {
 		},
 		skill: {
 			num: 1,
-			init(player, skill) {
-				const num = get.info(skill).num;
-				const next = game.createEvent(skill + "_init", false, get.event());
-				next.set("player", player);
-				next.set("num", num);
-				next.setContent(async (event, trigger, player) => {
-					const { num } = event;
-					await player.gainMaxHp(num);
-				});
+			inherit: "zf_onAdd",
+			async callback(event, trigger, player) {
+				const { num } = get.info(event.name);
+				await player.gainMaxHp(num);
 			},
 		},
 	},

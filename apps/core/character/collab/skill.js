@@ -312,7 +312,7 @@ const skills = {
 			target: "useCardToTargeted",
 		},
 		filter(event, player) {
-			return event.targets.length == 1 && event.cards.length > 0 && player.countCards(player, "he") > 0;
+			return event.targets.length == 1 && event.cards.length > 0 && player.countCards("he") > 0;
 		},
 		async cost(event, trigger, player) {
 			let result = await player
