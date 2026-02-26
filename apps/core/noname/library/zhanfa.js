@@ -3123,10 +3123,11 @@ export class ZhanfaManager {
 	 * @param {string} pack.id 分包的id
 	 * @param {string} pack.name 分包id的翻译
 	 * @param {string} [pack.info] 分包的简介
+	 * @returns {string | undefined}
 	 */
 	add(zhanfa, pack) {
 		let { id, skill, rarity, translate, info, card, ...args } = zhanfa;
-		if (!id) {
+		if (!id || lib.zhanfa.get(id)) {
 			return;
 		}
 		if (typeof skill != "string") {
@@ -3154,24 +3155,25 @@ export class ZhanfaManager {
 		card.type = "zhanfa";
 		rarity ??= "common";
 		card.subtype = `zf_${rarity}`;
+		//不推荐这么写的，只是之前写错了才将错就错，千万不要再按这种写了
 		if (card.value) {
 			card.ai ??= {};
 			card.ai.basic ??= {};
 			card.ai.basic.value = card.value;
 		}
 		lib.card[id] = card;
-		//@ts-ignore
-		let { id: packId, name, info: packInfo } = pack;
-		if (packId) {
+		if (pack && pack.id) {
+			let { id: packId, name, info } = pack;
 			packId = `zf_${packId}`;
 			lib.cardPack[packId] ??= [];
-			lib.translate[`${packId}_card_config`] ??= name;
-			lib.translate[`${packId}_cardsInfo`] ??= packInfo;
+			lib.translate[`${packId}_card_config`] ??= name || packId;
+			lib.translate[`${packId}_cardsInfo`] ??= info;
 			lib.cardPack[packId].push(id);
 		} else {
 			lib.cardPack["zhanfa"].push(id);
 		}
 		this.#zhanfa[id] = { skill: skill, rarity: rarity, ...args };
+		return id;
 	}
 
 	/**
@@ -3191,10 +3193,13 @@ export class ZhanfaManager {
 	/**
 	 * 获取对应战法的Object
 	 * @param {string} id 战法的id
-	 * @returns {object}
+	 * @returns {object | false}
 	 */
 	get(id) {
-		return this.#zhanfa[id] || {}; //|| this.#customZhanfa[id]
+		if (this.#zhanfa[id]) {
+			return this.#zhanfa[id];
+		}
+		return false;
 	}
 
 	/**
