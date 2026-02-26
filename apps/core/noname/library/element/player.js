@@ -5723,7 +5723,7 @@ export class Player extends HTMLDivElement {
 		next.player = this;
 
 		const args = [...arguments];
-		if (args.length == 1 && get.is.object(params) && get.itemtype(params) == null) {
+		if (args.length == 1 && params != null && get.is.object(params) && get.itemtype(params) == null) {
 			Object.assign(next, params);
 			if (params.dialog) {
 				next.prompt = false;
@@ -5793,7 +5793,7 @@ export class Player extends HTMLDivElement {
 
 		const args = [...arguments];
 
-		if (args.length == 1 && get.is.object(params) && get.itemtype(params) == null) {
+		if (args.length == 1 && params != null && get.is.object(params) && get.itemtype(params) == null) {
 			Object.assign(next, params);
 			if (params.dialog) {
 				next.prompt = false;
@@ -6256,13 +6256,14 @@ export class Player extends HTMLDivElement {
 		const next = game.createEvent("chooseCard");
 		next.player = this;
 
-		const args = Array.from(arguments);
-		if (args.length == 1 && get.is.object(params) && get.itemtype(params) == null) {
+		const args = [...arguments];
+		if (args.length == 1 && params != null && get.is.object(params) && get.itemtype(params) == null) {
 			Object.assign(next, params);
 			if (typeof next.selectCard === "number") {
 				next.selectCard = [next.selectCard, next.selectCard];
 			}
 			if (params.prompt != null) {
+				delete next.prompt;
 				get.evtprompt(next, params.prompt);
 			}
 		} else {
@@ -6333,13 +6334,14 @@ export class Player extends HTMLDivElement {
 		next.player = this;
 
 		const args = [...arguments];
-		if (args.length === 1 && get.is.object(params) && get.itemtype(params) == null) {
+		if (args.length === 1 && params != null && get.is.object(params) && get.itemtype(params) == null) {
 			Object.assign(next, params);
 			if (typeof next.selectTarget === "number") {
 				next.selectTarget = [next.selectTarget, next.selectTarget];
 			}
 
 			if (params.prompt != null) {
+				delete next.prompt;
 				get.evtprompt(next, params.prompt);
 			}
 		} else {
@@ -6413,7 +6415,7 @@ export class Player extends HTMLDivElement {
 		next.player = this;
 
 		const args = [...arguments];
-		if (args.length === 1 && get.is.object(params) && get.itemtype(params)) {
+		if (args.length === 1 && params != null && get.is.object(params) && get.itemtype(params)) {
 			Object.assign(next, params);
 			if (params.dialog != null) {
 				next.prompt = false;
@@ -6422,6 +6424,7 @@ export class Player extends HTMLDivElement {
 				next.selectTarget = [params.selectTarget, params.selectTarget];
 			}
 			if (params.prompt != null) {
+				delete next.prompt;
 				get.evtprompt(next, params.prompt);
 			}
 		} else {
@@ -6630,9 +6633,10 @@ export class Player extends HTMLDivElement {
 		const next = game.createEvent("chooseBool");
 
 		const args = [...arguments];
-		if (args.length === 1 && get.is.object(params) && get.itemtype(params)) {
+		if (args.length === 1 && params != null && get.is.object(params) && get.itemtype(params)) {
 			Object.assign(next, params);
 			if (params.prompt != null) {
+				delete next.prompt;
 				get.evtprompt(next, params.prompt);
 			}
 		} else {
@@ -6710,9 +6714,10 @@ export class Player extends HTMLDivElement {
 		next.list = [];
 
 		const args = [...arguments];
-		if (args.length === 1 && get.is.object(params) && get.itemtype(params) == null) {
+		if (args.length === 1 && params != null && get.is.object(params) && get.itemtype(params) == null) {
 			Object.assign(next, params);
 			if (params.prompt != null) {
+				delete next.prompt;
 				get.evtprompt(next, params.prompt);
 			}
 		} else {
@@ -6769,12 +6774,13 @@ export class Player extends HTMLDivElement {
 		next.player = this;
 
 		const args = [...arguments];
-		if (args.length === 1 && get.is.object(params) && get.itemtype(params)) {
+		if (args.length === 1 && params != null && get.is.object(params) && get.itemtype(params)) {
 			Object.assign(next, params);
 			if (typeof next.selectButton === "number") {
 				next.selectButton = [next.selectButton, next.selectButton];
 			}
 			if (params.prompt != null) {
+				delete next.prompt;
 				get.evtprompt(next, params.prompt);
 			}
 		} else {
@@ -6854,12 +6860,13 @@ export class Player extends HTMLDivElement {
 		next.player = this;
 
 		const args = [...arguments];
-		if (args.length === 1 && get.is.object(params) && get.itemtype(params)) {
+		if (args.length === 1 && params != null && get.is.object(params) && get.itemtype(params)) {
 			Object.assign(next, params);
 			if (typeof next.selectButton === "number") {
 				next.selectButton = [next.selectButton, next.selectButton];
 			}
 			if (params.prompt != null) {
+				delete next.prompt;
 				get.evtprompt(next, params.prompt);
 			}
 		} else {
@@ -6939,12 +6946,13 @@ export class Player extends HTMLDivElement {
 		next.player = this;
 
 		const args = [...arguments];
-		if (args.length === 1 && get.is.object(params) && get.itemtype(params)) {
+		if (args.length === 1 && params != null && get.is.object(params) && get.itemtype(params)) {
 			Object.assign(next, params);
 			if (typeof next.selectButton === "number") {
 				next.selectButton = [next.selectButton, next.selectButton];
 			}
 			if (params.prompt != null) {
+				delete next.prompt;
 				get.evtprompt(next, params.prompt);
 			}
 		} else {
@@ -7210,9 +7218,10 @@ export class Player extends HTMLDivElement {
 		next.player = this;
 
 		const args = [...arguments];
-		if (args.length === 1 && get.is.object(params) && get.itemtype(params) == null) {
+		if (args.length === 1 && params != null && get.is.object(params) && get.itemtype(params) == null) {
 			Object.assign(next, params);
 			if (params.prompt != null) {
+				delete next.prompt;
 				get.evtprompt(next, params.prompt);
 			}
 		} else {
@@ -9690,6 +9699,7 @@ export class Player extends HTMLDivElement {
 	 * @param { Player | Player[] } [targets]
 	 * @param { boolean | string } [nature]
 	 * @param { boolean } [logv]
+	 * @param { * } [args]
 	 */
 	logSkill(name, targets, nature, logv, args) {
 		if (get.itemtype(targets) == "player") {
@@ -10415,7 +10425,7 @@ export class Player extends HTMLDivElement {
 	 * @param { Player } target
 	 * @param { false } [distance] false：无距离限制
 	 * @param { boolean | GameEvent } [includecard] 是否受使用次数限制，可以填入用于检测的事件
-	 * @returns
+	 * @returns { boolean }
 	 */
 	canUse(card, target, distance, includecard) {
 		if (typeof card == "string") {
@@ -10443,7 +10453,7 @@ export class Player extends HTMLDivElement {
 		if (distance !== false && !lib.filter.targetInRange(card, this, target)) {
 			return false;
 		}
-		return lib.filter[includecard ? "targetEnabledx" : "targetEnabled"](card, this, target);
+		return lib.filter[includecard ? "targetEnabledx" : "targetEnabled"](card, this, target) ?? false;
 	}
 	/**
 	 * 场上是否存在能对其使用card的目标
