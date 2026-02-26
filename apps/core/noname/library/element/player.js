@@ -6543,8 +6543,9 @@ export class Player extends HTMLDivElement {
 	 */
 	chooseControlList(params) {
 		if (arguments.length === 1 && get.is.object(params) && get.itemtype(params) == null) {
-			const controls = params.forced ? ["cancel2"] : [];
+			const controls = !params.forced ? ["cancel2"] : [];
 			return this.chooseControl({
+				controls,
 				choiceList: params.list,
 				ai: params.ai,
 				prompt: params.prompt,
