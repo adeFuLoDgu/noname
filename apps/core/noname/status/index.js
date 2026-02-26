@@ -151,6 +151,11 @@ export class status {
 			this.pauseManager.over.resolve();
 		}
 	}
+	/**
+	 * 当前回合角色
+	 * @type { Player | undefined }
+	 */
+	currentPhase = undefined;
 }
 
 export let _status = new status();
