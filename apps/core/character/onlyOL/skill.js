@@ -8055,7 +8055,7 @@ const skills = {
 					const result = await player
 						.chooseTarget(
 							(card, player, target) => {
-								const evt = get.event().getTrigger().getParent();
+								const { evt } = get.event();
 								return (
 									!evt.targets.includes(target) &&
 									lib.filter.targetEnabled2(evt.card, player, target) &&
@@ -8065,16 +8065,19 @@ const skills = {
 							get.translation(event.name) + "：为" + get.translation(trigger.card) + "额外指定一个目标",
 							true
 						)
+						.set("evt", evt)
 						.set("ai", target => {
 							const player = get.player(),
-								evt = get.event().getTrigger().getParent();
+								{ evt } = get.event();
 							return get.effect(target, evt.card, evt.player, player);
 						})
 						.forResult();
 					if (result?.bool && result.targets?.length) {
-						trigger.targets.addArray(result.targets);
-						trigger.getParent().triggeredTargets1.addArray(result.targets);
-						game.log(result.targets, "成为了", trigger.card, "的额外目标");
+						const { targets } = result;
+						player.line(targets, "yellow");
+						trigger.targets.addArray(targets);
+						trigger.getParent().triggeredTargets1.addArray(targets);
+						game.log(targets, "成为了", trigger.card, "的额外目标");
 					}
 				}
 			}
