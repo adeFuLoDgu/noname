@@ -296,6 +296,7 @@ export interface EventChooseToRespondParams extends ChooseBase, CheckCardParams 
 }
 
 export interface EventChooseToGiveParams extends ChooseBase, CheckCardParams {
+	target: Player,
 	chooseonly?: boolean;
 	dialog?: Dialog;
 }

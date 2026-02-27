@@ -1,6 +1,12 @@
 import { lib, game, ui, get, ai, _status } from "noname";
 
 const translates = {
+	ol_zhangsong: "OL界张松",
+	ol_zhangsong_prefix: "OL界",
+	olqiangzhi: "强识",
+	olqiangzhi_info: "出牌阶段开始时，你可观看并展示一名其他角色的一张手牌，然后你本阶段使用此类别的牌后可摸一张牌。",
+	olxiantu: "献图",
+	olxiantu_info: "其他角色出牌阶段开始时，你可以摸至多两张牌然后交给其等量牌。此阶段结束时，若其造成伤害小于你以此法交给其的牌数，你失去1点体力。",
 	ol_jsrg_zhanghe: "闪张郃",
 	ol_jsrg_zhanghe_prefix: "闪",
 	olqiongtu: "穷途",
@@ -355,9 +361,9 @@ const translates = {
 	ol_sb_zhangrang: "OL谋张让",
 	ol_sb_zhangrang_prefix: "OL谋",
 	olsblucun: "赂存",
-	olsblucun_info: "每回合限一次，你可以视为使用一张本轮未以此法使用过的基本牌或普通锦囊牌。此牌结算完毕后，当前回合角色将一张手牌置于你的武将牌上，称为“赂”；本回合结束时，你将一张“赂”置入弃牌堆并摸一张牌（若你本回合因此技能使用的牌名包含你选择移去的“赂”的牌名，则你额外摸一张牌）。",
+	olsblucun_info: "每轮限一次，你可以视为使用一张未以此法使用过的基本牌或普通锦囊牌，然后当前回合角色将一张手牌置于你的武将牌上，称为“赂”。每个回合结束时，随机移去一张“赂”，你摸一张牌。",
 	olsbtuisheng: "蜕生",
-	olsbtuisheng_info: "限定技，准备阶段或当你进入濒死状态时，你可以重置你本轮〖赂存〗使用过的牌名，然后你选择一项并回复1点体力：①将所有手牌置于你的武将牌上，称为“赂”；②令当前回合角色获得你的所有“赂”且你回复1点体力。",
+	olsbtuisheng_info: "限定技，准备阶段或当你进入濒死状态时，你可以重置本局〖赂存〗使用过的牌名，然后你选择一项并回复1点体力：①将所有手牌置于你的武将牌上，称为“赂”；②你随机从弃牌堆中获得游戏轮数张重置前“赔存”使用牌名的牌。",
 	ol_sb_wenchou: "OL谋文丑",
 	ol_sb_wenchou_prefix: "OL谋",
 	olsblunzhan: "轮战",

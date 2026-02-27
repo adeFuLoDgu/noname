@@ -153,9 +153,9 @@ export class status {
 	}
 	/**
 	 * 当前回合角色
-	 * @type { Player | undefined }
+	 * @type { Player }
 	 */
-	currentPhase = undefined;
+	currentPhase;
 }
 
 export let _status = new status();

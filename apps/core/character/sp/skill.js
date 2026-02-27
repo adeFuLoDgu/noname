@@ -1011,21 +1011,11 @@ const skills = {
 	},
 	olqiaowu: {
 		audio: 2,
-		mark: true,
-		marktext: "☯",
-		zhuanhuanji: true,
-		intro: {
-			content(storage) {
-				if (!storage) {
-					return "转换技，每回合限一次，当你使用的【杀】或【闪】结算完毕后，你可令所有处于【酒】状态的角色摸一张牌。";
-				}
-				return "转换技，每回合限一次，当你使用的【杀】或【闪】结算完毕后，你可令所有处于【酒】状态的角色选择是否使用一张【杀】。";
-			},
-		},
-		usable: 1,
+		usable: 2,
 		trigger: { player: "useCardAfter" },
 		filter(event, player) {
-			return ["sha", "shan"].includes(event.card.name) && lib.skill.olqiaowu.logTarget(event, player).length > 0;
+			const names = ["sha", "shan"].removeArray(player.getStorage("olqiaowu_used"));
+			return names.includes(event.card.name) && lib.skill.olqiaowu.logTarget(event, player).length > 0;
 		},
 		logTarget(event, player) {
 			return game.filterPlayer(target => target.hasSkill("jiu"));
@@ -1034,25 +1024,36 @@ const skills = {
 			return lib.skill.olqiaowu.logTarget(event, player).some(target => get.attitude(player, target) > 0);
 		},
 		async content(event, trigger, player) {
+			player.addTempSkill(`${event.name}_used`);
+			player.markAuto(`${event.name}_used`, trigger.card.name);
 			const { targets } = event;
-			const bool = player.storage[event.name];
-			player.changeZhuanhuanji(event.name);
-			if (!bool) {
-				await game.asyncDraw(targets.sortBySeat());
-			} else {
-				for (const target of targets.sortBySeat()) {
-					await target
-						.chooseToUse(function (card, player, event) {
+			await game.doAsyncInOrder(targets, async target => {
+				const result = await target
+					.chooseToUse({
+						prompt: "俏舞：是否使用一张【杀】？",
+						filterCard(card, player, event) {
 							if (get.name(card) != "sha") {
 								return false;
 							}
-							return lib.filter.filterCard.apply(this, arguments);
-						}, `俏舞：是否使用一张【杀】`)
-						.set("targetRequired", true)
-						.set("complexSelect", true)
-						.set("complexTarget", true);
+							return lib.filter.filterCard.call(this, card, player, event);
+						},
+					})
+					.set("complexSelect", true)
+					.set("targetRequired", true)
+					.forResult();
+				if (!result?.bool) {
+					await target.draw();
 				}
-			}
+			});
+		},
+		subSkill: {
+			used: {
+				charlotte: true,
+				onremove: true,
+				intro: {
+					content: "已触发：$",
+				},
+			},
 		},
 	},
 	//OL桥公
@@ -9036,15 +9037,15 @@ const skills = {
 		},
 		countSkill(player) {
 			return player.getSkills(null, false, false).filter(i => {
-					const info = get.info(i);
-					if (info) {
-						if (info.charlotte) {
-							return get.plainText(get.translation(`${i}_info`)).length > 0;
-						}
-						return true;
+				const info = get.info(i);
+				if (info) {
+					if (info.charlotte) {
+						return get.plainText(get.translation(`${i}_info`)).length > 0;
 					}
-					return false;
-				}).length;
+					return true;
+				}
+				return false;
+			}).length;
 		},
 		mod: {
 			cardUsable(card, player, num) {
@@ -32729,7 +32730,7 @@ const skills = {
 									alignItems: "start",
 								});
 								//一个一个塞进去
-								for(const i of list) {
+								for (const i of list) {
 									const div = ui.create.div(".buttons", contentx);
 									const button = ui.create.button(i, "character", div);
 									const skills = skillMap[i];

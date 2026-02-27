@@ -1097,6 +1097,8 @@ window.noname_character_rank = {
 		"pot_zanghong",
 	],
 	b: [
+		"ol_zhangsong",
+		"ol_jsrg_zhanghe",
 		"mb_chitu",
 		"mb_jueying",
 		"mb_dilu",
@@ -2596,6 +2598,7 @@ window.noname_character_rank = {
 			"v_sunce",
 		],
 		epic: [
+			"ol_jsrg_zhanghe",
 			"tw_huangfusong",
 			"mb_shen_jiangwei",
 			"ol_sb_dongzhao",
@@ -3119,6 +3122,7 @@ window.noname_character_rank = {
 			"dc_sb_chunyuqiong",
 		],
 		rare: [
+			"ol_zhangsong",
 			"star_zhangsong",
 			"tizhongzhishen",
 			"keaizhishen",

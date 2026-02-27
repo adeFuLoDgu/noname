@@ -6633,7 +6633,7 @@ export class Player extends HTMLDivElement {
 		const next = game.createEvent("chooseBool");
 
 		const args = [...arguments];
-		if (args.length === 1 && params != null && get.is.object(params) && get.itemtype(params)) {
+		if (args.length === 1 && params != null && get.is.object(params) && get.itemtype(params) == null) {
 			Object.assign(next, params);
 			if (params.prompt != null) {
 				delete next.prompt;
@@ -6774,7 +6774,7 @@ export class Player extends HTMLDivElement {
 		next.player = this;
 
 		const args = [...arguments];
-		if (args.length === 1 && params != null && get.is.object(params) && get.itemtype(params)) {
+		if (args.length === 1 && params != null && get.is.object(params) && get.itemtype(params) == null) {
 			Object.assign(next, params);
 			if (typeof next.selectButton === "number") {
 				next.selectButton = [next.selectButton, next.selectButton];
@@ -6860,7 +6860,7 @@ export class Player extends HTMLDivElement {
 		next.player = this;
 
 		const args = [...arguments];
-		if (args.length === 1 && params != null && get.is.object(params) && get.itemtype(params)) {
+		if (args.length === 1 && params != null && get.is.object(params) && get.itemtype(params) == null) {
 			Object.assign(next, params);
 			if (typeof next.selectButton === "number") {
 				next.selectButton = [next.selectButton, next.selectButton];
@@ -6946,7 +6946,7 @@ export class Player extends HTMLDivElement {
 		next.player = this;
 
 		const args = [...arguments];
-		if (args.length === 1 && params != null && get.is.object(params) && get.itemtype(params)) {
+		if (args.length === 1 && params != null && get.is.object(params) && get.itemtype(params) == null) {
 			Object.assign(next, params);
 			if (typeof next.selectButton === "number") {
 				next.selectButton = [next.selectButton, next.selectButton];
