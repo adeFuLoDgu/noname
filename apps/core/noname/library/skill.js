@@ -360,6 +360,26 @@ export default {
 			},
 		},
 	},
+	//不计入次数模版
+	nocount: {
+		charlotte: true,
+		forced: true,
+		popup: false,
+		firstDo: true,
+		trigger: { player: "useCard1" },
+		filter(event, player) {
+			return event.addCount !== false;
+		},
+		async content(event, trigger, player) {
+			trigger.addCount = false;
+			const stat = player.getStat().card,
+				name = trigger.card.name;
+			if (typeof stat[name] == "number") {
+				stat[name]--;
+			}
+			game.log(trigger.card, "不计入次数");
+		},
+	},
 	//战法的模版技能
 	//某个条件下造成的伤害+X（X默认为1）
 	zf_anyDamage: {
@@ -723,6 +743,20 @@ export default {
 				},
 			},
 		},
+	},
+	//某个条件下使用牌额外结算
+	zf_extraEff: {
+		forced: true,
+		trigger: { player: "useCard" },
+		filter(event, player) {
+			return true;
+		},
+		num: 1,
+		async content(event, trigger, player) {
+			const { num } = get.info(event.name);
+			game.log(trigger.card, "额外结算", `#y${get.cnNumber(num)}`, "次");
+			trigger.effectCount += num;
+		}
 	},
 	zhanfa: {
 		markimage: "image/card/zhanfa.png",

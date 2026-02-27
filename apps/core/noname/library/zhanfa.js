@@ -6,7 +6,7 @@ import { _status, game, get, lib } from "noname";
  */
 const _zhanfa = {
 	/*zf_: {
-		rarity:"",
+		rarity: "",
 		translate: "",
 		info: "",
 		card: {
@@ -16,6 +16,61 @@ const _zhanfa = {
 
 		}
 	},*/
+	//两个乐诸葛亮专属战法
+	//东风
+	zf_dongfeng: {
+		rarity: "common",
+		translate: "东风",
+		info: "当你造成属性伤害后，本轮你造成的属性伤害+1",
+		card: {
+			ai: { basic: { value: 7.2 } }
+		},
+		skill: {
+			forced: true,
+			trigger: {
+				source: "damageSource",
+			},
+			filter(event, player) {
+				return event.hasNature() && !player.hasSkill("zf_dongfeng_damage");
+			},
+			async content(event, trigger, player) {
+				player.addTempSkill(`${event.name}_damage`, "roundStart");
+			},
+			subSkill: {
+				damage: {
+					inherit: "zf_anyDamage",
+					charlotte: true,
+					filter(event, player) {
+						return event.hasNature();
+					},
+					mark: true,
+					markimage: "image/zhanfa/zf_dongfeng.png",
+					intro: {
+						content: "造成的属性伤害+1",
+					}
+				}
+			}
+		},
+		filterBan: () => true,
+	},
+	zf_qiaoqi: {
+		rarity: "common",
+		translate: "巧器",
+		info: "你每回合使用的第一张普通锦囊牌额外结算一次",
+		card: {
+			ai: { basic: { value: 7.5 } }
+		},
+		skill: {
+			inherit: "zf_extraEff",
+			filter(event, player) {
+				return (
+					get.type(event.card) == "trick" &&
+					player.getHistory("useCard", evt => get.type(evt.card) == "trick").indexOf(event) == 0
+				)
+			}
+		},
+		filterBan: () => true,
+	},
 	//勤勉
 	zf_qinmian: {
 		rarity: "rare",
@@ -57,7 +112,7 @@ const _zhanfa = {
 			ai: { basic: { value: 6.6 } },
 		},
 		skill: {
-			trigger: { player: "useCard" },
+			inherit: "zf_extraEff",
 			filter(event, player) {
 				if (get.type(event.card) != "trick") {
 					return false;
@@ -65,11 +120,6 @@ const _zhanfa = {
 				const index = player.getHistory("useCard", evt => get.type(evt.card) == "trick").indexOf(event);
 				const num = ["h", "e", "j"].filter(pos => player.countCards(pos) > 0).length;
 				return index < num;
-			},
-			forced: true,
-			async content(event, trigger, player) {
-				game.log(trigger.card, "额外结算1次");
-				trigger.effectCount++;
 			},
 		},
 	},
@@ -1952,12 +2002,9 @@ const _zhanfa = {
 			ai: { basic: { value: 6 } },
 		},
 		skill: {
-			trigger: { player: "useCard" },
+			inherit: "zf_extraEff",
 			filter(event, player) {
 				return event.card.name == "shunshou";
-			},
-			async content(event, trigger, player) {
-				trigger.effectCount++;
 			},
 		},
 	},

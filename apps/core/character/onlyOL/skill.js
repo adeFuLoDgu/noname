@@ -120,9 +120,6 @@ const skills = {
 			}
 			return 0;
 		},
-		onuse(links, player) {
-			player.addTempSkill("olxianzhu_nocount");
-		},
 		async precontent(event, trigger, player) {
 			const skill = "olxianzhu";
 			const { cards } = event.result;
@@ -142,6 +139,7 @@ const skills = {
 						}
 					});
 			};
+			event.getParent().addCount = false;
 		},
 		mod: {
 			cardUsable(card) {
@@ -151,12 +149,6 @@ const skills = {
 			},
 		},
 		subSkill: {
-			nocount: {
-				inherit: "nocount",
-				filter(event, player) {
-					return event.addCount !== false && event.card?.storage?.olxianzhu;
-				},
-			},
 			used: {
 				charlotte: true,
 				onremove: true,

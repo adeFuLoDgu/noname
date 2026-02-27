@@ -142,7 +142,7 @@ const skills = {
 		filter(event, player) {
 			if (event.name === "useCard") {
 				return event.player.hasHistory("lose", evt => {
-					if (evt.getParent() !== event) {
+					if ((evt.relatedEvent || evt.getParent()) != event) {
 						return false;
 					}
 					return Object.values(evt.gaintag_map).flat().includes("clanxsyingxiang");

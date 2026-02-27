@@ -6415,7 +6415,7 @@ export class Player extends HTMLDivElement {
 		next.player = this;
 
 		const args = [...arguments];
-		if (args.length === 1 && params != null && get.is.object(params) && get.itemtype(params)) {
+		if (args.length === 1 && params != null && get.is.object(params) && get.itemtype(params) == null) {
 			Object.assign(next, params);
 			if (params.dialog != null) {
 				next.prompt = false;
@@ -9521,6 +9521,11 @@ export class Player extends HTMLDivElement {
 		next.setContent("judge");
 		return next;
 	}
+	/**
+	 * 令角色翻面
+	 * @param {Boolean} [bool] 不填就必定会翻面一次；为true就是翻至背面；为false就是翻至正面
+	 * @returns {GameEvent}
+	 */
 	turnOver(bool) {
 		var next = game.createEvent("turnOver");
 		next.player = this;
@@ -9584,6 +9589,11 @@ export class Player extends HTMLDivElement {
 			}
 		}
 	}
+	/**
+	 * 令一名角色横置或重置
+	 * @param {Boolean} [bool] 不填必定横置或重置；为true就是横置；为false就是重置
+	 * @returns {GameEvent}
+	 */
 	link(bool) {
 		var next = game.createEvent("link");
 		next.player = this;
