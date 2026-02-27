@@ -2,6 +2,170 @@ import { lib, game, ui, get, ai, _status } from "noname";
 
 /** @type { importCharacterConfig['skill'] } */
 const skills = {
+	//闪张郃
+	olqiongtu: {
+		audio: "jsrgqiongtu",
+		enable: "chooseToUse",
+		groupSkill: "qun",
+		viewAs: {
+			name: "wuxie",
+			isCard: true,
+		},
+		viewAsFilter(player) {
+			return player.group == "qun";
+		},
+		filterCard: () => false,
+		selectCard: 0,
+		usable: 1,
+		log: false,
+		async precontent(event, trigger, player) {
+			player.logSkill("olqiongtu");
+			player.addTempSkill("olqiongtu_effect");
+		},
+		intro: {
+			markcount: "expansion",
+			content: "expansion",
+		},
+		subSkill: {
+			effect: {
+				charlotte: true,
+				forced: true,
+				popup: false,
+				trigger: { player: ["useCard", "useCardAfter"] },
+				filter(event, player) {
+					return event.skill == "olqiongtu";
+				},
+				async content(event, trigger, player) {
+					if (event.triggername == "useCard") {
+						await player.draw();
+					} else {
+						const skill = "olqiongtu";
+						let result;
+						if (!player.hasCard(card => get.type(card) != "basic", "he")) {
+							result = { bool: false };
+						} else {
+							result = await player
+								.chooseCard({
+									prompt: "穷途：将一张非基本牌置于武将牌上",
+									forced: true,
+									position: "he",
+									filterCard(card) {
+										return get.type(card) != "basic";
+									},
+									ai(card) {
+										return -get.value(card);
+									},
+								})
+								.forResult();
+						}
+						if (result.bool && result.cards?.length) {
+							const { cards } = result;
+							await player.addToExpansion({ cards, gaintag: [skill], animate: "give", source: player });
+						} else {
+							const cards = player.getExpansions(skill);
+							if (cards.length) {
+								await player.gain({ cards, animate: "give", source: player });
+							}
+							await player.changeGroup("wei");
+						}
+					}
+				},
+			},
+		},
+	},
+	olxianzhu: {
+		audio: "jsrgxianzhu",
+		enable: "phaseUse",
+		filter(event, player) {
+			const types = ["equip", "trick"].removeArray(player.getStorage("olxianzhu_used"));
+			return (
+				player.group == "wei" &&
+				types.length > 0 &&
+				player.countDiscardableCards(player, "he", card => {
+					const type = get.type2(card);
+					return types.includes(type);
+				}) > 0
+			);
+		},
+		groupSkill: "wei",
+		locked: false,
+		viewAs: {
+			name: "sha",
+			isCard: true,
+			cards: [],
+			storage: {
+				olxianzhu: true,
+			},
+		},
+		ignoreMod: true,
+		log: false,
+		position: "he",
+		filterCard(card, player) {
+			const types = ["equip", "trick"].removeArray(player.getStorage("olxianzhu_used"));
+			return types.includes(get.type2(card)) && lib.filter.cardDiscardable(card, player, "olxianzhu");
+		},
+		check(card) {
+			const player = _status.event.player;
+			const cardx = get.info("olxianzhu").viewAs;
+			if (
+				game.hasPlayer(current => {
+					return (
+						player.canUse(cardx, current) &&
+						get.effect(current, card, player, player) > 0 &&
+						get.effect(current, cardx, player, player) > 0
+					);
+				})
+			) {
+				return 15 - get.value(card);
+			}
+			return 0;
+		},
+		onuse(links, player) {
+			player.addTempSkill("olxianzhu_nocount");
+		},
+		async precontent(event, trigger, player) {
+			const skill = "olxianzhu";
+			const { cards } = event.result;
+			player.logSkill(skill);
+			player.addTempSkill(`${skill}_used`, "phaseChange");
+			player.markAuto(`${skill}_used`, get.type2(cards?.[0]));
+			await player.discard({ cards });
+			event.result.cards = [];
+			event.getParent().oncard = () => {
+				const { card, player } = get.event();
+				player
+					.when("useCardAfter")
+					.filter(evt => evt.card == card)
+					.then(async (event, trigger, player) => {
+						if (game.hasPlayer(target => target.hasHistory("damage", evt => evt.card == trigger.card))) {
+							await player.chooseUseTarget({ card: cards?.[0], addCount: false });
+						}
+					});
+			};
+		},
+		mod: {
+			cardUsable(card) {
+				if (card.storage && card.storage.olxianzhu) {
+					return Infinity;
+				}
+			},
+		},
+		subSkill: {
+			nocount: {
+				inherit: "nocount",
+				filter(event, player) {
+					return event.addCount !== false && event.card?.storage?.olxianzhu;
+				},
+			},
+			used: {
+				charlotte: true,
+				onremove: true,
+				intro: {
+					content: "已弃置过： $",
+				},
+			},
+		},
+	},
 	//界曹节
 	olshouxi: {
 		audio: 2,
@@ -4069,7 +4233,9 @@ const skills = {
 				.set(
 					"resultAI",
 					(function () {
-						let cards = player.getDiscardableCards(player, "he", card => get.value(card) < 7.5).sort((a, b) => get.value(a) - get.value(b)),
+						let cards = player
+								.getDiscardableCards(player, "he", card => get.value(card) < 7.5)
+								.sort((a, b) => get.value(a) - get.value(b)),
 							targets = game
 								.filterPlayer(current => current != player && -get.attitude(player, current) * current.countCards("hs") > 0)
 								.sort((a, b) => {
@@ -8346,7 +8512,7 @@ const skills = {
 				}
 				if (
 					!player.countCards("hs", card =>
-						player.hasUseTarget(get.autoViewAs({ name: "shunshou", storage: { olsbjiewan: true } }, [card]), false, false)
+						player.hasUseTarget(get.autoViewAs({ name: "shunshou", storage: { olsbjiewan: true } }, [card]), void 0, false)
 					)
 				) {
 					return;

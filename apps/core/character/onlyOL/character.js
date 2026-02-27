@@ -1,4 +1,12 @@
 const characters = {
+	ol_jsrg_zhanghe: {
+		sex: "male",
+		group: "qun",
+		hp: 4,
+		skills: ["olqiongtu", "olxianzhu"],
+		doubleGroup: ["wei", "qun"],
+		dieAudios: ["jsrg_zhanghe"],
+	},
 	ol_caojie: {
 		sex: "female",
 		group: "qun",
