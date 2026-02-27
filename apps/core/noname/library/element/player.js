@@ -9523,7 +9523,7 @@ export class Player extends HTMLDivElement {
 	}
 	/**
 	 * 令角色翻面
-	 * @param {Boolean} [bool] 不填就必定会翻面一次；为true就是翻至背面；为false就是翻至正面
+	 * @param {Boolean} [bool] 不填检测状态反转；true翻至背面；false翻至正面
 	 * @returns {GameEvent}
 	 */
 	turnOver(bool) {
@@ -9591,7 +9591,7 @@ export class Player extends HTMLDivElement {
 	}
 	/**
 	 * 令一名角色横置或重置
-	 * @param {Boolean} [bool] 不填必定横置或重置；为true就是横置；为false就是重置
+	 * @param {Boolean} [bool] 不填检测状态反转；true横置；false重置
 	 * @returns {GameEvent}
 	 */
 	link(bool) {

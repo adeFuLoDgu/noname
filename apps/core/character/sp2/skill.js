@@ -107,7 +107,7 @@ const skills = {
 						if (player.isUnderControl(true)) {
 							dialog.add(storage);
 						} else {
-							dialog.addText("与女无瓜");
+							dialog.addText("雨女无瓜");
 						}
 					},
 				},
@@ -457,7 +457,7 @@ const skills = {
 			if (storage.length == 1) {
 				result = { index: storage[0] == 0 ? 1 : 0 };
 			} else {
-				result = await target.chooseControl().set("choiceList", list).forResult();
+				result = await target.chooseControl({ choiceList: list, choice: 1 }).forResult();
 			}
 			if (typeof result?.index == "number") {
 				const { index } = result;
@@ -470,18 +470,23 @@ const skills = {
 					}
 					const numx = num - target.countCards("h");
 					if (numx > 0) {
-						await target.draw(numx);
+						await target.draw({ num: numx });
 					} else if (numx < 0) {
 						const count = Math.max(1, -numx);
 						if (numx < 0) {
-							await target.chooseToDiscard("h", -numx, true).set("allowChooseAll", true);
+							await target.chooseToDiscard({
+								position: "h",
+								selectCard: -numx,
+								forced: true,
+								allowChooseAll: true,
+							});
 						}
 						target.addTempSkill(`${event.name}_effect1`, "roundStart");
 						target.addMark(`${event.name}_effect1`, count, false);
 					}
 				} else if (index == 1) {
 					const num = Math.min(target.maxHp, 5);
-					await target.draw(num);
+					await target.draw({ num });
 					target.addTempSkill(`${event.name}_debuff`, "roundStart");
 					target.setMark(`${event.name}_debuff`, num, false);
 					target.addTempSkill(`${event.name}_effect2`, "roundStart");
@@ -493,10 +498,10 @@ const skills = {
 			order: 7,
 			result: {
 				target(player, target) {
-					if (player.getStorage("dcyuzheng_used").includes(0)) {
-						return -1;
+					if (!player.getStorage("dcyuzheng_used").length) {
+						return 114514 - target.countCards("h");
 					}
-					return 1;
+					return -target.countCards("h");
 				},
 			},
 		},
@@ -514,7 +519,7 @@ const skills = {
 					if (!player.hasMark(event.name)) {
 						player.removeSkill(event.name);
 					}
-					await player.draw(2);
+					await player.draw({ num: 2 });
 				},
 				intro: {
 					content: "下#次使用或打出牌后摸两张牌",
