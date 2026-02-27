@@ -6415,7 +6415,7 @@ export class Player extends HTMLDivElement {
 		next.player = this;
 
 		const args = [...arguments];
-		if (args.length === 1 && params != null && get.is.object(params) && get.itemtype(params)) {
+		if (args.length === 1 && params != null && get.is.object(params) && get.itemtype(params) == null) {
 			Object.assign(next, params);
 			if (params.dialog != null) {
 				next.prompt = false;
@@ -6546,8 +6546,9 @@ export class Player extends HTMLDivElement {
 	 */
 	chooseControlList(params) {
 		if (arguments.length === 1 && get.is.object(params) && get.itemtype(params) == null) {
-			const controls = params.forced ? ["cancel2"] : [];
+			const controls = !params.forced ? ["cancel2"] : [];
 			return this.chooseControl({
+				controls,
 				choiceList: params.list,
 				ai: params.ai,
 				prompt: params.prompt,
@@ -6632,7 +6633,7 @@ export class Player extends HTMLDivElement {
 		const next = game.createEvent("chooseBool");
 
 		const args = [...arguments];
-		if (args.length === 1 && params != null && get.is.object(params) && get.itemtype(params)) {
+		if (args.length === 1 && params != null && get.is.object(params) && get.itemtype(params) == null) {
 			Object.assign(next, params);
 			if (params.prompt != null) {
 				delete next.prompt;
@@ -6773,7 +6774,7 @@ export class Player extends HTMLDivElement {
 		next.player = this;
 
 		const args = [...arguments];
-		if (args.length === 1 && params != null && get.is.object(params) && get.itemtype(params)) {
+		if (args.length === 1 && params != null && get.is.object(params) && get.itemtype(params) == null) {
 			Object.assign(next, params);
 			if (typeof next.selectButton === "number") {
 				next.selectButton = [next.selectButton, next.selectButton];
@@ -6859,7 +6860,7 @@ export class Player extends HTMLDivElement {
 		next.player = this;
 
 		const args = [...arguments];
-		if (args.length === 1 && params != null && get.is.object(params) && get.itemtype(params)) {
+		if (args.length === 1 && params != null && get.is.object(params) && get.itemtype(params) == null) {
 			Object.assign(next, params);
 			if (typeof next.selectButton === "number") {
 				next.selectButton = [next.selectButton, next.selectButton];
@@ -6945,7 +6946,7 @@ export class Player extends HTMLDivElement {
 		next.player = this;
 
 		const args = [...arguments];
-		if (args.length === 1 && params != null && get.is.object(params) && get.itemtype(params)) {
+		if (args.length === 1 && params != null && get.is.object(params) && get.itemtype(params) == null) {
 			Object.assign(next, params);
 			if (typeof next.selectButton === "number") {
 				next.selectButton = [next.selectButton, next.selectButton];
@@ -9520,6 +9521,11 @@ export class Player extends HTMLDivElement {
 		next.setContent("judge");
 		return next;
 	}
+	/**
+	 * 令角色翻面
+	 * @param {Boolean} [bool] 不填检测状态反转；true翻至背面；false翻至正面
+	 * @returns {GameEvent}
+	 */
 	turnOver(bool) {
 		var next = game.createEvent("turnOver");
 		next.player = this;
@@ -9583,6 +9589,11 @@ export class Player extends HTMLDivElement {
 			}
 		}
 	}
+	/**
+	 * 令一名角色横置或重置
+	 * @param {Boolean} [bool] 不填检测状态反转；true横置；false重置
+	 * @returns {GameEvent}
+	 */
 	link(bool) {
 		var next = game.createEvent("link");
 		next.player = this;

@@ -18,7 +18,7 @@ const dynamicTranslates = {
 			limit = 1 + player.countMark("olwenyi_limit");
 		return info.replace("一", get.cnNumber(limit));
 	},
-	olqiaowu(player){
+	/*olqiaowu(player){
 		const bool = player.storage.olqiaowu;
 		let yang = "摸一张牌",
 			yin = "选择是否使用一张【杀】";
@@ -30,7 +30,7 @@ const dynamicTranslates = {
 		const start = "转换技，每回合限一次，当你使用的【杀】或【闪】结算完毕后，你可令所有处于【酒】状态的角色：",
 			end = "。";
 		return `${start}阳：${yang}；阴：${yin}${end}`;
-	},
+	},*/
 	shanduan(player) {
 		if (player.storage.shanduan) {
 			return "锁定技。①摸牌/出牌/弃牌阶段开始时，你为本回合摸牌阶段摸牌数/攻击范围和使用【杀】的限制次数/手牌上限的默认值从数组R=[" + get.translation(player.storage.shanduan) + "]中分配数值。②当你于回合外受到伤害后，你令下回合〖善断①〗以此法分配的数值集合R中的最小值+1。";

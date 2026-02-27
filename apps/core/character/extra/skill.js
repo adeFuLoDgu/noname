@@ -4973,7 +4973,7 @@ const skills = {
 				(hps[1] > 0 ? "摸" + get.cnNumber(hps[1]) + "张牌，" : "") + "此阶段下一次造成伤害后，回复等量体力。",
 			];
 			let result = await player
-				.chooseControlList(list)
+				.chooseControlList({ list })
 				.set("ai", function () {
 					let player = get.event().player,
 						damaged = player.getDamagedHp();

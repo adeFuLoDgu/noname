@@ -1317,7 +1317,7 @@ const skills = {
 		ai: {
 			order: 10,
 			result: {
-				player: (player) => get.recoverEffect(player, player, player),
+				player: player => get.recoverEffect(player, player, player),
 			},
 		},
 	},
@@ -2671,7 +2671,7 @@ const skills = {
 			return event.name != "phase" || game.phaseNumber == 0;
 		},
 		forced: true,
-		content() {
+		async content(event, trigger, player) {
 			const cards = player.getCards("h");
 			player.addGaintag(cards, "eternal_dcyunzheng_tag");
 		},
@@ -2723,7 +2723,7 @@ const skills = {
 						.sortBySeat();
 				},
 				forced: true,
-				content() {
+				async content(event, trigger, player) {
 					const targets = game
 						.filterPlayer(target => {
 							if (player === target) {
@@ -2775,7 +2775,7 @@ const skills = {
 				},
 				silent: true,
 				forceDie: true,
-				content() {
+				async content(event, trigger, player) {
 					game.removeGlobalSkill("dcyunzheng_gloabl");
 					game.countPlayer(cur => cur.removeSkill("dcyunzheng_block"));
 				},
@@ -2798,49 +2798,65 @@ const skills = {
 		},
 		async cost(event, trigger, player) {
 			event.result = await player
-				.chooseTarget(get.prompt2(event.skill), (card, player, target) => {
-					return player !== target && target.countCards("h");
-				})
-				.set("ai", target => {
-					let att = get.attitude(get.player(), target);
-					if (att > 0) {
-						return 0;
-					}
-					if (!target.hasSkill("dcyunzheng_block")) {
-						att *=
-							target.getSkills(null, false, false).filter(i => {
-								return lib.skill.dcyunzheng_block.skillBlocker(i, target);
-							}).length + 1;
-					}
-					return 1 - att;
+				.chooseTarget({
+					prompt: get.prompt2(event.skill),
+					filterTarget(card, player, target) {
+						return player !== target && target.countCards("h") > 0;
+					},
+					ai(target) {
+						let att = get.attitude(get.player(), target);
+						if (att > 0) {
+							return 0;
+						}
+						if (!target.hasSkill("dcyunzheng_block")) {
+							att *=
+								target.getSkills(null, false, false).filter(i => {
+									return lib.skill.dcyunzheng_block.skillBlocker(i, target);
+								}).length + 1;
+						}
+						return 1 - att;
+					},
 				})
 				.forResult();
 		},
 		async content(event, trigger, player) {
 			const target = event.targets[0];
-			const result = await player.choosePlayerCard("h", target, true, "惑心：展示" + get.translation(target) + "的一张手牌").forResult();
+			const result = await player
+				.choosePlayerCard({
+					prompt: "惑心：展示" + get.translation(target) + "的一张手牌",
+					position: "h",
+					target,
+					forced: true,
+				})
+				.forResult();
+			const tag = "eternal_dcyunzheng_tag";
 			if (result.bool) {
 				let cards = result.cards.slice();
 				await player.showCards(cards, get.translation(player) + "发动了【惑心】");
-				const cardx = cards.filter(card => card.hasGaintag("eternal_dcyunzheng_tag") || get.suit(card) == get.suit(trigger.card));
+				const cardx = cards.filter(card => card.hasGaintag(tag) || get.suit(card) == get.suit(trigger.card));
 				if (cardx.length) {
-					cards.removeArray(cardx);
 					const result2 = await player
-						.chooseBool("惑心：是否获得" + get.translation(cardx) + "？")
-						.set("choice", get.value(cardx, player) > 7)
+						.chooseBool({
+							prompt: "惑心：是否获得" + get.translation(cardx) + "？",
+							choice: get.value(cardx, player) > 7,
+						})
 						.forResult();
 					if (result2.bool) {
-						const next = player.gain(cardx, target, "give");
-						if (cardx[0].hasGaintag("eternal_dcyunzheng_tag")) {
+						await player.gain({
+							cards: cardx,
+							source: target,
+							animate: "give",
+						});
+						/*if (cardx[0].hasGaintag("eternal_dcyunzheng_tag")) {
 							next.gaintag.add("eternal_dcyunzheng_tag");
-						}
-						await next;
+						}*/
 						await event.trigger("dchuoxin_update");
 					}
+					cards.removeArray(cardx);
 				}
-				if (cards.some(card => !card.hasGaintag("eternal_dcyunzheng_tag"))) {
+				if (cards.some(card => !card.hasGaintag(tag))) {
 					target.addGaintag(
-						cards.filter(card => !card.hasGaintag("eternal_dcyunzheng_tag")),
+						cards.filter(card => !card.hasGaintag(tag)),
 						"eternal_dcyunzheng_tag"
 					);
 					await event.trigger("dchuoxin_update");
@@ -16351,7 +16367,8 @@ const skills = {
 					const map = {},
 						hs = target.getCards("h");
 					for (const i of hs) {
-						map[get.suit(i, target)] = true;
+						map[get.suit(i, target)] ??= [];
+						map[get.suit(i, target)].push(i);
 					}
 					const list = Object.keys(map).filter(i => lib.suit.includes(i));
 					let result2;
@@ -16361,13 +16378,21 @@ const skills = {
 						result2 = { control: list[0] };
 					} else {
 						result2 = await target
-							.chooseControl(list)
-							.set("prompt", "将一种花色的牌交给" + get.translation(player))
+							.chooseControl({
+								controls: list,
+								prompt: "将一种花色的牌交给" + get.translation(player),
+								choice: (() => {
+									const suit = list.slice().sort((a, b) => {
+										return get.value(map[a], target) - get.value(map[b], target);
+									})[0];
+									return list.indexOf(suit);
+								})(),
+							})
 							.forResult();
 					}
 					if (result2?.control) {
-						const cards = target.getCards("h", function (card) {
-							return get.suit(card, target) == result2.control && lib.filter.canBeGained(card, player, target, "yachai");
+						const cards = map[result2.control].filter(function (card) {
+							return lib.filter.canBeGained(card, player, target, "yachai");
 						});
 						if (cards.length) {
 							await target.give(cards, player, "give");

@@ -1011,21 +1011,11 @@ const skills = {
 	},
 	olqiaowu: {
 		audio: 2,
-		mark: true,
-		marktext: "☯",
-		zhuanhuanji: true,
-		intro: {
-			content(storage) {
-				if (!storage) {
-					return "转换技，每回合限一次，当你使用的【杀】或【闪】结算完毕后，你可令所有处于【酒】状态的角色摸一张牌。";
-				}
-				return "转换技，每回合限一次，当你使用的【杀】或【闪】结算完毕后，你可令所有处于【酒】状态的角色选择是否使用一张【杀】。";
-			},
-		},
-		usable: 1,
+		usable: 2,
 		trigger: { player: "useCardAfter" },
 		filter(event, player) {
-			return ["sha", "shan"].includes(event.card.name) && lib.skill.olqiaowu.logTarget(event, player).length > 0;
+			const names = ["sha", "shan"].removeArray(player.getStorage("olqiaowu_used"));
+			return names.includes(event.card.name) && lib.skill.olqiaowu.logTarget(event, player).length > 0;
 		},
 		logTarget(event, player) {
 			return game.filterPlayer(target => target.hasSkill("jiu"));
@@ -1034,25 +1024,36 @@ const skills = {
 			return lib.skill.olqiaowu.logTarget(event, player).some(target => get.attitude(player, target) > 0);
 		},
 		async content(event, trigger, player) {
+			player.addTempSkill(`${event.name}_used`);
+			player.markAuto(`${event.name}_used`, trigger.card.name);
 			const { targets } = event;
-			const bool = player.storage[event.name];
-			player.changeZhuanhuanji(event.name);
-			if (!bool) {
-				await game.asyncDraw(targets.sortBySeat());
-			} else {
-				for (const target of targets.sortBySeat()) {
-					await target
-						.chooseToUse(function (card, player, event) {
+			await game.doAsyncInOrder(targets, async target => {
+				const result = await target
+					.chooseToUse({
+						prompt: "俏舞：是否使用一张【杀】？",
+						filterCard(card, player, event) {
 							if (get.name(card) != "sha") {
 								return false;
 							}
-							return lib.filter.filterCard.apply(this, arguments);
-						}, `俏舞：是否使用一张【杀】`)
-						.set("targetRequired", true)
-						.set("complexSelect", true)
-						.set("complexTarget", true);
+							return lib.filter.filterCard.call(this, card, player, event);
+						},
+					})
+					.set("complexSelect", true)
+					.set("targetRequired", true)
+					.forResult();
+				if (!result?.bool) {
+					await target.draw();
 				}
-			}
+			});
+		},
+		subSkill: {
+			used: {
+				charlotte: true,
+				onremove: true,
+				intro: {
+					content: "已触发：$",
+				},
+			},
 		},
 	},
 	//OL桥公
@@ -9031,22 +9032,20 @@ const skills = {
 		},
 		forced: true,
 		logTarget: "player",
-		content() {
+		async content(event, trigger, player) {
 			trigger.num++;
 		},
 		countSkill(player) {
-			return (
-				player.getSkills(null, false, false).filter(i => {
-					const info = get.info(i);
-					if (info) {
-						if (info.charlotte) {
-							return get.plainText(get.translation(`${i}_info`)).length > 0;
-						}
-						return true;
+			return player.getSkills(null, false, false).filter(i => {
+				const info = get.info(i);
+				if (info) {
+					if (info.charlotte) {
+						return get.plainText(get.translation(`${i}_info`)).length > 0;
 					}
-					return false;
-				}).length + player.getStorage("zhanfa").length
-			);
+					return true;
+				}
+				return false;
+			}).length;
 		},
 		mod: {
 			cardUsable(card, player, num) {
@@ -9072,9 +9071,9 @@ const skills = {
 			return "将手牌数摸至" + get.cnNumber(Math.max(...game.filterPlayer().map(i => count(i)))) + "张";
 		},
 		usable: 1,
-		content() {
+		async content(event, trigger, player) {
 			const count = lib.skill.olmaozhu.countSkill;
-			player.drawTo(Math.max(...game.filterPlayer().map(i => count(i))));
+			await player.drawTo(Math.max(...game.filterPlayer().map(i => count(i))));
 		},
 		ai: {
 			order: 0.000000114514191981,
@@ -32637,7 +32636,8 @@ const skills = {
 	},
 	/*赵元帅扶汉样式美化（星语的任务喵）
 	by taofendawang1105
-	感谢星语做的联机适配，赞美星语喵！*/
+	感谢星语做的联机适配，赞美星语喵！
+	2026.2.26 正式改成grid布局*/
 	refuhan: {
 		audio: "fuhan",
 		trigger: { player: "phaseZhunbeiBegin" },
@@ -32704,50 +32704,62 @@ const skills = {
 			const result = await player
 				.chooseButton(
 					[
-						[["请选择获得至多两个技能"], "addNewRow"],
-						[list, "character"],
+						[["扶汉：请选择获得至多两个技能"], "addNewRow"],
 						[
 							dialog => {
+								const { list, skillMap } = get.event();
+								//算出来需要多少列，最多八列
+								const num = 8;
+								//const row = Math.ceil(list.length / num);
+								const column = Math.min(list.length, num);
+								const width = column * 120;
 								dialog.css({
 									top: "20%",
+									width: `${width}px`,
+									left: `50%`,
+									marginLeft: `-${width / 2}px`,
 								});
-								const { list, num2, skillMap } = get.event();
-								if (list.length > 6) {
-									const width = list.length * 125;
-									dialog.style.setProperty("width", width + "px", "important");
-									dialog.style.setProperty("left", `calc(50% - ${width / 2}px)`, "important");
-								}
-								for (let j = 0; j < num2; j++) {
-									let skills2 = [];
-									list.forEach(name => {
-										const item = skillMap[name][j];
-										if (item) {
-											skills2.push([item, get.translation(item)]);
-										} else {
-											skills2.push(["refuhan_kongwei", "空位"]);
-										}
+								//重新创建一个容器，不然css之后会导致dialog.content内的其他元素也加入到布局中
+								const contentx = ui.create.div(".content", dialog.content);
+								contentx.css({
+									display: "grid",
+									gridTemplateColumns: `repeat(${column}, 1fr)`,
+									width: "fit-content",
+									margin: "0 auto",
+									justifyItems: "center",
+									alignItems: "start",
+								});
+								//一个一个塞进去
+								for (const i of list) {
+									const div = ui.create.div(".buttons", contentx);
+									const button = ui.create.button(i, "character", div);
+									const skills = skillMap[i];
+									//让角色和技能按钮水平居中垂直排列
+									div.css({
+										display: "flex",
+										flexDirection: "column",
+										alignItems: "center",
 									});
-									dialog.add([skills2, "tdnodes"]);
-								}
-								dialog.buttons.forEach(button => {
-									if (!list.includes(button.link)) {
-										let margin = "25px";
-										button.style.setProperty("margin-left", margin, "important");
-										button.style.setProperty("margin-right", margin, "important");
+									//角色因为不是可选按钮所以需要调整一下透明度
+									button.style.setProperty("opacity", "1", "important");
+									if (skills.length) {
+										//创建技能按钮
+										const buttons = ui.create.buttons(
+											skills.map(i => [i, get.translation(i)]),
+											"tdnodes",
+											div
+										);
+										//丢进可选按钮中
+										dialog.buttons = dialog.buttons.concat(buttons);
 									} else {
-										button.style.setProperty("opacity", "1", "important");
-										if (!skillMap[button.link]?.length) {
-											setTimeout(() => {
-												button.setBackground("sunce", "character");
-												button.node.name.innerText = "蜀奸";
-												button.node.name.dataset.nature = "wood";
-											}, 824);
-										}
+										//鹿鹿的彩蛋
+										setTimeout(() => {
+											button.setBackground("sunce", "character");
+											button.node.name.innerText = "蜀奸";
+											button.node.name.dataset.nature = "wood";
+										}, 824);
 									}
-									if (button.link == "refuhan_kongwei") {
-										button.style.setProperty("opacity", "0", "important");
-									}
-								});
+								}
 							},
 							"handle",
 						],
@@ -32756,12 +32768,12 @@ const skills = {
 					true
 				)
 				.set("filterButton", button => {
-					const list2 = get.event().list2;
-					return !list2.includes(button.link);
+					const list = get.event().list;
+					return !list.includes(button.link);
 				})
 				.set("list", list.slice())
-				.set("list2", list.slice().add("refuhan_kongwei"))
-				.set("num2", num2)
+				//.set("list2", list.slice().add("refuhan_kongwei"))
+				//.set("num2", num2)
 				.set("skillMap", skillMap)
 				.set("ai", button => {
 					const list2 = get.event().list2;
@@ -37441,7 +37453,10 @@ const skills = {
 							}
 							return 20 - get.value(card);
 						})
-						.set("usefulCards", player.getDiscardableCards(player, "h", card => player.getUseValue(card)));
+						.set(
+							"usefulCards",
+							player.getDiscardableCards(player, "h", card => player.getUseValue(card))
+						);
 				},
 			},
 		},
@@ -37557,7 +37572,10 @@ const skills = {
 					}
 					return 20 - get.value(card);
 				})
-				.set("usefulCards", player.getDiscardableCards(player, "h", card => player.getUseValue(card)));
+				.set(
+					"usefulCards",
+					player.getDiscardableCards(player, "h", card => player.getUseValue(card))
+				);
 		},
 	},
 	rechouhai: {

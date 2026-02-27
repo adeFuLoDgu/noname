@@ -97,7 +97,7 @@ const skills = {
 			},
 		},
 	},
-	potjixi: {
+	potzaoxian: {
 		audio: 2,
 		forced: true,
 		trigger: { player: "removeMark" },
@@ -119,11 +119,11 @@ const skills = {
 			}
 		},
 	},
-	potzaoxian: {
+	potjixi: {
 		audio: 2,
 		trigger: { global: "phaseEnd" },
 		filter(event, player) {
-			return get.info("potzaoxian").getTargets(player).length && _status.currentPhase?.countDiscardableCards(player, "he") > 0;
+			return get.info("potjixi").getTargets(player).length && _status.currentPhase?.countDiscardableCards(player, "he") > 0;
 		},
 		getTargets(player) {
 			return player
@@ -135,7 +135,7 @@ const skills = {
 		logTarget: () => _status.currentPhase,
 		check(event, player) {
 			return get
-				.info("potzaoxian")
+				.info("potjixi")
 				.getTargets(player)
 				.some(target => get.effect(target, { name: "shunshou" }, player, player) > 0);
 		},
