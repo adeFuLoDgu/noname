@@ -4269,6 +4269,9 @@ export default () => {
 									return 3;
 								}
 								if (situation < 0 && game.zhu && game.zhu.hp <= 2) return -3.8;
+								if (situation > 1) {
+									return 0;
+								}
 								return Math.min(0,Math.max(-3,situation));
 						}
 						break;
@@ -4290,6 +4293,9 @@ export default () => {
 									return no_fan_find_nei_target_effect;
 								}
 								if (zhongmode&&to.ai.sizhong&&to.ai.shown<0.95) return 6;
+								if (situation > 1) {
+									return 0;
+								}
 								return Math.min(3, -situation);
 							case "fan":
 								return -8;
@@ -4298,6 +4304,9 @@ export default () => {
 									return no_fan_find_nei_target_effect;
 								}
 								if (zhongmode&&to.ai.sizhong&&to.ai.shown<0.95) return 6;
+								if (situation > 1) {
+									return 0;
+								}
 								return Math.min(0,Math.max(-3,situation));
 						}
 						break;
@@ -4452,12 +4461,18 @@ export default () => {
 								if (get.population("fan") == 1 && get.population("nei") == 1 && game.players.length == 3) return -4;
 								if (get.population("zhong") + get.population("mingzhong") == 0) return -7;
 								if (game.zhu && game.zhu.hp <= 2) return -1;
+								if (situation < -1) {
+									return 0;
+								}
 								return Math.min(3, situation);
 							case "fan":
 								if (from != to && get.population("fan") == 1 && get.population("nei") == 1 && game.players.length == 3) return -4;
 								return 5;
 							case "commoner":
 								if (zhongmode&&to.ai.sizhong&&to.ai.shown<0.95) return -6;
+								if (situation < -1) {
+									return 0;
+								}
 								return Math.min(0,Math.max(-3,-situation));
 						}
 						break;

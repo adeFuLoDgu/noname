@@ -4049,7 +4049,7 @@ const skills = {
 			result = await trigger.player.judge().forResult();
 
 			// step 1
-			const judgeResult = get.copy(result);
+			event.judgeResult = get.copy(result);
 			let str = "是否弃置一张牌",
 				strt = get.translation(target),
 				strs = get.translation(source),
@@ -4118,7 +4118,7 @@ const skills = {
 			// step 2
 			if (result.bool) {
 				const card = result.cards[0];
-				switch (judgeResult.suit) {
+				switch (card.suit) {
 					case "heart":
 						if (target.isIn() && target.isDamaged()) {
 							await target.recover().forResult();
@@ -4145,10 +4145,10 @@ const skills = {
 
 				// step 3
 				var gains = [];
-				if (get.position(judgeResult.card, true) == "d" && get.suit(card, player) == judgeResult.suit) {
-					gains.push(judgeResult.card);
+				if (get.position(event.judgeResult.card, true) == "d" && get.suit(card, player) == event.judgeResult.suit) {
+					gains.push(event.judgeResult.card);
 				}
-				if (get.position(card, true) == "d" && get.number(card, player) == judgeResult.number) {
+				if (get.position(card, true) == "d" && get.number(card, player) == event.judgeResult.number) {
 					gains.push(card);
 				}
 				if (gains.length) {
@@ -9844,20 +9844,16 @@ const skills = {
 		audio: "tianxiang",
 		audioname: ["daxiaoqiao", "re_xiaoqiao", "ol_xiaoqiao"],
 		trigger: { player: "damageBegin4" },
-		direct: true,
+		preHidden: true,
 		filter(event, player) {
 			return (
 				player.countCards("he", function (card) {
-					if (_status.connectMode && get.position(card) == "h") {
-						return true;
-					}
-					return get.suit(card, player) == "heart";
+					return _status.connectMode || get.suit(card, player) == "heart";
 				}) > 0 && event.num > 0
 			);
 		},
-		async content(event, trigger, player) {
-			// step 0
-			const result = await player
+		async cost(event, trigger, player) {
+			event.result = await player
 				.chooseCardTarget({
 					filterCard(card, player) {
 						return get.suit(card) == "heart" && lib.filter.cardDiscardable(card, player);
@@ -9870,13 +9866,13 @@ const skills = {
 						return 10 - get.value(card);
 					},
 					ai2(target) {
-						var att = get.attitude(_status.event.player, target);
-						var trigger = _status.event.getTrigger();
-						var da = 0;
+						const att = get.attitude(_status.event.player, target);
+						const trigger = _status.event.getTrigger();
+						let da = 0;
 						if (_status.event.player.hp == 1) {
 							da = 10;
 						}
-						var eff = get.damageEffect(target, trigger.source, target);
+						const eff = get.damageEffect(target, trigger.source, target);
 						if (att == 0) {
 							return 0.1 + da;
 						}
@@ -9893,60 +9889,50 @@ const skills = {
 						}
 						return -att + da;
 					},
-					prompt: get.prompt("oltianxiang"),
-					prompt2: lib.translate.oltianxiang_info,
+					prompt: get.prompt(event.skill),
+					prompt2: lib.translate[`${event.skill}_info`],
 				})
+				.setHiddenSkill(event.name.slice(0, -5))
 				.forResult();
-			// step 1
-			if (result.bool) {
-				await player.discard(result.cards);
-				var target = result.targets[0];
-				const result2 = await player
-					.chooseControlList(
-						true,
-						function (event, player) {
-							var target = _status.event.target;
-							var att = get.attitude(player, target);
-							if (target.hasSkillTag("maihp")) {
-								att = -att;
-							}
-							if (att > 0) {
-								return 0;
-							} else {
-								return 1;
-							}
-						},
-						[
-							"令" + get.translation(target) + "受到伤害来源对其造成的1点伤害，然后摸X张牌（X为其已损失体力值且至多为5）",
-							"令" + get.translation(target) + "失去1点体力，然后获得" + get.translation(result.cards),
-						]
-					)
-					.set("target", target)
-					.forResult();
-				player.logSkill(event.name, target);
-				trigger.cancel();
-				event.target = target;
-				event.card = result.cards[0];
-				// step 2
-				if (typeof result2.index == "number") {
-					event.index = result2.index;
-					if (result2.index) {
-						event.related = await event.target.loseHp().forResult();
-					} else {
-						event.related = await event.target.damage(trigger.source || "nosource", "nocard").forResult();
-					}
-				} else {
-					return;
-				}
-				// step 3
-				if (event.related.cancelled || target.isDead()) {
-					return;
-				}
-				if (event.index && event.card.isInPile()) {
-					await target.gain(event.card, "gain2");
-				} else if (target.getDamagedHp()) {
-					await target.draw(Math.min(5, target.getDamagedHp()));
-				}
+		},
+		async content(event, trigger, player) {
+			const [target] = event.targets;
+			const [card] = event.cards;
+			trigger.cancel();
+			await player.discard(event.cards);
+			const result = await player
+				.chooseControlList(
+					true,
+					function (event, player) {
+						const target = _status.event.target;
+						let att = get.attitude(player, target);
+						if (target.hasSkillTag("maihp")) {
+							att = -att;
+						}
+						if (att > 0) {
+							return 0;
+						} else {
+							return 1;
+						}
+					},
+					["令" + get.translation(target) + "受到伤害来源对其造成的1点伤害，然后摸X张牌（X为其已损失体力值且至多为5）", "令" + get.translation(target) + "失去1点体力，然后获得" + get.translation(event.cards)]
+				)
+				.set("target", target)
+				.forResult();
+			if (typeof result.index != "number") {
+				return;
+			}
+			if (result.index) {
+				event.related = target.loseHp();
+			} else {
+				event.related = target.damage(trigger.source || "nosource", "nocard");
+			}
+			await event.related;
+			//if(event.related.cancelled||target.isDead()) return;
+			if (result.index && card.isInPile()) {
+				await target.gain(card, "gain2");
+			} else if (target.getDamagedHp()) {
+				await target.draw(Math.min(5, target.getDamagedHp()));
 			}
 		},
 		ai: {
@@ -11295,7 +11281,7 @@ const skills = {
 		selectTarget: -1,
 		async content(event, trigger, player) {
 			// step 0
-			const target = event.dying;
+			const target = event.target;
 			const result = await player.chooseCardButton(get.translation("rechunlao"), player.getExpansions("rechunlao"), true).forResult();
 			// step 1
 			if (result.bool) {
@@ -11319,7 +11305,11 @@ const skills = {
 			},
 			save: true,
 			result: {
-				target: 3,
+				player(player) {
+					if (_status.event.dying && _status.event.dying == player) return 1;
+					if (_status.event.dying && get.attitude(_status.event.dying, player) > 0 && _status.event.dying.hp + player.getExpansions("rechunlao").length + player.countCards("h", "tao") > 0) return 1;
+					return 0;
+				},
 			},
 			threaten: 1.6,
 		},
@@ -15426,7 +15416,7 @@ const skills = {
 				if (get.mode() != "guozhan" && !player.hasSkillTag("rejudge")) {
 					judgeEvent.set("callback", async event => {
 						if (event.judgeResult.color == "black" && get.position(event.card, true) == "o") {
-							await player.gain(event.card, "gain2");
+							await player.gain(event.card, "gain2").gaintag.add("reluoshen");
 						}
 					});
 				} else {
@@ -15449,7 +15439,7 @@ const skills = {
 				}
 			}
 			if (event.cards.someInD()) {
-				await player.gain(event.cards.filterInD(), "gain2");
+				await player.gain(event.cards.filterInD(), "gain2").gaintag.add("reluoshen");
 			}
 		},
 		subSkill: {
