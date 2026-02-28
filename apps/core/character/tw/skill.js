@@ -4819,6 +4819,48 @@ const skills = {
 		audio: 2,
 		enable: "phaseUse",
 		filter(event, player) {
+			return player.countDiscardableCards(player, "he") > 1;
+		},
+		filterCard: lib.filter.cardDiscardable,
+		selectCard: 2,
+		position: "he",
+		filterTarget(card, player, target) {
+			if (ui.selected.cards.length < 2) {
+				return false;
+			}
+			let cards = ui.selected.cards,
+				num = Math.abs(get.number(cards[0], player) - get.number(cards[1], player));
+			return get.distance(target, player) == num;
+		},
+		check(card) {
+			return 7 - get.value(card);
+		},
+		complexSelect: true,
+		lose: false,
+		discard: false,
+		delay: false,
+		async content(event, trigger, player) {
+			const { cards, target } = event;
+			const isDraw = cards.some(card => !card.hasGaintag("twniwo"));
+			await player.discard(cards);
+			await target.damage();
+			if (isDraw) {
+				await player.draw();
+			}
+		},
+		ai: {
+			order: 5,
+			result: {
+				target(player, target) {
+					return get.damageEffect(target, player, player);
+				},
+			},
+		},
+	},
+	old_twlifeng: {
+		audio: 2,
+		enable: "phaseUse",
+		filter(event, player) {
 			if (!player.countCards("he")) {
 				return false;
 			}
@@ -4845,17 +4887,17 @@ const skills = {
 			return 7 - get.value(card);
 		},
 		complexSelect: true,
-		async content(event, player, target) {
+		async content(event, trigger, player) {
 			await event.target.damage();
 		},
-		group: "twlifeng_effect",
+		group: "old_twlifeng_effect",
 		subSkill: {
 			effect: {
 				trigger: {
 					source: "damageBegin3",
 				},
 				filter(event, player) {
-					return event.getParent().name == "twlifeng";
+					return event.getParent().name == "old_twlifeng";
 				},
 				async cost(event, trigger, player) {
 					const target = trigger.player,
@@ -4909,7 +4951,7 @@ const skills = {
 					}
 					if (nums[0] <= get.number(card) && nums[1] >= get.number(card)) {
 						trigger.cancel();
-						player.tempBanSkill("twlifeng");
+						player.tempBanSkill("old_twlifeng");
 					}
 				},
 			},

@@ -1417,12 +1417,12 @@ export class Game {
 	 * @template { keyof GameHistory } T
 	 * @param {T} key
 	 * @param {(event:GameEvent)=>boolean} filter 筛选条件，不填写默认为lib.filter.all
+	 * @param {GameEvent} [last] 代表最后一个事件，获取该事件之前的历史
 	 * @param {number} [num] 获取倒数第num轮的历史，默认为0，表示当前轮
 	 * @param {boolean} [keep] 若为true,则获取倒数第num轮到现在的所有历史
-	 * @param {GameEvent} last 代表最后一个事件，获取该事件之前的历史
 	 * @returns { GameHistory[T] }
 	 */
-	getRoundHistory(key, filter = lib.filter.all, num = 0, keep, last) {
+	getRoundHistory(key, filter = lib.filter.all, last, num = 0, keep) {
 		if (!filter || typeof filter != "function") {
 			filter = lib.filter.all;
 		}
@@ -10226,7 +10226,7 @@ ${e instanceof Error ? e.stack : String(e)}`);
 		return game.players.concat(game.dead).some(value => (includeOut || !value.isOut()) && func(value));
 	}
 	/**
-	 * @param { (player: Player) => boolean } func
+	 * @param { (player: Player) => boolean } [func]
 	 * @param { boolean } [includeOut]
 	 */
 	countPlayer(func, includeOut) {
@@ -10783,6 +10783,10 @@ ${e instanceof Error ? e.stack : String(e)}`);
 				);
 			}
 		}
+		//联机需要删除掉，不然重进会多一个dead（）
+		if (_status.connectMode) {
+			delete lib.playerOL[player.playerid];
+		}
 		//移除角色的具体步骤
 		const removePlayer = async (player, config, configOL) => {
 			let { animate } = config;
@@ -10878,10 +10882,6 @@ ${e instanceof Error ? e.stack : String(e)}`);
 				player.classList.add("out");
 				player.style.display = "none";
 				player.delete();
-				//联机需要删除掉，不然重进会多一个dead（）
-				if (_status.connectMode) {
-					delete lib.playerOL[player.playerid];
-				}
 				//调整布局
 				const players = game.players.concat(game.dead);
 				const position = parseInt(player.dataset.position);

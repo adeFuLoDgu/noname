@@ -360,6 +360,26 @@ export default {
 			},
 		},
 	},
+	//不计入次数模版
+	nocount: {
+		charlotte: true,
+		forced: true,
+		popup: false,
+		firstDo: true,
+		trigger: { player: "useCard1" },
+		filter(event, player) {
+			return event.addCount !== false;
+		},
+		async content(event, trigger, player) {
+			trigger.addCount = false;
+			const stat = player.getStat().card,
+				name = trigger.card.name;
+			if (typeof stat[name] == "number") {
+				stat[name]--;
+			}
+			game.log(trigger.card, "不计入次数");
+		},
+	},
 	//战法的模版技能
 	//某个条件下造成的伤害+X（X默认为1）
 	zf_anyDamage: {
@@ -437,7 +457,7 @@ export default {
 		forced: true,
 		trigger: { player: "phaseDrawBegin2" },
 		num: 1,
-		filter(event, trigger, player) {
+		filter(event, player) {
 			return !event.numFixed;
 		},
 		async content(event, trigger, player) {
@@ -463,6 +483,7 @@ export default {
 			if (typeof num == "function") {
 				num = num(event, trigger, player);
 			}
+			game.log(trigger.card, `基础伤害+${num}`);
 			trigger.baseDamage += num;
 		},
 	},
@@ -642,6 +663,100 @@ export default {
 				//await player.gain(cards, "draw");
 			}
 		},
+	},
+	//获得战法后执行某个操作
+	zf_onAdd: {
+		trigger: {
+			player: "addZhanfa",
+		},
+		forced: true,
+		popup: false,
+		async content(event, trigger, player) {
+			if (trigger.zhanfaId != event.name) {
+				return;
+			}
+			const { callback } = get.info(event.name);
+			await callback(event, trigger, player);
+		},
+		async callback(event, trigger, player) {
+			return;
+		},
+	},
+	//获得战法后减少体力上限
+	zf_loseMaxHp: {
+		inherit: "zf_onAdd",
+		//获取要执行操作的目标
+		getTargets(event, player) {
+			return [player];
+		},
+		//每个目标要减少的上限
+		getNum(event, player, target) {
+			return target.maxHp > 1 ? 1 : 0;
+		},
+		async callback(event, player, target) {
+			return;
+		},
+		async content(event, trigger, player) {
+			if (trigger.zhanfaId != event.name) {
+				return;
+			}
+			let { getNum, getTargets, callback } = get.info(event.name);
+			const targets = (event.targets = getTargets(event, player));
+			const map = (event.map = new Map());
+			await game.doAsyncInOrder(targets, async target => {
+				const num = getNum(event, player, target);
+				if (num > 0) {
+					map.set(target, num);
+					await target.loseMaxHp({ num });
+				}
+				await callback(event, player, target);
+			});
+			player.setStorage(event.name, map);
+		},
+		onremove(player, skill) {
+			player.addTempSkill(`${skill}_onremove`);
+		},
+		subSkill: {
+			onremove: {
+				charlotte: true,
+				silent: true,
+				trigger: {
+					player: "removeZhanfa",
+				},
+				onremove(player, skill) {
+					delete player.storage[skill.slice(0, -9)];
+				},
+				async content(event, trigger, player) {
+					const skill = event.name.slice(0, -9);
+					if (trigger.zhanfaId != skill) {
+						return;
+					}
+					const map = new Map(player.getStorage(skill));
+					player.removeSkill(event.name);
+					const targets = Array.from(map.keys());
+					await game.doAsyncInOrder(targets, async target => {
+						const num = map.get(target);
+						if (num) {
+							return target.gainMaxHp({ num });
+						}
+					});
+				},
+			},
+		},
+	},
+	//某个条件下使用牌额外结算
+	zf_extraEff: {
+		forced: true,
+		trigger: { player: "useCard" },
+		filter(event, player) {
+			return true;
+		},
+		num: 1,
+		async content(event, trigger, player) {
+			const { num } = get.info(event.name);
+			game.log(trigger.card, "额外结算", `#y${get.cnNumber(num)}`, "次");
+			trigger.effectCount += num;
+		}
 	},
 	zhanfa: {
 		markimage: "image/card/zhanfa.png",

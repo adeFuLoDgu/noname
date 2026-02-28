@@ -1508,7 +1508,6 @@ const skills = {
 							"枯心：请选择一项执行",
 							[
 								list.flatMap(([cards, target]) => {
-									console.log(cards);
 									return cards.map(card => [card, target]);
 								}),
 								(item, type, position, noclick, node) => {
@@ -1525,13 +1524,17 @@ const skills = {
 							],
 							[
 								dialog => {
-									dialog.css({ top: get.is.phoneLayout() ? "20%" : "25%" });
+									dialog.css({ top: get.is.phoneLayout() ? "20%" : "40%" });
 									dialog.buttons
-										.filter(button => typeof button.link == "number")
 										.forEach(button => {
-											button.style.setProperty("width", "200px", "important");
-											button.style.setProperty("text-align", "left", "important");
+											if (typeof button.link == "number") {
+												button.style.setProperty("width", "200px", "important");
+												button.style.setProperty("text-align", "left", "important");
+											} else {
+												button.style.setProperty("opacity", "1", "important");
+											}
 										});
+									dialog.buttons = dialog.buttons.filter(button => typeof button.link == "number");
 								},
 								"handle",
 							],
@@ -1591,8 +1594,8 @@ const skills = {
 							}
 							const player = get.player();
 							const cards = get
-								.event("list")
-								?.map(i => i[0])
+								.event()
+								.list?.map(i => i[0])
 								.flat();
 							return -get.attitude(player, target) * target.countCards("h", cardx => !cards?.includes(cardx));
 						},

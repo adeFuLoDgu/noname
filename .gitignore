@@ -5,9 +5,6 @@ node_modules
 package-lock.json
 .turbo
 README.md
-ehthumbs.db
-Thumbs.db
-desktop.ini
 *.zip
 *.txt
 *.pdf
@@ -23,3 +20,8 @@ desktop.ini
 .Trashes
 .DS_Store
 .DS_Store?
+
+# Windows
+ehthumbs.db
+Thumbs.db
+desktop.ini

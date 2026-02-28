@@ -2362,8 +2362,9 @@ const skills = {
 				trigger: {
 					global: "useCard1",
 				},
-				async cost(event, trigger, player) {
-					get.info(event.skill).init(player, event.skill);
+				silent: true,
+				async content(event, trigger, player) {
+					get.info(event.name).init(player, event.name);
 				},
 				intro: {
 					markcount() {
@@ -2455,14 +2456,15 @@ const skills = {
 				.getHistory("useCard")
 				.map(evt => get[key](evt.card))
 				.toUniqued();
-			if (list.length) {
+			if (_status.currentPhase == player) {
 				if (key == "number") {
 					list = list.filter(i => typeof i == "number").sort((a, b) => a - b);
 				}
 				for (const target of game.filterPlayer(current => current != player).sortBySeat()) {
 					const name = "mbkubai_guanjued";
 					target.addTempSkill(name);
-					target.setStorage(name, list, true);
+					target.storage[name] = list;
+					target.markSkill(name);
 				}
 			}
 		},
@@ -2471,9 +2473,8 @@ const skills = {
 		subSkill: {
 			guanjue: {
 				trigger: {
-					player: "useCardAfter",
+					player: ["useCard1", "phaseBeginStart"],
 				},
-				lastDo: true,
 				popup: false,
 				forced: true,
 				locked: false,
@@ -2491,10 +2492,14 @@ const skills = {
 				mark: true,
 				marktext: "白",
 				intro: {
+					markcount: (storage) => storage?.length || 0,
 					content(_1, player) {
 						const list = player.getStorage("mbkubai_guanjued"),
 							target = _status.currentPhase;
 						if (target.hasSkill("mbkubai")) {
+							if (!list.length) {
+								return "不能使用牌";
+							}
 							const level = Math.min(2, target.countMark("mbkubai")),
 								key = ["颜色", "花色", "点数"][level];
 							return `仅能使用${key}为${get.translation(list)}的牌`;
@@ -7161,7 +7166,7 @@ const skills = {
 									["recover", "回复1点体力"],
 									["draw", "摸两张牌"],
 									["use", "使用的下一张牌无任何次数限制"],
-									["drawx", "令一名其他角色摸两张牌"],
+									["drawx", "令一名其他角色摸三张牌"],
 								],
 								"textbutton",
 							],
@@ -7211,7 +7216,7 @@ const skills = {
 							break;
 						case "drawx": {
 							const result = await player
-								.chooseTarget(`启诲：令一名其他角色摸两张牌`, true, lib.filter.notMe)
+								.chooseTarget(`启诲：令一名其他角色摸三张牌`, true, lib.filter.notMe)
 								.set("ai", target => get.effect(target, { name: "draw" }, get.player(), get.player()))
 								.forResult();
 							const {
@@ -7219,7 +7224,7 @@ const skills = {
 							} = result;
 							if (target) {
 								player.line(target);
-								await target.draw(2);
+								await target.draw(3);
 							}
 							break;
 						}

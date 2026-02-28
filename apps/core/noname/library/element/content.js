@@ -512,14 +512,15 @@ export const Content = {
 	//增加明置手牌
 	async addShownCards(event, _trigger, player) {
 		const hs = player.getCards("h");
-		const showingCards = event._cards.filter(showingCard => hs.includes(showingCard));
+		const showingCards = event.cards.filter(showingCard => hs.includes(showingCard));
 		const shown = player.getShownCards();
 
 		for (const tag of event.gaintag) {
 			player.addGaintag(showingCards, tag);
 		}
 
-		if (!(event.cards = showingCards.filter(showingCard => !shown.includes(showingCard))).length) {
+		event.cards = showingCards.filter(showingCard => !shown.includes(showingCard));
+		if (!event.cards.length) {
 			return;
 		}
 
@@ -530,7 +531,7 @@ export const Content = {
 	//隐藏明置手牌
 	async hideShownCards(event, _trigger, player) {
 		const shown = player.getShownCards();
-		const hidingCards = event._cards.filter(hidingCard => shown.includes(hidingCard));
+		const hidingCards = event.cards.filter(hidingCard => shown.includes(hidingCard));
 
 		if (!hidingCards.length) {
 			return;
@@ -568,7 +569,8 @@ export const Content = {
 		if (!hidingCards.length) {
 			return;
 		}
-		game.log(player, "取消明置了", (event.cards = hidingCards));
+		event.cards = hidingCards;
+		game.log(player, "取消明置了", event.cards);
 		//if (event.animate != false) player.$give(hidingCards, player, false);
 		await event.trigger("hideShownCardsAfter");
 	},
@@ -9864,7 +9866,8 @@ export const Content = {
 		//添加知情者
 		game.addCardKnower(cards, "everyone");
 		//增加延迟，允许自定义
-		await game.delayx(event.delay_time || Math.min(5, cards.length));
+		const delay = Math.max(2, Math.min(5, cards.length));
+		await game.delayx(event.delay_time || delay);
 
 		//关闭对话框，结束动画
 		if (!flashAnimation) {
@@ -9914,6 +9917,7 @@ export const Content = {
 				await new Promise(resolve => {
 					ui.create.confirm("o", resolve);
 				});
+				ui?.confirm?.close();
 			} else {
 				event.result = "viewed";
 				const wait = delay(2 * lib.config.duration).then(() => {

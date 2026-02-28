@@ -18,7 +18,7 @@ const skills = {
 				map = { h: "手牌区", e: "装备区", j: "判定区" };
 			let list = position.map(i => map[i]);
 			const result = await player
-				.chooseControl(list)
+				.chooseControl({ controls: list })
 				.set("prompt", `###${get.translation(event.name)}：选择一个区域并弃置其中所有牌###然后选择弃置任意名其他角色对应区域内的各一张牌。`)
 				.set("ai", (event, player) => {
 					const targets = game.filterPlayer(current => current != player),
@@ -53,11 +53,9 @@ const skills = {
 				}
 				let result = await player
 					.chooseTarget(`天涛：选择一名其他角色，弃置其${{ h: "手牌区", e: "装备区", j: "判定区" }[pos]}内的一张牌`)
-					.set(
-						"filterTarget",
-						(_, player, target) =>
-							target != player && !get.event().doneList.get(target) && target.countDiscardableCards(player, get.event().pos)
-					)
+					.set("filterTarget", (_, player, target) => {
+						return target != player && !get.event().doneList.has(target) && target.countDiscardableCards(player, get.event().pos);
+					})
 					.set("ai", target => {
 						const { pos, player } = get.event();
 						return get.effect(target, { name: "guohe_copy", position: pos }, player, player);
@@ -306,7 +304,7 @@ const skills = {
 			if (event.triggername == "roundStart") {
 				event.result = {
 					bool: true,
-					die: true
+					die: true,
 				};
 			} else {
 				event.result = await player
@@ -332,7 +330,7 @@ const skills = {
 					.forResult();
 			}
 		},
-		logAudio: (a, b, c, d, costResult) => costResult.die ? ["mbhuitian3.mp3", "mbhuitian4.mp3"] : 2,
+		logAudio: (a, b, c, d, costResult) => (costResult.die ? ["mbhuitian3.mp3", "mbhuitian4.mp3"] : 2),
 		async content(event, tigger, player) {
 			if (event.triggername == "roundStart") {
 				await player.die();
@@ -3679,6 +3677,9 @@ const skills = {
 				if (color == "black") {
 					let num = cards.length;
 					while (num > 0) {
+						if (!game.hasPlayer(current => current.countExpansions("caweijue_tag") > 0)) {
+							break;
+						}
 						const result2 = await player
 							.chooseTarget("获得一名角色的“威”", true, (card, player, target) => {
 								return target.countExpansions("caweijue_tag");
@@ -3702,9 +3703,6 @@ const skills = {
 						player.line(target);
 						await player.gain(cards, "give", target, "bySelf");
 						num -= cards.length;
-						if (!game.hasPlayer(current => current.countExpansions("caweijue_tag"))) {
-							break;
-						}
 					}
 				} else if (color == "red") {
 					const targets = game
@@ -4975,7 +4973,7 @@ const skills = {
 				(hps[1] > 0 ? "摸" + get.cnNumber(hps[1]) + "张牌，" : "") + "此阶段下一次造成伤害后，回复等量体力。",
 			];
 			let result = await player
-				.chooseControlList(list)
+				.chooseControlList({ list })
 				.set("ai", function () {
 					let player = get.event().player,
 						damaged = player.getDamagedHp();
@@ -11275,18 +11273,17 @@ const skills = {
 						if (result.control == "选项二") {
 							player.logSkill("tspowei_use", target);
 							await player.gainPlayerCard(target, "h", true);
-						}
-						if (result.control == "选项一") {
+						} else if (result.control == "选项一") {
 							await player.chooseToDiscard("h", true).set("logSkill", ["tspowei_use", target]);
 							if (get.mode() != "identity" || player.identity != "nei") {
 								player.addExpose(0.2);
 							}
 							await target.damage();
 						}
+						player.addTempSkill("tspowei_inRange");
 					} else {
 						return;
 					}
-					player.addTempSkill("tspowei_inRange");
 				},
 				ai: { expose: 0.2 },
 			},
@@ -14239,7 +14236,13 @@ const skills = {
 			const { cards, targets } = event;
 
 			if (cards.length !== 4) {
-				await game.doAsyncInOrder(targets, target => target.damage(1, "fire", "nocard"));
+				await game.doAsyncInOrder(targets, target =>
+					target.damage({
+						num: 1,
+						nature: "fire",
+						nocard: true,
+					})
+				);
 				return;
 			}
 
@@ -14253,7 +14256,11 @@ const skills = {
 					.set("forceDie", true)
 					.forResult();
 
-				await targets[0].damage("fire", result.control === "2点" ? 2 : 3, "nocard");
+				await targets[0].damage({
+					num: result.control === "2点" ? 2 : 3,
+					nature: "fire",
+					nocard: true
+				});
 			} else {
 				const result = await player
 					.chooseTarget("请选择受到2点伤害的角色", true, (card, player, target) => {
@@ -14271,7 +14278,11 @@ const skills = {
 					if (target === target2) {
 						damageNum = 2;
 					}
-					await target.damage("fire", damageNum, "nocard");
+					await target.damage({
+						num: damageNum,
+						nature: "fire",
+						nocard: true,
+					});
 				}
 			}
 		},
