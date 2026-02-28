@@ -840,7 +840,7 @@ async function loadConfig() {
 		"manchong",
 		"masu",
 		"mayunlu",
-		"meituizhishen"
+		"meituizhishen",
 		"menghuo",
 		"new_caoren",
 		"nizhuanzhishen",
