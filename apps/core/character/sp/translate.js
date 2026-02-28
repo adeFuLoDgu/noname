@@ -1589,6 +1589,14 @@ const translates = {
 	olxiasheng_info: "准备阶段或当你受到伤害后，令一名其他角色交给你一张牌。若此牌为黑色，本轮你与其下一次使用红色牌时，可为此牌增加或减少一个目标（至多减至1）。",
 	olqiumu: "秋暮",
 	olqiumu_info: `锁定技，你脱离濒死状态后，你重铸所有红色牌，并将${get.poptip("olchunhui")}${get.poptip("olxiasheng")}〖秋暮〗描述中的“红色”均改为“黑色”。`,
+	ol_liuye: "OL刘晔",
+	ol_liuye_prefix: "OL",
+	olpingyuan: "平垣",
+	olpingyuan_info: "游戏开始时或回合开始时，若你的装备区没有【霹雳车】，你可将其置于装备区（顶替原装备）并摸一张牌；若你的装备区有【霹雳车】，你可移动之或视为使用一张【杀】。",
+	olliaoyi: "料意",
+	olliaoyi_info: "当前回合角色本回合首次对你使用牌时，你可以选择一项：1.摸一张牌；2.令此牌对你无效。然后你不能再对其发动此技能。",
+	ol_piliche: "霹雳车",
+	ol_piliche_info: "你对其他角色造成伤害后，你可以弃置其区域内的一张牌。此牌进入非装备区时，销毁之。",
 };
 
 export default translates;

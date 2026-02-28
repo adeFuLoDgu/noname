@@ -118,32 +118,46 @@ const skills = {
 		async content(event, trigger, player) {
 			const { targets } = event;
 			await game.doAsyncInOrder(targets, async target => {
-				const num = Math.min(target.countCards("h"), target.countMark("mblvezhen_show") + 1);
-				const result = await target
-					.chooseCard({
-						prompt: `掠阵：是否展示${num}张手牌，或者取消令${get.translation(player)}视为对你使用一张无距离次数限制的【杀】`,
-						selectCard: num,
-						position: "h",
-						ai(card) {
-							const { sourcex, player, cardx, num } = get.event();
-							if (
-								!sourcex.canUse(cardx, player, false, false) ||
-								!sourcex.hasSkill("mbhengwei") ||
-								get.effect(player, cardx, sourcex, player) > 0
-							) {
-								return 0;
-							}
-							const att = get.attitude(player, sourcex);
-							if (att > 0 || player.countCards("h", card => get.color(card) != "red") >= num) {
-								return get.color(card) == "red" ? Math.random() : Math.random() + 1;
-							}
-							return Math.random() - 0.5;
-						},
-					})
-					.set("sourcex", player)
-					.set("num", num)
-					.set("cardx", get.autoViewAs({ name: "sha", isCard: true }))
-					.forResult();
+				const num = target.countMark("mblvezhen_show") + 1;
+				const hs = target.getCards("h");
+				let result;
+				if (!hs.length) {
+					result = { bool: false };
+				} else if (hs.length <= num) {
+					result = await target
+						.chooseBool({
+							prompt: `掠阵：是否展示所有手牌，或者取消令${get.translation(player)}视为对你使用一张无距离次数限制的【杀】`,
+							choice: Math.random() > 0.5,
+						})
+						.forResult();
+					result.cards = hs;
+				} else {
+					result = await target
+						.chooseCard({
+							prompt: `掠阵：是否展示${num}张手牌，或者取消令${get.translation(player)}视为对你使用一张无距离次数限制的【杀】`,
+							selectCard: num,
+							position: "h",
+							ai(card) {
+								const { sourcex, player, cardx, num } = get.event();
+								if (
+									!sourcex.canUse(cardx, player, false, false) ||
+									!sourcex.hasSkill("mbhengwei") ||
+									get.effect(player, cardx, sourcex, player) > 0
+								) {
+									return 0;
+								}
+								const att = get.attitude(player, sourcex);
+								if (att > 0 || player.countCards("h", card => get.color(card) != "red") >= num) {
+									return get.color(card) == "red" ? Math.random() : Math.random() + 1;
+								}
+								return Math.random() - 0.5;
+							},
+						})
+						.set("sourcex", player)
+						.set("num", num)
+						.set("cardx", get.autoViewAs({ name: "sha", isCard: true }))
+						.forResult();
+				}
 				if (result?.bool) {
 					target.addMark("mblvezhen_show", 1, false);
 					return target.showCards(result.cards);

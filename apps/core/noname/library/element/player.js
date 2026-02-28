@@ -7621,7 +7621,7 @@ export class Player extends HTMLDivElement {
 			next.drawDeck = 1;
 		}
 		next.result = [];
-		next.gaintag = [];
+		next.gaintag ??= [];
 		return next;
 	}
 	/**

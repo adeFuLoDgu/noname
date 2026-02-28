@@ -165,7 +165,7 @@ window.noname_character_replace = {
 	liushan: ["liushan", "ol_liushan", "re_liushan", "huan_liushan", "pe_jun_liushan", "ol_le_liushan"],
 	liuxie: ["liuxie", "dc_sb_liuxie", "sp_liuxie", "std_liuxie", "hs_liuxie", "pe_jun_liuxie"],
 	liuyan: ["liuyan", "jsrg_liuyan", "junk_liuyan"],
-	liuye: ["dc_liuye", "liuye", "std_liuye"],
+	liuye: ["ol_liuye", "dc_liuye", "liuye", "std_liuye"],
 	liuyong: ["liuyong", "jsrg_liuyong"],
 	liuyu: ["liuyu", "ol_liuyu", "dc_liuyu"],
 	liuzan: ["re_liuzan", "liuzan", "std_liuzan"],

@@ -2,6 +2,168 @@ import { lib, game, ui, get, ai, _status } from "noname";
 
 /** @type { importCharacterConfig['skill'] } */
 const skills = {
+	//刘晔
+	olpingyuan: {
+		audio: 2,
+		trigger: {
+			player: ["enterGame", "phaseBegin"],
+			global: "phaseBefore",
+		},
+		filter(event, player, name) {
+			if (name == "phaseBegin") {
+				return true;
+			}
+			return event.name != "phase" || game.phaseNumber == 0;
+		},
+		async cost(event, trigger, player) {
+			if (!player.getEquip("ol_piliche")) {
+				const card = game.createCard2("ol_piliche", lib.suit.randomGet(), get.rand(1, 13));
+				if (!player.canEquip(card, true)) {
+					return;
+				}
+				event.result = await player
+					.chooseBool({
+						prompt: get.prompt(event.skill),
+						prompt2: `将${get.translation(card)}置于装备区（顶替原装备）并摸一张牌`,
+						choice: true,
+					})
+					.forResult();
+				event.result.cards = [card];
+			} else {
+				const choiceList = [`移动霹雳车`, "视为使用一张【杀】"];
+				const controls = [];
+				const bool1 = player.canMoveCard(void 0, true, player, card => get.name(card) == "ol_piliche");
+				const bool2 = player.hasUseTarget({ name: "sha", isCard: true }, void 0, false);
+				if (bool1) {
+					controls.push("选项一");
+				}
+				if (bool2) {
+					controls.push("选项二");
+				}
+				if (!controls.length) {
+					return;
+				}
+				const result = await player
+					.chooseControl({
+						controls: [...controls, "cancel2"],
+						choiceList,
+						choice: (() => {
+							const goon1 = player.canMoveCard(true, true, player, card => get.name(card) == "ol_piliche");
+							const goon2 = player.hasValueTarget({ name: "sha", isCard: true }, void 0, false);
+							if (!bool1) {
+								return goon2 ? 0 : 2;
+							}
+							if (!bool2) {
+								return goon1 ? 0 : 2;
+							}
+							return goon2 ? 1 : 2;
+						})(),
+						prompt: get.prompt(event.skill),
+						prompt2: "移动霹雳车或视为使用一张【杀】",
+					})
+					.forResult();
+				event.result = {
+					bool: result.control != "cancel2",
+					cost_data: {
+						index: ["选项一", "选项二"].indexOf(result.control),
+					},
+				};
+			}
+		},
+		async content(event, trigger, player) {
+			const { cards } = event;
+			if (cards?.length) {
+				await player.equip(cards[0]);
+				await player.draw();
+			} else {
+				const { index } = event.cost_data;
+				if (index == 0) {
+					await player.moveCard({ forced: true, sourceTargets: [player], filter: card => get.name(card) == "ol_piliche" });
+				} else {
+					await player.chooseUseTarget({
+						card: get.autoViewAs({ name: "sha", isCard: true }),
+						forced: true,
+						addCount: false,
+					});
+				}
+			}
+		},
+	},
+	olliaoyi: {
+		audio: 2,
+		trigger: {
+			global: "useCard",
+		},
+		filter(event, player) {
+			const target = _status.currentPhase;
+			return (
+				target == event.player &&
+				!player.getStorage("olliaoyi_used").includes(target) &&
+				target.getHistory("useCard", evt => evt.targets.includes(player)).indexOf(event) == 0
+			);
+		},
+		logTarget: () => _status.currentPhase,
+		async cost(event, trigger, player) {
+			const target = _status.currentPhase;
+			const choiceList = ["摸一张牌", `令${get.translation(trigger.card)}对你无效`];
+			const result = await player
+				.chooseControl({
+					controls: ["cancel2"],
+					choiceList,
+					prompt: get.prompt2(event.skill, target),
+					choice: get.effect(player, trigger.card, target, player) >= 0 ? 0 : 1,
+				})
+				.forResult();
+			event.result = {
+				bool: result.control != "cancel2",
+				cost_data: {
+					index: result.index,
+				},
+			};
+		},
+		async content(event, trigger, player) {
+			const {
+				cost_data: { index },
+				targets: [target],
+			} = event;
+			player.addSkill(`${event.name}_used`);
+			player.markAuto(`${event.name}_used`, target);
+			if (index == 0) {
+				await player.draw();
+			} else {
+				game.log(trigger.card, "对", player, "无效");
+				trigger.excluded.add(player);
+			}
+		},
+		subSkill: {
+			used: {
+				charlotte: true,
+				onremove: true,
+				intro: {
+					content: "已触发过目标：$",
+				},
+			},
+		},
+	},
+	ol_piliche: {
+		equipSkill: true,
+		trigger: {
+			source: "damageSource",
+		},
+		filter(event, player) {
+			return event.player != player && event.player.countDiscardableCards(player, "hej") > 0;
+		},
+		check(event, player) {
+			return get.effect(event.player, { name: "guohe_copy" }, player, player) > 0;
+		},
+		logTarget: "player",
+		async content(event, trigger, player) {
+			const {
+				targets: [target],
+			} = event;
+			await player.discardPlayerCard({ target, position: "hej", forced: true });
+		},
+	},
 	//曹金玉
 	olchunhui: {
 		audio: 2,
