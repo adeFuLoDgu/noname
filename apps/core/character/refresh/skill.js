@@ -15413,76 +15413,43 @@ const skills = {
 		trigger: { player: "phaseZhunbeiBegin" },
 		frequent: true,
 		async content(event, trigger, player) {
-			// step 0
 			player.addTempSkill("reluoshen_add");
-			event.cards = [];
-
-			// step 1
-			let result;
-			const next = player.judge(function (card) {
-				if (get.color(card) == "black") {
-					return 1.5;
-				}
-				return -1.5;
-			});
-			next.judge2 = function (result) {
-				return result.bool;
-			};
-
-			let card;
-			if (get.mode() != "guozhan" && !player.hasSkillTag("rejudge")) {
-				next.set("callback", function () {
-					if (event.judgeResult.color == "black" && get.position(card, true) == "o") {
-						player.gain(card, "gain2").gaintag.add("reluoshen");
-					}
-				});
-			} else {
-				next.set("callback", function () {
-					if (event.judgeResult.color == "black") {
-						event.getParent().orderingCards.remove(card);
-					}
-				});
-			}
-
-			result = await next.forResult();
-
-			// step 2
+			event.cards ??= [];
 			while (true) {
-				if (result.bool) {
+				const judgeEvent = player.judge(card => {
+					if (get.color(card) == "black") {
+						return 1.5;
+					}
+					return -1.5;
+				});
+				judgeEvent.judge2 = result => result.bool;
+				if (get.mode() != "guozhan" && !player.hasSkillTag("rejudge")) {
+					judgeEvent.set("callback", async event => {
+						if (event.judgeResult.color == "black" && get.position(event.card, true) == "o") {
+							await player.gain(event.card, "gain2");
+						}
+					});
+				} else {
+					judgeEvent.set("callback", async event => {
+						if (event.judgeResult.color == "black") {
+							event.getParent().orderingCards.remove(event.card);
+						}
+					});
+				}
+				let result;
+				result = await judgeEvent.forResult();
+				if (result?.bool && result?.card) {
 					event.cards.push(result.card);
-					const continueResult = await player.chooseBool("是否再次发动【洛神】？").set("frequentSkill", "reluoshen").forResult();
-
-					// step 3
-					if (continueResult.bool) {
-						result = await next.forResult();
-					} else {
-						for (let i = 0; i < event.cards.length; i++) {
-							if (get.position(event.cards[i], true) != "o") {
-								event.cards.splice(i, 1);
-								i--;
-							}
-						}
-						if (event.cards.length) {
-							const next = player.gain(event.cards, "gain2");
-							next.gaintag.add("reluoshen");
-							await next;
-						}
+					result = await player.chooseBool("是否再次发动【洛神】？").set("frequentSkill", "luoshen").forResult();
+					if (!result?.bool) {
 						break;
 					}
 				} else {
-					for (let i = 0; i < event.cards.length; i++) {
-						if (get.position(event.cards[i], true) != "o") {
-							event.cards.splice(i, 1);
-							i--;
-						}
-					}
-					if (event.cards.length) {
-						const next = player.gain(event.cards, "gain2");
-						next.gaintag.add("reluoshen");
-						await next;
-					}
 					break;
 				}
+			}
+			if (event.cards.someInD()) {
+				await player.gain(event.cards.filterInD(), "gain2");
 			}
 		},
 		subSkill: {
@@ -15725,7 +15692,7 @@ const skills = {
 			await player.discard(cards);
 			event.num = 1;
 			const hs = player.getCards("h");
-			if (!hs.length) {
+			if (hs.length > 0) {
 				event.num = 0;
 			}
 			for (let i = 0; i < hs.length; i++) {

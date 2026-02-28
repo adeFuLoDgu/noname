@@ -13562,12 +13562,21 @@ const skills = {
 		async content(event, trigger, player) {
 			player.removeMark("renjie", 1);
 
-			const playerCards = player.getCards("h");
-			const discardingCards = event.cards;
-			await player.discard(discardingCards);
+			const { cards } = event;
+			await player.discard(cards);
+			event.num = 1;
+			const hs = player.getCards("h");
+			if (hs.length > 0) {
+				event.num = 0;
+			}
+			for (let i = 0; i < hs.length; i++) {
+				if (!cards.includes(hs[i])) {
+					event.num = 0;
+					break;
+				}
+			}
 
-			const extraNum = discardingCards.every(card => playerCards.includes(card)) ? 1 : 0;
-			await player.draw(event.num + discardingCards.length);
+			await player.draw(event.num + cards.length);
 		},
 		ai: {
 			order(item, player) {
