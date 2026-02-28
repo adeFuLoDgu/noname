@@ -1,4 +1,10 @@
 const characters = {
+	ol_liuye: {
+		sex: "male",
+		group: "wei",
+		hp: 3,
+		skills: ["olpingyuan", "olliaoyi"],
+	},
 	ol_caojinyu: {
 		sex: "female",
 		group: "wei",
