@@ -787,6 +787,7 @@ function initSheet() {
 async function loadConfig() {
 	lib.config = await lib.init.promises.json(lib.assetURL + "game/config.json");
 	let Character_bannedList = [
+		"bianhuanzhishen",
 		"bozai",
 		"bulianshi",
 		"caocao",
@@ -805,6 +806,7 @@ async function loadConfig() {
 		"ganning",
 		"gaoshun",
 		"goblin",
+		"gongbaiwan",
 		"gongsunzan",
 		"guanping",
 		"guanyu",
@@ -823,6 +825,8 @@ async function loadConfig() {
 		"jiangwei",
 		"jsp_huangyueying",
 		"jsp_liubei",
+		"juezezhishen",
+		"keaizhishen",
 		"liaohua",
 		"lingtong",
 		"liru",
@@ -836,8 +840,10 @@ async function loadConfig() {
 		"manchong",
 		"masu",
 		"mayunlu",
+		"meituizhishen"
 		"menghuo",
 		"new_caoren",
+		"nizhuanzhishen",
 		"ol_huaxiong",
 		"ol_liaohua",
 		"ol_yuanshu",
@@ -889,6 +895,7 @@ async function loadConfig() {
 		"shinin_ruiji",
 		"shinin_wuguotai",
 		"shinin_zhenji",
+		"shuimianzhishen",
 		"simayi",
 		"sp_jiaxu",
 		"sp_zhangjiao",
@@ -900,6 +907,8 @@ async function loadConfig() {
 		"sunshangxiang",
 		"sunxiu",
 		"taishici",
+		"tizhongzhishen",
+		"weiquzhishen",
 		"weiyan",
 		"wuguotai",
 		"xiahoudun",
