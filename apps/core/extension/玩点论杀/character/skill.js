@@ -443,7 +443,7 @@ const skills = {
 				source: trigger.player,
 				evt: trigger,
 			};
-			await trigger.target.useCard({ name: "youdishenru" });
+			await trigger.target.useCard({ name: "youdishenru", isCard: true }, trigger.target);
 		},
 	},
 	jinyan: {
