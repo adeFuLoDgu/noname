@@ -39118,7 +39118,7 @@ const skills = {
 				async content(event, trigger, player) {
 					const card = { name: "sha", isCard: true };
 					if (player.hasUseTarget(card)) {
-						await player.chooseUseTarget(card);
+						await player.chooseUseTarget(card, false);
 					}
 				},
 			},

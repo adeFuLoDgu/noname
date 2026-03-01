@@ -11893,7 +11893,7 @@ const skills = {
 		},
 		forced: true,
 		logTarget(event, player) {
-			return event.targets.filter(i => i !== player && !player.getStorage("twodcspzhuiji_buff").includes(i));
+			return event.targets?.filter(i => i !== player && !player.getStorage("twodcspzhuiji_buff").includes(i));
 		},
 		async content(event, trigger, player) {
 			player.addTempSkill("twodcspzhuiji_buff");
