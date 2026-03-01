@@ -53,6 +53,7 @@ const _zhanfa = {
 		},
 		filterBan: () => true,
 	},
+	//巧器
 	zf_qiaoqi: {
 		rarity: "common",
 		translate: "巧器",
