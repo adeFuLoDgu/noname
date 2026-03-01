@@ -48,6 +48,7 @@ const skills = {
 				evt => {
 					return evt.player == player && evt.name == "sxrmhanguo";
 				},
+				void 0,
 				1
 			);
 			if (!historys.length) {

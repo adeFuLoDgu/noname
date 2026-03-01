@@ -2200,7 +2200,7 @@ const skills = {
 		},
 		check: () => true,
 		async content(event, trigger, player) {
-			await player.draw(3);
+			await player.draw({ num: 4 });
 			const getCards = suit => player.getDiscardableCards(player, "h", { suit: suit });
 			const suits = lib.suit.filter(suit => getCards(suit).length > 0);
 			if (suits.length) {
@@ -2208,15 +2208,19 @@ const skills = {
 				const types = hs.map(card => get.type2(card)).unique();
 				const choice = suits.slice().sort((a, b) => get.value(getCards(a)) - get.value(getCards(b)))[0];
 				const result = await player
-					.chooseControl(suits)
-					.set("prompt", `谟猷：请弃置一种花色的所有手牌`)
+					.chooseControl({
+						controls: suits,
+						prompt: "谟猷：请弃置一种花色的所有手牌",
+						ai() {
+							return get.event().suit;
+						},
+					})
 					.set("suit", choice)
-					.set("ai", () => get.event().suit)
 					.forResult();
 				if (result?.control) {
 					const suit = result.control;
 					const cards = getCards(suit);
-					await player.discard(cards);
+					await player.discard({ cards });
 					if (
 						!player
 							.getCards("h")
@@ -2297,13 +2301,16 @@ const skills = {
 			global: ["cardsDiscardAfter", "loseAsyncAfter"],
 		},
 		filter(event, player) {
+			const discard = event.getd(player, "cards2").filter(card => get.type(card) != "equip");
+			if (!discard.length) {
+				return false;
+			}
 			if (event.type == "discard") {
 				return true;
 			}
-			return get.info("dcsbshiao").isDamaged(event, player);
+			return get.info("dcsbshiao").isDamaged(discard);
 		},
-		isDamaged(event, player) {
-			const cards = event.getd(player, "cards2");
+		isDamaged(cards) {
 			const damageCards = game
 				.getAllGlobalHistory("changeHp", evt => evt.getParent()?.name == "damage" && evt.getParent().cards?.length)
 				.flatMap(evt => evt.getParent().cards);
@@ -2312,13 +2319,17 @@ const skills = {
 		forced: true,
 		async content(event, trigger, player) {
 			player.addTempSkill(`${event.name}_draw`);
-			if (get.info(event.name).isDamaged(trigger, player)) {
-				player.storage[`${event.name}_draw`]++;
+			const discard = trigger.getd(player, "cards2").filter(card => get.type(card) != "equip");
+			let num = player.getStorage(`${event.name}_draw`, 0);
+			if (get.info(event.name).isDamaged(discard)) {
+				game.log(player, "的摸牌数+1");
+				num++;
 			}
 			if (trigger.type == "discard") {
-				player.storage[`${event.name}_draw`]--;
+				game.log(player, "的摸牌数-1");
+				num--;
 			}
-			player.markSkill(`${event.name}_draw`);
+			player.setStorage(`${event.name}_draw`, num, true);
 		},
 		subSkill: {
 			draw: {
@@ -30568,7 +30579,12 @@ const skills = {
 			["受到X点伤害", "弃置X张牌", "翻面并横置", "随机执行一个已经移除过的选项"],
 		],
 		filterx: [
-			[() => true /*player => player.isDamaged()*/, () => true, /*player => player.isTurnedOver() || player.isLinked()*/() => true, () => true],
+			[
+				() => true /*player => player.isDamaged()*/,
+				() => true,
+				/*player => player.isTurnedOver() || player.isLinked()*/ () => true,
+				() => true,
+			],
 			[
 				() => true,
 				/*player =>
@@ -30601,7 +30617,7 @@ const skills = {
 			}
 			str += "。";
 			num++;
-			str = str.replace(/X/g, function(match, index) {
+			str = str.replace(/X/g, function (match, index) {
 				return get.cnNumber(num++);
 			});
 			event.result = await player
@@ -30628,7 +30644,12 @@ const skills = {
 			if (index == 0) {
 				const list = [];
 				const getStr = num => get.cnNumber(num);
-				let choiceList = ["回复" + getStr(num + 1) + "点体力。", "摸" + getStr(num + 2) + "张牌。", "将武将牌翻至正面且重置。", "随机执行一个已经被移除的选项。"];
+				let choiceList = [
+					"回复" + getStr(num + 1) + "点体力。",
+					"摸" + getStr(num + 2) + "张牌。",
+					"将武将牌翻至正面且重置。",
+					"随机执行一个已经被移除的选项。",
+				];
 				const storage = player.storage.caiyi_info[event.index];
 				for (let i = 0; i < 4; i++) {
 					if (storage.includes(i)) {
@@ -30657,7 +30678,8 @@ const skills = {
 								let max = 0,
 									func = {
 										选项一(current) {
-											max = get.recoverEffect(current, player, player) * Math.min(evt.getParent().num + 1, player.getDamagedHp());
+											max =
+												get.recoverEffect(current, player, player) * Math.min(evt.getParent().num + 1, player.getDamagedHp());
 										},
 										选项二(target) {
 											max = get.effect(target, { name: "draw" }, player, player) * (evt.getParent().num + 2);
@@ -30709,7 +30731,12 @@ const skills = {
 			} else if (index == 1) {
 				const list = [];
 				const getStr = num => get.cnNumber(num);
-				let choiceList = ["受到" + getStr(num + 1) + "点伤害。", "弃置" + getStr(num + 2) + "张牌。", "将武将牌翻至背面并横置。", "随机执行一个已经被移除的选项。"];
+				let choiceList = [
+					"受到" + getStr(num + 1) + "点伤害。",
+					"弃置" + getStr(num + 2) + "张牌。",
+					"将武将牌翻至背面并横置。",
+					"随机执行一个已经被移除的选项。",
+				];
 				const storage = player.storage.caiyi_info[event.index];
 				for (let i = 0; i < 4; i++) {
 					if (storage.includes(i)) {

@@ -5,9 +5,213 @@ const skills = {
 	//乐诸葛亮
 	oljiangwu: {
 		audio: 2,
+		forced: true,
+		zhanfaMap: (() => {
+			const list = lib.zhanfa.getList();
+			const map = Object.groupBy(list, i => lib.zhanfa.getRarity(i, true));
+			return map;
+		})(),
+		trigger: { global: ["roundStart", "roundEnd"] },
+		filter(event, player) {
+			if (event.name == "phase") {
+				return game.roundNumber == 1;
+			}
+			return true;
+		},
+		async content(event, trigger, player) {
+			const isCost = trigger.name != "phase";
+			const map = get.info(event.name).zhanfaMap;
+			const gainMap = {
+				rare: map["rare"].filter(i => !player.hasZhanfa(i)).randomGets(2),
+				epic: map["epic"].filter(i => !player.hasZhanfa(i)).randomGets(2),
+				legend: map["legend"].filter(i => !player.hasZhanfa(i)).randomGets(2),
+			};
+			if (player.isUnderControl()) {
+				game.swapPlayerAuto(player);
+			}
+			const videoId = lib.status.videoId++;
+			const createDialog = (player, isCost, gainMap, videoId) => {
+				const dialog = ui.create.dialog(`讲武：${!isCost ? "获得三个不同价值的战法" : "请选择要购买的战法"}`);
+				dialog.videoId = videoId;
+				const getCost = rarity => {
+					return { rare: 1, epic: 2, legend: 3 }[rarity];
+				};
+				const num = 6;
+				const column = num;
+				const width = column * 120;
+				dialog.css({
+					top: get.is.phoneLayout() ? "20%" : "45%",
+					width: `${width}px`,
+					left: `50%`,
+					marginLeft: `-${width / 2}px`,
+				});
+				const contentx = ui.create.div(".content", dialog.content);
+				contentx.css({
+					display: "grid",
+					gridTemplateColumns: `repeat(${column}, 1fr)`,
+					width: "fit-content",
+					margin: "0 auto",
+					justifyItems: "center",
+					alignItems: "start",
+				});
+				for (const i in gainMap) {
+					for (const j of gainMap[i]) {
+						const div = ui.create.div(".buttons", contentx);
+						const button = ui.create.button([`zf_${i}`, null, j], "vcard", div);
+						div.css({
+							display: "flex",
+							flexDirection: "column",
+							alignItems: "center",
+						});
+						button.style.setProperty("opacity", "1");
+						const cost = getCost(i);
+						const purchase = ui.create.button([[cost, i, j, button], `${cost}虎符`], "tdnodes", div);
+						dialog.buttons = dialog.buttons.concat([purchase]);
+					}
+				}
+				return dialog;
+			}
+			if (player.isOnline2()) {
+				player.send(createDialog, player, isCost, gainMap, videoId);
+			} else {
+				createDialog(player, isCost, gainMap, videoId);
+			}
+			const selectedRarity = [];
+			while(true) {
+				const result = await player
+					.chooseButton({
+						forced: !isCost,
+						filterButton(button) {
+							const { isCost, player, selectedRarity } = get.event();
+							const [cost, rarity] = button.link;
+							if (!isCost) {
+								return !selectedRarity.includes(rarity);
+							} else if (player.hasMark("olxinghan_nocost")) {
+								return true;
+							} else {
+								return player.countMark("danqi_hufu") >= cost;
+							}
+						},
+						ai(button) {
+							const val = get.value({ name: button.link[2] });
+							if (!get.event().isCost) {
+								return val;
+							}
+							return val - 6;
+						},
+					})
+					.set("dialog", videoId)
+					.set("closeDialog", false)
+					.set("selectedRarity", selectedRarity)
+					.set("isCost", isCost)
+					.set("custom", {
+						add: {
+							button() {
+								if (!ui.selected.buttons.length) {
+									return;
+								}
+								const event = get.event();
+								const { dialog } = event;
+								const last = ui.selected.buttons[0];
+								const [cost, rarity, id, button] = last.link;
+								dialog.buttons.remove(last);
+								last.classList.remove("selectable");
+								last.innerHTML = "<span>已购买</span>";
+								button.style.setProperty("opacity", "0.5");
+							},
+						},
+						replace: {
+							window() {},
+						},
+					})
+					.forResult();
+				if (result.bool && result.links?.length) {
+					const { links } = result;
+					const [cost, rarity, id] = result.links[0];
+					if (!isCost) {
+						selectedRarity.add(rarity);
+					} else if (player.hasMark("olxinghan_nocost")) {
+						player.removeMark("olxinghan_nocost", 1, false);
+					} else {
+						player.removeMark("danqi_hufu", cost);
+					}
+					player.addZhanfa(id);
+					if (selectedRarity.length == 3) {
+						break;
+					}
+				} else {
+					break;
+				}
+			}
+			game.broadcastAll("closeDialog", videoId);
+		},
+		group: ["oljiangwu_hufu"],
+		subSkill: {
+			hufu: {
+				audio: "oljiangwu",
+				forced: true,
+				trigger: { global: "phaseEnd" },
+				async content(event, trigger, player) {
+					player.addMark("danqi_hufu");
+				},
+			},
+		},
 	},
 	olxinghan: {
 		audio: 2,
+		limited: true,
+		enable: "phaseUse",
+		filter(event, player) {
+			return player.getStorage("zhanfa").length > 0;
+		},
+		chooseButton: {
+			dialog(event, player) {
+				const dialog = ui.create.dialog("兴汉：请选择要移去的战法", "hidden");
+				dialog.add([player.getStorage("zhanfa").map(i => [lib.zhanfa.getRarity(i), null, i]), "vcard"]);
+				return dialog;
+			},
+			select: [1, Infinity],
+			check(button) {
+				const card = { name: button.link[2] };
+				if (ui.selected.buttons.length < 2) {
+					return 7.5 - get.value(card);
+				} else {
+					return 6 - get.value(card);
+				}
+			},
+			backup(links, player) {
+				return {
+					links: links.map(i => i[2]),
+					audio: "olxinghan",
+					skillAnimation: true,
+					animationColor: "orange",
+					async content(event, trigger, player) {
+						player.awakenSkill("olxinghan");
+						const { links } = get.info(event.name);
+						links.forEach(i => player.removeZhanfa(i));
+						player.addMark("olxinghan_nocost", links.length, false);
+						["zf_dongfeng", "zf_qiaoqi"].slice(0, links.length).forEach(i => player.addZhanfa(i));
+					},
+				};
+			},
+		},
+		ai: {
+			combo: "oljiangwu",
+			order: 10,
+			result: {
+				player: 1,
+			},
+		},
+		subSkill: {
+			nocost: {
+				charlotte: true,
+				onremove: true,
+				intro: {
+					content: "购买的下#个战法无消耗",
+				},
+			},
+			backup: {},
+		},
 	},
 	//宫百万
 	dchaoshi: {
