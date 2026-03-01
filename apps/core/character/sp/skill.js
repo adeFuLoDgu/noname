@@ -32872,15 +32872,7 @@ const skills = {
 								const { list, skillMap } = get.event();
 								//算出来需要多少列，最多八列
 								const num = 8;
-								//const row = Math.ceil(list.length / num);
 								const column = Math.min(list.length, num);
-								const width = column * 120;
-								dialog.css({
-									top: "20%",
-									width: `${width}px`,
-									left: `50%`,
-									marginLeft: `-${width / 2}px`,
-								});
 								//重新创建一个容器，不然css之后会导致dialog.content内的其他元素也加入到布局中
 								const contentx = ui.create.div(".content", dialog.content);
 								contentx.css({

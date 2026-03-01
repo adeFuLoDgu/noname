@@ -23,7 +23,7 @@ const _zhanfa = {
 		translate: "东风",
 		info: "当你造成属性伤害后，本轮你造成的属性伤害+1",
 		card: {
-			ai: { basic: { value: 7.2 } }
+			ai: { basic: { value: 7.2 } },
 		},
 		skill: {
 			forced: true,
@@ -31,10 +31,11 @@ const _zhanfa = {
 				source: "damageSource",
 			},
 			filter(event, player) {
-				return event.hasNature() && !player.hasSkill("zf_dongfeng_damage");
+				return event.hasNature();
 			},
 			async content(event, trigger, player) {
 				player.addTempSkill(`${event.name}_damage`, "roundStart");
+				player.addMark(`${event.name}_damage`, 1, false);
 			},
 			subSkill: {
 				damage: {
@@ -43,13 +44,16 @@ const _zhanfa = {
 					filter(event, player) {
 						return event.hasNature();
 					},
-					mark: true,
+					num(event, trigger, player) {
+						return player.countMark(event.name);
+					},
+					onremove: true,
 					markimage: "image/zhanfa/zf_dongfeng.png",
 					intro: {
-						content: "造成的属性伤害+1",
-					}
-				}
-			}
+						content: "造成的属性伤害+#",
+					},
+				},
+			},
 		},
 		filterBan: () => true,
 	},
