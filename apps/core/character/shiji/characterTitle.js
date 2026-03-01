@@ -1,4 +1,11 @@
 export default {
+	mb_shen_jiangwei: "万民承霖",//烟雨济世即为神！
+	shen_huatuo: "悬壶济世",
+	shen_lusu: "兴吴之邓禹",
+	shen_guojia: "星月奇佐",
+	shen_xunyu: "洞心先识",
+	shen_taishici: "义信天武",
+	shen_sunce: "踞江鬼雄",
 	sp_wangcan: "词章纵横",
 	sp_chenzhen: "歃盟使节",
 	sp_sunshao: "创基抉政",

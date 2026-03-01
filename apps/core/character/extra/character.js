@@ -1,10 +1,4 @@
 const characters = {
-	mb_shen_jiangwei: {
-		sex: "male",
-		group: "shen",
-		hp: 4,
-		skills: ["mbtiantao","mbxinghun","mbshenpei"],
-	},
 	sm_shen_machao: {
 		sex: "male",
 		group: "shen",
@@ -231,20 +225,6 @@ const characters = {
 		skills: ["zhengqing", "zhuangpo"],
 		groupInGuozhan: "wei",
 	},
-	shen_lusu: {
-		sex: "male",
-		group: "shen",
-		hp: 3,
-		skills: ["tamo", "dingzhou", "zhimeng"],
-		groupInGuozhan: "wu",
-	},
-	shen_huatuo: {
-		sex: "male",
-		group: "shen",
-		hp: 3,
-		skills: ["wuling", "youyi"],
-		groupInGuozhan: "qun",
-	},
 	le_shen_jiaxu: {
 		sex: "male",
 		group: "shen",
@@ -317,37 +297,6 @@ const characters = {
 		groupInGuozhan: "shu",
 	},
 
-	shen_sunce: {
-		sex: "male",
-		group: "shen",
-		hp: 1,
-		maxHp: 6,
-		skills: ["yingba", "scfuhai", "pinghe"],
-		groupInGuozhan: "wu",
-	},
-	shen_xunyu: {
-		sex: "male",
-		group: "shen",
-		hp: 3,
-		skills: ["tianzuo", "lingce", "dinghan"],
-		groupInGuozhan: "wei",
-		clans: ["颍川荀氏"],
-	},
-	shen_taishici: {
-		sex: "male",
-		group: "shen",
-		hp: 4,
-		skills: ["dulie", "tspowei"],
-		groupInGuozhan: "wu",
-		names: "太史|慈",
-	},
-	shen_guojia: {
-		sex: "male",
-		group: "shen",
-		hp: 3,
-		skills: ["reshuishi", "stianyi", "resghuishi"],
-		groupInGuozhan: "wei",
-	},
 	shen_diaochan: {
 		sex: "female",
 		group: "shen",
