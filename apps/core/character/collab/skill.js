@@ -836,6 +836,7 @@ const skills = {
 	//绝影
 	mbjiguan: {
 		audio: 2,
+		audioname: ["mb_dilu"],
 		trigger: {
 			global: "phaseBefore",
 			player: "enterGame",
