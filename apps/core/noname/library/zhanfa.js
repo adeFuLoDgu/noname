@@ -18,41 +18,45 @@ const _zhanfa = {
 	},*/
 	//两个乐诸葛亮专属战法
 	//东风
-	zf_dongfeng: {
-		rarity: "common",
-		translate: "东风",
-		info: "当你造成属性伤害后，本轮你造成的属性伤害+1",
-		card: {
-			ai: { basic: { value: 7.2 } }
-		},
-		skill: {
-			forced: true,
-			trigger: {
-				source: "damageSource",
-			},
-			filter(event, player) {
-				return event.hasNature() && !player.hasSkill("zf_dongfeng_damage");
-			},
-			async content(event, trigger, player) {
-				player.addTempSkill(`${event.name}_damage`, "roundStart");
-			},
-			subSkill: {
-				damage: {
-					inherit: "zf_anyDamage",
-					charlotte: true,
-					filter(event, player) {
-						return event.hasNature();
-					},
-					mark: true,
-					markimage: "image/zhanfa/zf_dongfeng.png",
-					intro: {
-						content: "造成的属性伤害+1",
-					}
-				}
-			}
-		},
-		filterBan: () => true,
-	},
+zf_dongfeng: {
+        rarity: "common",
+        translate: "东风",
+        info: "当你造成属性伤害后，本轮你造成的属性伤害+1",
+        card: {
+            ai: { basic: { value: 7.2 } },
+        },
+        skill: {
+            forced: true,
+            trigger: {
+                source: "damageSource",
+            },
+            filter(event, player) {
+                return event.hasNature();
+            },
+            async content(event, trigger, player) {
+                player.addTempSkill(`${event.name}_damage`, "roundStart");
+                player.addMark(`${event.name}_damage`, 1, false);
+            },
+            subSkill: {
+                damage: {
+                    inherit: "zf_anyDamage",
+                    charlotte: true,
+                    filter(event, player) {
+                        return event.hasNature();
+                    },
+                    num(event, trigger, player) {
+                        return player.countMark(event.name);
+                    },
+                    onremove: true,
+                    markimage: "image/zhanfa/zf_dongfeng.png",
+                    intro: {
+                        content: "造成的属性伤害+#",
+                    },
+                },
+            },
+        },
+        filterBan: () => true,
+    },
 	//巧器
 	zf_qiaoqi: {
 		rarity: "common",
