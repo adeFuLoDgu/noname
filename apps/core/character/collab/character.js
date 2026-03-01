@@ -85,7 +85,7 @@ const characters = {
 		sex: "male",
 		group: "qun",
 		hp: 4,
-		skills: ["mbjunkui", "mbyuetan"],
+		skills: ["mbjiguan", "mbyuetan"],
 	},
 	mb_muniu: {
 		sex: "male",

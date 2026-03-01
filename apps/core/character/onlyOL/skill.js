@@ -41,9 +41,9 @@ const skills = {
 					target,
 					forced: true,
 					position: "h",
-					filterButton(button) {
+					ai(button) {
 						const { types } = get.event();
-						return types.indexOf(get.type2(button.link)) + 1;
+						return types.indexOf(get.type2(button.link)) + 2;
 					},
 				})
 				.set("types", types)
