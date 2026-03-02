@@ -3092,7 +3092,7 @@ const skills = {
 		},
 		group: "olshanjia_init",
 		intro: {
-			name: "败甲",
+			name: "损",
 			content: "mark",
 		},
 		subSkill: {
