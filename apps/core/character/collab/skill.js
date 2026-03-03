@@ -6,6 +6,7 @@ const skills = {
 	oljiangwu: {
 		audio: 2,
 		forced: true,
+		//要自定义战法池子的可以改这个（）
 		zhanfaMap: (() => {
 			const list = lib.zhanfa.getList();
 			const map = Object.groupBy(list, i => lib.zhanfa.getRarity(i, true));
@@ -19,6 +20,309 @@ const skills = {
 			return true;
 		},
 		async content(event, trigger, player) {
+			//判断是不是首轮的变量，后面有大用（）
+			const isFirst = trigger.name == "phase";
+			const targets = [player];
+			//真人和人机区分开，人机优先执行
+			const locals = targets.slice();
+			const humans = targets.filter(current => current === game.me || current.isOnline());
+			locals.removeArray(humans);
+			const map = get.info(event.name).zhanfaMap;
+			//分配好每个人的“商品”
+			const shopMap = new Map();
+			targets.forEach(target => {
+				shopMap.set(target, {
+					rare: map["rare"]
+						.concat(map["common"])
+						.filter(i => !player.hasZhanfa(i))
+						.randomGets(2),
+					epic: map["epic"].filter(i => !player.hasZhanfa(i)).randomGets(2),
+					legend: map["legend"].filter(i => !player.hasZhanfa(i)).randomGets(2),
+				});
+			});
+			//所有对话框都应该分配同一个id
+			const videoId = lib.status.videoId++;
+			const chooseButton = (player, shopMap, isFirst, videoId) => {
+				const map = shopMap.get(player);
+				//创建神秘对话框
+				const dialog = ui.create.dialog(
+					...[
+						[[`讲武：${isFirst ? "获得三个不同价值的战法" : "请选择要购买的战法"}`], "addNewRow"],
+						[
+							dialog => {
+								const getCost = rarity => {
+									return { rare: 1, epic: 2, legend: 3 }[rarity];
+								};
+								const column = 6;
+								const contentx = ui.create.div(".content", dialog.content);
+								//另外创建一个容器修改布局，避免把提示也纳入布局中
+								contentx.css({
+									display: "grid",
+									gridTemplateColumns: `repeat(${column}, 1fr)`,
+									width: "fit-content",
+									margin: "0 auto",
+									justifyItems: "center",
+									alignItems: "start",
+								});
+								//每个图片和tdnodes跟算一组buttons且按列分布；再作为子元素放进新容器
+								for (const rarity in map) {
+									for (const id of map[rarity]) {
+										const div = ui.create.div(".buttons", contentx);
+										const button = ui.create.button([`zf_${rarity}`, null, id], "vcard", div);
+										div.css({
+											display: "flex",
+											flexDirection: "column",
+											alignItems: "center",
+										});
+										//让战法卡牌强制亮起
+										button.style.setProperty("opacity", "1");
+										const cost = getCost(rarity);
+										const purchase = ui.create.button([[cost, rarity, id, button], `${cost}虎符`], "tdnodes", div);
+										dialog.buttons = dialog.buttons.concat([purchase]);
+									}
+								}
+							},
+							"handle",
+						],
+					]
+				);
+				//id千万别忘了
+				dialog.videoId = videoId;
+				//主机视角的人机记得隐藏对话框，不然遇到美化可能喜提一堆棍母对话框（）
+				if (player != game.me) {
+					dialog.style.display = "none";
+				}
+				//真正执行选择的部分
+				const next = player.chooseButton({
+					dialog,
+					filterButton(button) {
+						const { isFirst, player, selectedZhanfa } = get.event();
+						const [cost, rarity, id] = button.link;
+						if (isFirst) {
+							//开局不能选相同价值的战法
+							return !selectedZhanfa.some(i => i.link[1] == rarity);
+						} else if (player.hasMark("olxinghan_nocost")) {
+							return true;
+						} else {
+							return player.countMark("danqi_hufu") >= cost;
+						}
+					},
+					ai(button) {
+						//ai优先拿高价值（
+						const val = get.value({ name: button.link[2] });
+						if (get.event().isFirst) {
+							return val;
+						}
+						return val - 6;
+					},
+					processAI() {
+						//processAI模拟点击行为；牢鬼不要再骂了喵
+						const { dialog } = get.event();
+						let result = { bool: false, links: [] };
+						game.check();
+						while (ai.basic.chooseButton(get.event().ai)) {
+							ui.click.ok();
+							if (get.selectableButtons().length) {
+								game.check();
+							} else {
+								break;
+							}
+						}
+						const { selectedZhanfa } = get.event();
+						if (selectedZhanfa.length) {
+							result = { buttons: selectedZhanfa, confirm: "ok", bool: true, links: selectedZhanfa.map(i => i.link.slice(1, 3)) };
+						}
+						return result;
+					},
+					selectButton: isFirst ? 1 : [0, 1],
+					forced: true,
+				});
+				next.set("closeDialog", false);
+				//是否继续选择，false则直接结束事件
+				next.set("goon", !isFirst ? () => true : event => event.selectedZhanfa.length < 3);
+				next.set("_global_waiting", true);
+				next.set("isFirst", isFirst);
+				//另外用来存已经选择过的按钮，因为ui.selected.buttons每次确认后都会移除，不能作为最终结果
+				next.set("selectedZhanfa", []);
+				next.set("custom", {
+					//覆盖点击逻辑实现一个chooseButton事件多次点击确认
+					replace: {
+						window() {},
+						button(button) {
+							if (!_status.event.isMine()) {
+								return;
+							}
+							if (button.classList.contains("selectable") == false) {
+								return;
+							}
+							if (button.classList.contains("selected")) {
+								ui.selected.buttons.remove(button);
+								button.classList.remove("selected");
+							} else {
+								button.classList.add("selected");
+								ui.selected.buttons.add(button);
+							}
+							game.check();
+						},
+						confirm(bool) {
+							const event = get.event();
+							const resume = () => {
+								if (ui.confirm) {
+									ui.confirm.close();
+								}
+								event.result = {
+									buttons: event.selectedZhanfa.slice(),
+									/*cards: ui.selected.cards.slice(),
+									targets: ui.selected.targets.slice(),*/
+									confirm: "ok",
+									bool: true,
+									links: event.selectedZhanfa.map(i => i.link.slice(1, 3)),
+								};
+								game.uncheck();
+								game.resume();
+							};
+							if (bool == true) {
+								const { player, goon, dialog, isFirst } = event;
+								const button = ui.selected.buttons.slice().reverse()[0];
+								if (button && !event.selectedZhanfa.includes(button)) {
+									const [cost, rarity, id, buttonx] = button.link;
+									event.selectedZhanfa.add(button);
+									//移除按钮，同时改变按钮样式
+									dialog.buttons.remove(button);
+									ui.selected.buttons.remove(button);
+									button.classList.add("unselectable");
+									button.classList.remove("selectable");
+									button.classList.add("selected");
+									button.innerHTML = "<span>已购买</span>";
+									buttonx.style.setProperty("opacity", "0.5");
+									//发回主机tempResult实现客机立即addZhanfa而不是等事件结束再add
+									if (game.online) {
+										game.send("tempResult", button.link.slice(1, 3));
+									} else {
+										//主机就直接执行了（）
+										if (!isFirst) {
+											if (player.hasMark("olxinghan_nocost")) {
+												player.removeMark("olxinghan_nocost", 1, false);
+											} else {
+												player.removeMark("danqi_hufu", cost);
+											}
+										}
+										player.addZhanfa(id);
+									}
+								}
+								if (!goon(event) || !button) {
+									resume();
+								} else {
+									if (ui.confirm) {
+										ui.confirm.close();
+									}
+									game.check();
+								}
+							} else {
+								resume();
+							}
+						},
+					},
+					add: {},
+				});
+				return next;
+			};
+			//要发送出去让玩家选择的函数（
+			const send = (chooseButton, ...args) => {
+				chooseButton(...args);
+				game.resume();
+			};
+
+			//让读条不消失
+			event._global_waiting = true;
+			let time = 10000;
+			if (lib.configOL && lib.configOL.choose_timeout) {
+				time = parseInt(lib.configOL.choose_timeout) * 1000;
+			}
+			targets.forEach(current => current.showTimer(time));
+			const gainMap = new Map();
+			const args = [shopMap, isFirst, videoId];
+			const getCost = rarity => {
+				return { rare: 1, epic: 2, legend: 3 }[rarity];
+			};
+			//返回处理事件结果的函数
+			const solve = function (resolve, reject) {
+				return (result, player) => {
+					if (Array.isArray(result)) {
+						//这里是处理tempResult的流程
+						const [rarity, id] = result;
+						if (!isFirst) {
+							if (player.hasMark("olxinghan_nocost")) {
+								player.removeMark("olxinghan_nocost", 1, false);
+							} else {
+								player.removeMark("danqi_hufu", getCost(rarity));
+							}
+						}
+						gainMap.set(player, (gainMap.get(player) || []).concat([result]));
+						player.addZhanfa(id);
+					} else if (result == "ai") {
+						//处理真人玩家中途离线
+						if (isFirst) {
+							const unselected = ["rare", "epic", "legend"].removeArray(gainMap.get(player).map(i => i[0]));
+							const map = shopMap.get(player);
+							if (unselected.length) {
+								unselected.forEach(i => {
+									const id = map[i].randomGet();
+									gainMap.set(player, (gainMap.get(player) || []).concat([[lib.zhanfa.getRarity(id)], id]));
+									player.addZhanfa(id);
+								});
+							}
+						}
+						resolve();
+					} else {
+						//正常保留结果
+						gainMap.set(player, result.links);
+						resolve();
+					}
+				};
+			};
+			//开始执行
+			await Promise.all(
+				//人机先行
+				locals
+					.randomSort()
+					.concat(humans)
+					.map(current => {
+						return new Promise((resolve, reject) => {
+							const solver = solve(resolve, reject);
+							if (current.isOnline()) {
+								//处理客机
+								current.send(send, chooseButton, current, ...args);
+								current.wait(solver);
+							} else {
+								const next = chooseButton(current, ...args);
+								if (current == game.me) {
+									//处理主机
+									if (_status.connectMode) {
+										game.me.wait(solver);
+									}
+									return next.forResult().then(result => {
+										if (_status.connectMode) {
+											game.me.unwait(result);
+										} else {
+											solver(result, current);
+										}
+									});
+								} else {
+									//处理人机
+									return next.forResult().then(result => solver(result, current));
+								}
+							}
+						});
+					})
+			).catch(() => {});
+			//统一关闭对话框
+			game.broadcastAll("closeDialog", videoId);
+			delete event._global_waiting;
+			targets.forEach(current => current.hideTimer());
+		},
+		//多个chooseButton的写法
+		/*async content(event, trigger, player) {
 			const isFirst = trigger.name != "phase";
 			const map = get.info(event.name).zhanfaMap;
 			const gainMap = {
@@ -74,6 +378,9 @@ const skills = {
 					]
 				);
 				dialog.videoId = videoId;
+				if (player != game.me) {
+					dialog.style.display = "none";
+				}
 				return dialog;
 			};
 			if (player.isOnline2()) {
@@ -148,7 +455,7 @@ const skills = {
 				}
 			}
 			game.broadcastAll("closeDialog", videoId);
-		},
+		},*/
 		group: ["oljiangwu_hufu"],
 		subSkill: {
 			hufu: {

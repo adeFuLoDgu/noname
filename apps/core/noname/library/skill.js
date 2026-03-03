@@ -383,7 +383,6 @@ export default {
 	//战法的模版技能
 	//某个条件下造成的伤害+X（X默认为1）
 	zf_anyDamage: {
-		forced: true,
 		trigger: { source: "damageBegin1" },
 		filter(event, player) {
 			return true;
@@ -399,7 +398,6 @@ export default {
 	},
 	//某个时机检索并获得X张特定的牌（X默认为1），时机默认为回合开始时
 	zf_anyGain: {
-		forced: true,
 		trigger: { player: "phaseBegin" },
 		cardFilter: card => true, //用法其实类似getCards那些的过滤器
 		num: 1,
@@ -454,7 +452,6 @@ export default {
 	},
 	//某个条件下摸牌阶段摸牌数+X（X默认为1）
 	zf_phaseDraw: {
-		forced: true,
 		trigger: { player: "phaseDrawBegin2" },
 		num: 1,
 		filter(event, player) {
@@ -466,7 +463,6 @@ export default {
 	},
 	//某个时机后摸X张牌（默认为造成伤害后，X默认为1）
 	zf_anyDraw: {
-		forced: true,
 		trigger: { source: "damageSource" },
 		num: 1,
 		async content(event, trigger, player) {
@@ -475,7 +471,6 @@ export default {
 	},
 	//使用的特定的牌伤害+X（X默认为1）
 	zf_cardDamage: {
-		forced: true,
 		trigger: { player: "useCard" },
 		num: 1,
 		async content(event, trigger, player) {
@@ -576,7 +571,6 @@ export default {
 	},
 	//某个条件下，对敌方造成X点伤害（默认是受到伤害后随机一名敌方，且X默认为1）
 	zf_directDamage: {
-		forced: true,
 		trigger: { player: "damageEnd" },
 		num: 1,
 		nature: null,
@@ -745,7 +739,6 @@ export default {
 	},
 	//某个条件下使用牌额外结算
 	zf_extraEff: {
-		forced: true,
 		trigger: { player: "useCard" },
 		filter(event, player) {
 			return true;
@@ -753,7 +746,7 @@ export default {
 		num: 1,
 		async content(event, trigger, player) {
 			const { num } = get.info(event.name);
-			game.log(trigger.card, "额外结算", `#y${get.cnNumber(num)}`, "次");
+			game.log(trigger.card, "额外结算", `#g${get.cnNumber(num)}`, "次");
 			trigger.effectCount += num;
 		}
 	},

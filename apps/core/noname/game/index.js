@@ -10538,7 +10538,7 @@ ${e instanceof Error ? e.stack : String(e)}`);
 	 * @param { boolean } [isNext] 是否添加到下家
 	 * @param { object } [config] 一些别的参数塞这来！
 	 * @param { Player } [config.source] addPlayer的来源，不填就是没有
-	 * @param { (player: Player) => Promise } [config.animate] 添加player的动画，有默认动画，须返回一个promise
+	 * @param { ((player: Player) => Promise) | false } [config.animate] 添加player的动画，有默认动画，自定义动画须返回一个promise；false则不生成动画
 	 * @returns { Player }
 	 */
 	async addPlayerOL(target, character, character2, isNext, config = {}) {
@@ -10576,6 +10576,12 @@ ${e instanceof Error ? e.stack : String(e)}`);
 			game.players.push(player);
 			player.dataset.position = position;
 			game.arrangePlayers();
+			if (animate == false) {
+				animate = () =>
+					new Promise(resolve => {
+						resolve();
+					});
+			}
 			//动画，默认动画是天降陨石
 			animate ??= function (player) {
 				const parent = player.parentElement;
@@ -10713,7 +10719,7 @@ ${e instanceof Error ? e.stack : String(e)}`);
 	 * 移除一名玩家，单机联机都可用
 	 * @param { Player } player 要移除的玩家
 	 * @param { object } [config] 一些别的参数塞这来！
-	 * @param { (player: Player) => Promise } [config.animate] 移除player的动画，有默认动画，须返回一个promise
+	 * @param { ((player: Player) => Promise) | false } [config.animate] 移除player的动画，有默认动画，自定义动画须返回一个promise；false则不生成动画
 	 * @returns { Player }
 	 */
 	async removePlayerOL(player, config = {}) {
@@ -10784,6 +10790,12 @@ ${e instanceof Error ? e.stack : String(e)}`);
 			player.previousSeat.nextSeat = player.nextSeat;
 			game.players.remove(player);
 			game.dead.remove(player);
+			if (animate == false) {
+				animate = () =>
+					new Promise(resolve => {
+						resolve();
+					});
+			}
 			//移除角色的动画，默认为变成碎片消逝
 			animate ??= function (player) {
 				const rect = player.getBoundingClientRect();
@@ -10896,7 +10908,9 @@ ${e instanceof Error ? e.stack : String(e)}`);
 					ui.auto.hide();
 					ui.wuxie.hide();
 				}
-				setTimeout(() => player.removeAttribute("style"), 500);
+				setTimeout(() => {
+					player.removeAttribute("style");
+				}, 500);
 			});
 		};
 		game.broadcast(removePlayer, player, config, get.copy(lib.configOL));

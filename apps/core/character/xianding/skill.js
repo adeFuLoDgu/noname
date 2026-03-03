@@ -3530,7 +3530,12 @@ const skills = {
 			respondShan: true,
 			order: 15,
 			result: {
-				player: 1,
+				player(player) {
+					if (_status.event.dying) {
+						return get.attitude(player, _status.event.dying);
+					}
+					return 1;
+				},
 			},
 		},
 	},

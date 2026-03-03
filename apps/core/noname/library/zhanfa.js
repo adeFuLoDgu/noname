@@ -2,7 +2,7 @@ import { _status, game, get, lib } from "noname";
 
 /**
  * 战法！！！！！有几种类型的战法是有模板可以套的，详情请看library的index.js，搜索zf_开头的技能
- * @type {Record<string, {skill: Skill | string, rarity: string | undefined, [p: string]: any}>}
+ * @type {Record<string, {skill: Skill | string, rarity: string | undefined, translate: string, info: string, [p: string]: any}>}
  */
 const _zhanfa = {
 	/*zf_: {
@@ -26,7 +26,6 @@ const _zhanfa = {
 			ai: { basic: { value: 7.2 } },
 		},
 		skill: {
-			forced: true,
 			trigger: {
 				source: "damageSource",
 			},
@@ -40,7 +39,6 @@ const _zhanfa = {
 			subSkill: {
 				damage: {
 					inherit: "zf_anyDamage",
-					charlotte: true,
 					filter(event, player) {
 						return event.hasNature();
 					},
@@ -63,16 +61,13 @@ const _zhanfa = {
 		translate: "巧器",
 		info: "你每回合使用的第一张普通锦囊牌额外结算一次",
 		card: {
-			ai: { basic: { value: 7.5 } }
+			ai: { basic: { value: 7.5 } },
 		},
 		skill: {
 			inherit: "zf_extraEff",
 			filter(event, player) {
-				return (
-					get.type(event.card) == "trick" &&
-					player.getHistory("useCard", evt => get.type(evt.card) == "trick").indexOf(event) == 0
-				)
-			}
+				return get.type(event.card) == "trick" && player.getHistory("useCard", evt => get.type(evt.card) == "trick").indexOf(event) == 0;
+			},
 		},
 		filterBan: () => true,
 	},
@@ -86,7 +81,6 @@ const _zhanfa = {
 		},
 		skill: {
 			trigger: { player: "phaseJudgeBefore" },
-			forced: true,
 			async content(event, trigger, player) {
 				game.log(player, "跳过了判定阶段");
 				trigger.cancel();
@@ -202,7 +196,6 @@ const _zhanfa = {
 			ai: { basic: { value: 6 } },
 		},
 		skill: {
-			forced: true,
 			trigger: { player: "phaseBegin" },
 			filter(event, player) {
 				return player.getEnemies(target => target.countGainableCards(player, "h"), false).length;
@@ -356,9 +349,15 @@ const _zhanfa = {
 			ai: { basic: { value: 4.9 } },
 		},
 		skill: {
-			forced: true,
-			trigger: { global: ["eventNeutralized"] },
+			trigger: {
+				global: ["eventNeutralized"],
+				player: ["wuxieAfter"],
+			},
 			filter(event, player) {
+				if (event.name == "wuxie") {
+					const trigger = event.getParent(2)._trigger;
+					return trigger.name == "phaseJudge" && trigger.cancelled && trigger.card[trigger.card.cardSymbol].cards.someInD();
+				}
 				const evt = event._neutralize_event;
 				if (evt.name != "wuxie" || evt.player != player) {
 					return false;
@@ -366,6 +365,11 @@ const _zhanfa = {
 				return event.cards?.someInD();
 			},
 			async content(event, trigger, player) {
+				if (trigger.name == "wuxie") {
+					const evt = trigger.getParent(2)._trigger;
+					await player.gain(evt.card[evt.card.cardSymbol].cards.filterInD(), "gain2");
+					return;
+				}
 				await player.gain(trigger.cards.filterInD(), "gain2");
 			},
 		},
@@ -409,7 +413,6 @@ const _zhanfa = {
 			ai: { basic: { value: 5.5 } },
 		},
 		skill: {
-			forced: true,
 			trigger: { player: "discardPlayerCardBegin" },
 			filter(event, player) {
 				return event.getParent()?.name == "guohe";
@@ -582,7 +585,6 @@ const _zhanfa = {
 			ai: { basic: { value: 4.5 } },
 		},
 		skill: {
-			forced: true,
 			trigger: {
 				player: "compare",
 				target: "compare",
@@ -741,7 +743,6 @@ const _zhanfa = {
 			ai: { basic: { value: 5.2 } },
 		},
 		skill: {
-			forced: true,
 			trigger: { player: "drawBegin" },
 			filter(event, player) {
 				return event.getParent()?.name == "wuzhong";
@@ -776,7 +777,6 @@ const _zhanfa = {
 			ai: { basic: { value: 4.2 } },
 		},
 		skill: {
-			forced: true,
 			trigger: { player: "phaseBegin" },
 			filter(event, player) {
 				return player.getHp() > 2;
@@ -796,7 +796,6 @@ const _zhanfa = {
 			ai: { basic: { value: 5.1 } },
 		},
 		skill: {
-			forced: true,
 			trigger: { player: "useCard" },
 			filter(event, player) {
 				return event.card.name == "wugu";
@@ -927,7 +926,6 @@ const _zhanfa = {
 			ai: { basic: { value: 6.3 } },
 		},
 		skill: {
-			forced: true,
 			trigger: { source: "damageBegin" },
 			filter(event, player) {
 				return event.player != player;
@@ -983,7 +981,6 @@ const _zhanfa = {
 				player: "useCardToPlayered",
 				target: "useCardToTargeted",
 			},
-			forced: true,
 			filter(event, player) {
 				return event.card.name == "juedou";
 			},
@@ -1063,7 +1060,6 @@ const _zhanfa = {
 		},
 		skill: {
 			num: 1,
-			forced: true,
 			trigger: {
 				player: "damageBegin3",
 				source: "damageBegin1",
@@ -1136,7 +1132,6 @@ const _zhanfa = {
 			ai: { basic: { value: 7.35 } },
 		},
 		skill: {
-			forced: true,
 			trigger: {
 				player: ["phaseDrawBegin2", "phaseEnd"],
 			},
@@ -1164,7 +1159,6 @@ const _zhanfa = {
 			ai: { basic: { value: 7.5 } },
 		},
 		skill: {
-			forced: true,
 			trigger: { player: "damageBegin3" },
 			filter(event, player, name) {
 				const index = game.getRoundHistory("everything", evt => evt.name == "damage" && evt.player == player).indexOf(event);
@@ -1228,7 +1222,6 @@ const _zhanfa = {
 			ai: { basic: { value: 6.9 } },
 		},
 		skill: {
-			forced: true,
 			trigger: { global: "roundStart" },
 			num: 1,
 			async content(event, trigger, player) {
@@ -1259,7 +1252,6 @@ const _zhanfa = {
 			ai: { basic: { value: 4.9 } },
 		},
 		skill: {
-			forced: true,
 			trigger: {
 				player: "loseAfter",
 				global: ["equipAfter", "addJudgeAfter", "gainAfter", "loseAsyncAfter", "addToExpansionAfter"],
@@ -1314,7 +1306,6 @@ const _zhanfa = {
 			ai: { basic: { value: 4 } },
 		},
 		skill: {
-			forced: true,
 			trigger: { global: "recoverBegin" },
 			filter(event, player) {
 				return event.player.isFriendsOf(player, false) && event.getParent()?.name == "taoyuan";
@@ -1409,7 +1400,6 @@ const _zhanfa = {
 			ai: { basic: { value: 5.2 } },
 		},
 		skill: {
-			forced: true,
 			trigger: { player: "useCard" },
 			filter(event, player) {
 				return event.card.name == "wuxie";
@@ -1784,7 +1774,6 @@ const _zhanfa = {
 			ai: { basic: { value: 5.4 } },
 		},
 		skill: {
-			forced: true,
 			trigger: { player: "gainPlayerCardBegin" },
 			filter(event, player) {
 				return event.getParent()?.name == "shunshou";
@@ -2038,6 +2027,7 @@ const _zhanfa = {
 					)
 				);
 			},
+			forced: false,
 			async cost(event, trigger, player) {
 				const select = get.info(event.skill).select;
 				event.result = await player
@@ -2267,7 +2257,6 @@ const _zhanfa = {
 			group: "zf_wendingtizhi_effect",
 			subSkill: {
 				effect: {
-					forced: true,
 					charlotte: true,
 					trigger: { player: ["gainMaxHpBefore", "loseMaxHpBefore"] },
 					filter(event, player) {
@@ -2336,7 +2325,6 @@ const _zhanfa = {
 			ai: { basic: { value: 8 } },
 		},
 		skill: {
-			forced: true,
 			trigger: { source: "damageBegin4" },
 			lastDo: true,
 			async content(event, trigger, player) {
@@ -2353,7 +2341,6 @@ const _zhanfa = {
 			ai: { basic: { value: 7.4 } },
 		},
 		skill: {
-			forced: true,
 			trigger: { player: "damageEnd" },
 			filter(event, player) {
 				return _status.currentPhase !== player;
@@ -2421,7 +2408,6 @@ const _zhanfa = {
 		},
 		skill: {
 			trigger: { player: "huogongBegin" },
-			forced: true,
 			async content(event, trigger, player) {
 				trigger.set("chooseToDiscard", async (event, player, target) => {
 					const { discardPostion = "h", cards2, filterDiscard = { suit: get.suit(cards2[0]) } } = event;
@@ -2439,7 +2425,6 @@ const _zhanfa = {
 				});
 			},
 			/*trigger: { player: "chooseToDiscardBegin" },
-			forced: true,
 			filter(event, player) {
 				return event.getParent()?.name == "huogong";
 			},
@@ -2466,7 +2451,6 @@ const _zhanfa = {
 			ai: { basic: { value: 4.2 } },
 		},
 		skill: {
-			forced: true,
 			trigger: { player: "useCard" },
 			filter(event, player) {
 				return event.card.name == "wanjian";
@@ -2538,12 +2522,11 @@ const _zhanfa = {
 			},
 			async callback(event, player, target) {
 				target.addSkill(`${event.name}_effect`);
-				target.setMark(`${event.name}_effect`, get.info(event.name).num);
+				target.setMark(`${event.name}_effect`, get.info(event.name).num, false);
 			},
 			num: 1,
 			subSkill: {
 				effect: {
-					forced: true,
 					charlotte: true,
 					onremove: true,
 					trigger: { global: "roundStart" },
@@ -2598,7 +2581,6 @@ const _zhanfa = {
 			filter(event, player) {
 				return event.getParent()?.name == "guohe";
 			},
-			forced: true,
 			async content(event, trigger, player) {
 				trigger.set("visible", true);
 			},
@@ -2613,7 +2595,6 @@ const _zhanfa = {
 			ai: { basic: { value: 6.5 } },
 		},
 		skill: {
-			forced: true,
 			trigger: { player: "recoverBegin" },
 			filter(event, player) {
 				return game.getGlobalHistory("everything", evt => evt.name == "recover" && evt.player == player).indexOf(event) == 0;
@@ -2683,7 +2664,6 @@ const _zhanfa = {
 			ai: { basic: { value: 9.5 } },
 		},
 		skill: {
-			forced: true,
 			trigger: { player: "useCard" },
 			filter(event, player) {
 				return get.type(event.card) == "trick" && get.is.damageCard(event.card);
@@ -2702,7 +2682,6 @@ const _zhanfa = {
 			ai: { basic: { value: 7.5 } },
 		},
 		skill: {
-			forced: true,
 			trigger: { target: "useCardToTarget" },
 			filter(event, player) {
 				if (_status.currentPhase == player || event.targets.length != 1) {
@@ -2903,7 +2882,6 @@ const _zhanfa = {
 			ai: { basic: { value: 6 } },
 		},
 		skill: {
-			forced: true,
 			num: 2,
 			trigger: { player: "phaseBegin" },
 			filter(event, player) {
@@ -3060,10 +3038,16 @@ const _zhanfa = {
 			filter(event, player) {
 				return event.card.name == "sha" && player.hasCard(card => player.canRecast(card), "he");
 			},
+			forced: false,
 			async cost(event, trigger, player) {
 				const { select } = get.info(event.skill);
 				event.result = await player
-					.chooseCard(get.prompt2(event.skill), select, (card, player) => player.canRecast(card), "he")
+					.chooseCard({
+						prompt: get.prompt2(event.skill),
+						selectCard: select,
+						filterCard: (card, player) => player.canRecast(card),
+						position: "he",
+					})
 					.set("ai", card => 6 - get.value(card))
 					.forResult();
 			},
@@ -3096,7 +3080,6 @@ const _zhanfa = {
 			ai: { basic: { value: 6.8 } },
 		},
 		skill: {
-			forced: true,
 			trigger: { player: "useCard" },
 			filter(event, player) {
 				return event.card.name == "sha" && event.jiu;
@@ -3113,7 +3096,7 @@ export class ZhanfaManager {
 
 	/**
 	 * @type {Record<string, {
-	 *  skill: Skill | string,
+	 *  skill: string,
 	 *  rarity: string | undefined,
 	 *  [p: string]: any
 	 * }>}
@@ -3124,42 +3107,23 @@ export class ZhanfaManager {
 	 * @param {Library} lib
 	 */
 	constructor(lib) {
+		this.lib = lib;
 		lib.cardPack["zhanfa"] = [];
 		lib.translate["zhanfa_card_config"] = "战法";
 		lib.translate["zhanfa_cardsInfo"] = "这里是用来浏览战法的，这些不是卡牌！";
+		//统一修改模版技能的优先级
+		let templateSkill = Object.keys(lib.skill).filter(i => i.startsWith("zf_"));
+		templateSkill.forEach(i => {
+			const info = lib.skill[i];
+			info.priority ??= 0.99;
+			if (info.subSkill) {
+				Object.keys(info.subSkill).forEach(j => (lib.skill[i + "_" + j] = info.subSkill[j]));
+			}
+		});
 		for (const id in _zhanfa) {
-			let { skill, rarity, translate, info, card, ...args } = _zhanfa[id];
-			if (typeof skill != "string") {
-				skill ??= {};
-				skill.nopop = true;
-				skill.charlotte = true;
-				skill.priority = Infinity;
-				lib.skill[id] = skill;
-				skill = id;
-			}
-			lib.translate[id] = translate;
-			lib.translate[id + "_info"] = info;
-			if (!card || typeof card !== "object") {
-				card = {};
-			}
-			if (!card.fullskin && !card.fullimage) {
-				card.fullskin = true;
-			}
-			if (!card.cardimage && !card.image) {
-				card.image = `image/zhanfa/${id}.png`;
-			}
-			card.type = "zhanfa";
-			card.subtype = `zf_${rarity}`;
-			if (card.value) {
-				card.ai ??= {};
-				card.ai.basic ??= {};
-				card.ai.basic.value = card.value;
-			}
-			lib.card[id] = card;
-			lib.cardPack["zhanfa"].push(id);
-			_zhanfa[id] = { skill: skill, rarity: rarity, ...args };
+			this.add({ id, ..._zhanfa[id] });
 		}
-		this.#zhanfa = _zhanfa;
+		//this.#zhanfa = _zhanfa;
 	}
 
 	/**
@@ -3175,25 +3139,50 @@ export class ZhanfaManager {
 	 * @param {string} pack.id 分包的id
 	 * @param {string} pack.name 分包id的翻译
 	 * @param {string} [pack.info] 分包的简介
-	 * @returns {string | undefined}
+	 * @returns {Record<string, { skill: string, rarity: string | undefined, [p: string]: any }> | undefined}
 	 */
 	add(zhanfa, pack) {
+		const lib = this.lib;
 		let { id, skill, rarity, translate, info, card, ...args } = zhanfa;
 		if (!id || this.get(id)) {
 			return;
 		}
 		if (typeof skill != "string") {
+			//对技能统一加工
 			skill ??= {};
-			skill.nopop = true;
-			skill.charlotte = true;
-			skill.priority = Infinity;
-			lib.skill["" + id] = skill;
+			skill.nopop ??= true;
+			const setAtt = skill => {
+				if (skill.inherit) {
+					let skillx = lib.skill[skill.inherit];
+					if (skillx) {
+						skill = { ...skillx, ...skill };
+						delete skill.inherit;
+					}
+				}
+				skill.charlotte ??= true;
+				//优先级给高点
+				skill.priority ??= 0.99;
+				//默认silent但popup是true
+				if (!("silent" in skill)) {
+					skill.silent = true;
+					skill.popup = true;
+				}
+				return skill;
+			};
+			skill = setAtt(skill);
+			//子技能也会统一处理
+			if ("subSkill" in skill) {
+				for (const i in skill.subSkill) {
+					skill.subSkill[i] = setAtt(skill.subSkill[i]);
+				}
+			}
+			lib.skill[id] = skill;
 			skill = id;
 		} else {
 			translate ??= lib.translate[skill];
 			info ??= lib.translate[skill + "_info"];
 		}
-		lib.translate["" + id] = translate;
+		lib.translate[id] = translate;
 		lib.translate[id + "_info"] = info;
 		if (!card || typeof card !== "object") {
 			card = {};
@@ -3207,25 +3196,19 @@ export class ZhanfaManager {
 		card.type = "zhanfa";
 		rarity ??= "common";
 		card.subtype = `zf_${rarity}`;
-		//不推荐这么写的，只是之前写错了才将错就错，千万不要再按这种写了
-		if (card.value) {
-			card.ai ??= {};
-			card.ai.basic ??= {};
-			card.ai.basic.value = card.value;
-		}
 		lib.card[id] = card;
 		if (pack && pack.id) {
 			let { id: packId, name, info } = pack;
 			packId = `zf_${packId}`;
 			lib.cardPack[packId] ??= [];
 			lib.translate[`${packId}_card_config`] ??= name || packId;
-			lib.translate[`${packId}_cardsInfo`] ??= info;
+			lib.translate[`${packId}_cardsInfo`] ??= info || "";
 			lib.cardPack[packId].push(id);
 		} else {
 			lib.cardPack["zhanfa"].push(id);
 		}
-		this.#zhanfa[id] = { skill: skill, rarity: rarity, ...args };
-		return id;
+		this.#zhanfa[id] = { skill, rarity, ...args };
+		return { ...this.#zhanfa[id] };
 	}
 
 	/**
@@ -3245,20 +3228,20 @@ export class ZhanfaManager {
 	/**
 	 * 获取对应战法的Object
 	 * @param {string} id 战法的id
-	 * @returns {object | false}
+	 * @returns {Record<string, { skill: string, rarity: string | undefined, [p: string]: any }>  | undefined}
 	 */
 	get(id) {
 		if (this.#zhanfa[id]) {
-			return this.#zhanfa[id];
+			return { ...this.#zhanfa[id] };
 		}
-		return false;
+		return;
 	}
 
 	/**
 	 * 修改对应战法的Object
 	 * @param {string} id 要修改的战法的id
 	 * @param {object} zhanfa 要修改的内容，覆盖已有属性或添加没有的属性
-	 * @returns {object}
+	 * @returns {Record<string, { skill: string, rarity: string | undefined, [p: string]: any }>}
 	 */
 	set(id, zhanfa) {
 		if (!this.#zhanfa[id]) {
@@ -3268,16 +3251,16 @@ export class ZhanfaManager {
 		for (const i in zhanfa) {
 			this.#zhanfa[id][i] = zhanfa[i];
 		}
-		return this.#zhanfa[id];
+		return { ...this.#zhanfa[id] };
 	}
 
 	/**
 	 * 获取对应战法的skill
 	 * @param {string} id 战法的id
-	 * @returns {string}
+	 * @returns {string | undefined}
 	 */
 	getSkill(id) {
-		return this.get(id).skill;
+		return this.get(id)?.skill;
 	}
 
 	/**
@@ -3287,7 +3270,7 @@ export class ZhanfaManager {
 	 * @returns {string}
 	 */
 	getRarity(id, raw) {
-		const str = this.get(id).rarity;
+		const str = this.get(id)?.rarity || "common";
 		return raw ? str : `zf_${str}`;
 	}
 
@@ -3307,7 +3290,7 @@ export class ZhanfaManager {
 	/**
 	 * 获取战法所在的分包
 	 * @param {string} id 战法的id
-	 * @returns {string|null}
+	 * @returns {string | null}
 	 */
 	getPack(id) {
 		for (const pack in lib.cardPack) {

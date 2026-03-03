@@ -71,19 +71,19 @@ const characters = {
 	},
 	mb_chitu: {
 		sex: "male",
-		group: "shu",
+		group: "qun",
 		hp: 4,
 		skills: ["mbjunkui", "mbchiyuan"],
 	},
 	mb_jueying: {
 		sex: "male",
-		group: "qun",
+		group: "wei",
 		hp: 4,
 		skills: ["mbjiguan", "mbzhengpeng"],
 	},
 	mb_dilu: {
 		sex: "male",
-		group: "qun",
+		group: "shu",
 		hp: 4,
 		skills: ["mbjiguan", "mbyuetan"],
 	},
