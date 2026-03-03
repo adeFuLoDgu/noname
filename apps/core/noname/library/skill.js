@@ -677,7 +677,10 @@ export default {
 	},
 	//获得战法后减少体力上限
 	zf_loseMaxHp: {
-		inherit: "zf_onAdd",
+		trigger: {
+			player: "addZhanfa",
+		},
+		silent: true,
 		//获取要执行操作的目标
 		getTargets(event, player) {
 			return [player];

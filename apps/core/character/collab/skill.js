@@ -135,7 +135,7 @@ const skills = {
 						return result;
 					},
 					selectButton: isFirst ? 1 : [0, 1],
-					forced: true,
+					forced: isFirst,
 				});
 				next.set("closeDialog", false);
 				//是否继续选择，false则直接结束事件
