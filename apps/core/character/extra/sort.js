@@ -9,13 +9,7 @@ const characterSort = {
 	extra_ol: ["shen_dianwei", "ol_zhangliao", "shen_caopi", "shen_zhenji", "shen_sunquan", "junk_zhangjiao"],
 	extra_tw: ["tw_shen_guanyu", "tw_shen_lvmeng"],
 	extra_mb: ["xin_simayi"],
-	extra_offline: ["shen_jiaxu", "shen_diaochan", "boss_zhaoyun", "le_shen_jiaxu", "ps_shen_machao", "mark_shen_machao", "zc26_shen_huangyueying", "sm_shen_machao", "sp_sm_shen_machao"],
-	extra_taoyuan: ["ty_shen_zhangfei", "ty_shen_guanyu", "ty_shen_liubei"],
-	extra_hanmo: ["hm_shen_yl_luzhi", "hm_shen_huangfusong", "hm_shen_zhangjiao", "hm_shen_zhangbao", "hm_shen_zhangliang", "hm_shen_zhujun"],
-	extra_changan: ["ca_shen_wangyun", "ca_shen_caocao", "ca_shen_lijueguosi", "zombie_jiaxu", "zombie_zombie"],
-	extra_weinan: ["wn_shen_machao", "wn_shen_xuzhu"],
-	extra_jingxiang: ["jx_shen_caoren", "jx_shen_liubiao"],
-};
+	};
 
 const characterSortTranslate = {
 	extra_feng: "神话再临·风",
@@ -26,16 +20,10 @@ const characterSortTranslate = {
 	extra_lei: "神话再临·雷",
 	extra_key: "论外",
 	extra_ol: "神话再临·OL",
-	extra_offline: "神话再临·线下",
 	extra_offlineDecade: "神·武·线下",
 	extra_decade: "神·武",
 	extra_tw: "神话再临·海外服",
 	extra_mb: "神话再临·移动版",
-	extra_hanmo: "风云志·汉末风云",
-	extra_changan: "风云志·长安风云",
-	extra_weinan: "风云志·渭南风云",
-	extra_taoyuan: "山河煮酒·桃园挽歌",
-	extra_jingxiang: "风云志·荆襄风云",
 };
 
 export { characterSort, characterSortTranslate };

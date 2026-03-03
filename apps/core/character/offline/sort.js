@@ -1,4 +1,5 @@
 const characterSort = {
+	extra_offline: ["shen_jiaxu", "shen_diaochan", "boss_zhaoyun", "le_shen_jiaxu", "ps_shen_machao", "mark_shen_machao", "zc26_shen_huangyueying", "sm_shen_machao", "sp_sm_shen_machao"],
 	offline_scl: ["scl_lvbu", "scl_pangdegong", "scl_sunhanhua", "scl_miheng", "scl_peixiu", "scl_caoying", "scl_luotong", "scl_jiaxu"],
 	offline_star: ["jsp_ganfuren", "sp_xiahoushi", "jsp_zhaoyun", "huangjinleishi", "sp_pangtong", "sp_daqiao", "sp_ganning", "sp_xiahoudun", "sp_lvmeng", "sp_zhangfei", "sp_liubei", "old_machao", "zhangliang", "jsp_caoren"],
 	offline_sticker: ["sp_gongsunzan", "sp_simazhao", "sp_wangyuanji", "sp_xinxianying", "sp_liuxie"],
@@ -16,11 +17,11 @@ const characterSort = {
 	offline_juedai: ["zj_huangchong", "zj_dingfeng", "zj_liaohua", "zj_zhugeliang", "zj_liuyuan", "zj_jiangwei", "zj_zhonghui", "xiahouhan", "zj_xiahouhan", "zj_yaokehui", "zj_huoyi", "zj_liuyin", "zj_zhugezhan", "zj_zhaotong", "zj_zhaoguang", "zj_lukang", "zj_zhugexu", "zj_hulie", "zj_zhanghu", "zj_yuechen"],
 	offline_longyutao: ["drag_pangde", "drag_guanyu", "drag_caoren", "drag_lvchang"],
 	offline_guansuo: ["drag_huaci", "drag_guansuo", "drag_guanyinping", "drag_guanping", "drag_zhoucang", "drag_liaohua", "drag_shendan", "drag_shenyi", "drag_luxun", "drag_xusheng", "she_lvmeng"],
-	offline_taoyuan: ["ty_guanyu", "ty_sunquan", "ty_liubei", "ty_chenshi", "ty_chengjix", "ty_zhaorong", "ty_zhangnan", "ty_fengxí", "ty_liaohua", "ty_huangzhong", "ty_wuban", "ty_shicong", "ty_guanxing", "ty_shamoke", "ty_guanyinping", "ty_luxun", "ty_ganning", "ty_buzhi", "ty_tanxiong", "ty_liue", "ty_zhangda", "ty_fanjiang", "ty_anying", "ty_anyingx", "ty_wuque", "ty_yanque", "ty_wangque"],
-	offline_hanmo: ["hm_bairao", "hm_guigu", "hm_bosi", "hm_nanhualaoxian", "hm_yudu", "hm_taosheng", "hm_fuyun", "hm_tangzhou", "hm_chengyuanzhi", "hm_gaosheng", "hm_heman", "hm_yanzheng", "hm_bocai", "hm_dengmao"],
-	offline_jingxiang: ["jx_zhouyu", "jx_guanyu"],
-	offline_changan: ["ca_wangyun", "ca_lvbu", "ca_lijue", "ca_guosi", "ca_zhangji", "ca_fanchou"],
-	offline_weinan: ["wn_caocao", "wn_hansui", "wn_houxuan", "wn_chengyi", "wn_yangqiú", "wn_zhanghe", "wn_jiaxu", "wn_xuhuang", "wn_zhuling"],
+	offline_taoyuan: ["ty_guanyu", "ty_sunquan", "ty_liubei", "ty_chenshi", "ty_chengjix", "ty_zhaorong", "ty_zhangnan", "ty_fengxí", "ty_liaohua", "ty_huangzhong", "ty_wuban", "ty_shicong", "ty_guanxing", "ty_shamoke", "ty_guanyinping", "ty_luxun", "ty_ganning", "ty_buzhi", "ty_tanxiong", "ty_liue", "ty_zhangda", "ty_fanjiang", "ty_anying", "ty_anyingx", "ty_wuque", "ty_yanque", "ty_wangque", "ty_shen_zhangfei", "ty_shen_guanyu", "ty_shen_liubei"],
+	offline_hanmo: ["hm_bairao", "hm_guigu", "hm_bosi", "hm_nanhualaoxian", "hm_yudu", "hm_taosheng", "hm_fuyun", "hm_tangzhou", "hm_chengyuanzhi", "hm_gaosheng", "hm_heman", "hm_yanzheng", "hm_bocai", "hm_dengmao", "hm_shen_yl_luzhi", "hm_shen_huangfusong", "hm_shen_zhangjiao", "hm_shen_zhangbao", "hm_shen_zhangliang", "hm_shen_zhujun"],
+	offline_jingxiang: ["jx_zhouyu", "jx_guanyu", "jx_shen_caoren", "jx_shen_liubiao"],
+	offline_changan: ["ca_wangyun", "ca_lvbu", "ca_lijue", "ca_guosi", "ca_zhangji", "ca_fanchou", "ca_shen_wangyun", "ca_shen_caocao", "ca_shen_lijueguosi", "zombie_jiaxu", "zombie_zombie"],
+	offline_weinan: ["wn_caocao", "wn_hansui", "wn_houxuan", "wn_chengyi", "wn_yangqiú", "wn_zhanghe", "wn_jiaxu", "wn_xuhuang", "wn_zhuling", "wn_shen_machao", "wn_shen_xuzhu"],
 	offline_Europe: ["eu_kaisa", "eu_Macrinus", "eu_Ardashir", "eu_makang", "eu_yujin", "eu_zhangliao", "eu_yuejin"],
 	offline_jiudin: ["jd_jin_wangyuanji", "jd_ol_huaxin", "jd_sp_yangwan", "jd_sb_huangyueying", "jd_sb_zhaoyun", "jd_sb_ganning", "jd_sb_pangtong", "jd_hanlong", "jd_jin_xiahouhui", "jd_jin_simazhao", "jd_sb_caocao", "jd_sb_sp_zhugeliang", "jd_simayan", "jd_sb_sunquan", "jd_sb_xiaoqiao", "jd_sb_guanyu", "jd_sb_jiangwei", "jd_sb_daqiao", "jd_sb_menghuo", "jd_sb_yuanshao", "jd_sb_yujin", "jd_sb_sunshangxiang", "jd_sb_liubei", "jd_sb_fazheng", "jd_sb_zhangfei", "jd_jin_simashi", "jd_sb_xuhuang"],
 	offline_yanyou: ["yy_quyi", "yy_gongsunzan", "yy_wenchou", "yy_gongsunyuan", "yy_yuanshao", "yy_simayi", "yy_caorui", "yy_zhaoyun", "yy_quancong"],
@@ -76,6 +77,7 @@ const characterSortTranslate = {
 	offline_wenxindiaolong: "星汉灿烂·文心雕龙",
 	offline_shiningGrils: "闪耀战姬",
 	offline_yanling: "雁翎耀光",
+	extra_offline: "神话再临·线下",
 };
 
 export { characterSort, characterSortTranslate };
