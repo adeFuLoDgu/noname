@@ -1886,13 +1886,8 @@ const skills = {
 				})
 				.forResult();
 			if (result.suit == get.suit(trigger.card)) {
-				const targets = trigger.targets.filter(target => target.isIn());
-				if (!targets.length) {
-					return;
-				}
 				const resultx = await player
 					.chooseTarget(`雷噬：对一名角色造成1点雷电伤害`, true)
-					.set("targets", targets)
 					.set("ai", target => get.damageEffect(target, get.player(), get.player(), "thunder"))
 					.forResult();
 				if (!resultx?.targets?.length) {

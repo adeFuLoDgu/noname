@@ -184,7 +184,7 @@ const skills = {
 			player: "phaseZhunbeiBegin",
 		},
 		filter(event, player) {
-			return player.countDiscardableCards(player, "hej");
+			return player.countDiscardableCards(player, "hej") > 0;
 		},
 		async cost(event, trigger, player) {
 			const list = trigger
@@ -209,7 +209,7 @@ const skills = {
 				}
 			});
 			const result = await player
-				.chooseButton(createDialog, [num, num * 2])
+				.chooseButton(createDialog, [2, num * 2])
 				.set("num", num)
 				.set("filterButton", button => {
 					const links = ui.selected.buttons?.map(i => i.link);
@@ -219,12 +219,15 @@ const skills = {
 					const { num, player } = get.event();
 					const area = links.filter(i => typeof i == "string");
 					const cards = links.slice().removeArray(area);
-					if (cards.length == num) {
-						return typeof button.link == "string";
-					}
-					if (area.length == num) {
+					if (typeof button.link == "string") {
+						return area.length < num;
+					} else {
 						const pos = cards.map(i => get.position(i));
-						return typeof button.link != "string" && !pos.includes(get.position(button.link));
+						return (
+							cards.length < num &&
+							!pos.includes(get.position(button.link)) &&
+							lib.filter.cardDiscardable(button.link, player, "sbqiaobian")
+						);
 					}
 					return true;
 				})
