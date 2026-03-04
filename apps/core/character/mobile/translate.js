@@ -1,6 +1,16 @@
 import { lib, game, ui, get, ai, _status } from "noname";
 
 const translates = {
+	xin_simayi: "手杀神司马懿",
+	xin_simayi_prefix: "手杀神",
+	xinrenjie: "忍戒",
+	xinrenjie_info: "锁定技。①当你需要响应一张延时锦囊牌或其他角色使用的牌时，若你未响应此牌，你获得1枚“忍”标记（你每轮以此法至多获得4枚“忍”标记）。②游戏开始时，若你为神势力且你未执行神武将势力选择，则你可以变更势力。",
+	xinbaiyin: "拜印",
+	xinbaiyin_info: `觉醒技，准备阶段，若你的“忍”标记数不小于4，你减少1点体力上限，然后获得${get.poptip("xinjilve")}。`,
+	xinlianpo: "连破",
+	xinlianpo_info: "当你杀死一名角色后，你可以选择一项：1.于此回合结束后获得一个额外回合（每回合限一次）；2.若你拥有〖极略〗，你获得一个你未拥有的〖极略〗技能。",
+	xinjilve: "极略",
+	xinjilve_info: `①当你获得此技能时，你获得${get.poptip("reguicai")}并根据你的势力获得以下对应技能：魏：${get.poptip("fangzhu")}；蜀：${get.poptip("rejizhi")}；吴：${get.poptip("rezhiheng")}；群：${get.poptip("rewansha")}。②出牌阶段开始时，你可以选择一项：1.弃置X枚“忍”标记并获得一个你未拥有的〖极略〗技能（X为你选择此项的次数+1且至少为2）；2.弃置至多2枚“忍”标记并摸等量张牌。`,
 	liuzan: "手杀留赞",
 	liuzan_prefix: "手杀",
 	re_sp_zhugeliang: "手杀界卧龙",

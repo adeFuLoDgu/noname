@@ -1,4 +1,11 @@
 const characters = {
+	le_shen_jiaxu: {
+		sex: "male",
+		group: "shen",
+		hp: 4,
+		skills: ["jxlianpo", "jxzhaoluan"],
+		groupInGuozhan: "qun",
+	},
 	boss_zhaoyun: {
 		sex: "male",
 		group: "shen",

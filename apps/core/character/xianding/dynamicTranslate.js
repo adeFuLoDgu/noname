@@ -1,6 +1,19 @@
 import { lib, game, ui, get, ai, _status } from "noname";
 
 const dynamicTranslates = {
+	fengliao(player) {
+		const bool = player.storage.fengliao;
+		let yang = "你令其摸一张牌",
+			yin = "你对其造成1点火焰伤害";
+		if (bool) {
+			yin = `<span class='bluetext'>${yin}</span>`;
+		} else {
+			yang = `<span class='firetext'>${yang}</span>`;
+		}
+		let start = "锁定技，转换技。你使用牌指定唯一目标后，",
+			end = "。";
+		return `${start}阳：${yang}；阴：${yin}${end}`;
+	},
 	dcquanshi(player, skill) {
 		const bool = player.storage[skill];
 		let yang = "摸此牌名字数张牌，若此牌造成伤害此技能视为未发动过",

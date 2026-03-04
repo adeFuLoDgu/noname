@@ -1,6 +1,28 @@
 import { lib, game, ui, get, ai, _status } from "noname";
 
 const cards = {
+	//神肘不疑的五灵卡牌
+	//何意味，不是手刹神华佗吗
+	wuqinxi_hu: {
+		fullskin: true,
+		noname: true,
+	},
+	wuqinxi_lu: {
+		fullskin: true,
+		noname: true,
+	},
+	wuqinxi_xiong: {
+		fullskin: true,
+		noname: true,
+	},
+	wuqinxi_yuan: {
+		fullskin: true,
+		noname: true,
+	},
+	wuqinxi_he: {
+		fullskin: true,
+		noname: true,
+	},
 	hefei_xianjian: {
 		derivation: "hefei_yuejin",
 		fullskin: true,
