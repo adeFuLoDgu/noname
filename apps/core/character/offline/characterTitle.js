@@ -333,4 +333,7 @@ export default {
 	shen_diaochan: "欲界非天",
 	boss_zhaoyun: "天龙乘云",
 	zc26_shen_huangyueying: "卧龙的点睛人",
+	shen_jiaxu: "文和乱武",
+	le_shen_jiaxu: "倒悬云衢",
+	ps_shen_machao: "迅骛惊雷",
 };

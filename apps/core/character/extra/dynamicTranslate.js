@@ -14,18 +14,5 @@ const dynamicTranslates = {
 			end = "。";
 		return `${start}阳：${yang}；阴：${yin}${end}`;
 	},
-	fengliao(player) {
-		const bool = player.storage.fengliao;
-		let yang = "你令其摸一张牌",
-			yin = "你对其造成1点火焰伤害";
-		if (bool) {
-			yin = `<span class='bluetext'>${yin}</span>`;
-		} else {
-			yang = `<span class='firetext'>${yang}</span>`;
-		}
-		let start = "锁定技，转换技。你使用牌指定唯一目标后，",
-			end = "。";
-		return `${start}阳：${yang}；阴：${yin}${end}`;
-	},
 };
 export default dynamicTranslates;
