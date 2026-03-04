@@ -655,6 +655,7 @@ const skills = {
 	},
 	//逆转之神
 	dcfanzhuan: {
+		audio: 1,
 		trigger: {
 			global: ["phaseBegin"],
 		},
@@ -672,6 +673,7 @@ const skills = {
 		},
 	},
 	dcniyun: {
+		audio: 1,
 		mod: {
 			cardUsable(card, player, num) {
 				if (card.name == "sha") {
@@ -774,6 +776,7 @@ const skills = {
 	},
 	//抉择之神
 	dchuibian: {
+		audio: 2,
 		enable: "phaseUse",
 		filterTarget: (card, player, target) => {
 			return target.countCards("h") > 0;
@@ -830,6 +833,7 @@ const skills = {
 	},
 	//委屈之神
 	dcweiqu: {
+		audio: 2,
 		trigger: {
 			target: "useCardToTargeted",
 		},
@@ -9416,6 +9420,7 @@ const skills = {
 	},
 	//波仔
 	quanjia: {
+		audio: 2,
 		intro: {
 			markcount(storage, player) {
 				return storage || 0;

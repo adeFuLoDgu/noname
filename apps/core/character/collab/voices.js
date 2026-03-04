@@ -1,4 +1,12 @@
 export default {
+	"#dcfanzhuan1": "开！",
+	"#dcniyun1": "开！",
+	"#dchuibian1": "萝卜！",
+	"#dchuibian2": "纸巾！",
+	"#dcweiqu1": "喵~",
+	"#dcweiqu2": "喵~",
+	"#quanjia1": "&%$#@!~&()",
+	"#quanjia2": "&%$#@!~&()",
 	"#oljiangwu1": " 金戈耀长安，复光炎汉，当以武德昭日月。",
 	"#oljiangwu2": " 铁马临洛水，滚滚烽烟，尽是汉家驿马尘！",
 	"#olxinghan1": " 三兴之业，试问天下谁可阻？",
