@@ -1324,7 +1324,7 @@ const skills = {
 		},
 	},
 	dcsbhongce: {
-		audio: 2,
+		audio: 5,
 		audioname: ["dc_sb_pangtong_shadow"],
 		trigger: { global: "roundStart" },
 		enable: "phaseUse",
@@ -1373,6 +1373,24 @@ const skills = {
 				}
 				default: {
 					return "令一名角色摸三张牌，这些牌不计入手牌上限";
+				}
+			}
+		},
+		logAudio(event, player) {
+			if (event.name == "phase") {
+				return 2;
+			} else {
+				const evts = player.getAllHistory("custom", evt => evt.skill == "dcsbhongce");
+				if (evts.length) {
+					const link = evts[0].link;
+					switch (link) {
+						case "sha":
+							return player.storage.dcsbyinmou ? "dcsbhongce_dc_sb_pangtong_shadow3.mp3" : "dcsbhongce3.mp3";
+						case "recast":
+							return player.storage.dcsbyinmou ? "dcsbhongce_dc_sb_pangtong_shadow4.mp3" : "dcsbhongce4.mp3";
+						default:
+							return player.storage.dcsbyinmou ? "dcsbhongce_dc_sb_pangtong_shadow5.mp3" : "dcsbhongce5.mp3";
+					}
 				}
 			}
 		},
