@@ -2,6 +2,389 @@ import { lib, game, ui, get, ai, _status } from "noname";
 
 /** @type { importCharacterConfig['skill'] } */
 const skills = {
+	//四象封印玄武
+	//柯比能
+	stdkoujing: {
+		enable: "phaseUse",
+		usable: 1,
+		global: ["stdkoujing_effect"],
+		selectCard: [1, Infinity],
+		filterCard(card, player) {
+			return true;
+		},
+		filterTarget(card, player, target) {
+			let cardx = get.autoViewAs({ name: "sha", isCard: true }, ui.selected.cards);
+			return player.canUse(cardx, target, false, false);
+		},
+		filter(eevt, player) {
+			let cardx = get.autoViewAs({ name: "sha", isCard: true }, player.getCards("h"));
+			return player.hasUseTarget(cardx, false, false);
+		},
+		async content(event, trigger, player) {
+			let card = get.autoViewAs({ name: "sha", isCard: true, stdkj_user: player }, event.cards);
+			await player.useCard({ card: card, targets: event.targets, addCount: false });
+		},
+		ai: {
+			result: {
+				player(player, target, card) {
+					let cardx = get.autoViewAs({ name: "sha", isCard: true }, ui.selected.cards);
+					let use = get.effect(target, cardx, player);
+					if (target == _status.currentPhase && get.attitude(target, player)) {
+						let num = target.countCards("h");
+						let max = target.getHandcardLimit();
+						if ((max - num) * 3 > use) {
+							return 1;
+						}
+					}
+					return use;
+				},
+				target(player, target, card) {
+					let cardx = get.autoViewAs({ name: "sha", isCard: true }, ui.selected.cards);
+					let use = get.effect(target, cardx, player);
+					if (target == _status.currentPhase && get.attitude(target, player)) {
+						let num = target.countCards("h");
+						let max = target.getHandcardLimit();
+						if ((max - num) * 3 > use) {
+							return 1;
+						}
+					}
+					return use;
+				},
+			},
+		},
+		subSkill: {
+			effect: {
+				trigger: {
+					player: ["damageAfter"],
+				},
+				filter(event, player) {
+					return event.card?.stdkj_user;
+				},
+				async cost(event, trigger, player) {
+					let user = trigger.card?.stdkj_user;
+					event.result = await player
+						.chooseBool({
+							prompt: `是否与${get.translation(user)}交换手牌`,
+							ai(event, player) {
+								let user = get.event().user;
+								return get.attitude(player, user) > 0;
+							},
+						})
+						.set("user", user)
+						.forResult();
+				},
+				async content(event, trigger, player) {
+					let user = trigger.card?.stdkj_user;
+					let cards1 = player.getCards("h");
+					let cards2 = user.getCards("h");
+					await player.swapHandcards(user, cards1, cards2);
+				},
+			},
+		},
+	},
+	//牛金
+	stdcuorui: {
+		trigger: {
+			global: ["phaseBefore"],
+			source: ["dieBegin"],
+			player: ["enterGame"],
+		},
+		filter(event, player, name) {
+			if (name == "phaseBefore") {
+				return game.phaseNumber == 0 || event.name != "phase";
+			}
+			return true;
+		},
+		async content(event, trigger, player) {
+			let num = Math.min(7, game.players.length);
+			await player.drawTo(num);
+		},
+	},
+	//甘夫人
+	stdxzhixie: {
+		trigger: {
+			global: ["phaseUseBegin"],
+		},
+		async cost(event, trigger, player) {
+			let cards = trigger.player.getCards("h");
+			let result = await player
+				.choosePlayerCard({
+					target: trigger.player,
+					position: "h",
+				})
+				.forResult();
+			event.result = {
+				bool: result.bool,
+				cost_data: {
+					cards: result.links,
+				},
+			};
+		},
+		async content(event, trigger, player) {
+			let { cards } = event.cost_data;
+			let type = get.type2(cards[0], false);
+			player.setStorage(event.name, {
+				user: trigger.player,
+				type: type,
+			});
+			trigger.player.addTempSkill("stdxzhixie_effect", {
+				player: "phaseUseAfter",
+			});
+		},
+		subSkill: {
+			effect: {
+				trigger: {
+					global: ["useCard"],
+				},
+				forced: true,
+				filter(event, player) {
+					let storage = player.getStorage("stdxzhixie");
+					if (event.player != storage.user) {
+						return false;
+					}
+					let num = player.getHistory("useCard", evt => {
+						let type = get.type2(evt.card, false);
+						return evt != event && evt.isPhaseUsing(player) && type == storage.type;
+					}).length;
+					return num < 4;
+				},
+				async content(event, trigger, player) {
+					await player.getStorage("stdxzhixie").source.draw();
+				},
+			},
+		},
+	},
+	stdxshushen: {
+		trigger: {
+			global: ["phaseEnd"],
+		},
+		filter(event, player) {
+			return player.getHistory("gain").length > 2;
+		},
+		async cost(event, trigger, player) {
+			event.result = await player.chooseTarget({
+				prompt: "令一名其他角色回复一点体力",
+				filterTarget(card, player, target) {
+					return player != target;
+				},
+			});
+		},
+		async content(event, trigger, player) {
+			await event.targets[0].recover();
+		},
+	},
+	//王沈
+	stdanran: {
+		trigger: {
+			player: ["damageAfter"],
+		},
+		async content(event, trigger, player) {
+			let num = player.countMark(event.name + "_used") ?? 1;
+			await player.draw({
+				num: num,
+			});
+			if (num < 4) {
+				num++;
+				player.setMark(event.name + "_used", num, false);
+			}
+		},
+		group: ["stdanran_used"],
+		subSkill: {
+			used: {
+				init(player, skill) {
+					player.addMark(skill, 1, false);
+				},
+				charlotte: true,
+				mark: true,
+				marktext: "岸",
+				intro: {
+					name: "岸然",
+					content: "当前摸牌数：#",
+				},
+			},
+		},
+	},
+	stdgaobian: {
+		trigger: {
+			global: ["phaseEnd"],
+		},
+		filter(event, player) {
+			if (event.player != player) {
+				return false;
+			}
+			return game.getGlobalHistory("everything", evt => evt.name == "damage").length == 1;
+		},
+		forced: true,
+		async content(event, trigger, player) {
+			let user = game.getGlobalHistory("everything", evt => evt.name == "damage")[0].player;
+			let discarded = _status.discarded.filter(c => c.name == "sha");
+			let bool = discarded.some(c => user.hasUseTarget(c));
+			let num = game.players.reduce((num, curr) => {
+				if (!curr.hasSkill("stdanran")) {
+					num += 0;
+				} else {
+					num += get.attitude(user, curr);
+				}
+				return num;
+			}, 0);
+			let result = bool
+				? await player
+						.chooseButton({
+							createDialog: [
+								[
+									"选择一项",
+									[
+										[
+											["sha", "使用本回合进入弃牌堆的一张【杀】"],
+											["re", "重置岸然"],
+										],
+										"textbutton",
+									],
+								],
+							],
+							forced: true,
+							ai(button) {
+								const { player, discarded: cards, attitude: num } = get.event();
+								return {
+									sha: Math.max(...cards.map(card => player.getUseValue(card))),
+									re: num,
+								}[button.link];
+							},
+						})
+						.set("discarded", discarded)
+						.set("attitude", num)
+						.forResult()
+				: {
+						bool: true,
+						links: ["re"],
+					};
+			if (result.links[0] == "sha") {
+				const result2 = await user
+					.chooseCardButton({
+						prompt: "告变：请选择其中一张【杀】使用",
+						cards: discarded,
+						forced: true,
+					})
+					.set("filterButton", button => {
+						return get.player().hasUseTarget(button.link);
+					})
+					.forResult();
+				if (result2?.bool && result2.links?.length) {
+					await user.chooseUseTarget(result2.links[0], true, false);
+				}
+			} else {
+				game.players.forEach(curr => {
+					if (curr.hasSkill("stdanran")) {
+						curr.refreshSkill(["stdanran"]);
+					}
+				});
+			}
+		},
+	},
+	//曹金玉
+	stdyuqi: {
+		trigger: {
+			global: ["damageAfter"],
+		},
+		filter(event, player) {
+			return get.distance(player, event.player) <= 1;
+		},
+		async content(event, trigger, player) {
+			await trigger.player.draw();
+		},
+	},
+	stdshanshen: {
+		trigger: {
+			global: ["dieAfter"],
+		},
+		filter(event, player) {
+			return event.reason.name != "damage" || event.reason.player != player;
+		},
+		async content(event, trigger, player) {
+			await player.draw();
+		},
+	},
+	//吕伯奢
+	stdfushi: {
+		enable: ["chooseToUse"],
+		filter(event, player) {
+			return player.hasCard("sha", "he");
+		},
+		selectCard: [1, Infinity],
+		filterCard(card, player) {
+			return get.name(card, player) == "sha";
+		},
+		selectTarget: () => [1, ui.selected.cards.length],
+		filterTarget(card, player, target) {
+			let cardx = get.autoViewAs(
+				{
+					name: "sha",
+					isCard: true,
+				},
+				[ui.selected.cards]
+			);
+			return player.canUse(cardx, target);
+		},
+		complexCard: true,
+		viewAs: {
+			name: "sha",
+		},
+		group: ["stdfushi_effect"],
+		subSkill: {
+			effect: {
+				trigger: {
+					global: ["useCardAfter"],
+				},
+				forced: true,
+				filter(event, player) {
+					return (
+						event.cards.length &&
+						get.distance(player, event.player) < 1 &&
+						!event.player.hasHistory("useCard", evt => evt.card.name == "sha")
+					);
+				},
+				async content(event, trigger, player) {
+					await player.gain({
+						cards: trigger.cards,
+					});
+				},
+			},
+		},
+	},
+	//吴珂
+	stdanda: {
+		trigger: {
+			global: ["dying"],
+		},
+		round: 1,
+		filter(event, player) {
+			return event.reason.name == "damage" && event.source;
+		},
+		async content(event, trigger, player) {
+			let source = trigger.source;
+			let result = await source
+				.chooseToGive({
+					prompt: `交给${get.translation(trigger.player)}一张牌否则其回复一点体力`,
+					target: trigger.player,
+					position: "he",
+				})
+				.forResult();
+			if (!result.bool) {
+				await trigger.player.recover();
+			}
+		},
+	},
+	stdzhuguo: {
+		enable: "phaseUse",
+		usable: 1,
+		filterTarget(card, player, target) {
+			return target.config("h") < 2;
+		},
+		selectCard: 0,
+		async content(event, trigger, player) {
+			await event.targets[0].drawTo(2);
+		},
+	},
 	//四象封印·朱雀
 	//黄舞蝶
 	stdshuangrui: {
