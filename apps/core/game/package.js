@@ -3,7 +3,7 @@ window.noname_package = {
 		//经典标包＋神话再临
 		standard: "标准",
 		shenhua: "神话再临",
-		extra: "神将",
+		extra: "经典神将",
 		//一将成名+界限突破
 		yijiang: "一将成名",
 		refresh: "界限突破",

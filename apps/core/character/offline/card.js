@@ -1,6 +1,216 @@
 import { lib, game, ui, get, ai, _status } from "noname";
 
 const cards = {
+	sm_prettyDerby: {
+		audio: true,
+		fullskin: true,
+		derivation: "sm_shen_machao",
+		type: "equip",
+		distance: {
+			globalFrom: -1,
+			globalTo: +1,
+		},
+		selectTarget: -1,
+		filterTarget(card, player, target) {
+			if (player !== target) {
+				return false
+			}
+			const ranges = Array.from(Array(5)).map((value, index) => `equip${index + 1}`);
+			if (get.is.mountCombined()) {
+				ranges.removeArray(["equip3", "equip4"]);
+				ranges.add("equip3_4");
+			}
+			if (get.itemtype(card) == "card") {
+				const owner = get.owner(card, "judge");
+				if (owner && !lib.filter.canBeGained(card, player, owner)) {
+					return false;
+				}
+			}
+			return ranges.some(range => player.countEquipableSlot(range));
+		},
+		async prepareEquip(event, trigger, player) {
+			if (!event.card.subtypes?.length) {
+				const choices = [];
+				for (let i = 0; i <= 5; i++) {
+					if (player.hasEquipableSlot(i)) {
+						choices.push(`equip${i}`);
+					}
+				}
+				if (!choices.length) {
+					return;
+				}
+				const result = await player
+					.chooseControl(choices)
+					.set("prompt", "请选择置入【赛马】的装备栏")
+					.set("ai", () => _status.event.controls.randomGet())
+					.forResult();
+				event.card.subtypes = [result.control];
+			}
+		},
+		ai: {
+			equipValue: 7.5,
+			basic: {
+				equipValue: 7.5,
+			},
+		},
+	},
+	//sm-赛马
+	sm_mabian: {
+		derivation: "sp_sm_shen_machao",
+		fullskin: true,
+		type: "equip",
+		subtype: "equip5",
+		async onEquip(event, trigger, player) {
+			const { card } = event,
+				skill = "sm_mabian_skill";
+			if (event.getParent().name != "equip") {
+				return;
+			}
+			const evt = event.getParent(2),
+				target = evt.player;
+			if (!get.info(evt.name)?.transformSkill) {
+				return;
+			}
+			const skills = [];
+			for (const name of get.nameList(target)) {
+				const list = get.character(name, 3);
+				if (!list?.length || !list.includes(evt.name)) {
+					continue;
+				}
+				if (get.characterTitle(name) != "赛马娘") {
+					continue;
+				}
+				skills.add(list[0]);
+			}
+			player.addSkill(skill);
+			const map = player.getStorage(skill, new Map());
+			map.set(card, skills);
+			player.setStorage(skill, map);
+			player.addAdditionalSkill(skill, Array.from(map.values()).flat());
+		},
+		forceDie: true,
+		async onLose(event, trigger, player) {
+			const { card } = event,
+				skill = "sm_mabian_skill";
+			const map = player.getStorage(skill, new Map());
+			map.delete(card);
+			player.setStorage(skill, map);
+			player.addAdditionalSkill(skill, Array.from(map.values()).flat());
+			if (!map.size) {
+				player.removeSkill(skill);
+			}
+		},
+		cardPrompt(card, player) {
+			if (!card || !player) {
+				return lib.translate["sm_mabian_info"];
+			}
+			const skill = "sm_mabian_skill",
+				map = player.getStorage(skill, new Map()),
+				vcard = card[card.cardSymbol];
+			if (!vcard || !map.has(vcard) || !map.get(vcard).length) {
+				return lib.translate["sm_mabian_info"];
+			}
+			const skills = map.get(vcard);
+			return `你视为拥有着${skills.map(name => get.poptip(name))}`;
+		},
+		ai: {
+			basic: {
+				equipValue: 7,
+			},
+		},
+	},
+	//26神黄月英的升级装备
+	zc26_zhuge: {
+		fullskin: true,
+		type: "equip",
+		subtype: "equip1",
+		derivation: "zc26_shen_huangyueying",
+		skills: ["zc26_zhuge_skill"],
+		ai: {
+			order() {
+				return get.order({ name: "sha" }) + 0.1;
+			},
+			equipValue(card, player) {
+				if (player._zhuge_temp) {
+					return 1;
+				}
+				player._zhuge_temp = true;
+				var result = (function () {
+					if (
+						!game.hasPlayer(function (current) {
+							return get.distance(player, current) <= 1 && player.canUse("sha", current) && get.effect(current, { name: "sha" }, player, player) > 0;
+						})
+					) {
+						return 1.5;
+					}
+					if (player.hasSha() && _status.currentPhase === player) {
+						if ((player.getEquip("zhuge") && player.countUsed("sha")) || player.getCardUsable("sha") === 0) {
+							return 10.5;
+						}
+					}
+					var num = player.countCards("h", "sha");
+					if (num > 1) {
+						return 6.5 + num;
+					}
+					return 3.5 + num;
+				})();
+				delete player._zhuge_temp;
+				return result;
+			},
+			basic: {
+				equipValue: 6,
+			},
+			tag: {
+				valueswap: 1.5,
+			},
+		},
+	},
+	zc26_bagua: {
+		fullskin: true,
+		type: "equip",
+		subtype: "equip2",
+		derivation: "zc26_shen_huangyueying",
+		skills: ["zc26_bagua_skill"],
+		ai: {
+			basic: {
+				equipValue: 8,
+			},
+		},
+	},
+	zc26_lingling: {
+		name: "zc26_lingling",
+		fullskin: true,
+		type: "equip",
+		subtype: "equip4",
+		derivation: "zc26_shen_huangyueying",
+		skills: ["zc26_lingling_skill"],
+		distance: { globalFrom: -2 },
+		ai: {
+			value(card, player) {
+				if (
+					!game.hasPlayer(function (current) {
+						return get.damageEffect(current, player, player, "thunder") > 0;
+					})
+				) {
+					return 0;
+				}
+				return 8;
+			},
+			equipValue(card, player) {
+				if (
+					!game.hasPlayer(function (current) {
+						return get.damageEffect(current, player, player, "thunder") > 0;
+					})
+				) {
+					return 0;
+				}
+				return 8;
+			},
+			basic: {
+				equipValue: 2,
+			},
+		},
+	},
 	shengbei_left_yin: {
 		fullskin: true,
 		noname: true,

@@ -9271,6 +9271,10 @@ export const Content = {
 				}
 			}
 			if (event.dialog.buttons.length == 0) {
+				event.result = {
+					bool: false,
+				}
+				event.dialog.close();
 				event.finish();
 				return;
 			}
@@ -9496,6 +9500,9 @@ export const Content = {
 			}
 
 			if (event.dialog.buttons.length == 0) {
+				event.result = {
+					bool: false,
+				}
 				event.dialog.close();
 				event.finish();
 				return;

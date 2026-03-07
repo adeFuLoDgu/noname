@@ -190,11 +190,13 @@ const skills = {
 						player.logSkill("rehuomo");
 						const card = event.result.cards[0];
 						game.log(player, "将", card, "置于牌堆顶");
-						await player.loseToDiscardpile({
-							cards: [card],
-							position: ui.cardPile,
-							insert_card: true,
-						}).set("log", false);
+						await player
+							.loseToDiscardpile({
+								cards: [card],
+								position: ui.cardPile,
+								insert_card: true,
+							})
+							.set("log", false);
 						const viewAs = {
 							name: event.result.card.name,
 							nature: event.result.card.nature,
@@ -276,7 +278,7 @@ const skills = {
 			const judgeEvent = player.judge({
 				judge(card) {
 					return 1;
-				}
+				},
 			});
 			judgeEvent.callback = lib.skill.rejijun.callback;
 			await judgeEvent;
@@ -378,7 +380,7 @@ const skills = {
 							cards.sort((a, b) => {
 								const numberA = get.number(a, false);
 								const numberB = get.number(b, false);
-								
+
 								if (typeof numberA !== "number") {
 									return 1;
 								}
@@ -400,7 +402,7 @@ const skills = {
 							}
 							return list.includes(button.link) ? 1 : 0;
 						}
-					}
+					},
 				})
 				.forResult();
 			if (result?.bool && result.links?.length) {
@@ -481,10 +483,11 @@ const skills = {
 			event.result = await trigger.player
 				.chooseBool({
 					prompt: player === trigger.player ? get.prompt(event.skill) : `是否响应${get.translation(player)}的【郡兵】？`,
-					prompt2: "摸一张牌" + (player === trigger.player ? "" : "，将所有手牌交给" + get.translation(player) + "，然后其可以交给你等量张牌"),
+					prompt2:
+						"摸一张牌" + (player === trigger.player ? "" : "，将所有手牌交给" + get.translation(player) + "，然后其可以交给你等量张牌"),
 					ai() {
 						return get.event().choice;
-					}
+					},
 				})
 				.set("choice", get.attitude(trigger.player, player) > 0)
 				.forResult();
@@ -517,7 +520,7 @@ const skills = {
 								return -get.value(card);
 							}
 							return 8 - Math.sqrt(target.hp) - get.value(card);
-						}
+						},
 					})
 					.set("target", target)
 					.forResult();
@@ -4049,7 +4052,7 @@ const skills = {
 			result = await trigger.player.judge().forResult();
 
 			// step 1
-			event.judgeResult = get.copy(result);
+			const judgeResult = get.copy(result);
 			let str = "是否弃置一张牌",
 				strt = get.translation(target),
 				strs = get.translation(source),
@@ -4095,13 +4098,15 @@ const skills = {
 				str2 += "；若弃置花色为" + get.translation(result.suit) + "的牌则获得" + get.translation(result.card);
 			}
 			result = await player
-				.chooseToDiscard("he", str, str2)
+				.chooseToDiscard({
+					position: "he",
+					prompt: str,
+					prompt2: str2,
+				})
 				.set("goon", goon)
 				.set("ai", function (card) {
-					var goon = _status.event.goon;
-					var player = _status.event.player;
-					var result = _status.event.getParent().judgeResult;
-					var eff = Math.min(7, goon);
+					const { result, goon, player } = get.event();
+					let eff = Math.min(7, goon);
 					if (eff <= 0) {
 						return 0;
 					}
@@ -4113,12 +4118,13 @@ const skills = {
 					}
 					return eff - get.value(card);
 				})
+				.set("result", judgeResult)
 				.forResult();
 
 			// step 2
 			if (result.bool) {
 				const card = result.cards[0];
-				switch (card.suit) {
+				switch (judgeResult.suit) {
 					case "heart":
 						if (target.isIn() && target.isDamaged()) {
 							await target.recover().forResult();
@@ -4145,10 +4151,10 @@ const skills = {
 
 				// step 3
 				var gains = [];
-				if (get.position(event.judgeResult.card, true) == "d" && get.suit(card, player) == event.judgeResult.suit) {
-					gains.push(event.judgeResult.card);
+				if (get.position(judgeResult.card, true) == "d" && get.suit(card, player) == judgeResult.suit) {
+					gains.push(judgeResult.card);
 				}
-				if (get.position(card, true) == "d" && get.number(card, player) == event.judgeResult.number) {
+				if (get.position(card, true) == "d" && get.number(card, player) == judgeResult.number) {
 					gains.push(card);
 				}
 				if (gains.length) {
@@ -12743,11 +12749,7 @@ const skills = {
 				event.target = list[0];
 			} else {
 				chooseRes = await player
-					.chooseTarget(
-						true,
-						"请选择获得所有拼点牌的角色",
-						(card, pl, target) => _status.event.list.includes(target)
-					)
+					.chooseTarget(true, "请选择获得所有拼点牌的角色", (card, pl, target) => _status.event.list.includes(target))
 					.set("list", list)
 					.forResult();
 				if (!chooseRes?.bool) {
@@ -15677,9 +15679,7 @@ const skills = {
 			return 6 - get.value(card);
 		},
 		async content(event, trigger, player) {
-			// step 0
 			const { cards } = event;
-			await player.discard(cards);
 			event.num = 1;
 			const hs = player.getCards("h");
 			if (hs.length > 0) {
@@ -15691,7 +15691,7 @@ const skills = {
 					break;
 				}
 			}
-			// step 1
+			await player.discard(cards);
 			await player.draw(event.num + cards.length);
 		},
 		//group:'rezhiheng_draw',

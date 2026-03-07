@@ -2834,6 +2834,13 @@ const skills = {
 				let cards = result.cards.slice();
 				await player.showCards(cards, get.translation(player) + "发动了【惑心】");
 				const cardx = cards.filter(card => card.hasGaintag(tag) || get.suit(card) == get.suit(trigger.card));
+				if (cards.some(card => !card.hasGaintag(tag))) {
+					target.addGaintag(
+						cards.filter(card => !card.hasGaintag(tag)),
+						"eternal_dcyunzheng_tag"
+					);
+					await event.trigger("dchuoxin_update");
+				}
 				if (cardx.length) {
 					const result2 = await player
 						.chooseBool({
@@ -2850,16 +2857,9 @@ const skills = {
 						/*if (cardx[0].hasGaintag("eternal_dcyunzheng_tag")) {
 							next.gaintag.add("eternal_dcyunzheng_tag");
 						}*/
-						await event.trigger("dchuoxin_update");
+						//await event.trigger("dchuoxin_update");
 					}
 					cards.removeArray(cardx);
-				}
-				if (cards.some(card => !card.hasGaintag(tag))) {
-					target.addGaintag(
-						cards.filter(card => !card.hasGaintag(tag)),
-						"eternal_dcyunzheng_tag"
-					);
-					await event.trigger("dchuoxin_update");
 				}
 			}
 		},

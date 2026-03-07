@@ -1505,6 +1505,26 @@ const translates = {
 	hs_sunhao_prefix: "青史",
 	hsshezuo: "设座",
 	hsshezuo_info: "准备阶段，你可以选择一项令本回合下次拼点结束后没赢的角色执行：1.依次弃置两张牌，不足则失去等量体力；2.横置并受到1点火焰伤害；3.将所有手牌当一张普通锦囊牌使用。出牌阶段限一次，你可以摸一张牌并拼点。",
+	ca_shen_lijueguosi: "长安神李傕郭汜",
+	ca_shen_lijueguosi_prefix: "长安神",
+	caweijue: "威傕",
+	caweijue_info: "锁定技，准备阶段，从你的下家开始所有其他角色依次将任意张手牌置于武将牌上直到回合结束，称为“威”；若一名角色的“威”不大于其手牌数，你与其视为在彼此攻击范围内。",
+	cachuxiong: "除凶",
+	cachuxiong_info: "出牌阶段开始时，你可以展示所有手牌并弃置其中一种颜色的所有牌，若你以此法弃置的牌颜色为：黑色，你获得等量张“威”；红色，你对攻击范围内的所有其他角色依次造成1点伤害。",
+	ca_shen_caocao: "长安神曹操",
+	ca_shen_caocao_prefix: "长安神",
+	cazhaoshao: "诏绍",
+	cazhaoshao_info: "当你造成或受到1点伤害后，你可以摸一张牌，然后令受伤角色或伤害来源：1.获得弃牌堆或场上的一张装备牌并使用之（此装备占用独立装备栏）；2.翻面并摸一张牌；3.减少1点体力上限。",
+	caxiaoxiong: "嚣凶",
+	caxiaoxiong_info: "锁定技，当你翻面时，取消之，然后令所有其他角色失去1点体力。",
+	ca_shen_wangyun: "长安神王允",
+	ca_shen_wangyun_prefix: "长安神",
+	caanchao: "安朝",
+	caanchao_info: "一名角色的回合结束时，若本回合有角色使用过虚拟牌或转化牌，你可摸一张牌并获得1点蓄力值。",
+	cayurong: "御戎",
+	cayurong_info: "锁定技，你于一轮内首次成为一种伤害牌的目标时，取消之。",
+	cadingxi: "定西",
+	cadingxi_info: "蓄力技（4/∞）。当你需要使用一种类型的牌时，你可以消耗1点蓄力值并展示牌堆顶的一张牌，若类型相同，你使用之，否则你从牌堆底摸一张牌；若你连续相同2/3次，你回复全部体力/对所有其他角色各造成1点伤害。",
 	ca_wangyun: "长安王允",
 	ca_wangyun_prefix: "长安",
 	calianji: "连计",
@@ -1636,6 +1656,18 @@ const translates = {
 	jun_xiandao: "显道",
 	jun_xiandao_info: "一名角色的判定牌生效前，你可以打出一张黑色牌替换之，然后摸一张牌。",
 
+	wn_shen_machao: "渭南神马超",
+	wn_shen_machao_prefix: "渭南神",
+	wn_qiangshu: "枪术",
+	wn_qiangshu_info: "你使用【杀】或【决斗】造成伤害时，可以弃置X张牌，令此伤害+X（X为你的攻击范围-1）。",
+	wn_yuma: "御马",
+	wn_yuma_info: "每回合限一次，一张装备牌进入弃牌堆后，你可以将此牌置入一名角色装备区，然后获得其所有手牌。",
+	wn_shen_xuzhu: "渭南神许褚",
+	wn_shen_xuzhu_prefix: "渭南神",
+	wn_zhuanzhan: "转战",
+	wn_zhuanzhan_info: "其他角色的准备阶段，你可以废除一个装备栏并视为对其使用一张【决斗】。",
+	wn_huwei: "虎威",
+	wn_huwei_info: "锁定技，摸牌阶段你多摸X张牌（X为你已废除的装备栏数）。",
 	wn_caocao: "渭南曹操",
 	wn_caocao_prefix: "渭南",
 	wn_dingluan: "定乱",
@@ -1931,6 +1963,142 @@ const translates = {
 	dailu_jipao_append: "<span style='font-family: yuanli'>……离我远点，会变得不幸的。</span>",
 	ol_manchong: "将满宠",
 	ol_manchong_prefix: "将",
+	shen_diaochan: "神貂蝉",
+	shen_diaochan_prefix: "神",
+	meihun: "魅魂",
+	meihun_info: "结束阶段或当你成为【杀】的目标后，你可以令一名其他角色交给你一张你声明的花色的手牌，若其没有则你观看其手牌然后弃置其中一张。",
+	huoxin_control: "惑心",
+	huoxin: "惑心",
+	huoxin_info: "出牌阶段限一次，你可以展示两张花色相同的手牌并分别交给两名其他角色，然后令这两名角色拼点，没赢的角色获得1个“魅惑”标记。拥有2个或更多“魅惑”的角色回合即将开始时，该角色移去其所有“魅惑”，此回合改为由你操控。",
+	boss_zhaoyun: "高达一号",
+	boss_zhaoyun_ab: "神赵云",
+	boss_zhaoyun_prefix: "神",
+	boss_juejing: "绝境",
+	boss_juejing2: "绝境",
+	boss_juejing_info: "锁定技，摸牌阶段开始前，你跳过此阶段。当你得到牌/失去手牌后，若你的手牌数大于四/小于四，则你将手牌摸至四张/弃置至四张。",
+	zhanjiang: "斩将",
+	zhanjiang_info: "准备阶段开始时，如果其他角色的装备区内有【青釭剑】，你可以获得之。",
+	zc26_shen_huangyueying: "26神黄月英",
+	zc26_shen_huangyueying_prefix: "26|神",
+	zc26_cangqiao: "藏巧",
+	zc26_cangqiao_info: "每轮开始时，你可以获得游戏外或弃牌堆中的【断剑】、【水手服】、【庸驴】各至多一张；你使用上述牌时可以将手牌摸至体力上限。",
+	zc26_shenxie: "神械",
+	zc26_shenxie_info: "每回合限一次，以你为唯一目标的黑色牌结算后，你可以将场上一张装备牌当未以此法使用过的延时锦囊牌使用（均使用过后重置）；此类锦囊牌在判定区内同时有被转化的装备牌的效果。",
+	zc26_huaxiu: "化朽",
+	zc26_huaxiu_info: `出牌阶段限一次，你可以将一种“藏巧”装备牌效果修改为下述对应顺序的牌直到下回合开始：${get.poptip("zc26_zhuge")}、${get.poptip("zc26_bagua")}、${get.poptip("zc26_lingling")}。`,
+	zc26_zhuge: "魂·诸葛连弩",
+	zc26_zhuge_info: "你使用【杀】无次数限制且指定目标后，你可以令任意名死亡角色依次观看目标手牌并可以重铸其中一张牌。",
+	zc26_zhuge_skill: "魂·诸葛连弩",
+	zc26_zhuge_skill_info: "你使用【杀】无次数限制且指定目标后，你可以令任意名死亡角色依次观看目标手牌并可以重铸其中一张牌。",
+	zc26_bagua: "魂·八卦阵",
+	zc26_bagua_info: "当你需要使用或打出【闪】时，你可以进行一次判定，若结果为红色，视为使用或打出之；判定前你可以令一名死亡角色卜算3。",
+	zc26_bagua_skill: "魂·八卦阵",
+	zc26_bagua_skill_info: "当你需要使用或打出【闪】时，你可以进行一次判定，若结果为红色，视为使用或打出之；判定前你可以令一名死亡角色卜算3。",
+	zc26_lingling: "軨軨",
+	zc26_lingling_info: "准备阶段，你须对一名角色造成1点雷电伤害；每轮结束时，所有死亡角色同时秘密选择上家或下家，然后按顺序（死亡由前到后）依次移动此牌至选择的角色对应区域内。",
+	zc26_lingling_skill: "軨軨",
+	zc26_lingling_skill_info: "准备阶段，你须对一名角色造成1点雷电伤害；每轮结束时，所有死亡角色同时秘密选择上家或下家，然后按顺序（死亡由前到后）依次移动此牌至选择的角色对应区域内。",
+	le_shen_jiaxu: "神贾诩",
+	le_shen_jiaxu_prefix: "神",
+	jxlianpo: "炼魄",
+	jxlianpo_info: "锁定技。①若场上最大阵营为：反贼，其他角色的手牌上限-1，所有角色使用【杀】的次数上限和攻击范围+1；主忠，其他角色不能对其以外的角色使用【桃】。若有多个最大阵营，其他角色死亡后，来源摸两张牌或回复1点体力。②每轮开始时，你展示一张未加入游戏或已死亡角色的身份牌，本轮视为该身份对应阵营的角色数+1。",
+	jxzhaoluan: "兆乱",
+	jxzhaoluan_info: "限定技。一名角色死亡前，若其此次进入过濒死状态，你可以取消之，令其加3点体力上限并失去所有非锁定技，回复体力至3点，摸四张牌。然后你获得如下效果：出牌阶段，你可以令一名成为过你〖兆乱〗目标的角色减1点体力上限，然后对一名此阶段未以此法选择过的角色造成1点伤害。",
+	mark_shen_machao: "骏骊神马超",
+	mark_shen_machao_prefix: "骏骊|神",
+	mark_shouli: "狩骊",
+	mark_shouli_info: `①游戏开始时，所有其他角色随机获得1枚“狩骊”（包含3枚“${get.poptip({
+		id: "shouli_jun",
+		name: "骏",
+		type: "character",
+		info: `①若你持有的“骏”数量大于：
+			<br><li>0，你计算与其他角色的距离-1；
+			<br><li>1，摸牌阶段你额外摸一张牌；
+			<br><li>2，你使用【杀】指定目标时，令其本回合非锁定技失效。
+			<br>②当你受到属性伤害或【南蛮入侵】、【万箭齐发】造成的伤害时，你将所有“骏”移动至你上家。
+			`,
+	})}”和4枚“${get.poptip({
+		id: "shouli_li",
+		name: "骊",
+		type: "character",
+		info: `①若你持有的“骊”数量大于：
+			<br><li>0，其他角色计算与你的距离+1；
+			<br><li>1，摸牌阶段你额外摸一张牌；
+			<br><li>2，你造成或受到的伤害视为雷电伤害；
+			<br><li>3，你造成或受到的伤害+1。
+			<br>②当你受到属性伤害或【南蛮入侵】、【万箭齐发】造成的伤害时，你将所有“骊”移动至你下家。
+			`,
+	})}”）②每回合各限一次，你可以选择一项：1.移动一名其他角色的所有“${get.poptip("shouli_li")}”至其的上家或下家，视为使用或打出一张【闪】；2.移动一名其他角色的所有“${get.poptip("shouli_jun")}”至其的上家或下家，视为使用或打出一张无距离次数限制的【杀】。`,
+	mark_shouli_append: "<span style='font-family: yuanli'>狩猎开始……</span>",
+	mark_shouli_jun: "骏",
+	get mark_shouli_jun_info() {
+		return lib.poptip.getInfo("shouli_jun");
+	},
+	mark_shouli_li: "骊",
+	get mark_shouli_li_info() {
+		return lib.poptip.getInfo("shouli_li");
+	},
+	mark_hengwu: "横骛",
+	mark_hengwu_info: "锁定技，有“骏”/“骊”的角色获得“骏”/“骊”后，你摸X张牌（X为其拥有的“骏”/“骊”数）。",
+	sp_sm_shen_machao: "SP赛马神马超",
+	sp_sm_shen_machao_prefix: "SP|赛马|神",
+	sm_mabian: "马鞭",
+	sm_mabian_info: `若称号为“赛马娘”的角色因${get.poptip("rule_bianshenji")}将此牌置入你的装备区，你视为拥有其武将牌上的第一个技能直到失去此牌。`,
+	sm_kulian: "酷练",
+	sm_kulian_info: `锁定技，游戏开始时，你令所有角色依次装备牌堆中的一张坐骑牌，并从游戏外将一张${get.poptip("sm_mabian")}置入装备区，然后开始${get.poptip({
+		name: "比赛",
+		id: "sm_PrettyDerby",
+		info: `
+			1.每轮开始时，随机亮出两张${get.poptip("sm_PerttyDerby_reward")}，于本轮结束时执行效果<br>
+			2.全部${get.poptip("sm_PerttyDerby_reward")}亮出后，重新洗切奖励牌堆<br>
+			3.装备有${get.poptip("sm_mabian")}的角色称为“选手”<br>
+			4.装备坐骑的“选手”使用牌无距离限制，每回合首次对其他“选手”造成伤害后摸一张牌<br>
+			5.失去${get.poptip("sm_mabian")}的“选手”进行“退赛”，不再视为“选手”<br>
+			6.快乐第一，比赛第二
+		`,
+		type: "character",
+	})}。`,
+	sm_kulian_reward: "赛马奖励",
+	get sm_kulian_reward_info() {
+		return lib.poptip.getInfo("sm_PerttyDerby_reward");
+	},
+	sm_lema: "乐马",
+	sm_lema_info: "每回合限一次，你可以视为使用一张基本牌，然后摸X张牌（X为场上坐骑牌数量且至少为1）。",
+	sm_chaoxuan: "潮炫",
+	sm_chaoxuan_info: `锁定技，一次${get.poptip("sm_PrettyDerby")}结束时，你执行一次${get.poptip({
+		id: "sm_PerttyDerby_reward",
+		name: "赛马奖励",
+		info: `
+			1.受到伤害唯一最多<br>
+			<li><span style='font-family: yuanli'>奖励：回复全部体力</span><br>
+			2.手牌数唯一最多<br>
+			<li><span style='font-family: yuanli'>奖励：手牌上限改为体力上限</span><br>
+			3.体力值唯一最高<br>
+			<li><span style='font-family: yuanli'>奖励：增加1点体力上限</span><br>
+			4.装备区牌数唯一最多<br>
+			<li><span style='font-family: yuanli'>奖励：获得一张其他角色的装备牌</span><br>
+			5.击杀数唯一最多<br>
+			<li><span style='font-family: yuanli'>奖励：执行一个仅有出牌阶段的额外回合</span><br>
+			6.使用牌数唯一最多<br>
+			<li><span style='font-family: yuanli'>奖励：摸五张牌</span><br>
+			7.造成伤害唯一最多<br>
+			<li><span style='font-family: yuanli'>奖励：使用【杀】造成伤害+1</span>
+		`,
+		type: "character",
+	})}。`,
+	sm_wandou: "玩斗",
+	sm_wandou_info: "一名角色“退赛”时，你可令其将体力值调整至1点。",
+	sm_shen_machao: "赛马神马超",
+	sm_shen_machao_prefix: "赛马|神",
+	sm_tuanlian: "团练",
+	sm_tuanlian_info: "锁定技，游戏开始时/你每回合首次造成或受到伤害后，你随机获得五/一张名字或称号包含“马”的武将牌，称为“赛马”。",
+	sm_jingji: "竞激",
+	sm_jingji_info: `①你可弃置一张“赛马”，发动其牌面上的第一个技能。②你可移去一张“赛马”，视为使用以下牌：${get.poptip("sm_prettyDerby")}；任意基本牌，数值+1；任意普通锦囊牌，摸一张牌。`,
+	sm_prettyDerby: "赛马",
+	sm_prettyDerby_info: "锁定技，你计算与其他角色的距离-1，其他角色计算与你的距离+1。",
+	sm_kuangchi: "狂驰",
+	sm_kuangchi_info: "你杀死一名角色后，可以交给其一张“赛马”代替其一张武将牌并令其复活，其胜利条件改为与你一致。",
+
 };
 
 export default translates;

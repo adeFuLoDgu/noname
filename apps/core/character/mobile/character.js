@@ -1,4 +1,14 @@
 const characters = {
+	xin_simayi: {
+		sex: "male",
+		group: "shen",
+		hp: 4,
+		skills: ["xinrenjie", "xinbaiyin", "xinlianpo"],
+		tempname: ["new_simayi"],
+		groupInGuozhan: "wei",
+		names: "司马|懿",
+		dieAudios: ["new_simayi"],
+	},
 	o_tanshihuai: {
 		sex: "male",
 		group: "qun",

@@ -1,4 +1,11 @@
 const characters = {
+	ol_le_zhugeliang: {
+		sex: "male",
+		group: "shu",
+		hp: 3,
+		skills: ["oljiangwu", "olxinghan"],
+		names: "诸葛|亮",
+	},
 	meituizhishen: {
 		sex: "male",
 		group: "shen",
@@ -64,21 +71,21 @@ const characters = {
 	},
 	mb_chitu: {
 		sex: "male",
-		group: "shu",
+		group: "qun",
 		hp: 4,
 		skills: ["mbjunkui", "mbchiyuan"],
 	},
 	mb_jueying: {
 		sex: "male",
-		group: "qun",
+		group: "wei",
 		hp: 4,
 		skills: ["mbjiguan", "mbzhengpeng"],
 	},
 	mb_dilu: {
 		sex: "male",
-		group: "qun",
+		group: "shu",
 		hp: 4,
-		skills: ["mbjunkui", "mbyuetan"],
+		skills: ["mbjiguan", "mbyuetan"],
 	},
 	mb_muniu: {
 		sex: "male",

@@ -1,4 +1,7 @@
 export default {
+	"#twwuhun1": "不杀此人，何以雪恨？",
+	"#twwuhun2": "还我头来！",
+	"#tw_shen_guanyu:die": "夙愿已了，魂归地府……",
 	"#huan_caochong:die": "骨肉至亲，何必至此……",
 	"#twfushu1": "东风不吝回青意，当还病树万木春。",
 	"#twfushu2": "常怀仁爱之心，天必不绝其路。",

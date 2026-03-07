@@ -1,4 +1,12 @@
 export default {
+	shen_sunquan: "坐断东南",
+	shen_dianwei: "襢裼暴虎",
+	ol_shen_dianwei: "襢裼暴虎",
+	ol_shen_zhangjiao: "驭道震泽",
+	junk_zhangjiao: "驭道震泽",
+	ol_zhangliao: "散敌擒孙",
+	shen_caopi: "诰天仰颂",
+	shen_zhenji: "洛水凌波",
 	//ol_zhangsong: "",
 	ol_jsrg_zhanghe: "微子去殷",
 	//ol_caojie: "",

@@ -1,4 +1,5 @@
 const characterSort = {
+	extra_ol: ["shen_dianwei", "ol_zhangliao", "shen_caopi", "shen_zhenji", "shen_sunquan", "junk_zhangjiao"],
 	onlyOL_yijiang1: ["ol_zhangchunhua", "ol_lingtong", "ol_gaoshun", "ol_fazheng", "ol_wuguotai", "ol_caozhi", "ol_re_yujin"],
 	onlyOL_yijiang2: ["ol_liaohua", "ol_caozhang", "ol_chengpu", "ol_wangyi", "ol_liubiao", "ol_guanzhang", "ol_madai"],
 	onlyOL_yijiang3: ["ol_jianyong", "ol_guohuai", "ol_fuhuanghou", "ol_yufan", "ol_liru", "ol_caochong"],
@@ -36,6 +37,7 @@ const characterSortTranslate = {
 	onlyOL_sb_huahao: "上兵伐谋·花好月圆",
 	onlyOL_demonized: "OL·魔",
 	onlyOL_waitingforsort: "等待分包",
+	extra_ol: "神将异构·OL",
 };
 
 export { characterSort, characterSortTranslate };

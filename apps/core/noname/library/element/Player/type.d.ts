@@ -168,7 +168,7 @@ export interface CheckButtonParams {
  * 
  */
 export interface CheckCardTargetParams extends CheckCardParams, CheckTargetParams {
-	ai: undefined;
+	ai?: undefined;
 
 	/**
 	 * AI选择牌时的优先级评分函数
@@ -191,7 +191,7 @@ export interface CheckCardTargetParams extends CheckCardParams, CheckTargetParam
  * 
  */
 export interface CheckButtonTargetParams extends CheckButtonParams, CheckTargetParams {
-	ai: undefined;
+	ai?: undefined;
 
 	/**
 	 * AI选择按钮时的优先级评分函数
@@ -320,12 +320,16 @@ export interface EventDiscoverCardParams extends ChooseBase {
 export interface EventChooseCardButtonParams extends ChooseBase {
 	cards: Card[];
 	select?: BroadSelect | (() => BroadSelect);
+	filter?(button: Button, player: Player): boolean;
+	ai?(button: Button): number;
 }
 
 export interface EventChooseVCardButtonParams extends ChooseBase {
 	list: string[];
 	notype?: boolean;
 	select?: BroadSelect | (() => BroadSelect);
+	filter?(button: Button, player: Player): boolean;
+	ai?(button: Button): number;
 }
 
 export interface EventChooseButtonParams extends ChooseBase, CheckButtonParams {

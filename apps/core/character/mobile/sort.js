@@ -1,4 +1,5 @@
 const characterSort = {
+	extra_mb: ["xin_simayi"],
 	mobile_sp2: ["mb_sunluyu"],
 	mobile_sp3: ["mb_guanyinping", "mb_caohong"],
 	mobile_sp4: ["re_heqi"],
@@ -80,6 +81,7 @@ const characterSortTranslate = {
 	mobile_yuan: "移动版·缘",
 	mobile_others: "其他",
 	mobile_changshi: "十常侍单体",
+	extra_mb: "神将异构·移动版",
 };
 
 export { characterSort, characterSortTranslate };

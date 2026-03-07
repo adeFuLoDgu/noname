@@ -308,6 +308,7 @@ window.noname_character_rank = {
 		"bigsb_dengai",
 	],
 	am: [
+		"ol_le_zhugeliang",
 		"tw_huangfusong",
 		"dc_sb_jianggan",
 		"dc_sb_chunyuqiong",
@@ -533,6 +534,13 @@ window.noname_character_rank = {
 		"yj_zhenji",
 	],
 	bp: [
+		"std_kebineng",
+		"std_niujin",
+		"std_ganfuren",
+		"std_wangshen",
+		"std_caojinyu",
+		"std_lvboshe",
+		"std_wuke",
 		"dc_sb_liuzhang",
 		"v_gongsunzan",
 		"dc_weifeng",
@@ -1097,6 +1105,7 @@ window.noname_character_rank = {
 		"pot_zanghong",
 	],
 	b: [
+		"pangji",
 		"ol_zhangsong",
 		"ol_jsrg_zhanghe",
 		"mb_chitu",
@@ -1638,6 +1647,8 @@ window.noname_character_rank = {
 		"v_liubei",
 	],
 	bm: [
+		"ol_dongguiren",
+		"ol_liuye",
 		"tizhongzhishen",
 		"keaizhishen",
 		"nizhuanzhishen",
@@ -2598,6 +2609,7 @@ window.noname_character_rank = {
 			"v_sunce",
 		],
 		epic: [
+			"ol_le_zhugeliang",
 			"ol_jsrg_zhanghe",
 			"tw_huangfusong",
 			"mb_shen_jiangwei",
@@ -3122,6 +3134,9 @@ window.noname_character_rank = {
 			"dc_sb_chunyuqiong",
 		],
 		rare: [
+			"pangji",
+			"ol_dongguiren",
+			"ol_liuye",
 			"ol_zhangsong",
 			"star_zhangsong",
 			"tizhongzhishen",
