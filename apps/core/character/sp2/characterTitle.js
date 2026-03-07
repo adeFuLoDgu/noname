@@ -1,10 +1,10 @@
 export default {
-	star_zhangsong: "",
+	star_zhangsong: "乌鹊折槁",
 	star_zhanghe: "河北之庭柱",
 	dc_yanxiang: "冢中鸣鸮",
 	cuilie: "镇纲责僭",
 	star_jiangwan: "讬忠赞业",
-	//star_yanliang: "",
+	star_yanliang: "狰颤四方",
 	lijue: "奸谋恶勇",
 	zhangji: "武威雄豪",
 	fanchou: "庸生变难",
