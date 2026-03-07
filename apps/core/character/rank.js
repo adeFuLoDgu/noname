@@ -536,7 +536,7 @@ window.noname_character_rank = {
 	bp: [
 		"std_kebineng",
 		"std_niujin",
-		"stdx_ganfuren",
+		"std_ganfuren",
 		"std_wangshen",
 		"std_caojinyu",
 		"std_lvboshe",
