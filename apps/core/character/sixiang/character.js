@@ -11,11 +11,11 @@ const characters = {
 		hp: 4,
 		skills: ["stdcuorui"],
 	},
-	stdx_ganfuren: {
+	std_ganfuren: {
 		sex: "female",
 		group: "shu",
 		hp: 3,
-		skills: ["stdxzhixie", "stdxshushen"],
+		skills: ["stdzhixie", "stdshushen"],
 	},
 	std_wangshen: {
 		sex: "male",
