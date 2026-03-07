@@ -5885,7 +5885,7 @@ export class Player extends HTMLDivElement {
 
 	/**
 	 * @param {Player | Player[]} targetOrTargets
-	 * @param {(card: Card) => number} check
+	 * @param {(card: Card) => number} [check]
 	 * @returns
 	 */
 	chooseToCompare(targetOrTargets, check) {

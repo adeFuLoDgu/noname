@@ -1646,6 +1646,7 @@ window.noname_character_rank = {
 		"v_liubei",
 	],
 	bm: [
+		"ol_dongguiren",
 		"ol_liuye",
 		"tizhongzhishen",
 		"keaizhishen",
@@ -3132,6 +3133,7 @@ window.noname_character_rank = {
 			"dc_sb_chunyuqiong",
 		],
 		rare: [
+			"ol_dongguiren",
 			"ol_liuye",
 			"ol_zhangsong",
 			"star_zhangsong",

@@ -2,6 +2,161 @@ import { lib, game, ui, get, ai, _status } from "noname";
 
 /** @type { importCharacterConfig['skill'] } */
 const skills = {
+	//董予安
+	olhexu: {
+		audio: 2,
+		mod: {
+			maxHandcard(player, num) {
+				return num + player.getCards("h", card => !get.is.damageCard(card)).map(card => get.type2(card)).unique().length;
+			}
+		},
+	},
+	olzeguang: {
+		audio: 2,
+		usable: 1,
+		trigger: {
+			target: "useCardToTargeted",
+		},
+		filter(event, player) {
+			return (
+				event.player != player &&
+				event.card.name == "sha" &&
+				player.countCards("he", card => player.canRecast(card)) > 1
+			)
+		},
+		async cost(event, trigger, player) {
+			event.result = await player
+				.chooseCard({
+					prompt: get.prompt2(event.skill),
+					selectCard: 2,
+					filterCard: (card, player) => player.canRecast(card),
+					ai(card) {
+						return 6 - get.value(card);
+					}
+				})
+				.forResult();
+		},
+		async content(event, trigger, player) {
+			const { cards } = event;
+			await player.recast(cards);
+			player
+				.when({
+					global: ["phaseAfter", "phaseBeforeStart", "useCardAfter"],
+				})
+				.filter(evt => {
+					if (evt.name == "phase") {
+						return true;
+					}
+					return evt.card == trigger.card;
+				})
+				.then(async (event, trigger, player) => {
+					if (trigger.name == "phase") {
+						return true;
+					} else {
+						const toGive = cards.filterInD("d");
+						if (toGive.length && player.hasHistory("damage", evt => evt.card == trigger.card)) {
+							const result = await player
+								.chooseTarget({
+									createDialog: [
+										"泽光：你可以令一名角色获得这些牌",
+										toGive,
+										[dialog => dialog.buttons.forEach(i => i.style.setProperty("opacity", 1)), "handle"]
+									],
+									ai(target) {
+										const { cards, player } = get.event();
+										return get.attitude(player, target) * get.value(cards, target);
+									}
+								})
+								.set("cards", toGive)
+								.forResult();
+							if (result.bool && result.targets?.length) {
+								const { targets: [target] } = result;
+								player.line(target);
+								await target.gain({ cards: toGive, animate: "gain2" });
+							}
+						}
+					}
+ 				})
+		},
+	},
+	olchengen: {
+		audio: 2,
+		trigger: {
+			global: ["phaseEnd"],
+		},
+		filter(event, player) {
+			const current = _status.currentPhase;
+			return (
+				current?.countCards("h") <= player.countCards("h") &&
+				game.hasPlayer(target => player.canCompare(target))
+			);
+		},
+		async cost(event, trigger, player) {
+			event.result = await player
+				.chooseTarget({
+					prompt: get.prompt2(event.skill),
+					filterTarget(card, player, target) {
+						return player.canCompare(target);
+					},
+					ai(target) {
+						return -get.attitude(_status.event.player, target) / target.countCards("h");
+					}
+				})
+				.forResult();
+		},
+		async content(event, trigger, player) {
+			const { targets: [target] } = event;
+			const result = await player.chooseToCompare(target).forResult();
+			if (result.bool) {
+				let cards = [result.player, result.target];
+				while (cards.length) {
+					cards = cards.filter(card => get.position(card) == "d" && (player.hasUseTarget(card, void 0, false) || (get.info(card).notarget && lib.filter.cardEnabled(card, player))));
+					if (!cards.length) {
+						break;
+					}
+					const result = await player
+						.chooseCardButton({
+							cards,
+							prompt: "承恩：请选择要使用的拼点牌",
+							ai(button) {
+								return get.player().getUseValue(button.link);
+							}
+						})
+						.forResult();
+					const { links } = result;
+					if (links?.length) {
+						cards.remove(links[0]);
+						await player.chooseUseTarget({ card: links[0], addCount: false });
+					} else {
+						break;
+					}
+				}
+			} else {
+				await target
+					.chooseToUse({
+						prompt: `承恩：是否对${get.translation(player)}使用一张【杀】`,
+						filterCard(card, player, event) {
+							if (get.name(card) != "sha") {
+								return false;
+							}
+							return lib.filter.filterCard.call(this, card, player, event);
+						},
+						filterTarget(card, player, target) {
+							const { sourcex } = get.event();
+							if (target != sourcex && !ui.selected.targets.includes(sourcex)) {
+								return false;
+							}
+							return lib.filter.filterTarget.apply(this, arguments);
+						},
+						complexTarget: true,
+					})
+					.set("targetRequired", true)
+					.set("complexSelect", true)
+					.set("sourcex", player)
+					.forResult();
+			}
+		},
+	},
 	//刘晔
 	olpingyuan: {
 		audio: 2,
