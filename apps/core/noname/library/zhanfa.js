@@ -2373,9 +2373,9 @@ const _zhanfa = {
 			ai: { basic: { value: 5 } },
 		},
 		skill: {
-			inherit: "zf_anyDamage",
+			trigger: { player: "damageEnd" },
 			filter(event, player) {
-				return event.card && event.card.name == "juedou";
+				return event.card?.name == "juedou";
 			},
 			async content(event, trigger, player) {
 				await player.recover();

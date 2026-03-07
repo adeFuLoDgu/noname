@@ -401,7 +401,7 @@ export default {
 		trigger: { player: "phaseBegin" },
 		cardFilter: card => true, //用法其实类似getCards那些的过滤器
 		num: 1,
-		pos: "cardPile", //从哪个区域获得牌，其实就是get.cardPile的一个参数
+		pos: void 0, //从哪个区域获得牌，其实就是get.cardPile的一个参数
 		async content(event, trigger, player) {
 			const info = get.info(event.name);
 			const num = info.num;

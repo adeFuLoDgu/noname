@@ -530,12 +530,17 @@ const skills = {
 			player: "phaseBegin",
 		},
 		forced: true,
-		getNames: ["shufazijinguan", "linglongshimandai", "hongmianbaihuapao", "wushuangfangtianji"],
+		equipMap: {
+			shufazijinguan: ["diamond", 1],
+			linglongshimandai: ["spade", 2],
+			hongmianbaihuapao: ["club", 1],
+			wushuangfangtianji: ["diamond", 12],
+		},
 		init(player, skill) {
 			const map = `${skill}_map`;
 			_status[map] ??= new Map();
 			if (!_status[map].has(player)) {
-				_status[map].set(player, get.info(skill).getNames.slice(0));
+				_status[map].set(player, Object.keys(get.info(skill).equipMap));
 			}
 			game.broadcastAll(
 				(map, list) => {
@@ -553,9 +558,10 @@ const skills = {
 		},
 		async content(event, trigger, player) {
 			const list = _status.olzhuangrong_map.get(player);
+			const map = get.info(event.name).equipMap;
 			if (list.length && list.some(name => player.canEquip(name))) {
 				const name = list.filter(name => player.canEquip(name)).randomGet();
-				const card = game.createCard2(name, lib.suit.randomGet(), get.rand(1, 13));
+				const card = game.createCard2(name, map[name][0], map[name][1]);
 				game.broadcastAll(
 					(player, list) => {
 						_status.olzhuangrong_map.set(player, list);
@@ -616,7 +622,7 @@ const skills = {
 					}
 					const evts = player.getAllHistory("useSkill", evt => {
 						const skill = evt.skill.slice(0, -6);
-						return get.info("olzhuangrong").getNames.includes(skill);
+						return Object.keys(get.info("olzhuangrong").equipMap).includes(skill);
 					});
 					return evts.length > 1;
 				},
@@ -32916,20 +32922,12 @@ const skills = {
 					[1, 2],
 					true
 				)
-				.set("filterButton", button => {
-					const list = get.event().list;
-					return !list.includes(button.link);
-				})
 				.set("list", list.slice())
 				//.set("list2", list.slice().add("refuhan_kongwei"))
 				//.set("num2", num2)
 				.set("skillMap", skillMap)
 				.set("ai", button => {
-					const list2 = get.event().list2;
 					const skill = button.link;
-					if (list2.includes(skill)) {
-						return -114514;
-					}
 					return get.skillRank(skill, "inout");
 				})
 				.forResult();
