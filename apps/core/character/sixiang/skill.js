@@ -16,7 +16,7 @@ const skills = {
 			let cardx = get.autoViewAs({ name: "sha", isCard: true }, ui.selected.cards);
 			return player.canUse(cardx, target, false, false);
 		},
-		filter(eevt, player) {
+		filter(event, player) {
 			let cardx = get.autoViewAs({ name: "sha", isCard: true }, player.getCards("h"));
 			return player.hasUseTarget(cardx, false, false);
 		},
