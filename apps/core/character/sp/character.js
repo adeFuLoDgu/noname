@@ -1,4 +1,10 @@
 const characters = {
+	pangji: {
+		sex: "male",
+		group: "qun",
+		hp: 3,
+		skills: ["olbiguo", "oldouyu"],
+	},
 	ol_dongguiren: {
 		sex: "female",
 		group: "qun",
