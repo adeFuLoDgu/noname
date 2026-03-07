@@ -14261,9 +14261,8 @@ export class Library {
 			},
 		],
 		[
-			"手杀合",
+			"骥",
 			{
-				showName: "合",
 				color: "#AAABFF",
 				nature: "blackmm",
 			},

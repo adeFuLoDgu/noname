@@ -320,12 +320,16 @@ export interface EventDiscoverCardParams extends ChooseBase {
 export interface EventChooseCardButtonParams extends ChooseBase {
 	cards: Card[];
 	select?: BroadSelect | (() => BroadSelect);
+	filter?(button: Button, player: Player): boolean;
+	ai?(button: Button): number;
 }
 
 export interface EventChooseVCardButtonParams extends ChooseBase {
 	list: string[];
 	notype?: boolean;
 	select?: BroadSelect | (() => BroadSelect);
+	filter?(button: Button, player: Player): boolean;
+	ai?(button: Button): number;
 }
 
 export interface EventChooseButtonParams extends ChooseBase, CheckButtonParams {

@@ -134,7 +134,7 @@ const skills = {
 						}
 						return result;
 					},
-					selectButton: isFirst ? 1 : [0, 1],
+					selectButton: 1,
 					forced: isFirst,
 				});
 				next.set("closeDialog", false);
@@ -1236,7 +1236,7 @@ const skills = {
 			const skill = event.name;
 			player.addMark(skill, 1, false);
 			player.when({ global: ["roundStart"] }).then(() => player.clearMark("mbzhengpeng", false));
-			await player.loseHp(player.countMark(skill));
+			await player.loseHp(player.countMark(skill) - 1);
 			const num = get.info(skill).judge(event.targets[0]);
 			if (num > 0) {
 				await player.draw(num);

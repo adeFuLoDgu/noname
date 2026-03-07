@@ -1105,6 +1105,7 @@ window.noname_character_rank = {
 		"pot_zanghong",
 	],
 	b: [
+		"pangji",
 		"ol_zhangsong",
 		"ol_jsrg_zhanghe",
 		"mb_chitu",
@@ -1646,6 +1647,7 @@ window.noname_character_rank = {
 		"v_liubei",
 	],
 	bm: [
+		"ol_dongguiren",
 		"ol_liuye",
 		"tizhongzhishen",
 		"keaizhishen",
@@ -3132,6 +3134,8 @@ window.noname_character_rank = {
 			"dc_sb_chunyuqiong",
 		],
 		rare: [
+			"pangji",
+			"ol_dongguiren",
 			"ol_liuye",
 			"ol_zhangsong",
 			"star_zhangsong",

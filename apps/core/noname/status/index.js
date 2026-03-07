@@ -156,6 +156,11 @@ export class status {
 	 * @type { Player }
 	 */
 	currentPhase;
+	/**
+	 * 当前回合弃牌堆（沟槽的中央区）
+	 * @type { Card[] }
+	 */
+	discarded = [];
 }
 
 export let _status = new status();

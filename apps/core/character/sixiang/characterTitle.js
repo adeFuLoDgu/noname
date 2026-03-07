@@ -1,4 +1,11 @@
 export default {
+	//std_kebineng: "",
+	//std_niujin: "",
+	//std_ganfuren: "",
+	//std_wangshen: "",
+	//std_caojinyu: "",
+	//std_lvboshe: "",
+	//std_wuke: "",
 	//std_simahui: "",
 	//std_zhengxuan: "",
 	//std_miheng: "",

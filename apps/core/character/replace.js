@@ -448,4 +448,5 @@ window.noname_character_replace = {
 	caojie: ["caojie", "ol_caojie"],
 	wangshen: ["clan_wangshen", "std_wangshen"],
 	wuke: ["wuke", "std_wuke"],
+	dongguiren: ["ol_dongguiren", "dongguiren"],
 };
