@@ -4052,7 +4052,7 @@ const skills = {
 			result = await trigger.player.judge().forResult();
 
 			// step 1
-			const judgeResult = get.copy(result);
+			event.judgeResult = get.copy(result);
 			let str = "是否弃置一张牌",
 				strt = get.translation(target),
 				strs = get.translation(source),
@@ -4118,13 +4118,12 @@ const skills = {
 					}
 					return eff - get.value(card);
 				})
-				.set("result", judgeResult)
 				.forResult();
 
 			// step 2
 			if (result.bool) {
 				const card = result.cards[0];
-				switch (judgeResult.suit) {
+				switch (card.suit) {
 					case "heart":
 						if (target.isIn() && target.isDamaged()) {
 							await target.recover().forResult();
@@ -4151,10 +4150,10 @@ const skills = {
 
 				// step 3
 				var gains = [];
-				if (get.position(judgeResult.card, true) == "d" && get.suit(card, player) == judgeResult.suit) {
-					gains.push(judgeResult.card);
+				if (get.position(event.judgeResult.card, true) == "d" && get.suit(card, player) == event.judgeResult.suit) {
+					gains.push(event.judgeResult.card);
 				}
-				if (get.position(card, true) == "d" && get.number(card, player) == judgeResult.number) {
+				if (get.position(card, true) == "d" && get.number(card, player) == event.judgeResult.number) {
 					gains.push(card);
 				}
 				if (gains.length) {
