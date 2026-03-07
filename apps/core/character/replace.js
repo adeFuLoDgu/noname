@@ -86,7 +86,7 @@ window.noname_character_replace = {
 	fuhuanghou: ["fuhuanghou", "ol_fuhuanghou", "re_fuhuanghou", "xin_fuhuanghou", "tw_fuhuanghou", "std_fuhuanghou", "sp_fuhuanghou", "old_fuhuanghou", "sxrm_fuhuanghou"],
 	furong: ["ol_furong", "furong", "tw_furong"],
 	fuwan: ["fuwan", "tw_fuwan", "sp_fuwan"],
-	ganfuren: ["ganfuren", "dc_ganfuren", "mb_ganfuren", "jsp_ganfuren", "stdx_ganfuren"],
+	ganfuren: ["ganfuren", "dc_ganfuren", "mb_ganfuren", "jsp_ganfuren", "std_ganfuren"],
 	ganning: ["ganning", "re_ganning", "sb_ganning", "yj_ganning", "yongjian_ganning", "jd_sb_ganning", "sp_ganning", "ty_ganning"],
 	gaolan: ["gaolan", "dc_gaolan", "sp_gaolan"],
 	gaoshun: ["gaoshun", "ol_gaoshun", "xin_gaoshun", "re_gaoshun", "sb_gaoshun", "o_gaoshun", "old_gaoshun"],
