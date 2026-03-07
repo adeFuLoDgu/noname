@@ -101,7 +101,7 @@ const skills = {
 		},
 	},
 	//甘夫人
-	stdxzhixie: {
+	stdzhixie: {
 		trigger: {
 			global: ["phaseUseBegin"],
 		},
@@ -127,7 +127,7 @@ const skills = {
 				user: trigger.player,
 				type: type,
 			});
-			trigger.player.addTempSkill("stdxzhixie_effect", {
+			trigger.player.addTempSkill("stdzhixie_effect", {
 				player: "phaseUseAfter",
 			});
 		},
@@ -138,7 +138,7 @@ const skills = {
 				},
 				forced: true,
 				filter(event, player) {
-					let storage = player.getStorage("stdxzhixie");
+					let storage = player.getStorage("stdzhixie");
 					if (event.player != storage.user) {
 						return false;
 					}
@@ -149,12 +149,12 @@ const skills = {
 					return num < 4;
 				},
 				async content(event, trigger, player) {
-					await player.getStorage("stdxzhixie").source.draw();
+					await player.getStorage("stdzhixie").source.draw();
 				},
 			},
 		},
 	},
-	stdxshushen: {
+	stdshushen: {
 		trigger: {
 			global: ["phaseEnd"],
 		},
