@@ -1412,7 +1412,7 @@ const skills = {
 			const result = await next.forResult();
 			const moved = result?.moved;
 			const resultList = moved[0].map(info => {
-				return parseInt(info.split("|")[0]);
+				return info && parseInt(info.split("|")[0]);
 			});
 			const toSwapList = [];
 			const cmp = (a, b) => {
