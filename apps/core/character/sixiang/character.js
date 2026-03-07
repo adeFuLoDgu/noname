@@ -15,7 +15,7 @@ const characters = {
 		sex: "female",
 		group: "shu",
 		hp: 3,
-		skills: ["stdzhixie", "stdshushen"],
+		skills: ["stdzhijie", "stdshushenx"],
 	},
 	std_wangshen: {
 		sex: "male",
@@ -27,7 +27,7 @@ const characters = {
 		sex: "female",
 		group: "wei",
 		hp: 3,
-		skills: ["stdyu1i", "stdshanshen"],
+		skills: ["stdyuqi", "stdshanshen"],
 	},
 	std_lvboshe: {
 		sex: "male",

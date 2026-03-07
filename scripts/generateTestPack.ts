@@ -56,7 +56,7 @@ fs.rmSync("output/testpack", { recursive: true, force: true });
 fs.mkdirSync("output/testpack", { recursive: true });
 
 for (const i of fs.readdirSync("dist")) {
-	if (["audio", "extension", "font", "image", "theme"].includes(i)) continue;
+	if (["audio", "extension", "font", "image"].includes(i)) continue; //, "theme"
 	await fs.promises.cp(path.join("dist", i), path.join("output/testpack", i), { recursive: true });
 }
 for (const i of fs.readdirSync("dist/extension")) {
