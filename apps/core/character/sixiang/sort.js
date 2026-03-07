@@ -6,6 +6,7 @@ const characterSort = {
 	sixiang_sort_qinglong: ["std_baoxin", "std_peixiu", "std_yangbiao", "std_huangfusong", "std_zerong", "std_pangdegong", "std_nanhualaoxian"],
 	sixiang_sort_baihu: ["std_simahui", "std_zhengxuan", "std_miheng", "std_majun", "std_zhangfen", "std_zhaoyan", "std_liuli"],
 	sixiang_sort_zhuque: ["std_huangwudie", "std_qinghegongzhu", "std_quyi", "std_wenyuan", "std_xushao", "std_zhangxuan", "std_jushou"],
+	sixiang_sort_xuanwu: ["std_kebineng", "std_niujin", "std_ganfuren", "std_wangshen", "std_caojinyu", "std_lvboshe", "std_wuke"],
 	sixiang_zhencang: ["std_zhangyao", "std_wangfuren", "std_panglin", "std_huangchong", "std_caoxiong", "std_maohuanghou", "std_zhencong", "std_jiangjie", "std_zhengcong"],
 	sixiang_trashBin: ["old_shen_zhaoyun"],
 };
@@ -18,6 +19,7 @@ const characterSortTranslate = {
 	sixiang_sort_qinglong: "四象封印·青龙",
 	sixiang_sort_baihu: "四象封印·白虎",
 	sixiang_sort_zhuque: "四象封印·朱雀",
+	sixiang_sort_xuanwu: "四象封印·玄武",
 	sixiang_trashBin: "四象封印·垃圾桶",
 	sixiang_zhencang: "珍藏·封印",
 };
