@@ -534,6 +534,13 @@ window.noname_character_rank = {
 		"yj_zhenji",
 	],
 	bp: [
+		"std_kebineng",
+		"std_niujin",
+		"std_ganfuren",
+		"std_wangshen",
+		"std_caojinyu",
+		"std_lvboshe",
+		"std_wuke",
 		"dc_sb_liuzhang",
 		"v_gongsunzan",
 		"dc_weifeng",
