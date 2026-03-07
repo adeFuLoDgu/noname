@@ -6060,6 +6060,8 @@ export class Player extends HTMLDivElement {
 		let prompt;
 		let forced;
 		let select;
+		let filter;
+		let ai;
 
 		const args = [...arguments];
 		if (args.length === 1 && get.is.object(params) && get.itemtype(params) == null) {
@@ -6067,6 +6069,8 @@ export class Player extends HTMLDivElement {
 			prompt = params.prompt;
 			forced = params.forced;
 			select = params.select;
+			filter = params.filter;
+			ai = params.ai;
 		} else {
 			for (const arg of args) {
 				if (get.itemtype(arg) == "cards") {
@@ -6077,6 +6081,12 @@ export class Player extends HTMLDivElement {
 					prompt = arg;
 				} else if (get.itemtype(arg) == "select" || typeof arg == "number") {
 					select = arg;
+				} else if (typeof arg == "function") {
+					if (ai) {
+						filter = arg;
+					} else {
+						ai = arg;
+					}
 				}
 			}
 		}
@@ -6087,6 +6097,8 @@ export class Player extends HTMLDivElement {
 			forced,
 			selectButton: select,
 			createDialog: [prompt, cards, "hidden"],
+			filterButton: filter,
+			ai
 		});
 	}
 	/**
@@ -6100,6 +6112,8 @@ export class Player extends HTMLDivElement {
 		let forced;
 		let select;
 		let notype = false;
+		let filter;
+		let ai;
 
 		const args = [...arguments];
 		if (args.length === 1 && get.is.object(params) && get.itemtype(params) == null) {
@@ -6108,6 +6122,8 @@ export class Player extends HTMLDivElement {
 			forced = params.forced;
 			select = params.select;
 			notype = params.notype ?? false;
+			filter = params.filter;
+			ai = params.ai;
 		} else {
 			for (const arg of args) {
 				if (Array.isArray(arg)) {
@@ -6120,6 +6136,12 @@ export class Player extends HTMLDivElement {
 					prompt = arg;
 				} else if (get.itemtype(arg) == "select" || typeof arg == "number") {
 					select = arg;
+				} else if (typeof arg == "function") {
+					if (ai) {
+						filter = arg;
+					} else {
+						ai = arg;
+					}
 				}
 			}
 		}
@@ -6137,6 +6159,8 @@ export class Player extends HTMLDivElement {
 			forced,
 			selectButton: select,
 			createDialog: [prompt, [list, "vcard"], "hidden"],
+			filterButton: filter,
+			ai
 		});
 	}
 	/**
