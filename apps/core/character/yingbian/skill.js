@@ -7,12 +7,13 @@ const skills = {
 		audio: 2,
 		enable: "chooseToUse",
 		viewAsFilter(player) {
-			return player.countCards("he");
+			return player.countCards("he") > 0;
 		},
 		viewAs: {
 			name: "sha",
-			suit: "none",
-			number: null,
+			/*suit: "none",
+			number: null,*/
+			cards: [],
 			isCard: true,
 		},
 		filterCard: true,

@@ -534,6 +534,7 @@ window.noname_character_rank = {
 		"yj_zhenji",
 	],
 	bp: [
+		"zhangyu",
 		"std_kebineng",
 		"std_niujin",
 		"std_ganfuren",
@@ -1647,6 +1648,7 @@ window.noname_character_rank = {
 		"v_liubei",
 	],
 	bm: [
+		"mb_zhangji",
 		"ol_dongguiren",
 		"ol_liuye",
 		"tizhongzhishen",
@@ -2609,6 +2611,7 @@ window.noname_character_rank = {
 			"v_sunce",
 		],
 		epic: [
+			"zhangyu",
 			"ol_le_zhugeliang",
 			"ol_jsrg_zhanghe",
 			"tw_huangfusong",
@@ -3134,6 +3137,7 @@ window.noname_character_rank = {
 			"dc_sb_chunyuqiong",
 		],
 		rare: [
+			"mb_zhangji",
 			"pangji",
 			"ol_dongguiren",
 			"ol_liuye",
