@@ -4,6 +4,7 @@ const characters = {
 		group: "qun",
 		hp: 4,
 		skills: ["stdkoujing"],
+		names: "科比|罐头",
 	},
 	std_niujin: {
 		sex: "male",
@@ -41,6 +42,7 @@ const characters = {
 		group: "wu",
 		hp: 3,
 		skills: ["stdanda", "stdzhuguo"],
+		img: "image/character/wuke.jpg",
 	},
 	std_huangwudie: {
 		sex: "female",
