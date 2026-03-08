@@ -16,6 +16,7 @@ const characters = {
 		group: "shu",
 		hp: 3,
 		skills: ["stdzhijie", "stdshushenx"],
+		names: "甘|null",
 	},
 	std_wangshen: {
 		sex: "male",

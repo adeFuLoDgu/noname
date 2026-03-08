@@ -18,15 +18,34 @@ const skills = {
 		viewAsFilter(player) {
 			return player.countCards("hs") > 0;
 		},
-		viewAs: {
-			name: "sha",
+		viewAs(cards, player) {
+			if (cards.length) {
+				return {
+					name: "sha",
+					storage: {
+						stdkoujing: player,
+					}
+				}
+			}
+			return null;
 		},
-		onuse(result, player) {
-			result.card.storage ??= {};
-			result.card.storage.stdkoujing = player;
+		mod: {
+			cardUsable(card, player) {
+				if (card.storage?.stdkoujing) {
+					return Infinity;
+				}
+			},
+			targetInRange(card, player) {
+				if (card.storage?.stdkoujing) {
+					return true;
+				}
+			}
 		},
 		ai: {
 			order: 3,
+			result: {
+				player: 1,
+			}
 		},
 		subSkill: {
 			effect: {

@@ -161,6 +161,11 @@ export class status {
 	 * @type { Card[] }
 	 */
 	discarded = [];
+	/**
+	 * 当前武将牌堆
+	 * @type { string[] }
+	 */
+	characterlist;
 }
 
 export let _status = new status();
