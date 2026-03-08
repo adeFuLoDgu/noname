@@ -3518,7 +3518,7 @@ const skills = {
 		//提前若为
 		maxMark() {
 			//if (get.mode() == "doudizhu") return 1;
-			return 4;
+			return 5;
 		},
 		logAudio: index => (typeof index === "number" ? "pothongyi" + index + ".mp3" : 2),
 		async cost(event, trigger, player) {
@@ -3542,9 +3542,9 @@ const skills = {
 			if (!num) {
 				return;
 			}
-			if (control === 0) {
-				player.draw(num);
-			} else if (control === 1) {
+			if (control == 0) {
+				player.draw({ num });
+			} else if (control == 1) {
 				player.clearMark("pothongyi");
 			}
 			//初版势陈到的遗产，默哀吧
@@ -3557,9 +3557,9 @@ const skills = {
 				.when({ player: "phaseJieshuBegin" })
 				.filter(evt => evt.getParent("phase") == trigger.getParent("phase"))
 				.step(async (event, trigger, player) => {
-					if (control === 1) {
-						await player.draw(num);
-					} else if (control === 0) {
+					if (control == 1) {
+						await player.draw({ num });
+					} else if (control == 0) {
 						player.clearMark("pothongyi");
 					}
 				});
@@ -3588,7 +3588,7 @@ const skills = {
 				forced: true,
 				async content(event, trigger, player) {
 					const num = get.info("pothongyi").maxMark() - player.countMark("pothongyi");
-					player.addMark("pothongyi", Math.min(trigger.name === "damage" ? 1 : 2, num));
+					player.addMark("pothongyi", Math.min(trigger.name === "damage" ? 1 : 3, num));
 				},
 			},
 		},
