@@ -14640,8 +14640,7 @@ export class Player extends HTMLDivElement {
 			node.classList.add("center");
 			node.hide();
 			node.style.transitionProperty = "left,top,opacity,transform";
-			if (nosource) {
-			} else {
+			if (!nosource) {
 				var nx = [50, -52];
 				var ny = [50, -52];
 				nx = nx[0] * ui.arena.offsetWidth / 100 + nx[1];
