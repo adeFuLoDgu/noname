@@ -1,6 +1,11 @@
 import { lib, game, ui, get, ai, _status } from "noname";
 
 const translates = {
+	zhangyu: "张裕",
+	dcxiangchen: "相谶",
+	dcxiangchen_info: "出牌阶段限一次，你可以选择一名角色，然后随机获得与其势力和初始体力值相同的武将的一个技能（限定技、觉醒技、主公技除外；若已有两个以此法获得的技能则改为摸一张牌）；回合结束时，你失去以此法获得的技能。当你或上次发动此技能的目标角色体力值变化后，你可以发动此技能。",
+	dcmingding: "命定",
+	dcmingding_info: `限定技，当你进入濒死状态时，你可以将体力回复至1点且防止你受到的伤害。若如此做，你失去除此技能外的所有技能，摸发动${get.poptip("dcxiangchen")}获得过的技能数张牌（至多摸五张）并随机获得其中三个技能，然后回合结束时，你死亡。`,
 	shen_jiangwei: "神姜维",
 	shen_jiangwei_prefix: "神",
 	jiufa: "九伐",

@@ -10,6 +10,7 @@ const characters = {
 		group: "qun",
 		hp: 3,
 		skills: ["olhexu", "olzeguang", "olchengen"],
+		names: "董|null",
 	},
 	ol_liuye: {
 		sex: "male",

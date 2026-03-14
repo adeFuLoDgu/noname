@@ -3504,7 +3504,7 @@ const skills = {
 		logTarget(event, player) {
 			if (event.player == player) {
 				const num = player.countCards("h");
-				return event.targets.filter(target => target.countCards("h") < num).sortBySeat(_status.currentPhase);
+				return event.targets.filter(target => target.countCards("h") <= num).sortBySeat(_status.currentPhase);
 			}
 			return null;
 		},

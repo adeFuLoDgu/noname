@@ -118,6 +118,8 @@ export default {
 	"#liuyijun:die": "贞者不妒，妒者必不贞。",
 	"#dcweiwei1": "交州虽远，亦在王土之滨。",
 	"#dcweiwei2": "九州六合，缺一不可！",
+	"#dczhijue1": "裂土而背德者，定斩不赦。",
+	"#dczhijue2": "维军备患，拜受王命，永戍南疆!",
 	"#taohuang:die": "不好！城中有伏兵！",
 	"#dcsbzhenyu1": "敌如浪、城如礁，碎之如雪！",
 	"#dcsbzhenyu2": "纵有千军来犯，吾亦不退半分！",
