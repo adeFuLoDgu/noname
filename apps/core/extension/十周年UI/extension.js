@@ -4375,6 +4375,15 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 						case 'discard':
 							tagText = "弃置";
 							break;
+						case 'showcards':
+							var skillEvent = event.parent;
+							if (skillEvent) {
+								tagText = lib.translate[skillEvent.name];
+								if (!tagText) tagText = "";
+								tagText = '<span style="color:#FFD700">' + tagText + "</span>";
+							}
+							tagText += '展示';
+							break;
 						case 'phasejudge':
 							tagText = '即将生效';
 							break;

@@ -874,7 +874,6 @@ async function loadConfig() {
 		"panfeng",
 		"pangde",
 		"panzhangmazhong",
-		"ps_shen_machao",
 		"quancong",
 		"re_gongsunzan",
 		"re_handang",
