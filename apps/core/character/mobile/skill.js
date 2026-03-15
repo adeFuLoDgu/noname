@@ -5548,10 +5548,10 @@ const skills = {
 			const player = get.player();
 			let num = player.countCards("h"),
 				sha = player.countCards("h", "sha");
-			if (sha && num - sha > 0) {
+			if (sha && num - sha > 0 && player.hasUseTarget("sha", undefined, true)) {
 				return get.name(card, player) != "sha";
 			}
-			return 1;
+			return 20 - get.value(card);
 		},
 		discard: false,
 		lose: false,
@@ -5680,7 +5680,11 @@ const skills = {
 		},
 		ai: {
 			order(item, player) {
-				if (!player.countCards("h", "sha")) {
+				let num = player.countCards("h"),
+					sha = player.countCards("h", "sha");
+				if (player.countCards("hs", card => get.tag(card, "draw"))) {
+					return 1;
+				} else if (!game.hasPlayer(target => target != player && get.attitude(player, target) < 0 && lib.skill.mbjinzu.ai.result.target(player, target) < 0)) {
 					return 0;
 				}
 				return 9;
@@ -5688,13 +5692,17 @@ const skills = {
 			result: {
 				target(player, target) {
 					if (!target.countCards("h")) {
-						if (!player.canUse("sha", target, false, false)) {
+						if (target.hasSkillTag("filterDamage", null, { player })) {
+							return 0;
+						} else if (!player.countCards("h", "sha")) {
+							return 0;
+						} else if (!player.canUse("sha", target, undefined, true)) {
 							return 0;
 						} else if (get.effect(target, { name: "sha" }, player, player) < 0) {
 							return 0;
 						}
 					}
-					return -1;
+					return target.countCards("h") ? -1 : -0.5;
 				},
 			},
 		},
