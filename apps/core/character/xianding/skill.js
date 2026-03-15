@@ -5396,9 +5396,8 @@ const skills = {
 	},
 	dcsbwankang: {
 		audio: 2,
-		enable: "chooseToUse",
-		filter(event, player) {
-			return event.type == "dying" && player == event.dying;
+		trigger: {
+			player: "dying",
 		},
 		async content(event, trigger, player) {
 			await player.recover();
