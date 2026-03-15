@@ -5542,11 +5542,20 @@ const skills = {
 		filterTarget(card, player, target) {
 			return target != player;
 		},
+		position: "h",
 		filterCard: true,
+		check(card) {
+			const player = get.player();
+			let num = player.countCards("h"),
+				sha = player.countCards("h", "sha");
+			if (sha && num - sha > 0) {
+				return get.name(card, player) != "sha";
+			}
+			return 1;
+		},
 		discard: false,
 		lose: false,
 		delay: 0,
-		position: "h",
 		async content(event, trigger, player) {
 			const card = event.cards[0],
 				target = event.target;
@@ -5635,8 +5644,9 @@ const skills = {
 				ai: {
 					directHit_ai: true,
 					skillTagFilter(player, tag, arg) {
-						if (tag == "directHit_ai" && (arg?.card?.name !== "sha" || !player.getStorage("mbjinzu_effect", new Map())?.has(arg?.target)))
+						if (tag == "directHit_ai" && (arg?.card?.name !== "sha" || !player.getStorage("mbjinzu_effect", new Map())?.has(arg?.target))) {
 							return false;
+						}
 					},
 				},
 				intro: {
@@ -5669,9 +5679,23 @@ const skills = {
 			},
 		},
 		ai: {
-			order: 9,
+			order(item, player) {
+				if (!player.countCards("h", "sha")) {
+					return 0;
+				}
+				return 9;
+			},
 			result: {
-				target: -1,
+				target(player, target) {
+					if (!target.countCards("h")) {
+						if (!player.canUse("sha", target, false, false)) {
+							return 0;
+						} else if (get.effect(target, { name: "sha" }, player, player) < 0) {
+							return 0;
+						}
+					}
+					return -1;
+				},
 			},
 		},
 	},
