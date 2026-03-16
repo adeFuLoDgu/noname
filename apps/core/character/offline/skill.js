@@ -1828,13 +1828,13 @@ const skills = {
 					await game.delayex();
 
 					player.line(target);
-					await target.damage();
+					await event.targets[0].damage();
 					if (!player.storage.jxzhaoluan_hit) {
 						player.when("phaseUseAfter").step(async (event, trigger, player) => {
 							delete player.storage.jxzhaoluan_hit;
 						});
 					}
-					player.markAuto("jxzhaoluan_hit", target);
+					player.markAuto("jxzhaoluan_hit", event.targets);
 				},
 				ai: {
 					order: 9,

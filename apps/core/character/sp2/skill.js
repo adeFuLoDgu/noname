@@ -12305,7 +12305,7 @@ const skills = {
 							if (result?.bool) {
 								const target = result.targets[0];
 								player.line(target);
-								const result2 = await target.chooseToGive(player, "h").forResult();
+								const result2 = await target.chooseToGive(player, "h", true).forResult();
 								if (result2?.bool) {
 									player.addTempSkill("yujue_clear", { player: "phaseBeginStart" });
 									const skill = `yujue_${player.playerid}`;

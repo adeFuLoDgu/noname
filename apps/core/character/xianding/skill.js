@@ -5423,9 +5423,8 @@ const skills = {
 	},
 	dcsbwankang: {
 		audio: 2,
-		enable: "chooseToUse",
-		filter(event, player) {
-			return event.type == "dying" && player == event.dying;
+		trigger: {
+			player: "dying",
 		},
 		async content(event, trigger, player) {
 			await player.recover();
@@ -11669,7 +11668,7 @@ const skills = {
 			},
 			check(button) {
 				const player = get.player(),
-					num = get.event().juanji_record;
+					num = get.event().getParent().juanji_record;
 				switch (button.link) {
 					case "damage": {
 						let eff = current => {
@@ -11680,16 +11679,27 @@ const skills = {
 							current => eff(current),
 							current => current != player
 						);
-						return eff(player) + target ? eff(target) : 0;
+						if (player.hasSkill("dcrenshuang")) {
+							let num2 = player.getHp(true) + Math.min(player.getDamagedHp(), num) - num;
+							if (num2 == 1) {
+								return 114514;
+							} else if (num2 < 1 && player.countCards("hs", card => get.tag(card, "save")) > -num2) {
+								return 0.3;
+							}
+						}
+						if (!target) {
+							return 0;
+						}
+						return eff(player) + eff(target);
 					}
 					case "discard": {
-						const targets = game.filterPlayer(current => {
-							return current != player && get.effect(current, { name: "guohe_copy2" }, player, player) > 0;
-						});
-						return Math.min(targets.length, num) * 0.2;
+						let eff = current => get.effect(current, { name: "guohe_copy2" }, player, player);
+						let discard = game.filterPlayer(current => current != player && eff(current) > 0).sort((a, b) => eff(a) - eff(b));
+						let discard2 = discard.slice(0, Math.min(game.countPlayer(), num, discard.length)).reduce((sum, current) => sum + eff(current), 0);
+						return discard2;
 					}
 					default: {
-						return num * 0.3;
+						return num * 0.4;
 					}
 				}
 			},
@@ -11698,6 +11708,16 @@ const skills = {
 					audio: "dcjuanji",
 					numx: get.event().juanji_record,
 					choice: links[0],
+					damageCheck: (function () {
+						if (player.hasSkill("dcrenshuang")) {
+							const num = get.event().juanji_record;
+							let num2 = player.getHp(true) + Math.min(player.getDamagedHp(), num) - num;
+							if (num2 == 1 || (num2 < 1 && player.countCards("hs", card => get.tag(card, "save")) > -num2)) {
+								return true;
+							}
+						}
+						return false;
+					})(),
 					filterTarget(card, player, target) {
 						if (target == player) {
 							return false;
@@ -11764,7 +11784,7 @@ const skills = {
 						return 1;
 					},
 					ai2(target) {
-						const { choice, numx } = get.info("dcjuanji_backup"),
+						const { choice, numx, damageCheck } = get.info("dcjuanji_backup"),
 							player = get.player();
 						switch (choice) {
 							case "damage": {
@@ -11772,6 +11792,9 @@ const skills = {
 									const recover = Math.min(current.getDamagedHp(), numx);
 									return recover * get.recoverEffect(current, player, player) + numx * get.damageEffect(current, player, player);
 								};
+								if(damageCheck){
+									return eff(target);
+								}
 								return eff(player) + eff(target);
 							}
 							case "discard": {
