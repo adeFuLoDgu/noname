@@ -5292,7 +5292,7 @@ const skills = {
 			} else {
 				while (num--) {
 					const judgeEvent = player.judge(card => {
-						return get.type(card) == "equip" || ["sha", "judou"].includes(get.name(card)) ? 1.5 : -1.5;
+						return get.type(card) == "equip" || ["sha", "juedou"].includes(get.name(card)) ? 1.5 : -1.5;
 					});
 					judgeEvent.judge2 = result => result.bool;
 					judgeEvent.set("callback", async event => {
@@ -5300,7 +5300,7 @@ const skills = {
 						if (get.type(card) == "equip" && !player.hasSkill("shenji")) {
 							await player.addSkills("shenji");
 						}
-						if (["sha", "judou"].includes(get.name(card))) {
+						if (["sha", "juedou"].includes(get.name(card))) {
 							if (!player.hasSkill("wushuang")) {
 								await player.addSkills("wushuang");
 							}

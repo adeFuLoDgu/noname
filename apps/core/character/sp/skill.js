@@ -20892,7 +20892,11 @@ const skills = {
 						},
 						player = _status.event.player,
 						target = _status.event.getTrigger().player;
-					return get.effect(target, card, player, player);
+					let eff = get.effect(target, card, player, player);
+					if (card.name == "jiedao" && get.attitude(player, target) > 0) {
+						eff -= 10;
+					}
+					return eff;
 				});
 			"step 1";
 			if (result.bool) {

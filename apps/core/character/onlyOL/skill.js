@@ -482,11 +482,10 @@ const skills = {
 		async content(event, trigger, player) {
 			let logged = false;
 
-			const chosen = new Set();
+			const chosen = new Set(),
+				odd = player.countCards("h") % 2 === 1;
 			event.chosen = chosen;
 			while (true) {
-				const odd = player.countCards("h") % 2 === 1;
-
 				if (odd) {
 					const result = await player
 						.chooseTarget(get.prompt("shenfu"), "对一名其他角色造成1点雷属性伤害", (card, player, target) => {

@@ -5542,11 +5542,20 @@ const skills = {
 		filterTarget(card, player, target) {
 			return target != player;
 		},
+		position: "h",
 		filterCard: true,
+		check(card) {
+			const player = get.player();
+			let num = player.countCards("h"),
+				sha = player.countCards("h", "sha");
+			if (sha && num - sha > 0 && player.hasUseTarget("sha", undefined, true)) {
+				return get.name(card, player) != "sha";
+			}
+			return 20 - get.value(card);
+		},
 		discard: false,
 		lose: false,
 		delay: 0,
-		position: "h",
 		async content(event, trigger, player) {
 			const card = event.cards[0],
 				target = event.target;
@@ -5635,8 +5644,9 @@ const skills = {
 				ai: {
 					directHit_ai: true,
 					skillTagFilter(player, tag, arg) {
-						if (tag == "directHit_ai" && (arg?.card?.name !== "sha" || !player.getStorage("mbjinzu_effect", new Map())?.has(arg?.target)))
+						if (tag == "directHit_ai" && (arg?.card?.name !== "sha" || !player.getStorage("mbjinzu_effect", new Map())?.has(arg?.target))) {
 							return false;
+						}
 					},
 				},
 				intro: {
@@ -5669,9 +5679,31 @@ const skills = {
 			},
 		},
 		ai: {
-			order: 9,
+			order(item, player) {
+				let num = player.countCards("h"),
+					sha = player.countCards("h", "sha");
+				if (player.countCards("hs", card => get.tag(card, "draw"))) {
+					return 1;
+				} else if (!game.hasPlayer(target => target != player && get.attitude(player, target) < 0 && lib.skill.mbjinzu.ai.result.target(player, target) < 0)) {
+					return 0;
+				}
+				return 9;
+			},
 			result: {
-				target: -1,
+				target(player, target) {
+					if (!target.countCards("h")) {
+						if (target.hasSkillTag("filterDamage", null, { player })) {
+							return 0;
+						} else if (!player.countCards("h", "sha")) {
+							return 0;
+						} else if (!player.canUse("sha", target, undefined, true)) {
+							return 0;
+						} else if (get.effect(target, { name: "sha" }, player, player) < 0) {
+							return 0;
+						}
+					}
+					return target.countCards("h") ? -1 : -0.5;
+				},
 			},
 		},
 	},
