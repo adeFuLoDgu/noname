@@ -396,29 +396,32 @@ const skills = {
 		},
 		usable: 1,
 		filter(event, player) {
-			return event.result && player.countDiscardableCards(player, "he", card => get.color(card) == event.result.color) > 0;
+			return event.result && player.countDiscardableCards(player, "he", card => get.suit(card) == event.result.suit) > 0;
 		},
 		async cost(event, trigger, player) {
-			const color = trigger.result.color;
+			const suit = trigger.result.suit;
 			event.result = await player
-				.chooseToDiscard(
-					get.prompt(event.skill),
-					`你可以弃置一张${get.translation(color)}牌以中止此判定并获得${get.translation(trigger.result.card)}。`,
-					"chooseonly",
-					{ color: color },
-					"he"
-				)
-				.set("ai", card => {
-					if (get.event().goon) {
-						return 6 - get.value(card);
-					}
-					return 0;
+				.chooseToDiscard({
+					prompt: get.prompt(event.skill),
+					prompt2: `你可以弃置一张${get.translation(suit)}牌以中止此判定。`,
+					chooseonly: true,
+					position: "he",
+					ai(card) {
+						if (get.event().goon) {
+							return 6 - get.value(card);
+						}
+						return 0;
+					},
+					filterCard(card, player) {
+						return get.suit(card) == get.event().suit;
+					},
 				})
+				.set("suit", suit)
 				.set("goon", trigger.result.judge * get.attitude(player, trigger.player) <= 0)
 				.forResult();
 		},
 		async content(event, trigger, player) {
-			await player.discard(event.cards);
+			await player.discard({ cards: event.cards });
 			let evt = trigger.getParent();
 			if (evt.name === "phaseJudge") {
 				evt.excluded = true;
@@ -436,17 +439,17 @@ const skills = {
 				const cards = evts.flatMap(e => e.cards).filter(card => get.position(card, true) === "o");
 				trigger.orderingCards.addArray(cards);
 			}
-			const card = trigger.result.card;
+			/*const card = trigger.result.card;
 			if (get.position(card) == "d") {
 				await player.gain(card, "gain2");
-			}
+			}*/
 		},
 	},
 	twshiji: {
 		group: "twshiji_gain",
 		audio: "spshiji",
 		trigger: {
-			player: ["damageEnd", "phaseZhunbeiBegin"],
+			player: ["phaseZhunbeiBegin"], //"damageEnd",
 		},
 		forced: true,
 		locked: false,
@@ -460,25 +463,31 @@ const skills = {
 				.forResult();
 			const pos = result.control.includes("弃") ? "discardPile" : "cardPile";*/
 			const cards = [];
-			for (let color of ["black", "red"]) {
-				const card = get.cardPile(card => get.color(card) == color);
+			for (let suit of lib.suit.slice().randomSort()) {
+				const card = get.cardPile(card => get.suit(card) == suit);
 				if (card) {
 					cards.push(card);
 				}
+				if (cards.length >= 2) {
+					break;
+				}
 			}
 			if (cards.length) {
-				await player.gain(cards, "gain2");
+				await player.gain({ cards, animate: "gain2" });
 			}
 			const result2 = await player
-				.chooseToDiscard(`势击：你可以弃置一张牌，然后与弃置牌颜色相同的牌于本回合内被展示后，你摸一张牌。`, "he")
-				.set("ai", card => {
-					return 6 - get.value(card);
+				.chooseToDiscard({
+					prompt: `势击：你可以弃置一张牌，然后与弃置牌花色相同的牌于本回合内被展示后，你摸一张牌。`,
+					position: "he",
+					ai(card) {
+						return 6 - get.value(card);
+					},
 				})
 				.forResult();
 			if (result2?.bool && result2?.cards?.length) {
 				const skill = `${event.name}_draw`;
 				player.addTempSkill(skill);
-				player.markAuto(skill, get.color(result2.cards[0]));
+				player.markAuto(skill, get.suit(result2.cards[0]));
 			}
 		},
 		subSkill: {
@@ -491,14 +500,14 @@ const skills = {
 				charlotte: true,
 				forced: true,
 				filter(event, player) {
-					return event.cards?.some(card => player.getStorage("twshiji_draw").includes(get.color(card)));
+					return event.cards?.some(card => player.getStorage("twshiji_draw").includes(get.suit(card)));
 				},
 				async content(event, trigger, player) {
 					const num = trigger.cards
-						.map(card => get.color(card))
+						.map(card => get.suit(card))
 						.unique()
 						.filter(i => player.getStorage(event.name).includes(i)).length;
-					await player.draw(num);
+					await player.draw({ num });
 				},
 			},
 			gain: {
@@ -508,53 +517,34 @@ const skills = {
 					if (get.name(card) != "huogong") {
 						return [];
 					}
-					const evt = event.getParent(evt => evt.card == card && evt.name == "huogong", true);
+					const evt = event.getParent(evt => evt.card == card && evt.name == "huogong" && evt.target == event.player, true);
 					if (!evt) {
 						return [];
 					}
 					const cards = evt.showResult?.cards;
 					return cards?.filter(
 						card =>
-							["c", "d"].includes(get.position(card)) ||
-							(get.owner(card) == evt.target && lib.filter.canBeGained(card, player, evt.target))
+							["h", "e"].includes(get.position(card)) &&
+							get.owner(card) == evt.target &&
+							lib.filter.canBeDiscarded(card, player, evt.target)
 					);
 				},
 				trigger: {
 					source: "damageSource",
 				},
 				prompt2(event, player) {
-					return `是否获得${get.translation(get.info("twshiji_gain").getcard(event, player))}？`;
+					return `是否弃置${get.translation(get.info("twshiji_gain").getcard(event, player))}？`;
 				},
 				filter(event, player) {
 					return get.info("twshiji_gain").getcard(event, player)?.length;
 				},
+				check(event, player) {
+					return get.attitude(player, event.player) < 0;
+				},
+				logTarget: "player",
 				async content(event, trigger, player) {
 					const cards = get.info("twshiji_gain").getcard(trigger, player);
-					const map = new Map();
-					const directGain = [];
-					for (const card of cards) {
-						const owner = get.owner(card);
-						if (owner) {
-							map.set(owner, (map.get(owner) || []).concat(card));
-						} else {
-							directGain.push(card);
-						}
-					}
-					await player
-						.gain(cards)
-						.set("map", map)
-						.set("directGain", directGain)
-						.set("animate", event => {
-							const { map, directGain } = event;
-							if (directGain.length) {
-								player.$gain2(directGain, true);
-							}
-							if (Array.from(map.values()).flat()?.length) {
-								for (const [giver, cards] of map.entries()) {
-									giver.$giveAuto(cards, player);
-								}
-							}
-						});
+					await event.targets[0].modedDiscard({ cards, discarder: player });
 				},
 			},
 		},
@@ -569,19 +559,20 @@ const skills = {
 			const evtx = event?.getl(player);
 			return evtx?.hs?.length && !["useCard", "respond"].includes(evt?.name);
 		},
-		group: "twzhengjun_tempBan",
 		async cost(event, trigger, player) {
 			const num = player.maxHp - player.countCards("h");
 			const result = await player
-				.chooseControl(["获得【火攻】", `摸${num >= 0 ? num : 0}张牌`, "cancel2"])
-				.set("ai", () => {
-					const player = get.player();
-					if (player.maxHp - player.countCards("h") > 2) {
-						return 1;
-					}
-					return 0;
+				.chooseControl({
+					prompt: get.prompt2(event.skill),
+					controls: ["获得【火攻】", `摸${num >= 0 ? num : 0}张牌`, "cancel2"],
+					ai() {
+						const player = get.player();
+						if (player.maxHp - player.countCards("h") > 2) {
+							return 1;
+						}
+						return 0;
+					},
 				})
-				.set("prompt", get.prompt2(event.skill))
 				.forResult();
 			event.result = {
 				bool: result.control != "cancel2",
@@ -592,7 +583,7 @@ const skills = {
 			if (event.cost_data == 0) {
 				const card = get.cardPile(card => get.name(card) == "huogong");
 				if (card) {
-					await player.gain(card, "gain2");
+					await player.gain({ cards: [card], animate: "gain2" });
 				} else {
 					player.chat("牌喵？");
 				}
@@ -602,28 +593,10 @@ const skills = {
 					await player.drawTo(player.maxHp);
 				}
 			}
-		},
-		subSkill: {
-			tempBan: {
-				forced: true,
-				locked: false,
-				audio: "spzhengjun",
-				trigger: {
-					player: "gainAfter",
-				},
-				filter(event, player) {
-					const check = evt =>
-						evt.getParent().name == "twzhengjun" || (evt.getParent().name == "draw" && evt.getParent(2).name == "twzhengjun");
-					return (
-						event.getg(player)?.length &&
-						check(event) &&
-						player.getHistory("gain", evt => check(evt) && evt.cards.length).flatMap(evt => evt.cards).length >= 3
-					);
-				},
-				async content(event, trigger, player) {
-					player.tempBanSkill("twzhengjun");
-				},
-			},
+			const check = evt => evt.getParent().name == event.name || (evt.getParent().name == "draw" && evt.getParent(2).name == event.name);
+			if (player.getRoundHistory("gain", evt => check(evt) && evt.cards.length > 0).flatMap(evt => evt.cards).length >= 2) {
+				player.tempBanSkill(event.name, "roundStart");
+			}
 		},
 	},
 	//外服起王允
