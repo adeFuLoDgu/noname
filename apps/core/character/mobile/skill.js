@@ -8,7 +8,7 @@ const skills = {
 		trigger: { global: "roundStart" },
 		filter(event, player) {
 			return game.hasPlayer(function (current) {
-				return get.distance(player, current) <= player.getHp() && target != player;
+				return get.distance(player, current) <= player.getHp() && current != player;
 			});
 		},
 		async cost(event, trigger, player) {

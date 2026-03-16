@@ -1179,8 +1179,8 @@ const translates = {
 	mbjiren_info: "限定技，出牌阶段你可以发动此技能，直到本局游戏结束，所有角色使用非武器牌不能指定自己为目标。",
 	mbjuezhi: "决止",
 	mbjuezhi_info: "出牌阶段每项限一次：1.你可以摸两张牌，视为使用一张【决斗】，然后弃置手牌中所有非伤害牌；2.你可以摸两张牌，然后回复1点体力并弃置手牌中所有伤害牌。",
-	mb_zhangji: "手杀张既",
-	mb_zhangji_prefix: "手杀",
+	mb_tw_zhangji: "手杀张既",
+	mb_tw_zhangji_prefix: "手杀",
 	mbdingzhen: "定镇",
 	mbdingzhen_info: "每轮开始时，你可令与你距离X以内的至多X名其他角色依次选择一项（X为你的体力值）：1.弃一张【杀】；2.本轮其于回合内不能指定你为锦囊牌的目标。",
 };

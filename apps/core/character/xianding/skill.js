@@ -18,7 +18,7 @@ const skills = {
 			const { targets: [target] } = event;
 			player.setStorage(event.name, target);
 			player.markSkillCharacter(event.name, target, "相谶", "上次〖相谶〗的目标");
-			if ((player.additionalSkills[event.name] || []).length >= 2) {
+			if ((player.additionalSkills[event.name] || []).length >= 3) {
 				await player.draw({ nodelay: true });
 				return;
 			}
@@ -45,7 +45,21 @@ const skills = {
 				}), ...list ];
 			}, []);
 			if (skills.length) {
-				await player.addAdditionalSkills(event.name, skills.randomGet(), true);
+				const result = await player
+					.chooseButton({
+						createDialog: [
+							`相谶：请选择一个技能获得`,
+							[skills.randomGets(3), "skill"]
+						],
+						forced: true,
+						ai(button) {
+							return get.skillRank(button.link, "inout");
+						}
+					})
+					.forResult();
+				if (result.links?.length) {
+					await player.addAdditionalSkills(event.name, result.links, true);
+				}
 			} else {
 				player.chat("天有不测风云啊");
 			}
@@ -84,19 +98,21 @@ const skills = {
 						prompt: get.translation(skill),
 						prompt2: get.skillInfoTranslation(skill, player)
 					});
-					next.set("ai2", target => {
-						const eff = get.effect(target, "dcxiangchen", get.player(), get.player());
-						console.log(eff);
-						return eff;
-					})
+					next.set("norestore", true);
 					next.set("_backupevent", skill);
 					next.set("custom", {
 						add: {},
 						replace: { window() {} },
 					});
 					next.backup(skill);
+					next.set("ai1", () => 1);
+					next.set("ai2", target => {
+						const eff = get.effect(target, "dcxiangchen", get.player(), get.player());
+						return eff;
+					});
+					next.set("addSkillCount", false);
 					await next;
-				}
+				},
 			},
 			clear: {
 				audio: "dcxiangchen",
@@ -107,6 +123,7 @@ const skills = {
 				},
 				async content(event, trigger, player) {
 					await player.removeAdditionalSkills("dcxiangchen");
+					await player.recover();
 				}
 			}
 		}
@@ -142,24 +159,30 @@ const skills = {
 		},
 		async content(event, trigger, player) {
 			player.awakenSkill(event.name);
-			await player.recoverTo(1);
-			player.addTempSkill(`${event.name}_effect`, { player: "dieAfter" });
 			const toRemove = player.getSkills(null, false, false).filter(skill => skill != event.name && !get.info(skill).charlotte);
 			if (toRemove.length) {
 				await player.removeSkills(toRemove);
 			}
+			await player.recoverTo(1);
+			player.addTempSkill(`${event.name}_effect`, { player: "dieAfter" });
+			player
+				.when({ player: "phaseAfter" })
+				.filter(evt => evt != trigger.getParent("phase", true))
+				.then(async (event, trigger, player) => {
+					player.removeSkill("dcmingding_effect");
+				})
 			const toAdd = [];
 			game.checkAllGlobalHistory("everything", evt => {
-				if (evt.name != "changeSkills" || evt.player != player || evt.getParent().name != "dcxiangchen") {
+				if (evt.name != "changeSkills" || evt.player != player || evt.getParent()?.name != "dcxiangchen") {
 					return false;
 				}
 				toAdd.addArray(evt.addSkill);
 				return true;
 			});
-			console.log(toAdd);
 			await player.draw({ num: Math.min(5, toAdd.length) });
-			await player.addSkills(toAdd.randomGets(3));
-			player.addSkill(`${event.name}_die`);
+			await player.addSkills(toAdd.randomGets(4));
+			player.addTempSkill(`${event.name}_die`, { player: "dieAfter" });
+			player.setStorage(`${event.name}_die`, trigger.getParent("phase", true));
 		},
 		subSkill: {
 			effect: {
@@ -190,18 +213,22 @@ const skills = {
 			die: {
 				audio: "dcmingding",
 				charlotte: true,
+				onremove: true,
 				forced: true,
 				intro: {
-					content: "回合结束时死亡",
+					content: "回合结束时失去所有体力",
 				},
 				mark: true,
 				marktext: "💀",
 				trigger: {
 					player: "phaseEnd",
 				},
+				filter(event, player) {
+					return event != player.storage.dcmingding_die;
+				},
 				async content(event, trigger, player) {
 					player.removeSkill(event.name);
-					await player.die();
+					await player.loseHp(player.getHp());
 				}
 			}
 		}
@@ -6047,7 +6074,7 @@ const skills = {
 			if (event.name == "useCard") {
 				return `摸一张牌并视为使用${get.translation(event.card)}`;
 			}
-			return `摸一张牌并令${get.translation(event.card)}无效`;
+			return `摸一张牌并令${get.translation(event.card)}的目标改为自己`;
 		},
 		check(event, player) {
 			const { card, player: source, target } = event;
@@ -6057,6 +6084,7 @@ const skills = {
 			return get.effect(target, card, source, player) < 0;
 		},
 		async content(event, trigger, player) {
+			const { targets: [target] } = event;
 			await player.draw();
 			if (trigger.name == "useCard") {
 				const card = get.autoViewAs({ name: trigger.card.name, nature: trigger.card.nature, isCard: true });
@@ -6065,9 +6093,11 @@ const skills = {
 				}
 				return;
 			}
-			game.log(trigger.card, "被无效了");
-			const evt = trigger.getParent();
-			evt.all_excluded = true;
+			game.log(trigger.card, "的目标改为", player);
+			trigger.targets.remove(target);
+			trigger.getParent().triggeredTargets2.remove(target);
+			trigger.untrigger();
+			trigger.targets.push(player);
 		},
 	},
 	//谋法正
@@ -6524,7 +6554,7 @@ const skills = {
 		},
 		check: () => true,
 		async content(event, trigger, player) {
-			await player.draw({ num: 4 });
+			await player.draw({ num: 3 });
 			const getCards = suit => player.getDiscardableCards(player, "h", { suit: suit });
 			const suits = lib.suit.filter(suit => getCards(suit).length > 0);
 			if (suits.length) {
@@ -6551,6 +6581,8 @@ const skills = {
 							.map(card => get.type2(card))
 							.containsAll("basic", "trick", "equip")
 					) {
+						player.addTempSkill(`${event.name}_handcard`);
+						player.addMark(`${event.name}_handcard`, 1, false);
 						player.addTempSkill(`${event.name}_basic`);
 						player.addTempSkill(`${event.name}_trick`);
 					}
@@ -6558,6 +6590,19 @@ const skills = {
 			}
 		},
 		subSkill: {
+			handcard: {
+				charlotte: true,
+				onremove: true,
+				markimage: "image/card/handcard.png",
+				intro: {
+					content: "本回合手牌上限+#",
+				},
+				mod: {
+					maxHandcard(player, num) {
+						return num + player.countMark("dcsbmoyou_handcard");
+					}
+				}
+			},
 			basic: {
 				mod: {
 					cardUsable(card, player) {
@@ -6653,7 +6698,8 @@ const skills = {
 				game.log(player, "的摸牌数-1");
 				num--;
 			}
-			player.setStorage(`${event.name}_draw`, num, true);
+			player.storage[`${event.name}_draw`] = num;
+			player[num == 0 ? "unmarkSkill" : "markSkill"](`${event.name}_draw`);
 		},
 		subSkill: {
 			draw: {
@@ -9096,7 +9142,7 @@ const skills = {
 			dialog(event, player) {
 				const [cards] = event.dczhifeng;
 				const vcards = get.inpileVCardList(([_, __, name, nature]) => {
-					if (nature || !cards.some(namex => namex == name)) {
+					if (!cards.some(namex => namex == name)) {
 						return false;
 					}
 					const card = get.autoViewAs({ name, storage: { dczhifeng: true } }, "unsure");
@@ -9877,10 +9923,12 @@ const skills = {
 				if (get.type(card) == "equip") {
 					trigger.getParent().excluded.add(player);
 					//trigger.triggeredTargets4.remove(player);
-				} else {
+				} else if (["basic", "trick"].includes(get.type(trigger.card))){
 					const resultx = await player
-						.chooseBool(`是否令你下次〖酖毒〗使用牌可以视为使用${get.translation(trigger.card)}`)
-						.set("choice", player.hasValueTarget(trigger.card, false, false))
+						.chooseBool({
+							prompt: `是否令你下次〖酖毒〗使用牌可以视为使用${get.translation(trigger.card)}`,
+							choice: player.hasValueTarget(trigger.card, false, false)
+						})
 						.forResult();
 					if (resultx?.bool) {
 						player.markAuto("dczhendu_effect", get.autoViewAs(trigger.card));
@@ -9927,7 +9975,7 @@ const skills = {
 					return player.getStorage("dczhendu_effect").length > 0;
 				},
 				async content(event, trigger, player) {
-					const cards = player.getStorage(event.name);
+					const cards = player.getStorage(event.name).slice();
 					player.removeSkill(event.name);
 					const func = card => {
 						return get.autoViewAs({
@@ -9948,11 +9996,16 @@ const skills = {
 						)
 					) {
 						const result = await player
-							.chooseButton([`酖毒：视为使用一张牌`, [cards, "vcard"]], true)
-							.set("ai", button => get.order(get.event().func(button.link)))
-							.set("filterButton", button => {
-								const card = get.event().func(button.link);
-								return player.hasUseTarget(card, false, false) || (get.info(card).notarget && lib.filter.cardEnabled(card, player));
+							.chooseButton({
+								createDialog: [`酖毒：视为使用一张牌`, [cards, "vcard"]],
+								forced: true,
+								ai(button) {
+									return get.order(get.event().func(button.link));
+								},
+								filterButton(button) {
+									const card = get.event().func(button.link);
+									return ["basic", "trick"].includes(get.type(card)) && (player.hasUseTarget(card, false, false) || (get.info(card).notarget && lib.filter.cardEnabled(card, player)));
+								}
 							})
 							.set("func", func)
 							.forResult();
@@ -23571,12 +23624,17 @@ const skills = {
 					);
 					if (targets?.length) {
 						const result = await player
-							.chooseTarget(`融火：你可以为${get.translation(card)}增加1名目标`, (card, player, target) =>
-								get.event().targets.includes(target)
-							)
+							.chooseTarget({
+								prompt: `融火：你可以为${get.translation(card)}增加1名目标`,
+								filterTarget(card, player, target) { 
+									return get.event().targets.includes(target);
+								},
+								ai(target) {
+									return get.effect(target, get.event().card, get.player(), get.player());
+								}
+							})
 							.set("targets", targetsx)
 							.set("card", card)
-							.set("ai", target => get.effect(target, get.event().card, get.player(), get.player()))
 							.forResult();
 						if (result?.bool) {
 							const { targets } = result;

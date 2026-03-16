@@ -7333,21 +7333,25 @@ export class Player extends HTMLDivElement {
 		}
 		if (result.card || !result.skill) {
 			result.used = result.card || result.cards[0];
-			var next = this.useCard(result.used, result.cards, result.targets, result.skill);
+			const next = this.useCard(result.used, result.cards, result.targets, result.skill);
 			next.oncard = event.oncard;
 			next.respondTo = event.respondTo;
 			if (event.addCount === false) {
 				next.addCount = false;
 			}
 			if (result._apply_args) {
-				for (var i in result._apply_args) {
+				for (const i in result._apply_args) {
 					next[i] = result._apply_args[i];
 				}
 			}
 			return next;
 		} else if (result.skill) {
 			result.used = result.skill;
-			return this.useSkill(result.skill, result.cards, result.targets);
+			const next = this.useSkill(result.skill, result.cards, result.targets);
+			if (event.addSkillCount === false) {
+				next.addCount = false;
+			}
+			return next;
 		}
 	}
 	/**
