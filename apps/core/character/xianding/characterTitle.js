@@ -25,7 +25,7 @@ export default {
 	suyue: "秉笔东园",
 	guotiying: "逆运定势",
 	dc_sb_lvmeng: "诡识渐近",
-	dc_sb_pangtong: "鸿谋弼业",
+	dc_sb_pangtong: "机谋辟业",
 	dc_sb_wuyi: "恤下媲子",
 	dc_sb_fazheng: "洞人识心",
 	dc_huanjie: "冰鉴丹心",

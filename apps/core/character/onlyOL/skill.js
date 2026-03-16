@@ -7857,20 +7857,21 @@ const skills = {
 		audio: 6,
 		enable: "chooseToUse",
 		filter(event, player) {
+			const types = ["basic", "trick"].removeArray(player.getStorage("olsblucun_round"));
 			return get
 				.inpileVCardList(info => {
 					const name = info[2];
-					if (!["basic", "trick"].includes(get.type(name))) {
+					if (!types.includes(get.type(name))) {
 						return false;
 					}
 					return !player.getStorage("olsblucun_used").includes(name);
 				})
 				.some(card => event.filterCard(new lib.element.VCard({ name: card[2], nature: card[3], isCard: true }), player, event));
 		},
-		round: 1,
 		chooseButton: {
 			dialog(event, player) {
-				return ui.create.dialog("赂存", [get.inpileVCardList(info => ["basic", "trick"].includes(get.type(info[2]))), "vcard"]);
+				const types = ["basic", "trick"].removeArray(player.getStorage("olsblucun_round"));
+				return ui.create.dialog("赂存", [get.inpileVCardList(info => types.includes(get.type(info[2]))), "vcard"]);
 			},
 			filter(button, player) {
 				const event = get.event().getParent();
@@ -7905,6 +7906,8 @@ const skills = {
 					viewAs: { name: links[0][2], nature: links[0][3], isCard: true },
 					async precontent(event, trigger, player) {
 						player.logSkill("olsblucun");
+						player.addTempSkill("olsblucun_round", "roundStart");
+						player.markAuto("olsblucun_round", [get.type(event.result.card.name)]);
 						player.addSkill("olsblucun_used");
 						player.markAuto("olsblucun_used", [event.result.card.name]);
 						player.addTempSkill("olsblucun_effect");
@@ -7913,10 +7916,11 @@ const skills = {
 			},
 		},
 		hiddenCard(player, name) {
-			if ((player.getStat("skill")?.olsblucun ?? 0) > 0) {
+			const type = get.type(name);
+			if (player.getStorage("olsblucun_round").includes(type) || !["basic", "trick"].includes(type)) {
 				return false;
 			}
-			return ["basic", "trick"].includes(get.type(name)) && !player.getStorage("olsblucun_used").includes(name);
+			return !player.getStorage("olsblucun_used").includes(name);
 		},
 		marktext: "赂",
 		intro: {
@@ -7980,6 +7984,10 @@ const skills = {
 		},
 		group: ["olsblucun_draw"],
 		subSkill: {
+			round: {
+				charlotte: true,
+				onremove: true,
+			},
 			backup: {},
 			used: {
 				charlotte: true,
@@ -8005,12 +8013,15 @@ const skills = {
 					player: "useCardAfter",
 				},
 				filter(event, player) {
-					return event.skill === "olsblucun_backup" && _status.currentPhase?.countCards("h") > 0;
+					return (
+						event.skill === "olsblucun_backup" && 
+						event.targets?.some(target => target.isIn() && !event.targets.some(targetx => targetx.countCards("h") > target.countCards("h")))
+					);
 				},
 				forced: true,
 				popup: false,
 				async content(event, trigger, player) {
-					const target = _status.currentPhase;
+					const target = trigger.targets.filter(target => target.isIn() && !trigger.targets.some(targetx => targetx.countCards("h") > target.countCards("h"))).randomGet();
 					player.line(target);
 					const { cards } = await target
 						.chooseCard({

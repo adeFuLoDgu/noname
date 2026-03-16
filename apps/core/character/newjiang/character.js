@@ -1,4 +1,16 @@
 const characters = {
+	yj_x_xunxu: {
+		sex: "male",
+		group: "wei",
+		hp: 3,
+		skills: ["diyin", "boqia"],
+	},
+	yj_y_xunxu: {
+		sex: "male",
+		group: "wei",
+		hp: 3,
+		skills: ["kanlv", "yjshenwei"],
+	},
 	yj_fazheng: {
 		sex: "male",
 		group: "qun",

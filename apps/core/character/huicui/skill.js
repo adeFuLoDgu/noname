@@ -2920,7 +2920,7 @@ const skills = {
 				},
 				async content(event, trigger, player) {
 					player.addTempSkill("dcjigu_used", { global: "roundStart" });
-					player.addMark("dcjigu_used");
+					player.addMark("dcjigu_used", 1, false);
 					await player.draw(
 						Array.from({ length: 5 })
 							.map((_, i) => i + 1)
