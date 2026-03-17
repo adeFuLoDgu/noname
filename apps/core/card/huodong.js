@@ -1815,8 +1815,8 @@ game.import("card", function () {
 					},
 					basic: {
 						order: 4,
-						useful: [5, 1],
-						value: 4,
+						useful: [2, 1],
+						value: 1,
 					},
 					result: {
 						target(player, target) {

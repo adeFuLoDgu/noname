@@ -594,20 +594,9 @@ const skills = {
 						};
 						return;
 					}
-					const list = skills.map(skill => {
-						return [
-							skill,
-							'<div class="popup text" style="width:calc(100% - 10px);display:inline-block"><div class="skill">【' +
-								get.translation(skill) +
-								"】</div><div>" +
-								lib.translate[skill + "_info"] +
-								"</div></div>",
-						];
-					});
 					const result = await player
 						.chooseButton({
-							prompt: "归心：选择获得一个主公技",
-							createDialog: [list, "textbutton"],
+							createDialog: ["归心：选择获得一个主公技", [skills, "skill"]],
 							forced: true,
 							ai() {
 								return 1 + Math.random();
@@ -648,7 +637,7 @@ const skills = {
 			}
 		},
 		logTarget(event) {
-			const type = event?.cost_data.control;
+			const type = event?.cost_data?.control;
 			if (type === "skill") {
 				return null;
 			}
