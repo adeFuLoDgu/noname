@@ -6062,7 +6062,7 @@ const skills = {
 			}
 			const evts = game.getGlobalHistory(
 				"useCard",
-				evt => (evt.card.name == "sha" || get.type(evt.card) == "trick") && evt.targets?.includes(target) && evt.player != player
+				evt => (evt.card.name == "sha" || get.type(evt.card) == "trick") && (evt.targets?.includes(target) || evt.dcsbbibu == target) && evt.player != player
 			);
 			return evts.indexOf(event.getParent()) == 0;
 		},
@@ -6078,9 +6078,13 @@ const skills = {
 		check(event, player) {
 			const { card, player: source, target } = event;
 			if (event.name == "useCard") {
+				if (card.name == "wuxie") {
+					return get.effect(player, { name: "draw" }, player, player) > 0;
+				}
 				return player.getUseValue(get.autoViewAs({ name: card.name, nature: card.nature, isCard: true })) > 0;
 			}
-			return get.effect(target, card, source, player) < 0;
+			//嘻嘻，我一定要活下去口牙
+			return get.effect(target, card, source, player) < get.effect(player, card, source, player);
 		},
 		async content(event, trigger, player) {
 			const { targets: [target] } = event;
@@ -6095,6 +6099,7 @@ const skills = {
 			game.log(trigger.card, "的目标改为", player);
 			trigger.targets.remove(target);
 			trigger.getParent().triggeredTargets2.remove(target);
+			trigger.getParent()[event.name] = target;
 			trigger.untrigger();
 			trigger.targets.push(player);
 		},
