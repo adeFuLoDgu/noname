@@ -17794,6 +17794,15 @@ const skills = {
 					player.unmarkAuto(event.name, [trigger.player]);
 				},
 			},
+			ai: {
+				effect: {
+					player(card, player, target) {
+						if (get.is.damageCard(card) && player.hasStorage("dcsbyaozuo_effect", target)) {
+							return 1.5;
+						}
+					},
+				},
+			},
 		},
 	},
 	dcsbzhuanwen: {
@@ -17848,8 +17857,8 @@ const skills = {
 						return eff;
 					})()
 				)
-				.set("ai", () => {
-					if (get.event().effect > 0) {
+				.set("ai", (event, player) => {
+					if (get.event().effect > 0 || player.hasStorage("dcsbyaozuo_effect", event.targets[0])) {
 						return "使用伤害牌";
 					}
 					return "获得非伤害牌";
