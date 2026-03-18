@@ -3486,8 +3486,8 @@ const skills = {
 							(() => {
 								_status._fengliao_check = true;
 								const num = player.storage.fengliao
-									? get.damageEffect(target, player, player, "fire")
-									: get.effect(target, { name: "draw" }, player, player);
+									? get.sgn(get.damageEffect(target, player, player, "fire")) * 2
+									: get.sgn(get.effect(target, { name: "draw" }, player, player));
 								delete _status._fengliao_check;
 								return num;
 							})(),
