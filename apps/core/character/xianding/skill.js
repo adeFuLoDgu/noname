@@ -3486,8 +3486,8 @@ const skills = {
 							(() => {
 								_status._fengliao_check = true;
 								const num = player.storage.fengliao
-									? get.damageEffect(target, player, player, "fire")
-									: get.effect(target, { name: "draw" }, player, player);
+									? get.sgn(get.damageEffect(target, player, player, "fire")) * 2
+									: get.sgn(get.effect(target, { name: "draw" }, player, player));
 								delete _status._fengliao_check;
 								return num;
 							})(),
@@ -6062,7 +6062,7 @@ const skills = {
 			}
 			const evts = game.getGlobalHistory(
 				"useCard",
-				evt => (evt.card.name == "sha" || get.type(evt.card) == "trick") && evt.targets?.includes(target) && evt.player != player
+				evt => (evt.card.name == "sha" || get.type(evt.card) == "trick") && (evt.targets?.includes(target) || evt.dcsbbibu == target) && evt.player != player
 			);
 			return evts.indexOf(event.getParent()) == 0;
 		},
@@ -6078,9 +6078,13 @@ const skills = {
 		check(event, player) {
 			const { card, player: source, target } = event;
 			if (event.name == "useCard") {
+				if (card.name == "wuxie") {
+					return get.effect(player, { name: "draw" }, player, player) > 0;
+				}
 				return player.getUseValue(get.autoViewAs({ name: card.name, nature: card.nature, isCard: true })) > 0;
 			}
-			return get.effect(target, card, source, player) < 0;
+			//嘻嘻，我一定要活下去口牙
+			return get.effect(target, card, source, player) < get.effect(player, card, source, player);
 		},
 		async content(event, trigger, player) {
 			const { targets: [target] } = event;
@@ -6095,6 +6099,7 @@ const skills = {
 			game.log(trigger.card, "的目标改为", player);
 			trigger.targets.remove(target);
 			trigger.getParent().triggeredTargets2.remove(target);
+			trigger.getParent()[event.name] = target;
 			trigger.untrigger();
 			trigger.targets.push(player);
 		},
@@ -12669,7 +12674,7 @@ const skills = {
 				const num = Math.min(
 					2,
 					target
-						.getCards("h")
+						.getCards("he")
 						.map(card => get.number(card, target))
 						.toUniqued().length
 				);
@@ -17794,6 +17799,15 @@ const skills = {
 					player.unmarkAuto(event.name, [trigger.player]);
 				},
 			},
+			ai: {
+				effect: {
+					player(card, player, target) {
+						if (get.is.damageCard(card) && player.hasStorage("dcsbyaozuo_effect", target)) {
+							return 1.5;
+						}
+					},
+				},
+			},
 		},
 	},
 	dcsbzhuanwen: {
@@ -17848,8 +17862,8 @@ const skills = {
 						return eff;
 					})()
 				)
-				.set("ai", () => {
-					if (get.event().effect > 0) {
+				.set("ai", (event, player) => {
+					if (get.event().effect > 0 || player.hasStorage("dcsbyaozuo_effect", event.targets[0])) {
 						return "使用伤害牌";
 					}
 					return "获得非伤害牌";
