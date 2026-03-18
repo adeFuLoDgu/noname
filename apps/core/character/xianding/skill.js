@@ -12669,7 +12669,7 @@ const skills = {
 				const num = Math.min(
 					2,
 					target
-						.getCards("h")
+						.getCards("he")
 						.map(card => get.number(card, target))
 						.toUniqued().length
 				);
