@@ -8373,22 +8373,23 @@ export const Content = {
 							replace: {},
 						};
 					}
-					if (event.custom.add.confirm == undefined) {
-						//如果有人canHidden是true然后还动了这部分请把一部分代码复制过去适配一下，不然隐藏的按钮不会关闭
-						event.custom.add.confirm = function (bool) {
-							if (bool != true) {
-								return;
-							}
-							const event = get.event();
-							if (event.controls) {
-								event.controls.forEach(i => i.close());
-							}
-							if (ui.confirm) {
-								ui.confirm.close();
-							}
-							game.uncheck();
-						};
-					}
+					const addConfirm = event.custom.add.confirm;
+					event.custom.add.confirm = function (bool) {
+						if (typeof bool != "boolean") {
+							return;
+						}
+						const event = get.event();
+						if (event.controls) {
+							event.controls.forEach(i => i.close());
+						}
+						if (ui.confirm) {
+							ui.confirm.close();
+						}
+						if (typeof addConfirm == "function") {
+							addConfirm.call(this, bool);
+						}
+						game.uncheck();
+					};
 				}
 				ui.create.buttonChooseAll();
 				game.check();

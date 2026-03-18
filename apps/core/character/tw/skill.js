@@ -1576,6 +1576,10 @@ const skills = {
 		},
 		filterCard: true,
 		check(card) {
+			const player = get.player();
+			if (player.getStorage("twmingce_used").includes(1)) {
+				return 6 - get.value(card);
+			}
 			return 8 - get.value(card);
 		},
 		filterTarget: lib.filter.notMe,
@@ -1606,21 +1610,12 @@ const skills = {
 				result = { index: storage[0] == 0 ? 1 : 0 };
 			} else {
 				result = await target
-					.chooseControl(choices)
-					.set("choiceList", choiceList)
-					.set("prompt", get.translation(player) + "对你发动了【明策】，请选择一项")
-					.set("ai", () => {
-						return _status.event.choice;
+					.chooseControl({
+						controls: choices,
+						choiceList,
+						prompt: get.translation(player) + "对你发动了【明策】，请选择一项",
+						choice: 1,
 					})
-					.set(
-						"choice",
-						target.hp <= 0 ||
-							(((target.hp + target.countCards("hs", "tao") > 2 && get.attitude(target, player) > 0) ||
-								get.effect(target, { name: "losehp" }, target, target) > 0) &&
-								target.hp > 0)
-							? 0
-							: 1
-					)
 					.forResult();
 			}
 			if (typeof result?.index !== "number") {
@@ -1630,10 +1625,10 @@ const skills = {
 			player.markAuto(name, result.index);
 			if (result.index == 0) {
 				await target.loseHp();
-				await player.draw(2 + extra);
+				await player.draw({ num: 2 + extra });
 				player.addMark(event.name, 1);
 			} else {
-				await target.draw(1 + extra);
+				await target.draw({ num: 1 + extra });
 			}
 		},
 		marktext: "笨",
@@ -1644,8 +1639,12 @@ const skills = {
 		},
 		ai: {
 			result: {
-				player: 0.5,
-				target: 1,
+				target(player, target) {
+					if (!player.getStorage("twmingce_used").includes(1)) {
+						return 1;
+					}
+					return -1;
+				},
 			},
 			order: 8.5,
 			expose: 0.2,
@@ -1664,15 +1663,19 @@ const skills = {
 				async cost(event, trigger, player) {
 					const num = player.countMark("twmingce");
 					event.result = await player
-						.chooseTarget(get.prompt(event.skill), "移去所有“策”，对一名其他角色造成" + num + "点伤害", lib.filter.notMe)
-						.set("ai", target => {
-							const player = _status.event.player;
-							const eff = get.damageEffect(target, player, player);
-							let num = player.countMark("twmingce");
-							if (target.hasSkillTag("filterDamage", null, { player: player })) {
-								num = 1;
-							}
-							return eff * num;
+						.chooseTarget({
+							prompt: get.prompt(event.skill),
+							prompt2: "移去所有“策”，对一名其他角色造成" + num + "点伤害",
+							filterTarget: lib.filter.notMe,
+							ai(target) {
+								const player = _status.event.player;
+								const eff = get.damageEffect(target, player, player);
+								let num = player.countMark("twmingce");
+								if (target.hasSkillTag("filterDamage", null, { player: player })) {
+									num = 1;
+								}
+								return eff * num;
+							},
 						})
 						.forResult();
 				},
@@ -1680,7 +1683,7 @@ const skills = {
 					const target = event.targets[0],
 						num = player.countMark("twmingce");
 					player.removeMark("twmingce", num);
-					await target.damage(num);
+					await target.damage({ num });
 				},
 			},
 		},
