@@ -8002,19 +8002,18 @@ const skills = {
 			draw: {
 				audio: "olsblucun",
 				forced: true,
+				popup: false,
 				trigger: { global: "phaseEnd" },
-				filter(event, player) {
-					return player.countExpansions("olsblucun") > 0;
-				},
 				async content(event, trigger, player) {
 					const name = "ol_sb_zhangrang";
-					const key = ["name", "name2"].find(i => player[i] == name);
-					if (key) {
-						player.changeSkin({ characterName: name }, `${name}${player.skin[key] == name ? "_shadow" : ""}`);
+					if (player.countExpansions("olsblucun") > 0) {
+						player.logSkill(event.name);
+						player.changeSkin({ characterName: name }, `${name}_shadow`);
+						const cards = player.getExpansions("olsblucun").randomGets(1);
+						await player.loseToDiscardpile({ cards });
+						await player.draw();
 					}
-					const cards = player.getExpansions("olsblucun").randomGets(1);
-					await player.loseToDiscardpile({ cards });
-					await player.draw();
+					player.changeSkin({ characterName: name }, name);
 				},
 			},
 			effect: {
@@ -8045,6 +8044,8 @@ const skills = {
 						})
 						.forResult();
 					if (cards?.length) {
+						const name = "ol_sb_zhangrang";
+						player.changeSkin({ characterName: name }, `${name}_shadow`);
 						await player.addToExpansion({
 							cards,
 							source: target,
