@@ -7,15 +7,16 @@ const skills = {
 		audio: 2,
 		forced: true,
 		trigger: {
-			global: ["loseAfter", "loseAsyncAfter", "equipAfter", "gainAfter", "addJudgeAfter", "addToExpansionAfter"],
+			global: ["loseAfter", "loseAsyncAfter", "cardsDiscardAfter"],
 		},
 		filter(event, player) {
-			return event.diyin;
+			return player.countMark("diyin") >= 7 && event.getd()?.filterInD("d")?.length > 0;
 		},
 		async content(event, trigger, player) {
-			player.addTempSkill(`${event.name}_effect`, { player: "dieAfter" });
+			const cards = trigger.getd().filterInD("d");
+			player.setMark(event.name, 0, false);
+			await player.gain({ cards, animate: "gain2" });
 		},
-		priority: 0.09,
 		init(player, skill) {
 			player.addSkill(`${skill}_mark`);
 		},
@@ -24,8 +25,8 @@ const skills = {
 			player.removeSkill(`${skill}_mark`);
 		},
 		intro: {
-			markcount: storage => `${storage}/7`,
-			content: "当前充能：#/7",
+			markcount: "mark",
+			content: "当前已失去：#/7",
 		},
 		group: ["diyin_damage"],
 		subSkill: {
@@ -37,16 +38,12 @@ const skills = {
 					global: ["loseEnd", "loseAsyncEnd", "equipEnd", "gainEnd", "addJudgeEnd", "addToExpansionEnd"],
 				},
 				filter(event, player) {
-					return event.getl(player)?.cards2?.length > 0;
+					return event.getl(player)?.cards2?.length > 0 && player.countMark("diyin") < 7;
 				},
 				async content(event, trigger, player) {
 					const num = trigger.getl(player)?.cards2.length;
 					const skill = "diyin";
-					player.addMark(skill, num, false);
-					if (player.countMark(skill) >= 7) {
-						player.setMark(skill, 0, false);
-						trigger.set(skill, true);
-					}
+					player.addMark(skill, Math.min(num, 7 - player.countMark(skill)), false);
 				},
 			},
 			damage: {
@@ -61,28 +58,6 @@ const skills = {
 				async content(event, trigger, player) {
 					const { targets } = event;
 					await game.asyncDraw(targets);
-				},
-			},
-			effect: {
-				audio: "diyin",
-				charlotte: true,
-				forced: true,
-				onremove: true,
-				intro: {
-					content: "获得下一次进入弃牌堆的牌",
-				},
-				mark: true,
-				trigger: {
-					global: ["loseAfter", "loseAsyncAfter", "cardsDiscardAfter"],
-				},
-				priority: 0.1,
-				filter(event, player) {
-					return event.getd()?.filterInD("d")?.length > 0;
-				},
-				async content(event, trigger, player) {
-					player.removeSkill(event.name);
-					const cards = trigger.getd().filterInD("d");
-					await player.gain({ cards, animate: "gain2" });
 				},
 			},
 		},

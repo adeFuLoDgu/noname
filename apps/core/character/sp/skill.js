@@ -3425,8 +3425,8 @@ const skills = {
 			if (!bool) {
 				player.chat("雪豹闭嘴");
 			}
-			player.addTempSkill("olshanjia_effect");
-			player.storage["olshanjia_effect"].set(event.getParent("phaseUse"), player.countMark("olshanjia"));
+			player.addTempSkill("olshanjia_effect", { global: ["phaseChange", "phaseBeforeStart", "phaseAfter"] });
+			//player.storage["olshanjia_effect"].set(event.getParent("phaseUse"), player.countMark("olshanjia"));
 		},
 		ai: {
 			order: 10,
@@ -3441,20 +3441,20 @@ const skills = {
 			effect: {
 				charlotte: true,
 				onremove: true,
-				init(player, skill) {
+				/*init(player, skill) {
 					player.storage[skill] = player.storage[skill] || new Map();
-				},
+				},*/
 				audio: "shanjia",
 				trigger: { player: ["useCard", "phaseUseEnd"] },
 				filter(event, player) {
-					const storage = player.storage["olshanjia_effect"];
+					/*const storage = player.storage["olshanjia_effect"];
 					if (!storage) {
 						return false;
-					}
+					}*/
 					if (event.name === "phaseUse") {
-						if (typeof storage.get(event) !== "number") {
+						/*if (typeof storage.get(event) !== "number") {
 							return false;
-						}
+						}*/
 						return !player.hasHistory("lose", evt => {
 							if (evt.type !== "discard" || evt.getParent(3).name !== "olshanjia_effect") {
 								return false;
@@ -3470,15 +3470,15 @@ const skills = {
 					) {
 						return false;
 					}
-					const num = storage.get(event.getParent("phaseUse"));
-					return typeof num === "number" && num > 0;
+					return player.countMark("olshanjia_effect") < player.countMark("olshanjia");
 				},
 				direct: true,
 				async content(event, trigger, player) {
 					if (trigger.name === "useCard") {
-						const storage = player.storage["olshanjia_effect"];
+						/*const storage = player.storage["olshanjia_effect"];
 						const num = storage.get(trigger.getParent("phaseUse"));
-						player.storage["olshanjia_effect"].set(trigger.getParent("phaseUse"), num - 1);
+						player.storage["olshanjia_effect"].set(trigger.getParent("phaseUse"), num - 1);*/
+						player.addMark(event.name, 1, false);
 						await player
 							.chooseToDiscard({
 								position: "he",

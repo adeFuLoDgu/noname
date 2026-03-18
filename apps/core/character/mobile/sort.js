@@ -77,7 +77,7 @@ const characterSortTranslate = {
 	mobile_xlqk6: "袖里乾坤·君子六艺",
 	mobile_longxue: "龙血玄黄",
 	mobile_laoyouji: "老友季",
-	mobile_laoyouji_hefei: "老友季·合肥",
+	mobile_laoyouji_hefei: "千里之骥",
 	mobile_yuan: "移动版·缘",
 	mobile_others: "其他",
 	mobile_changshi: "十常侍单体",

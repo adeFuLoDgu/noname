@@ -26247,7 +26247,8 @@ const skills = {
 					}
 					return 0;
 				})
-				.set("eff", get.effect(player, trigger.card, trigger.player, trigger.player));
+				.set("eff", get.effect(player, trigger.card, trigger.player, trigger.player))
+				.forResult();
 			if (result.bool === false) {
 				trigger.getParent().excluded.add(player);
 			}
@@ -27394,7 +27395,7 @@ const skills = {
 		trigger: { player: "useCard2" },
 		forced: true,
 		filter(event, player) {
-			return get.color(event.card, player) == "none";
+			return get.color(event.card) == "none";
 		},
 		content() {
 			"step 0";
@@ -43016,7 +43017,7 @@ const skills = {
 				direct: true,
 				charlotte: true,
 				async content(event, trigger, player) {
-					const card = { name: "sha", isCard: true };
+					const card = get.autoViewAs({ name: "sha", isCard: true });
 					if (player.hasUseTarget(card)) {
 						await player.chooseUseTarget(card);
 					}

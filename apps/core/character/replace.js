@@ -449,4 +449,5 @@ window.noname_character_replace = {
 	wangshen: ["clan_wangshen", "std_wangshen"],
 	wuke: ["wuke", "std_wuke"],
 	dongguiren: ["ol_dongguiren", "dongguiren"],
+	liuxuan: ["liuxuan", "hs_liuxuan"],
 };
