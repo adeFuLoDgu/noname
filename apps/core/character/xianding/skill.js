@@ -25818,7 +25818,7 @@ const skills = {
 					}
 					return rec;
 				});
-			} else if (result.color != "black" || !trigger.player.isIn() || game.countPlayer() < 2) {
+			} else if (result.color != "black" || game.countPlayer() < 2) {
 				event.goto(9);
 			} else {
 				event.goto(5);
