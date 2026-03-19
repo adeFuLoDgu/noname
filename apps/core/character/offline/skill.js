@@ -27320,7 +27320,17 @@ const skills = {
 		},
 		ai: {
 			order: 8,
-			result: { target: -1 },
+			result: {
+				target(player,target) {
+					const att = get.sgnAttitude(player, target),
+						hp = target.getHp(true) + 0.1,
+						hs = target.countCards("h") + 0.1;
+					if (att < 0) {
+						return att * hp * hs / 100;
+					}
+					return 0;
+				}
+			},
 		},
 		group: "tyshencai_wusheng",
 		subSkill: {
