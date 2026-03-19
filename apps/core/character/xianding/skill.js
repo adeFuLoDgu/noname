@@ -15140,6 +15140,17 @@ const skills = {
 					return 1;
 				},
 			},
+			effect: {
+				target(card, player, target) {
+					if (!target.isTurnedOver() || player == target || target.getStat("skill").dcjiusi || !get.tag(card, "respond")) {
+						return;
+					} else if (get.cardDescription(card).indexOf("打出") > -1) {
+						return;
+					}
+					let eff = target.hasSkill("dcllqixin") && target.getStat("triggerSkill").dcllqixin < 2 ? 2 : 1;
+					return [1, eff];
+				},
+			},
 		},
 	},
 	//张怀
