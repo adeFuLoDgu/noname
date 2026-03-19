@@ -5460,7 +5460,7 @@ const skills = {
 						return [1, -2];
 					}
 					if (get.tag(card, "damage")) {
-						if (player.getNext() == target && lib.skill.biejun.filter(null, target) && target.isTurnedOver()) {
+						if (lib.skill.biejun.filter(null, target) && target.isTurnedOver()) {
 							return [0, 1];
 						}
 					}
