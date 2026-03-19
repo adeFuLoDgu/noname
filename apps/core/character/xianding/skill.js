@@ -1828,15 +1828,15 @@ const skills = {
 		ai: {
 			order: 8,
 			result: {
-				target(player,target) {
+				target(player, target) {
 					const att = get.sgnAttitude(player, target),
 						hp = target.getHp(true) + 0.1,
 						hs = target.countCards("h") + 0.1;
 					if (att < 0) {
-						return att * hp * hs / 100;
+						return (att * hp * hs) / 100;
 					}
 					return 0;
-				}
+				},
 			},
 		},
 		async contentx(event) {
@@ -24197,7 +24197,35 @@ const skills = {
 			},
 			effect: {
 				target(card, player, target, current) {
-					if (get.tag(card, "damage") && typeof get.number(card) != "number") {
+					let cardx = card;
+					if (card.name == "damage" || card.name?.endsWith("Damage")) {
+						cardx = (function () {
+							let count = 0;
+							do {
+								let evt = get.event().getParent(count, null, true);
+								let name = evt?.skill || evt?.name;
+								if (!name) {
+									break;
+								}
+								if (name.startsWith("pre_")) {
+									name = name.slice(4);
+								}
+								for (const suffix of ["_backup", "ContentBefore", "ContentAfter", "_cost"]) {
+									if (name.endsWith(suffix)) {
+										name = name.slice(0, name.lastIndexOf(suffix));
+									}
+								}
+								if (!(name in lib.card) || !evt.card) {
+									continue;
+								}
+								return evt.card;
+							} while (++count < 5);
+							return null;
+						})();
+					}
+					if (!cardx) {
+						return;
+					} else if (get.is.damageCard(cardx) && typeof get.number(cardx) != "number") {
 						return "zeroplayertarget";
 					}
 				},
