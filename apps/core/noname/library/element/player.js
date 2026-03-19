@@ -15508,7 +15508,7 @@ export class Player extends HTMLDivElement {
 			}
 			if (init !== false) {
 				game.broadcast(
-					function (player, card, init) {
+					function (player, card, init, cardsetion) {
 						player.$gain(card, false, init, cardsetion);
 					},
 					this,
