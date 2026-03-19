@@ -3099,6 +3099,9 @@ const skills = {
 			player.storage.xiongjin_effect_target.add(target);
 			target.markAuto("xiongjin_effect", [goon ? "nobasic" : "basic"]);
 			target.draw(Math.min(4, Math.max(1, player.getDamagedHp())));
+			if (target != player) {
+				player.addExpose(0.2);
+			}
 		},
 		subSkill: {
 			used: {
