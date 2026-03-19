@@ -7096,10 +7096,13 @@ const skills = {
 						if (Math.random() < 0.75 && link == "clandaojie") {
 							if (player.hasSkill("clanbaichu")) return 0;
 							return 2;
+						} else if (get.event().removeSkillCheck) {
+							return 100 - get.skillRank(link);
 						}
 						return 0;
 					})
 					.set("listx", skills)
+					.set("removeSkillCheck", player.hp < 2 && !player.countCards("hs", card => get.tag(card, "save")))
 					.forResult();
 			}
 			if (result?.bool && result?.links?.length) {
