@@ -21071,7 +21071,7 @@ const skills = {
 				prompt2(event, player) {
 					return "切换【覆谋】为状态" + (player.storage.dcsbfumou ? "阳" : "阴");
 				},
-				check: () => Math.random() > 0.5,
+				check: () => player.storage.dcsbfumou,
 				content() {
 					player.changeZhuanhuanji("dcsbfumou");
 				},
