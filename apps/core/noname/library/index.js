@@ -14286,6 +14286,15 @@ export class Library {
 			},
 		],
 		[
+			get.poptip("rule_mamba"),
+			{
+				/**
+				 * @returns {string}
+				 */
+				getSpan: () => get.prefixSpan("牢"),
+			},
+		],
+		[
 			"牢神",
 			{
 				/**
