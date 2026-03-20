@@ -3007,6 +3007,7 @@ const skills = {
 		async content(event, trigger, player) {
 			const { name, targets } = event;
 			const lose_list = targets.sortBySeat().map(target => [target, target.getCards("h")]);
+			game.addGlobalSkill("dccangming_gain");
 			await game
 				.loseAsync({
 					lose_list: lose_list,
@@ -3038,7 +3039,6 @@ const skills = {
 				}
 			},
 		},
-		global: "dccangming_gain",
 		group: "dccangming_draw",
 		subSkill: {
 			draw: {
