@@ -11738,7 +11738,7 @@ export class Player extends HTMLDivElement {
 	clearSkills(all, ...skills) {
 		if (!all) return this.removeSkills(this.getSkills(null, false, false).removeArray(skills));
 		var list = this.skills.filter(skill => {
-			return lib.skill[this.skills[i]].superCharlotte && !skills.includes(skill);
+			return !lib.skill[skill]?.superCharlotte && !skills.includes(skill);
 		});
 		for (var i in this.additionalSkills) {
 			this.removeAdditionalSkill(i);

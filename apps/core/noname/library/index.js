@@ -5817,10 +5817,27 @@ export class Library {
 					item: {
 						off: "不限制",
 						group: "按势力筛选",
-						3: "三",
-						4: "四",
-						6: "六",
-						8: "八",
+						number: "自选数值",
+					},
+					onclick(item) {
+						if (item !== "number") {
+							game.saveConfig("connect_limit_zhu", item, "identity");
+							return;
+						}
+						const result = prompt("请输入常备主候选武将数");
+						if (/^-?\d+(\.\d+)?$/.test(result)) {
+							const number = Number(result);
+							if (number > 0) {
+								if (Number.isInteger(number)) {
+									this.querySelector("div").innerHTML = result;
+									game.saveConfig("connect_limit_zhu", result, "identity");
+								} else {
+									alert("请输入整数");
+								}
+								return;
+							}
+						}
+						alert("请输入大于0的整数");
 					},
 				},
 				connect_choice_zhong: {
@@ -6462,10 +6479,27 @@ export class Library {
 					item: {
 						off: "不限制",
 						group: "按势力筛选",
-						3: "三",
-						4: "四",
-						6: "六",
-						8: "八",
+						number: "自选数值",
+					},
+					onclick(item) {
+						if (item !== "number") {
+							game.saveConfig("limit_zhu", item, "identity");
+							return;
+						}
+						const result = prompt("请输入常备主候选武将数");
+						if (/^-?\d+(\.\d+)?$/.test(result)) {
+							const number = Number(result);
+							if (number > 0) {
+								if (Number.isInteger(number)) {
+									this.querySelector("div").innerHTML = result;
+									game.saveConfig("limit_zhu", result, "identity");
+								} else {
+									alert("请输入整数");
+								}
+								return;
+							}
+						}
+						alert("请输入大于0的整数");
 					},
 				},
 				choice_zhong: {
