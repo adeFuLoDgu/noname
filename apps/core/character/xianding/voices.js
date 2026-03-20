@@ -1,4 +1,9 @@
 export default {
+	"#dcsbzhenjian1": "我知季玉其人，必不为伤民之恶。",
+	"#dcsbzhenjian2": "自古有拒敌以安民，无动民以避敌。",
+	"#dcsbxixing1": "正受性无术，恐不明本末。",
+	"#dcsbxixing2": "左将军英才盖世，可为良禽栖木。",
+	"#dc_sb_fazheng:die": "璋公有恩，我却无义。",
 	"#dccangming1": "沧溟起幕，万类归流，百川当濯我足！",
 	"#dccangming2": "乾坤浩荡，我主沉浮！",
 	"#dcchouxi1": "此间云雨，皆出我袖！",
