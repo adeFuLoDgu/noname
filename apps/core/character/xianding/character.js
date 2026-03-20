@@ -176,7 +176,7 @@ const characters = {
 		hp: 4,
 		skills: ["dcshouhu", "dcningzhun"],
 	},
-	liuyijun: {
+	liufuren: {
 		sex: "female",
 		group: "qun",
 		hp: 3,
