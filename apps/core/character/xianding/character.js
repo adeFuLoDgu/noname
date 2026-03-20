@@ -181,6 +181,7 @@ const characters = {
 		group: "qun",
 		hp: 3,
 		skills: ["dcdulu", "dcfuji"],
+		names: "刘|null",
 	},
 	taohuang: {
 		sex: "male",
