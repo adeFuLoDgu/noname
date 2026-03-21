@@ -4616,7 +4616,7 @@ export class Library {
 							num = Math.round(num);
 						}
 						text.innerText = num;
-						game.saveConfig("recent_character_number", num);
+						game.saveConfig("showMax_character_number", num);
 					},
 				},
 				popequip: {
