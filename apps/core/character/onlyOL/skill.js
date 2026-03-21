@@ -2,6 +2,91 @@ import { lib, game, ui, get, ai, _status } from "noname";
 
 /** @type { importCharacterConfig['skill'] } */
 const skills = {
+	//界夏侯氏
+	olqiaoshi: {
+		audio: 2,
+		trigger: {
+			global: "phaseJieshuBegin",
+		},
+		logTarget: () => _status.currentPhase,
+		filter(event, player) {
+			return _status.currentPhase?.isIn();
+		},
+		check(event, player) {
+			return get.attitude(player, _status.currentPhase) > 0;
+		},
+		async content(event, trigger, player) {
+			let { targets } = event;
+			targets = [player, ...targets];
+			await game.asyncDraw(targets);
+			if (targets[0].countCards("h") != targets[1].countCards("h")) {
+				player.tempBanSkill(event.name, "roundStart");
+			}
+		},
+		ai: {
+			expose: 0.25,
+			tag: {
+				draw: 1,
+			},
+		},
+	},
+	olyanyu: {
+		audio: 2,
+		enable: "phaseUse",
+		filter(event, player) {
+			return player.hasCard(card => get.name(card) == "sha" && player.canRecast(card), "h");
+		},
+		filterCard: (card, player) => get.name(card) == "sha" && player.canRecast(card),
+		discard: false,
+		lose: false,
+		delay: false,
+		async content(event, trigger, player) {
+			await player.recast(event.cards);
+		},
+		ai: {
+			order: 1,
+			result: {
+				player: 1,
+			},
+		},
+		group: ["olyanyu_draw"],
+		subSkill: {
+			draw: {
+				audio: "olyanyu",
+				trigger: {
+					player: "phaseUseEnd",
+				},
+				filter(event, player) {
+					return (
+						player
+							.getHistory("lose", evt => evt.getParent("phaseUse") == event)
+							.reduce((list, evt) => list.addArray(evt.cards2.filter(card => get.name(card) == "sha")), []).length >= 2 &&
+						game.hasPlayer(target => target.sex == "male")
+					);
+				},
+				async cost(event, trigger, player) {
+					event.result = await player
+						.chooseTarget({
+							prompt: get.prompt(event.skill),
+							prompt2: "令一名男性角色摸两张牌",
+							filterTarget(card, player, target) {
+								return target.sex == "male";
+							},
+							ai(target) {
+								return get.effect(target, { name: "draw" }, get.player(), get.player());
+							},
+						})
+						.forResult();
+				},
+				async content(event, trigger, player) {
+					const {
+						targets: [target],
+					} = event;
+					await target.draw({ num: 2 });
+				},
+			},
+		},
+	},
 	//神典韦
 	juanjia: {
 		audio: 2,

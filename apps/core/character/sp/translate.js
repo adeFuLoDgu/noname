@@ -1390,7 +1390,7 @@ const translates = {
 	olzonglve_info: "①出牌阶段限一次，你可以将一张牌当作【杀】使用。②当你使用【杀】对其他角色造成伤害后，若此【杀】没有实体牌或实体牌不均为【杀】，则你获得其区域里各一张牌。",
 	chenggongying: "成公英",
 	olkuangxiang: "匡襄",
-	olkuangxiang_info: "准备阶段，你令一名角色将手牌数调整至四张。其以此法获得的黑色牌造成的伤害+1；其每以此法获得一张红色牌，下个摸牌阶段少摸一张牌。",
+	olkuangxiang_info: "准备阶段，你可令一名角色将手牌数调整至四张。其以此法获得的黑色牌造成的伤害+1；其每以此法获得一张红色牌，下个摸牌阶段少摸一张牌。",
 	ol_dongxie: "OL董翓",
 	ol_dongxie_prefix: "OL",
 	oljiaowei: "狡威",
@@ -1609,6 +1609,12 @@ const translates = {
 	olbiguo_info: "摸牌阶段开始时，你可以改为从牌堆中展示并获得每个类型的牌各一张。然后你本回合成为牌的目标后，你可以与一名其他角色拼点，没赢的角色本回合不能使用或打出与双方拼点牌类型相同的牌。",
 	oldouyu: "斗誉",
 	oldouyu_info: "你的拼点牌亮出前，你可以与对方交换拼点牌，若你赢，你摸一张牌。",
+	ol_huangfusong: "OL皇甫嵩",
+	ol_huangfusong_prefix: "OL",
+	olyanjing: "焰靖",
+	olyanjing_info: "准备阶段，你可以指定一名其他角色并跳过本回合下X个阶段，对其造成1点火焰伤害（X为其体力值）。",
+	olfenyue: "奋钺",
+	olfenyue_info: "转换技，每回合结束时，若本回合有角色受到过属性伤害，你可以：阳：摸两张牌；阴：使用一张【杀】。",
 };
 
 export default translates;

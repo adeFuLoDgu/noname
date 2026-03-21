@@ -1,6 +1,22 @@
 import { lib, game, ui, get, ai, _status } from "noname";
 
 const translates = {
+	ylyg_pangtong: "雁翎庞统",
+	ylyg_pangtong_prefix: "雁翎",
+	ylygxiangxing: "相形",
+	ylygxiangxing_info: `锁定技，其他角色视为拥有${get.poptip("reyingzi")}${get.poptip("rebiyue")}。`,
+	ylygxiangxing_yingzi: "英姿",
+	ylygxiangxing_yingzi_info: "锁定技，摸牌阶段摸牌时，你额外摸一张牌；你的手牌上限为你的体力上限。",
+	ylygxiangxing_biyue: "闭月",
+	ylygxiangxing_biyue_info: "结束阶段，你可以摸一张牌，若你没有手牌，则改为摸两张牌。",
+	ylyglianhuan: "连环",
+	ylyglianhuan_info: "出牌阶段限X次，你可以将一张牌当【铁索连环】使用，结算后两名目标随机均分手牌（无法均分的手牌交给你，X为洗牌的次数+1）。",
+	ylygniepan: "涅槃",
+	ylygniepan_info: "限定技，当你处于濒死状态时，你可以摸三张牌，回复至3点体力，然后造成2点火焰伤害；洗牌时，此技能重置。",
+	ylyg_dianwei: "雁翎典韦",
+	ylyg_dianwei_prefix: "雁翎",
+	ylygqiangxi: "强袭",
+	ylygqiangxi_info: "出牌阶段，你可以与一名本回合未选择过的角色拼点：若你赢，你摸一张牌或弃置对方一张牌；本回合第二次没赢时，你失去1点体力对这两次拼点目标及其之间的所有其他角色各造成1点伤害，然后此技能本回合失效。",
 	ylyg_xiaoqiao: "雁翎小乔",
 	ylyg_xiaoqiao_prefix: "雁翎",
 	ylygtianxiang: "天香",

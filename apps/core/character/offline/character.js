@@ -1,4 +1,16 @@
 const characters = {
+	ylyg_pangtong: {
+		sex: "male",
+		group: "shu",
+		hp: 3,
+		skills: ["ylygxiangxing", "ylyglianhuan", "ylygniepan"],
+	},
+	ylyg_dianwei: {
+		sex: "male",
+		group: "wei",
+		hp: 5,
+		skills: ["ylygqiangxi"],
+	},
 	le_shen_jiaxu: {
 		sex: "male",
 		group: "shen",

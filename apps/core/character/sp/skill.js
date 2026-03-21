@@ -2,6 +2,118 @@ import { lib, game, ui, get, ai, _status } from "noname";
 
 /** @type { importCharacterConfig['skill'] } */
 const skills = {
+	//皇甫嵩
+	olyanjing: {
+		audio: 2,
+		trigger: {
+			player: "phaseZhunbeiBegin",
+		},
+		async cost(event, trigger, player) {
+			event.result = await player
+				.chooseTarget({
+					prompt: get.prompt2(event.skill),
+					filterTarget: lib.filter.all,
+					ai(target) {
+						const player = get.player();
+						if (target.getHp() > 2) {
+							return 0;
+						}
+						if (target.getHp() == 2 && player.countCards("h") < 2) {
+							return 0;
+						}
+						return get.damageEffect(target, player, player, "fire");
+					},
+				})
+				.forResult();
+		},
+		async content(event, trigger, player) {
+			const {
+				targets: [target],
+			} = event;
+			player.addTempSkill(`${event.name}_skip`);
+			player.addMark(`${event.name}_skip`, target.getHp(), false);
+			await target.damage({ nature: "fire" });
+		},
+		subSkill: {
+			skip: {
+				charlotte: true,
+				forced: true,
+				popup: false,
+				onremove: true,
+				intro: {
+					content: "还需跳过#个阶段",
+				},
+				trigger: {
+					player: "phaseAnyBefore",
+				},
+				filter(event, player) {
+					return player.hasMark("olyanjing_skip");
+				},
+				async content(event, trigger, player) {
+					game.log(player, "跳过了", `#g${get.translation(trigger)}`);
+					player.removeMark(event.name, 1, false);
+					if (!player.hasMark(event.name)) {
+						player.removeSkill(event.name);
+					}
+					trigger.cancel();
+				},
+			},
+		},
+	},
+	olfenyue: {
+		audio: 2,
+		zhuanhuanji: true,
+		mark: true,
+		marktext: "☯",
+		intro: {
+			content(storage, player) {
+				return `每回合结束时，若本回合有角色受到过属性伤害，你可以${!storage ? "摸两张牌" : "使用一张【杀】"}`;
+			},
+		},
+		trigger: {
+			global: "phaseEnd",
+		},
+		filter(event, player) {
+			return game.hasGlobalHistory("changeHp", evt => {
+				return evt.getParent()?.name == "damage" && evt.getParent()?.hasNature();
+			});
+		},
+		direct: true,
+		async content(event, trigger, player) {
+			const bool = player.storage[event.name];
+			if (!bool) {
+				const result = await player
+					.chooseBool({
+						prompt: get.prompt(event.name),
+						prompt2: get.skillInfoTranslation(event.name, player, false),
+						choice: true,
+					})
+					.forResult();
+				if (result.bool) {
+					player.logSkill(event.name);
+					player.changeZhuanhuanji(event.name);
+					await player.draw({ num: 2 });
+				}
+			} else {
+				await player
+					.chooseToUse({
+						prompt: get.prompt(event.name),
+						prompt2: get.skillInfoTranslation(event.name, player, false),
+						filterCard(card, player) {
+							if (get.itemtype(card) != "card" || get.name(card) != "sha") {
+								return false;
+							}
+							return lib.filter.filterCard.call(this, card, player);
+						},
+					})
+					.set("onresult", result => {
+						const player = get.player();
+						player.logSkill("olfenyue");
+						player.changeZhuanhuanji("olfenyue");
+					});
+			}
+		},
+	},
 	//逄纪
 	olbiguo: {
 		audio: 2,
@@ -7386,21 +7498,19 @@ const skills = {
 		},
 		async cost(event, trigger, player) {
 			event.result = await player
-				.chooseTarget(
-					"请选择【匡襄】的目标",
-					lib.translate.olkuangxiang_info,
-					(card, player, target) => {
+				.chooseTarget({
+					prompt: get.prompt2(event.skill),
+					filterTarget(card, player, target) {
 						return target.countCards("h") !== 4;
 					},
-					true
-				)
-				.set("ai", target => {
-					const att = get.attitude(get.player(), target);
-					const num = target.countCards("h");
-					if (num > 4) {
-						return -att * (num - 4);
+					ai(target) {
+						const att = get.attitude(get.player(), target);
+						const num = target.countCards("h");
+						if (num > 4) {
+							return -att * (num - 4);
+						}
+						return att * Math.max(0, 4 - target.countCards("h"));
 					}
-					return att * Math.max(0, 4 - target.countCards("h"));
 				})
 				.forResult();
 		},
@@ -33134,7 +33244,7 @@ const skills = {
 		skillAnimation: true,
 		animationColor: "orange",
 		filter(event, player) {
-			return player.countMark("fanghun") > 0;
+			return player.countMark("fanghun") >= 0;
 		},
 		check: () => true,
 		async content(event, trigger, player) {
@@ -33200,15 +33310,19 @@ const skills = {
 								//算出来需要多少列，最多八列
 								const num = 8;
 								const column = Math.min(list.length, num);
+								if (column > 6) {
+									dialog.css({
+										width: "100%",
+										left: 0,
+									});
+								}
 								//重新创建一个容器，不然css之后会导致dialog.content内的其他元素也加入到布局中
 								const contentx = ui.create.div(".content", dialog.content);
 								contentx.css({
 									display: "grid",
 									gridTemplateColumns: `repeat(${column}, 1fr)`,
 									width: "fit-content",
-									margin: "0 auto",
-									justifyItems: "center",
-									alignItems: "start",
+									margin: "auto",
 								});
 								//一个一个塞进去
 								for (const i of list) {

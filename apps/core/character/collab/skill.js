@@ -170,19 +170,24 @@ const skills = {
 								const contentx = ui.create.div(".content", dialog.content);
 								//另外创建一个容器修改布局，避免把提示也纳入布局中
 								contentx.css({
+									width: "fit-content",
+									margin: "auto",
+									//grid布局
 									display: "grid",
 									gridTemplateColumns: `repeat(${column}, 1fr)`,
-									width: "fit-content",
-									margin: "0 auto",
-									justifyItems: "center",
-									alignItems: "start",
+									//flex布局
+									/*display: "flex",
+									justifyContent: "center",
+									flexWrap: "wrap",*/
 								});
-								//每个图片和tdnodes跟算一组buttons且按列分布；再作为子元素放进新容器
+								//每个图片和tdnodes算一组buttons且按列分布；再作为子元素放进新容器
 								for (const rarity in map) {
 									for (const id of map[rarity]) {
 										const div = ui.create.div(".buttons", contentx);
 										const button = ui.create.button([`zf_${rarity}`, null, id], "vcard", div);
 										div.css({
+											//flex布局要加上这个width
+											//width: "fit-content",
 											display: "flex",
 											flexDirection: "column",
 											alignItems: "center",
