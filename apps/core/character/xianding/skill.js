@@ -2675,7 +2675,17 @@ const skills = {
 		},
 		ai: {
 			order: 8,
-			result: { target: -1 },
+			result: {
+				target(player, target) {
+					const att = get.sgnAttitude(player, target),
+						hp = target.getHp(true) + 0.1,
+						hs = target.countCards("h") + 0.1;
+					if (att < 0) {
+						return (att * hp * hs) / 100;
+					}
+					return 0;
+				},
+			},
 		},
 		async contentx(event) {
 			const { card } = event.judgeResult;
@@ -3493,6 +3503,7 @@ const skills = {
 		async content(event, trigger, player) {
 			const { name, targets } = event;
 			const lose_list = targets.sortBySeat().map(target => [target, target.getCards("h")]);
+			game.addGlobalSkill("dccangming_gain");
 			await game
 				.loseAsync({
 					lose_list: lose_list,
@@ -3524,7 +3535,6 @@ const skills = {
 				}
 			},
 		},
-		global: "dccangming_gain",
 		group: "dccangming_draw",
 		subSkill: {
 			draw: {
@@ -15999,6 +16009,17 @@ const skills = {
 					return 1;
 				},
 			},
+			effect: {
+				target(card, player, target) {
+					if (!target.isTurnedOver() || player == target || target.getStat("skill").dcjiusi || !get.tag(card, "respond")) {
+						return;
+					} else if (get.cardDescription(card).indexOf("打出") > -1) {
+						return;
+					}
+					let eff = target.hasSkill("dcllqixin") && target.getStat("triggerSkill").dcllqixin < 2 ? 2 : 1;
+					return [1, eff];
+				},
+			},
 		},
 	},
 	//张怀
@@ -21930,7 +21951,7 @@ const skills = {
 				prompt2(event, player) {
 					return "切换【覆谋】为状态" + (player.storage.dcsbfumou ? "阳" : "阴");
 				},
-				check: () => Math.random() > 0.5,
+				check: (event, player) => player.storage.dcsbfumou,
 				content() {
 					player.changeZhuanhuanji("dcsbfumou");
 				},
@@ -25056,7 +25077,35 @@ const skills = {
 			},
 			effect: {
 				target(card, player, target, current) {
-					if (get.tag(card, "damage") && typeof get.number(card) != "number") {
+					let cardx = card;
+					if (card.name == "damage" || card.name?.endsWith("Damage")) {
+						cardx = (function () {
+							let count = 0;
+							do {
+								let evt = get.event().getParent(count, null, true);
+								let name = evt?.skill || evt?.name;
+								if (!name) {
+									break;
+								}
+								if (name.startsWith("pre_")) {
+									name = name.slice(4);
+								}
+								for (const suffix of ["_backup", "ContentBefore", "ContentAfter", "_cost"]) {
+									if (name.endsWith(suffix)) {
+										name = name.slice(0, name.lastIndexOf(suffix));
+									}
+								}
+								if (!(name in lib.card) || !evt.card) {
+									continue;
+								}
+								return evt.card;
+							} while (++count < 5);
+							return null;
+						})();
+					}
+					if (!cardx) {
+						return;
+					} else if (get.is.damageCard(cardx) && typeof get.number(cardx) != "number") {
 						return "zeroplayertarget";
 					}
 				},
@@ -26638,7 +26687,7 @@ const skills = {
 					}
 					return rec;
 				});
-			} else if (result.color != "black" || !trigger.player.isIn() || game.countPlayer() < 2) {
+			} else if (result.color != "black" || game.countPlayer() < 2) {
 				event.goto(9);
 			} else {
 				event.goto(5);
@@ -33701,6 +33750,7 @@ const skills = {
 	},
 	dchuace: {
 		audio: 2,
+		audioname: ["ol_re_nianshou"],
 		enable: "phaseUse",
 		usable: 1,
 		filter(event, player) {
@@ -33749,6 +33799,7 @@ const skills = {
 			backup(links, player) {
 				return {
 					audio: "dchuace",
+					audioname: ["ol_re_nianshou"],
 					viewAs: { name: links[0][2] },
 					ai1: card => 7 - get.value(card),
 					filterCard: true,

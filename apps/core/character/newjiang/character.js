@@ -10,6 +10,8 @@ const characters = {
 		group: "wei",
 		hp: 3,
 		skills: ["kanlv", "yjshenwei"],
+		img: "image/character/yj_x_xunxu.jpg",
+		dieAudios: ["yj_x_xunxu"],
 	},
 	yj_fazheng: {
 		sex: "male",

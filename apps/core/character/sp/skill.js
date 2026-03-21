@@ -2383,6 +2383,7 @@ const skills = {
 					player: "judgeBefore",
 				},
 				forced: true,
+				popup: false,
 				charlotte: true,
 				filter(event, player) {
 					return !event.directresult && player.countCards("h", card => card.hasGaintag("olleishi_judge"));
@@ -2406,6 +2407,7 @@ const skills = {
 					if (!result?.cards?.length) {
 						return;
 					}
+					player.$throw(result.cards);
 					trigger.directresult = result.cards[0];
 				},
 			},
@@ -18720,7 +18722,16 @@ const skills = {
 					.chooseControl(choices)
 					.set("choiceList", choiceList)
 					.set("prompt", "泥首：选择一项")
-					.set("ai", () => 0);
+					.set("ai", (event, player) => {
+						if (get.event().controls.length == 1) {
+							return 0;
+						} else if (game.hasPlayer(current => {
+							return current != player && current.isMinHandcard() && get.attitude(player, current) > 0;
+						})) {
+							return 1;
+						}
+						return 0;
+					});
 			}
 			"step 1";
 			player.logSkill("olnishou");

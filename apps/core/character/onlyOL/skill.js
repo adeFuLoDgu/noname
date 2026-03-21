@@ -9781,6 +9781,7 @@ const skills = {
 					}
 					if (
 						(num3 == num2 + 1 || player.maxHp > 3) &&
+						(player.isDamaged() || event.getRand() < 0.5) &&
 						!game.hasPlayer(current => {
 							if (player == current) {
 								return false;
