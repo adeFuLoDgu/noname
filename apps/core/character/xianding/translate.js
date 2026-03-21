@@ -1170,7 +1170,7 @@ const translates = {
 	dcshouhu_append: `<span style="font-family: yuanli"><li><span style="text-decoration: line-through;">补丁×</span>注意事项：<br>真正意义上的距离变化后时机在无名杀现有框架无法实现，请不要反馈在某些情况距离变化后此技能不重置的问题。</span>`,
 	dcningzhun: "凝准",
 	dcningzhun_info: "每回合每项限一次，你每回合使用的第偶数张牌结算结束后，可选择一项：1.攻击范围-1；2.攻击范围+1；3.移动场上一张牌。若你本回合执行了所有选项，此技能视为未发动过。",
-	liuyijun: "刘懿君",
+	liufuren: "刘懿君",
 	dcdulu: "妒戮",
 	dcdulu_info: "出牌阶段限一次，你可以对任意名对你使用过牌的其他角色各造成1点伤害并随机弃置其一张手牌，然后直到你的下个回合结束，这些角色进入濒死时你获得其所有黑色牌。",
 	dcfuji: "缚己",

@@ -11735,29 +11735,15 @@ export class Player extends HTMLDivElement {
 		}
 		return 0;
 	}
-	clearSkills(all) {
-		var list = [];
-		var exclude = [];
-		for (const arg of arguments) {
-			exclude.push(arg);
+	clearSkills(all, ...skills) {
+		if (!all) return this.removeSkills(this.getSkills(null, false, false).removeArray(skills));
+		var list = this.skills.filter(skill => {
+			return !lib.skill[skill]?.superCharlotte && !skills.includes(skill);
+		});
+		for (var i in this.additionalSkills) {
+			this.removeAdditionalSkill(i);
 		}
-		for (i = 0; i < this.skills.length; i++) {
-			if (lib.skill[this.skills[i]].superCharlotte) {
-				continue;
-			}
-			if (!all && (lib.skill[this.skills[i]].temp || lib.skill[this.skills[i]].charlotte)) {
-				continue;
-			}
-			if (!exclude.includes(this.skills[i])) {
-				list.push(this.skills[i]);
-			}
-		}
-		if (all) {
-			for (var i in this.additionalSkills) {
-				this.removeAdditionalSkill(i);
-			}
-		}
-		this[all ? "removeSkill" : "removeSkills"](list);
+		this.removeSkill(list);
 		this.checkConflict();
 		this.checkMarks();
 		return list;

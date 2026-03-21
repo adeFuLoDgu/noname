@@ -20,7 +20,7 @@ export default {
 	dc_sb_chunyuqiong: "殊死难当",
 	houzhaoning: "贤助抚外",
 	dc_sb_xuyou: "智士濡足",
-	liuyijun: "恶嫉蔑死",
+	liufuren: "恶嫉蔑死",
 	taohuang: "威惠素著",
 	dc_sb_xusheng: "穰苴之风",
 	suyue: "秉笔东园",

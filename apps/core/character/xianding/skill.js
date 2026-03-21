@@ -3007,6 +3007,7 @@ const skills = {
 		async content(event, trigger, player) {
 			const { name, targets } = event;
 			const lose_list = targets.sortBySeat().map(target => [target, target.getCards("h")]);
+			game.addGlobalSkill("dccangming_gain");
 			await game
 				.loseAsync({
 					lose_list: lose_list,
@@ -3038,7 +3039,6 @@ const skills = {
 				}
 			},
 		},
-		global: "dccangming_gain",
 		group: "dccangming_draw",
 		subSkill: {
 			draw: {
@@ -33239,6 +33239,7 @@ const skills = {
 	},
 	dchuace: {
 		audio: 2,
+		audioname: ["ol_re_nianshou"],
 		enable: "phaseUse",
 		usable: 1,
 		filter(event, player) {
@@ -33287,6 +33288,7 @@ const skills = {
 			backup(links, player) {
 				return {
 					audio: "dchuace",
+					audioname: ["ol_re_nianshou"],
 					viewAs: { name: links[0][2] },
 					ai1: card => 7 - get.value(card),
 					filterCard: true,

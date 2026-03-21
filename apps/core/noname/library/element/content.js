@@ -12714,6 +12714,11 @@ export const Content = {
 	},
 	async loseMaxHp(event) {
 		const { player, num } = event;
+		game.broadcastAll(function () {
+			if (lib.config.background_audio) {
+				game.playAudio("effect", "loseMaxHp");
+			}
+		});
 		game.log(player, "减少了" + get.cnNumber(num) + "点体力上限");
 		player.maxHp -= num;
 		if (isNaN(player.maxHp)) {

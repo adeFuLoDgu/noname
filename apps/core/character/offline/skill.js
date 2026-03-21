@@ -3835,6 +3835,9 @@ const skills = {
 			}
 			return event.source?.isIn() && event.source != player;
 		},
+		check(event, player) {
+			return get.attitude(player, event.source) > 0;
+		},
 		logTarget: "source",
 		async content(event, trigger, player) {
 			player.removeMark("qiulin_jipao", 1, false);
@@ -3945,6 +3948,9 @@ const skills = {
 					other = true;
 				}
 			}
+		},
+		ai: {
+			expose: 0.3,
 		},
 	},
 	qiulin_jipao: {
