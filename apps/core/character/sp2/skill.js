@@ -646,6 +646,10 @@ const skills = {
 			},
 		},
 		subSkill: {
+			used: {
+				charlotte: true,
+				onremove: true,
+			},
 			effect1: {
 				charlotte: true,
 				onremove: true,

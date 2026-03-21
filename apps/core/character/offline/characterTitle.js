@@ -1,4 +1,6 @@
 export default {
+	ylyg_pangtong: "南州冠英",
+	ylyg_dianwei: "戟贯数人",
 	jx_shen_caoren: "征南将军",
 	jx_shen_liubiao: "称雄荆襄",
 	ylyg_xiaoqiao: "秋水并蒂",

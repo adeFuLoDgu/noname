@@ -1,4 +1,16 @@
 const characters = {
+	dc_sb_zhangren: {
+		sex: "male",
+		group: "qun",
+		hp: 4,
+		skills: ["dcsbshedao", "dcsbxunshi", "dcsbzhengong"],
+	},
+	v_zhangxingcai: {
+		sex: "female",
+		group: "shu",
+		hp: 3,
+		skills: ["dchuangnu", "dcxiankuang"],
+	},
 	liuxuan: {
 		sex: "male",
 		group: "shu",

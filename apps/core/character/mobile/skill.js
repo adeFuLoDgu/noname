@@ -1038,7 +1038,7 @@ const skills = {
 						}
 					},
 					cardRespondable(card, player) {
-						if (get.name(card) == "shan" || player.isDying()) {
+						if (get.name(card) == "shan" || player.isDying() || get.event().skill == "hefeichonglei_wansha") {
 							return;
 						}
 						const target = get.event()?.getParent("phaseUse", true, true)?.player;
