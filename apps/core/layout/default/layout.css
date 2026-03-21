@@ -1460,6 +1460,16 @@ body > .background.land {
 	box-shadow: rgba(0, 0, 0, 0.2) 0 0 0 1px inset, rgba(0, 0, 0, 0.45) 0 0 10px inset;
 }
 
+/*卡牌转化动画*/
+.card .initmask {
+--flow-radius: 10px;
+    width: calc(100% - var(--flow-radius));
+    height: calc(100% - var(--flow-radius));
+    margin: calc(var(--flow-radius) / 2);
+    background: white;
+    box-shadow: white 0 0 calc(var(--flow-radius) / 2) calc(var(--flow-radius) / 2);
+}
+
 #window[data-radius_size="reduce"] .card > .cardavatar {
 	border-radius: 3px;
 }

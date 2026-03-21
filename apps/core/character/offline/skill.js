@@ -1828,13 +1828,13 @@ const skills = {
 					await game.delayex();
 
 					player.line(target);
-					await target.damage();
+					await event.targets[0].damage();
 					if (!player.storage.jxzhaoluan_hit) {
 						player.when("phaseUseAfter").step(async (event, trigger, player) => {
 							delete player.storage.jxzhaoluan_hit;
 						});
 					}
-					player.markAuto("jxzhaoluan_hit", target);
+					player.markAuto("jxzhaoluan_hit", event.targets);
 				},
 				ai: {
 					order: 9,
@@ -26249,7 +26249,8 @@ const skills = {
 					}
 					return 0;
 				})
-				.set("eff", get.effect(player, trigger.card, trigger.player, trigger.player));
+				.set("eff", get.effect(player, trigger.card, trigger.player, trigger.player))
+				.forResult();
 			if (result.bool === false) {
 				trigger.getParent().excluded.add(player);
 			}
@@ -27322,7 +27323,17 @@ const skills = {
 		},
 		ai: {
 			order: 8,
-			result: { target: -1 },
+			result: {
+				target(player, target) {
+					const att = get.sgnAttitude(player, target),
+						hp = target.getHp(true) + 0.1,
+						hs = target.countCards("h") + 0.1;
+					if (att < 0) {
+						return (att * hp * hs) / 100;
+					}
+					return 0;
+				},
+			},
 		},
 		group: "tyshencai_wusheng",
 		subSkill: {
@@ -27396,7 +27407,7 @@ const skills = {
 		trigger: { player: "useCard2" },
 		forced: true,
 		filter(event, player) {
-			return get.color(event.card, player) == "none";
+			return get.color(event.card) == "none";
 		},
 		content() {
 			"step 0";
@@ -43027,7 +43038,7 @@ const skills = {
 				direct: true,
 				charlotte: true,
 				async content(event, trigger, player) {
-					const card = { name: "sha", isCard: true };
+					const card = get.autoViewAs({ name: "sha", isCard: true });
 					if (player.hasUseTarget(card)) {
 						await player.chooseUseTarget(card, false);
 					}

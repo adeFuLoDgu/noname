@@ -3207,7 +3207,8 @@ export class Click {
 		}
 		game.uncheck();
 		if (typeof event.custom?.add?.confirm == "function") {
-			event.custom.add.confirm(true);
+			//event.custom.add.confirm(true);
+			event.custom.add.confirm(false);
 		}
 		game.resume();
 	}
