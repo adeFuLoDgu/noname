@@ -5020,9 +5020,8 @@ const skills = {
 								if (get.itemtype(card) != "card") {
 									return false;
 								}
-								return lib.filter.filterCard.apply(this, arguments);
+								return lib.filter.filterCard.call(this, card, player, event);
 							},
-							forced: true,
 							prompt: "典滕：使用一张牌",
 							addCount: false,
 						});
