@@ -14430,7 +14430,7 @@ const skills = {
 			const key = name == "damageSource" ? "sourceDamage" : "damage",
 				targets = [player, player.storage?.dcdujun],
 				target = name == "damageSource" ? event.source : event.player;
-			if (targets.includes(target)) {
+			if (target && targets.includes(target)) {
 				return target.getHistory(key, evt => evt.num > 0).indexOf(event) == 0;
 			}
 		},
