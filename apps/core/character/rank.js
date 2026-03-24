@@ -308,6 +308,11 @@ window.noname_character_rank = {
 		"bigsb_dengai",
 	],
 	am: [
+		"hl_shen_lvbu",
+		"hl_shen_zhouyu",
+		"hl_shen_lvmeng",
+		"hl_shen_zhugeliang",
+		"hl_shen_guanyu",
 		"ol_le_zhugeliang",
 		"tw_huangfusong",
 		"dc_sb_jianggan",
@@ -2619,6 +2624,11 @@ window.noname_character_rank = {
 			"v_sunce",
 		],
 		epic: [
+			"hl_shen_lvbu",
+			"hl_shen_zhouyu",
+			"hl_shen_lvmeng",
+			"hl_shen_zhugeliang",
+			"hl_shen_guanyu",
 			"ol_huangfusong",
 			"ol_xiahoushi",
 			"zhangyu",

@@ -33244,7 +33244,7 @@ const skills = {
 		skillAnimation: true,
 		animationColor: "orange",
 		filter(event, player) {
-			return player.countMark("fanghun") >= 0;
+			return player.countMark("fanghun") > 0;
 		},
 		check: () => true,
 		async content(event, trigger, player) {
