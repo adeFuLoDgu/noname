@@ -57,6 +57,7 @@ const skills = {
 				await player.chooseToDiscard({
 					prompt: `慑道：弃置${cards.length}张黑色牌`,
 					forced: true,
+					position: "he",
 					selectCard: cards.length,
 					filterCard(card, player) {
 						return get.color(card) == "black";
@@ -9015,7 +9016,7 @@ const skills = {
 	dckanyu: {
 		audio: 2,
 		trigger: {
-			player: "damageEnd",
+			player: "damageBegin4",
 			global: "judgeBegin",
 		},
 		frequent: true,
