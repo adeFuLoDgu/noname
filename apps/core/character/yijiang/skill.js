@@ -14068,6 +14068,7 @@ const skills = {
 		async content(event, trigger, player) {
 			const { cards: [card], targets } = event;
 			await player.showCards(card, get.translation(player) + "发动了【御策】");
+			const type = get.type2(card);
 			let result;
 			if (targets?.length && targets[0]?.isIn()) {
 				result = targets[0]
