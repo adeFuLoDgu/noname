@@ -15217,13 +15217,12 @@ const skills = {
 				if (result.bool && result.targets?.length) {
 					const target = result.targets[0];
 					player.line(target, "green");
-					target.addAdditionalSkill("oltianhou_" + player.playerid, event.weather_skill);
 					player.addTempSkill("oltianhou_expire", { player: "dieAfter" });
-					game.log(target, "获得了天气技能", "#g【" + get.translation(event.weather_skill) + "】");
 					game.broadcastAll(function (bg) {
 						_status.tempBackground = bg;
 						game.updateBackground();
 					}, event.weather_skill + "_bg");
+					await target.addAdditionalSkills("oltianhou_" + player.playerid, event.weather_skill);
 					game.addVideo("skill", player, ["oltianhou", [true, event.weather_skill + "_bg"]]);
 				}
 			}

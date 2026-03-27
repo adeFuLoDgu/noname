@@ -11257,7 +11257,7 @@ const skills = {
 						)
 						.set("addCount", false)
 						.forResult();
-					if (!result.bool) {
+					if (!result?.bool) {
 						const num = target.countMark("olsbliwen");
 						target.clearMark("olsbliwen");
 						await player.draw(num);
