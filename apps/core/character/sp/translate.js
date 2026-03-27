@@ -1615,6 +1615,8 @@ const translates = {
 	olyanjing_info: "准备阶段，你可以指定一名其他角色并跳过本回合下X个阶段，对其造成1点火焰伤害（X为其体力值）。",
 	olfenyue: "奋钺",
 	olfenyue_info: "转换技，每回合结束时，若本回合有角色受到过属性伤害，你可以：阳：摸两张牌；阴：使用一张【杀】。",
+	ollingren: "凌人",
+	ollingren_info: `每回合限一次，当你使用【杀】或伤害锦囊牌时，你可以猜测其中一个目标的手牌中是否有基本牌、锦囊牌或装备牌，若至少猜对：1项，本回合你下次对其伤害+1；2项，此牌不计入次数且你摸两张牌；3项，你获得${get.poptip("new_rejianxiong")}${get.poptip("rexingshang")}直到你下回合开始。`,
 };
 
 export default translates;

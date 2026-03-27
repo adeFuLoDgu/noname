@@ -9092,7 +9092,7 @@ export class Player extends HTMLDivElement {
 		return next;
 	}
 	/**
-	 * 令玩家死亡或进入休整状态
+	 * 令玩家死亡
 	 * @param { GameEvent } [reason] 导致角色死亡的事件
 	 * @returns { GameEvent }
 	 */
@@ -12194,6 +12194,7 @@ export class Player extends HTMLDivElement {
 			range = player.getEquipRange();
 		}
 		range = game.checkMod(player, range, "attackRange", player);
+		range = game.checkMod(player, range, "attackRangeFinal", player);
 		return range;
 	}
 	/**
