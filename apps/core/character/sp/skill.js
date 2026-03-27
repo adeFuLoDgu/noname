@@ -1717,6 +1717,21 @@ const skills = {
 						}
 					},
 				},
+				inherit: "nocount",
+				filter(event, player) {
+
+				},
+				filter(event, player) {
+					return (
+						event.addCount !== false &&
+						player.hasHistory("lose", evt => {
+							return (
+								(evt.relatedEvent || evt.getParent()) == event &&
+								Object.values(evt.gaintag_map).flat().includes("oltongxin")
+							)
+						})
+					);
+				},
 			},
 			used: {
 				charlotte: true,
@@ -7052,7 +7067,12 @@ const skills = {
 						player.removeSkill(event.name);
 					} else {
 						trigger.addCount = false;
-					}
+						const stat = player.getStat().card,
+						name = trigger.card.name;
+						if (typeof stat[name] == "number") {
+							stat[name]--;
+						}
+						game.log(trigger.card, "不计入次数");
 				},
 				mark: true,
 				intro: { content: "选择的牌视为无次数限制的【杀】直到使用非基本牌" },
