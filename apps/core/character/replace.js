@@ -455,4 +455,6 @@ window.noname_character_replace = {
 	liuxuan: ["liuxuan", "hs_liuxuan"],
 	ol_nianshou: ["ol_nianshou", "ol_re_nianshou"],
 	liufuren: ["liufuren", "tw_liufuren"],
+	shie: ["shie", "xia_shie"],
+	xia_wangyue: ["dc_xia_wangyue", "xia_wangyue", "ns_wangyue"],
 };

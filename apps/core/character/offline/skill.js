@@ -293,7 +293,7 @@ const skills = {
 				logTarget: "player",
 				async content(event, trigger, player) {
 					trigger.cancel();
-					await player.draw(player.countExpansions("qixing"));
+					await player.draw({ num: player.countExpansions("qixing") });
 				},
 				onremove(player) {
 					game.countPlayer2(current => {
@@ -651,7 +651,7 @@ const skills = {
 								return false;
 							}
 							const evtx = evt.reason;
-							return evtx?.name == "damage" && (evtx.getParent() == event || (!evtx.lianhuanable && evtx.getTrigger().getParent() == event));
+							return evtx?.name == "damage" && (evtx.getParent() == event || (!evtx.lianhuanable && evtx.getTrigger()?.getParent() == event));
 						})
 					) {
 						player.refreshSkill(name);
@@ -729,13 +729,34 @@ const skills = {
 					return "thunder";
 				}
 			},
+			cardUsable(card, player) {
+				if (get.is.ordinaryCard(card) && ["tao", "jiu"].includes(card.cards[0].name) && get.name(card) == "sha") {
+					return Infinity;
+				}
+			},
 		},
 		trigger: {
-			player: "damageBegin3",
+			player: ["damageBegin3", "useCard1"],
 			source: "damageBegin1",
 		},
+		filter(event, player) {
+			if (event.name == "useCard") {
+				return get.name(event.card) == "sha" && event.modSkill.cardname == "pexiuluo" && event.addCount != false;
+			}
+			return true;
+		},
 		async content(event, trigger, player) {
-			trigger.num++;
+			if (trigger.name == "useCard") {
+				trigger.addCount = false;
+				const stat = player.getStat().card,
+					name = trigger.card.name;
+				if (typeof stat[name] == "number") {
+					stat[name]--;
+				}
+				game.log(trigger.card, "不计入次数");
+			} else {
+				trigger.num++;
+			}
 		},
 	},
 	peduomo: {
@@ -760,12 +781,20 @@ const skills = {
 			player: "useCardToPlayer",
 		},
 		filter(event, player) {
-			return get.name(event.card) == "sha" && event.targets.length == 1 && player.getStockSkills(true, true).some(i => !get.info(i).charlotte);
+			return (
+				get.name(event.card) == "sha" &&
+				event.targets.length == 1 &&
+				get.info("pedaojue").getSkills(player).length > 0 &&
+				get.info("pedaojue").getSkills(event.target).length > 0
+			);
+		},
+		getSkills(player) {
+			return player.getStockSkills(true, true).filter(i => !get.info(i).charlotte && player.hasSkill(i, null, false, false));
 		},
 		async cost(event, trigger, player) {
 			const { target } = trigger;
-			const list1 = player.getStockSkills(true, true).filter(i => !get.info(i).charlotte);
-			const list2 = target.getStockSkills(true, true).filter(i => !get.info(i).charlotte);
+			const list1 = get.info(event.skill).getSkills(player);
+			const list2 = get.info(event.skill).getSkills(target);
 			const result = await player
 				.chooseButton({
 					createDialog: [get.prompt2(event.skill, target), `<div class="text center">你的技能</div>`, [list1.map(i => [i, player.name]), "skill"], `<div class="text center">${get.translation(target)}的技能</div>`, [list2.map(i => [i, target.name]), "skill"]],

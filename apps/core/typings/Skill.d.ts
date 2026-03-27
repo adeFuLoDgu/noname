@@ -269,6 +269,12 @@ declare interface Mod {
 	 * @param num 当前的数值
 	 */
 	attackRangeBase?(player: Player, num: number): number | void
+	/**
+	 * 玩家的攻击范围的最终数值
+	 * @param player 玩家
+	 * @param num 当前的数值
+	 */
+	attackRangeFinal?(player: Player, num: number): number | void
 	chessMove?(player: Player, move: number): number | void
 
 }

@@ -5474,7 +5474,7 @@ const skills = {
 				})
 				.forResult();
 			if (!result.bool) {
-				return return;
+				return;
 			}
 			const target = result.targets[0];
 			player.logSkill("dcdingji", target);
@@ -17408,6 +17408,7 @@ const skills = {
 			effect: {
 				charlotte: true,
 				audio: "kuanshi",
+				onremove: true,
 				intro: { content: "每回合限一次，当$于一回合内受到第2点伤害后，其回复1点体力。" },
 				trigger: { global: "damageEnd" },
 				filter(event, player) {

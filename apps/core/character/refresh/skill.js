@@ -11302,7 +11302,7 @@ const skills = {
 		selectTarget: -1,
 		async content(event, trigger, player) {
 			// step 0
-			const target = event.dying;
+			const target = event.targets[0];
 			const result = await player.chooseCardButton(get.translation("rechunlao"), player.getExpansions("rechunlao"), true).forResult();
 			// step 1
 			if (result.bool) {

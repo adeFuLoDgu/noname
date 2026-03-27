@@ -539,6 +539,8 @@ window.noname_character_rank = {
 		"yj_zhenji",
 	],
 	bp: [
+		"shie",
+		"dc_xia_wangyue",
 		"ol_xiahoushi",
 		"zhangyu",
 		"std_kebineng",
@@ -2624,6 +2626,8 @@ window.noname_character_rank = {
 			"v_sunce",
 		],
 		epic: [
+			"shie",
+			"dc_xia_wangyue",
 			"hl_shen_lvbu",
 			"hl_shen_zhouyu",
 			"hl_shen_lvmeng",
