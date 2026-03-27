@@ -1,6 +1,9 @@
 import { lib, game, ui, get, ai, _status } from "noname";
 
-/** @type { importCharacterConfig['skill'] } */
+/**
+ * @typedef {import("../../typings/Skill").Skill} Skill
+ * @type {Record<string, Skill>}
+ */
 const skills = {
 	//曹婴
 	ollingren: {
@@ -1719,16 +1722,10 @@ const skills = {
 				},
 				inherit: "nocount",
 				filter(event, player) {
-
-				},
-				filter(event, player) {
 					return (
 						event.addCount !== false &&
 						player.hasHistory("lose", evt => {
-							return (
-								(evt.relatedEvent || evt.getParent()) == event &&
-								Object.values(evt.gaintag_map).flat().includes("oltongxin")
-							)
+							return (evt.relatedEvent || evt.getParent()) == event && Object.values(evt.gaintag_map).flat().includes("oltongxin");
 						})
 					);
 				},
@@ -7062,17 +7059,18 @@ const skills = {
 				forced: true,
 				popup: false,
 				firstDo: true,
-				content() {
+				async content(event, trigger, player) {
 					if (get.type(trigger.card) !== "basic") {
 						player.removeSkill(event.name);
 					} else {
 						trigger.addCount = false;
 						const stat = player.getStat().card,
-						name = trigger.card.name;
+							name = trigger.card.name;
 						if (typeof stat[name] == "number") {
 							stat[name]--;
 						}
 						game.log(trigger.card, "不计入次数");
+					}
 				},
 				mark: true,
 				intro: { content: "选择的牌视为无次数限制的【杀】直到使用非基本牌" },
