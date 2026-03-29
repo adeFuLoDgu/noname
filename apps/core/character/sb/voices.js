@@ -1,4 +1,9 @@
 export default {
+	"#sbzhenwei1": "吾刃未折，家国不堕！",
+	"#sbzhenwei2": "纵魏军百万，难撼吾寸土！",
+	"#sbheyuan1": "扼守涿乡要道，休教刘备西遁。",
+	"#sbheyuan2": "昔擒关羽于临沮，今当缚刘备于夷陵。",
+	"#sb_zhuran:die": "粮尽杀马，马尽食革，但有死无降耳。",
 	"#sbwushuang1": "小儿何往？与某再战一场！",
 	"#sbwushuang2": "这熟悉的力量，本该由我掌控。",
 	"#sbwushuang3": "黄口竖子，何敢挑衅于我。",
