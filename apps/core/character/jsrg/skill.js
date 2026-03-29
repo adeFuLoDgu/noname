@@ -7326,6 +7326,7 @@ const skills = {
 	},
 	//张郃
 	jsrgqiongtu: {
+		audio: 2,
 		enable: "chooseToUse",
 		groupSkill: "qun",
 		viewAs: {
@@ -7410,6 +7411,7 @@ const skills = {
 		},
 	},
 	jsrgxianzhu: {
+		audio: 2,
 		enable: "chooseToUse",
 		filter(event, player) {
 			return (

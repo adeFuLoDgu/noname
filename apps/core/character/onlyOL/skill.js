@@ -1689,7 +1689,7 @@ const skills = {
 	},
 	//谋董昭
 	olsbshunji: {
-		audio: 2,
+		audio: 3,
 		trigger: {
 			global: "damageEnd",
 		},

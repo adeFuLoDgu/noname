@@ -5,6 +5,98 @@ import { lib, game, ui, get, ai, _status } from "noname";
  * @type {Record<string, Skill>}
  */
 const skills = {
+	//OP孙权
+	mbshizhong: {
+		audio: 2,
+		trigger: { player: ["phaseJieshuBegin", "phaseZhunbeiBegin"] },
+		filter(event, player) {
+			return event.name === "phaseJieshu" || player.hasCard(card => card.hasGaintag("mbshizhong"), "h");
+		},
+		forced: true,
+		async content(event, trigger, player) {
+			if (trigger.name === "phaseJieshu") {
+				await player.draw();
+				const hs = player.getCards("h");
+				if (hs.length > 0) {
+					player.addGaintag(hs, event.name);
+					player.storage[event.name] = hs.length;
+					player.markSkill(event.name);
+					player.addTip(event.name, `${get.translation(event.name)} ${hs.length}张`);
+					await player.showCards(hs, `${get.translation(player)}发动了【${get.translation(event.name)}】`);
+				}
+			} else {
+				const num = player.countCards("h", card => card.hasGaintag(event.name));
+				await player.draw(num);
+				const goon = typeof player.storage[event.name] === "number" && num === player.storage[event.name];
+				player.unmarkSkill(event.name);
+				if (goon) {
+					player.addTempSkill(`${event.name}_oht`); //One hundred thousand
+				}
+			}
+		},
+		intro: {
+			content: "上一次因此展示了#张牌",
+			onunmark(storage, player, skill) {
+				lib.skill[skill].onremove(player, skill);
+			},
+		},
+		onremove(player, skill) {
+			player.removeTip(skill);
+			delete player.storage[skill];
+		},
+		subSkill: {
+			oht: {
+				charlotte: true,
+				mark: true,
+				intro: { content: "十万！十万！十万！" },
+				audio: "mbshizhong",
+				trigger: { source: "damageBegin1" },
+				forced: true,
+				async content(event, trigger, player) {
+					trigger.num = 114514; //十万有余（确信）
+				},
+			},
+		},
+	},
+	mbcaowei: {
+		audio: 2,
+		trigger: { player: "damageEnd" },
+		filter(event, player) {
+			const types = player
+				.getCards("he")
+				.map(i => get.type2(i))
+				.unique();
+			return types.some(type => {
+				const cards = player.getCards("he", card => get.type2(card) === type);
+				return cards.every(card => player.canRecast(card));
+			});
+		},
+		forced: true,
+		async content(event, trigger, player) {
+			let types = player
+				.getCards("he")
+				.map(i => get.type2(i))
+				.unique();
+			types = types.filter(type => {
+				const cards = player.getCards("he", card => get.type2(card) === type);
+				return cards.every(card => player.canRecast(card));
+			});
+			const result =
+				types.length > 1
+					? await player
+							.chooseButton([`###${get.translation(event.name)}###<div class="text center">选择重铸至少一个类别的所有牌</div>`, [types.map(type => [type, `${get.translation(type)}牌`]), "tdnodes"]], [1, types.length], true)
+							.set("ai", button => {
+								const player = get.player();
+								return player.getCards("he", card => get.type2(card) === button.link).reduce((sum, card) => sum + lib.skill.zhiheng.check(card), 0);
+							})
+							.forResult()
+					: { bool: true, links: types };
+			if (result?.bool && result.links?.length) {
+				await player.recast(player.getCards("he", card => result.links.includes(get.type2(card))));
+				await player.draw();
+			}
+		},
+	},
 	//手杀张既
 	mbdingzhen: {
 		audio: "twdingzhen",
@@ -1117,15 +1209,15 @@ const skills = {
 									const { player, getNum } = get.event(),
 										trigger = get.event().getTrigger();
 									/*if (button.link == "useCard") {
-										const cards = player.getCards("hs", card => {
-												if (get.name(card) != trigger.card.name) {
-													return false;
-												}
-												return player.canUse(card, trigger.player);
-											}),
-											check = card => get.effect(trigger.player, card, player, player);
-										return check(cards.maxBy(check));
-									}*/
+									const cards = player.getCards("hs", card => {
+											if (get.name(card) != trigger.card.name) {
+												return false;
+											}
+											return player.canUse(card, trigger.player);
+										}),
+										check = card => get.effect(trigger.player, card, player, player);
+									return check(cards.maxBy(check));
+								}*/
 									if (button.link == "discard") {
 										return get.effect(player, { name: "guohe_copy2" }, player, player) / getNum;
 									}

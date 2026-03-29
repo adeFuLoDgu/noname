@@ -10254,6 +10254,9 @@ const skills = {
 			},
 		},
 		hiddenCard(player, name) {
+			if ((player.getStat().skill.dczhifeng || 0) >= game.players.length + game.dead.length) {
+				return false;
+			}
 			const [cards, bool] = get.info("dczhifeng").getFilter(player);
 			if (_status.event.name == "chooseToRespond" && !["sha"].includes(name)) {
 				//, "shan"
@@ -10286,10 +10289,15 @@ const skills = {
 				//, "shan"
 				return false;
 			}
-			return cards.some(name => {
-				let card = get.autoViewAs({ name, storage: { dczhifeng: true } }, "unsure");
-				return event.filterCard(card, player, event);
-			});
+			return (
+				get.inpileVCardList(([_, __, name, nature]) => {
+					if (!cards.some(namex => namex == name)) {
+						return false;
+					}
+					const card = get.autoViewAs({ name, nature, storage: { dczhifeng: true } }, "unsure");
+					return event.filterCard(card, player, event);
+				}).length > 0
+			);
 		},
 		chooseButton: {
 			dialog(event, player) {
@@ -10298,7 +10306,7 @@ const skills = {
 					if (!cards.some(namex => namex == name)) {
 						return false;
 					}
-					const card = get.autoViewAs({ name, storage: { dczhifeng: true } }, "unsure");
+					const card = get.autoViewAs({ name, nature, storage: { dczhifeng: true } }, "unsure");
 					return event.filterCard(card, player, event);
 				});
 				const dialog = ui.create.dialog("猘锋", [vcards, "vcard"]);
@@ -10311,7 +10319,7 @@ const skills = {
 			backup(links) {
 				const backup = get.info("dczhifeng_backup");
 				backup.audio = "dczhifeng";
-				backup.viewAs = { name: links[0][2], storage: { dczhifeng: true } };
+				backup.viewAs = { name: links[0][2], nature: links[0][3], storage: { dczhifeng: true } };
 				return backup;
 			},
 			prompt(links) {
@@ -10324,7 +10332,7 @@ const skills = {
 				} else {
 					str = "任意张";
 				}
-				return `###猘锋###将${str}牌当做${get.translation(links[0][2])}使用`;
+				return `###猘锋###将${str}牌当做${get.translation(links[0][3]) || ""}${get.translation(links[0][2])}使用`;
 			},
 		},
 		getFilter(player, toOther) {
@@ -10338,10 +10346,21 @@ const skills = {
 			return [["sha"], player.countCards("hes", { color: "red" })]; //, "shan"
 		},
 		ai: {
-			respondShan: true,
+			//respondShan: true,
 			respondSha: true,
 			skillTagFilter(player) {
-				return player.getHp() > player.countCards("h");
+				if ((player.getStat().skill.dczhifeng || 0) >= game.players.length + game.dead.length) {
+					return false;
+				}
+				return (
+					player.getHp() > player.countCards("h") &&
+					player.hasCard(card => {
+						if (get.position(card) === "h" && _status.connectMode) {
+							return true;
+						}
+						return get.color(card) === "red";
+					}, "hes")
+				);
 			},
 			order(item, player) {
 				player = player || get.player();

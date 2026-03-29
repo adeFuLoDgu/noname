@@ -1183,6 +1183,12 @@ const translates = {
 	mb_tw_zhangji_prefix: "手杀",
 	mbdingzhen: "定镇",
 	mbdingzhen_info: "每轮开始时，你可令与你距离X以内的至多X名其他角色依次选择一项（X为你的体力值）：1.弃一张【杀】；2.本轮其于回合内不能指定你为锦囊牌的目标。",
+	o_sunquan: "缘孙权",
+	o_sunquan_prefix: "缘",
+	mbshizhong: "势众",
+	mbshizhong_info: "锁定技，结束阶段，你摸一张牌并展示所有手牌；准备阶段，你摸X张牌（X为你手牌中剩余以此法展示过的牌数），若X与你上次以此法展示牌数相等，本回合你造成伤害时，将伤害值改为十万！",
+	mbcaowei: "操微",
+	mbcaowei_info: "锁定技，当你受到伤害后，你重铸至少一个类别的所有牌并摸一张牌。",
 };
 
 export default translates;
