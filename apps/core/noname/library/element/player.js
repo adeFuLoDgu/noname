@@ -2767,10 +2767,10 @@ export class Player extends HTMLDivElement {
 			}
 		}
 		next.setContent("chooseToMove_new");
-		next.filterOk = function () {
+		next.filterOk ??= function () {
 			return true;
 		};
-		next.filterMove = function () {
+		next.filterMove ??= function () {
 			return true;
 		};
 		next._args = Array.from(arguments);

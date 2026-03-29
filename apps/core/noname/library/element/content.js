@@ -13711,6 +13711,7 @@ export const Content = {
 				setTimeout(function () {
 					ui.arena.classList.remove("choose-to-move");
 				}, 500);
+				resolve(event._result);
 			};
 			//创造dialog
 			event.dialog = ui.create.dialog();

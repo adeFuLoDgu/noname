@@ -11249,9 +11249,10 @@ const skills = {
 				.set("allowChooseAll", true)
 				.set("ai", card => {
 					const evt = _status.event.getParent(2);
+					const evtx = _status.event.getParent();
 					const source = evt.player,
 						player = _status.event.player,
-						target = evt.list[1];
+						target = evtx.list[1];
 					if (!target) {
 						return get.unuseful(card);
 					}

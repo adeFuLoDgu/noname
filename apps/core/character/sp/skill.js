@@ -36653,34 +36653,38 @@ const skills = {
 				evtx
 			);
 		},
-		direct: true,
-		content() {
-			"step 0";
-			var str1 = get.translation(trigger.card),
+		async cost(event, trigger, player) {
+			const str1 = get.translation(trigger.card),
 				str2 = get.translation(trigger.target);
-			player
+			const result = await player
 				.chooseControl("摸X加1伤", "摸1加X伤", "cancel2")
-				.set("prompt", get.prompt("fengpo", trigger.target))
+				.set("prompt", get.prompt(event.skill, trigger.target))
 				.set("prompt2", "你可以选择一项：1.摸X张牌，令" + str1 + "的伤害+1；2.摸一张牌，令" + str1 + "的伤害+X（X为" + str2 + "的♦牌的数量）。");
-			"step 1";
-			if (result.control && result.control != "cancel2") {
-				player.logSkill("fengpo", trigger.target);
-				var nd = trigger.target.countCards("he", { suit: "diamond" });
-				var draw = 1,
-					damage = 1;
-				if (result.control == "摸X加1伤") {
-					draw = nd;
-				} else {
-					damage = nd;
+			if (result.control != "cancel2") {
+				event.result = {
+					bool: true,
+					cost_data: result.index,
 				}
-				player.draw(draw);
-				var trigger2 = trigger.getParent();
-				if (typeof trigger2.baseDamage != "number") {
-					trigger2.baseDamage = 1;
-				}
-				trigger2.baseDamage += damage;
-			}
+			}	
 		},
+		logTarget: "target",
+		async content(event, trigger, player) {
+			const { cost_data: index, targets: [target] } = event;
+			const nd = target.countCards("he", { suit: "diamond" });
+			let draw = 1,
+				damage = 1;
+			if (index == 0) {
+				draw = nd;
+			} else {
+				damage = nd;
+			}
+			await player.draw(draw);
+			const evt = trigger.getParent();
+			if (typeof evt.baseDamage != "number") {
+				evt.baseDamage = 1;
+			}
+			evt.baseDamage += damage;
+		}
 	},
 	fengpo2: {
 		trigger: { source: "damageBegin1" },
