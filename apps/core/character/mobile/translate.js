@@ -1,13 +1,6 @@
 import { lib, game, ui, get, ai, _status } from "noname";
 
 const translates = {
-	zhuji: "朱绩",
-	mbjiezhu: "竭逐",
-	mbjiezhu_info: "每回合限一次，你可将手牌弃置至最接近的唯一值，视为使用一张指定至多X名角色为目标，无距离限制的普通【杀】（X为弃置牌数）。此【杀】结算后，若此【杀】目标数为X且对所有目标造成伤害，你将手牌摸至最接近的唯一值。",
-	mbhuanshi: "还施",
-	mbhuanshi_info: `使命技，你每回合使用首张【杀】伤害+1；你于非濒死状态时无法使用但可重铸【酒】。成功：你造成或受到伤害后，若本次伤害值等于你体力值，你获得${get.poptip("mbjianlv")}。`,
-	mbjianlv: "兼虑",
-	mbjianlv_info: "你一次性弃置至少X张牌时（X为本技能已触发次数+1），你可对一名其他角色造成1点伤害。若其因此死亡，你选择一项：1.重置此技能的X；2.对一名其他角色造成1点伤害。",
 	xin_simayi: "手杀神司马懿",
 	xin_simayi_prefix: "手杀神",
 	xinrenjie: "忍戒",

@@ -1,5 +1,4 @@
 export default {
-	//zhuji: "",
 	mb_tw_zhangji: "边安人宁",
 	//o_tanshihuai: "", 
 	//o_lvbu: "", 
