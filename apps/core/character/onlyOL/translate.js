@@ -1,6 +1,12 @@
 import { lib, game, ui, get, ai, _status } from "noname";
 
 const translates = {
+	ol_xiahoushi: "OL界夏侯氏",
+	ol_xiahoushi_prefix: "OL界",
+	olqiaoshi: "樵拾",
+	olqiaoshi_info: "每个结束阶段，你可以与当前回合角色各摸一张牌。然后若其与你手牌数不相等，此技能本轮失效。",
+	olyanyu: "燕语",
+	olyanyu_info: "出牌阶段，你可以重铸【杀】。出牌阶段结束时，若你本阶段失去过至少两张【杀】，你可以令一名男性角色摸两张牌。",
 	ol_zhangliao: "OL神张辽",
 	ol_zhangliao_prefix: "OL神",
 	olduorui: "夺锐",

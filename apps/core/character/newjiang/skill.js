@@ -3074,6 +3074,9 @@ const skills = {
 			player.storage.xiongjin_effect_target.add(target);
 			target.markAuto("xiongjin_effect", [goon ? "nobasic" : "basic"]);
 			target.draw(Math.min(4, Math.max(1, player.getDamagedHp())));
+			if (target != player) {
+				player.addExpose(0.2);
+			}
 		},
 		subSkill: {
 			used: {
@@ -5432,7 +5435,7 @@ const skills = {
 						return [1, -2];
 					}
 					if (get.tag(card, "damage")) {
-						if (player.getNext() == target && lib.skill.biejun.filter(null, target) && target.isTurnedOver()) {
+						if (lib.skill.biejun.filter(null, target) && target.isTurnedOver()) {
 							return [0, 1];
 						}
 					}

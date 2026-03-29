@@ -14068,9 +14068,10 @@ const skills = {
 		async content(event, trigger, player) {
 			const { cards: [card], targets } = event;
 			await player.showCards(card, get.translation(player) + "发动了【御策】");
+			const type = get.type2(card);
 			let result;
 			if (targets?.length && targets[0]?.isIn()) {
-				result = targets[0]
+				result = await targets[0]
 					.chooseToDiscard({
 						prompt: "弃置一张不为" + get.translation(type) + "牌的牌或令" + get.translation(player) + "回复1点体力",
 						filterCard(card) {
