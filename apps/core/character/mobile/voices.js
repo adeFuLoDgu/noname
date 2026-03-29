@@ -1,4 +1,10 @@
 export default {
+	"#mbshizhong1": "孤率大军亲征，今日誓破此城！",
+	"#mbshizhong2": "今以众凌寡，岂有不克之理？",
+	"#mbshizhong3": "而今兵临城下，尔等唯死而已！",
+	"#mbcaowei1": "张辽不过死士八百，何敢逆我十万雄兵！",
+	"#mbcaowei2": "敌军寡弱，卿等围而击之！",
+	"#o_sunquan:die": "大业未成，当整军再战！",
 	"#hefeichonglei1": "今日何须多言，不过一战而已！",
 	"#hefeichonglei2": "纵对千峰万壑，亦当驱前踏破！",
 	"#hefeidangshi1": "尔等退路已绝，还不下马受戮！",
