@@ -7917,7 +7917,7 @@ const skills = {
 				trigger.num += list[0];
 				return;
 			}
-			const result = await player
+			/*const result = await player
 				.chooseButton(
 					[
 						"横野：令一项数值+1（至多+3）",
@@ -7973,7 +7973,12 @@ const skills = {
 				}
 				player.setStorage(skill, list);
 				player.addTip(skill, `${get.translation(skill)} ${player.getStorage(skill).join(" ")}`);
-			}
+			}*/
+			player.setStorage(
+				skill,
+				list.map(i => i + 1)
+			);
+			player.addTip(skill, `${get.translation(skill)} ${player.getStorage(skill).join(" ")}`);
 		},
 		mod: {
 			maxHandcard(player, num) {
@@ -13754,9 +13759,98 @@ const skills = {
 	dcweiti: {
 		audio: 2,
 		enable: "phaseUse",
-		usable: 1,
-		filterTarget: true,
-		async content(event, trigger, player) {
+		usable: 2,
+		chooseButton: {
+			dialog(event, player) {
+				return ui.create.dialog("伪涕", [
+					[
+						["damage", "令一名角色受到1点伤害，获得两张与所有手牌点数均不同的牌"],
+						["recover", "令一名角色回复1点体力，然后弃置两张点数不同的牌"],
+					],
+					"textbutton",
+				]);
+			},
+			check(button) {
+				const player = get.player();
+				if (button.link == "recover") {
+					return Math.max(
+						...game.filterPlayer().map(target => {
+							const sgn = get.sgnAttitude(player, target);
+							return get.recoverEffect(target, player, player) - sgn * Math.min(2, target.countCards("he"));
+						})
+					);
+				} else {
+					return Math.max(
+						...game.filterPlayer().map(target => {
+							const sgn = get.sgnAttitude(player, target);
+							return get.damageEffect(target, player, player) + sgn * 2;
+						})
+					);
+				}
+			},
+			backup(links, player) {
+				return {
+					audio: "dcweiti",
+					choice: links[0],
+					filterTarget: true,
+					ai1: () => 1,
+					ai2(target) {
+						const { choice } = get.info("dcweiti_backup");
+					},
+					async content(event, trigger, player) {
+						const {
+							targets: [target],
+						} = event;
+						const { choice } = get.info(event.name);
+						if (choice == "damage") {
+							await target.damage();
+							const nums = target.getCards("h").map(card => get.number(card, target));
+							let cards = [];
+							while (cards.length < 2) {
+								const card = get.cardPile2(card => !nums.includes(get.number(card, target)) && !cards.includes(card));
+								if (card) {
+									cards.push(card);
+								} else {
+									break;
+								}
+							}
+							if (cards.length) {
+								await target.gain({ cards, animate: "gain2" });
+							}
+						}
+						if (choice == "recover") {
+							await target.recover();
+							const num = Math.min(
+								2,
+								target
+									.getCards("he")
+									.map(card => get.number(card, target))
+									.toUniqued().length
+							);
+							await target.chooseToDiscard({
+								selectCard: num,
+								forced: true,
+								prompt: `伪涕：弃置${get.cnNumber(num)}张点数不同的牌`,
+								position: "he",
+								filterCard(card) {
+									const player = get.player();
+									return !ui.selected.cards?.some(cardx => get.number(cardx, player) == get.number(card, player));
+								},
+								complexCard: true,
+							});
+						}
+					},
+				};
+			},
+			prompt(links, player) {
+				if (links[0] == "damage") {
+					return "伪涕：令一名角色受到1点伤害，获得两张与所有手牌点数均不同的牌";
+				} else {
+					return "伪涕：令一名角色回复1点体力，然后弃置两张点数不同的牌";
+				}
+			},
+		},
+		/*async content(event, trigger, player) {
 			const target = event.target;
 			const result = await target
 				.chooseControl("受到伤害", "回复体力")
@@ -13801,11 +13895,14 @@ const skills = {
 					})
 					.set("complexCard", true);
 			}
+		},*/
+		subSkill: {
+			backup: {},
 		},
 		ai: {
 			order: 1,
 			result: {
-				target: 1,
+				player: 1,
 			},
 		},
 	},
@@ -18096,7 +18193,7 @@ const skills = {
 						]);
 						next.set("processAI", list => {
 							const cards = list[1][1].randomGets(5 - list[0][1].length, list[1][1].length);
-							return [list[0][1].addArray(cards), list[1][1].removeArray(cards)];
+							return [list[0][1].slice(0).addArray(cards), list[1][1].slice(0).removeArray(cards)];
 						});
 						next.set("filterOk", moved => {
 							const { list } = get.event();

@@ -1,4 +1,5 @@
 export default {
+	wxdl_caozhi: "白马饰金羁",
 	hl_shen_guanyu: "刀炽炼狱",
 	hl_shen_zhugeliang: "赤壁唤风",
 	hl_shen_lvmeng: "白衣渡江",
