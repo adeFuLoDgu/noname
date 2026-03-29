@@ -3467,7 +3467,7 @@ export default {
 		group: "gz_liyu_wushuang",
 		subSkill: {
 			wushuang: {
-				audio: "sbliyu",
+				audio: "gz_liyu",
 				logAudio: () => ["sbwushuang"],
 				trigger: {
 					player: "useCardToPlayered",
