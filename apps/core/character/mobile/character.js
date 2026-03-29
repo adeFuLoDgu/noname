@@ -1,4 +1,10 @@
 const characters = {
+	o_sunquan: {
+		sex: "male",
+		group: "wu",
+		hp: 4,
+		skills: ["mbshizhong", "mbcaowei"],
+	},
 	mb_tw_zhangji: {
 		sex: "male",
 		group: "wei",
