@@ -25773,7 +25773,7 @@ const skills = {
 					});
 				});
 			}
-			return "从牌堆中获得" + get.translation(origins) + "；若没有则改为摸一张牌";
+			return "从牌堆中获得" + get.translation(origins.map(i => i.name)) + "；若没有则改为摸一张牌";
 		},
 		usable: 1,
 		async content(event, trigger, player) {
