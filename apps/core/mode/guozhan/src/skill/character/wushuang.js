@@ -3429,8 +3429,8 @@ export default {
 		},
 	},
 	gz_liyu: {
-		audio: ["wushuang", "liyu"],
-		logAudio: () => ["liyu"],
+		audio: ["sbwushuang", "sbliyu"],
+		logAudio: () => ["sbliyu"],
 		trigger: {
 			player: "phaseUseBegin",
 		},
@@ -3467,8 +3467,8 @@ export default {
 		group: "gz_liyu_wushuang",
 		subSkill: {
 			wushuang: {
-				audio: "gz_liyu",
-				logAudio: () => ["wushuang"],
+				audio: "sbliyu",
+				logAudio: () => ["sbwushuang"],
 				trigger: {
 					player: "useCardToPlayered",
 				},

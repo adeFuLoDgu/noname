@@ -116,7 +116,7 @@ export default {
 		maxHp: 4,
 		skills: ["gz_new_kuanggu"],
 	}),
-	gz_re_lvbu: new Character({
+	gz_sb_lvbu: new Character({
 		sex: "male",
 		group: "ye",
 		hp: 5,

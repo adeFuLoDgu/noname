@@ -784,6 +784,7 @@ export default {
 		sex: "male",
 		group: "qun",
 		hp: 5,
+		tempname: ["re_lvbu"],
 		skills: ["wushuang", "new_liyu"],
 	}),
 	gz_ol_yuanshao: new Character({
@@ -797,6 +798,7 @@ export default {
 		group: "shu",
 		hp: 4,
 		skills: ["huoshou", "rezaiqi"],
+		tempname: ["re_menghuo"],
 		doubleGroup: ["shu", "qun"],
 	}),
 	gz_ol_sp_zhugeliang: new Character({
@@ -804,12 +806,14 @@ export default {
 		group: "shu",
 		hp: 3,
 		skills: ["bazhen", "olhuoji", "olkanpo", "cangzhuo"],
+		tempname: ["ol_sp_zhugeliang"],
 		names: "诸葛|亮",
 	}),
 	gz_re_ganning: new Character({
 		sex: "male",
 		group: "wu",
 		hp: 4,
+		tempname: ["re_ganning"],
 		skills: ["qixi", "fenwei"],
 	}),
 	gz_re_zhangliao: new Character({

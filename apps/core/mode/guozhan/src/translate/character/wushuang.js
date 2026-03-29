@@ -14,7 +14,7 @@ export default {
 	gz_pot_weiyan: "魏延",
 	gz_mizhu: "糜竺",
 	gz_yl_yuanshu: "袁术",
-	gz_re_lvbu: "吕布",
+	gz_sb_lvbu: "吕布",
 	gz_jsrg_liuyan: "刘焉",
 	gz_shichangshi: "十常侍",
 	gz_yj_zhanghe: "张郃",
