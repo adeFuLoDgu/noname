@@ -11332,19 +11332,17 @@ export const Content = {
 		}
 	},
 	async gainMultiple(event, trigger, player) {
-		const { targets } = event;
+		const targets = [...event.targets].sortBySeat();
 		const map = new Map([]);
 
-		for (let i = 0; i < targets.length; ++i) {
-			const target = targets[i];
-			const result = await player.gainPlayerCard(targets[i], event.position, true).set("boolline", false).set("delay", false).forResult();
-
+		for (const target of targets.sortBySeat()) {
+			const result = await player.gainPlayerCard(target, event.position, true).set("boolline", false).set("delay", false).forResult();
 			if (result?.bool && result.cards?.length) {
 				map.set(target, result.cards);
 			}
 		}
 
-		event.cards = [...map.entries()].map(list => list[1]).flat();
+		event.cards = Array.from(map.values()).flat();
 		event.result = {
 			bool: true,
 			cards: event.cards,
