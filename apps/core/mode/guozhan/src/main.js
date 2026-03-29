@@ -120,7 +120,7 @@ export const start = async (event, trigger, player) => {
 						continue;
 					}
 					if (lib.character[character].groupInGuozhan) {
-						lib.character[character].group = lib.character[character].groupInGuozhan || "qun";
+						lib.character[character].group = lib.character[character].groupInGuozhan;
 					}
 				}
 				//lib.characterReplace={};
@@ -315,8 +315,8 @@ export const startBefore = () => {
 	// @ts-expect-error 祖宗之法就是这么写的
 	for (let character in lib.characterPack.mode_guozhan) {
 		if (!get.config("onlyguozhan") && !playback) {
-			if (lib.character[character.slice(3)]) {
-				continue;
+			if (lib.character[character.slice(3)] && !lib.characterPack.mode_guozhan[character].hasSkinInGuozhan) {
+				lib.character[character.slice(3)].isUnseen = true;
 			}
 		}
 		// @ts-expect-error 祖宗之法就是这么写的
@@ -335,7 +335,7 @@ export const startBefore = () => {
 			continue;
 		}
 		if (lib.character[character].groupInGuozhan) {
-			lib.character[character].group = lib.character[character].groupInGuozhan || "qun";
+			lib.character[character].group = lib.character[character].groupInGuozhan;
 		}
 	}
 }
@@ -361,7 +361,7 @@ export const onreinit = () => {
 			continue;
 		}
 		if (lib.character[character].groupInGuozhan) {
-			lib.character[character].group = lib.character[character].groupInGuozhan || "qun";
+			lib.character[character].group = lib.character[character].groupInGuozhan;
 		}
 	}
 }
