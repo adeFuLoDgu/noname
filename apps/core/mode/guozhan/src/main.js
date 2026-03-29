@@ -224,9 +224,13 @@ export const start = async (event, trigger, player) => {
 				if (info.group == group) {
 					info.isUnseen = true;
 				}
-				game.broadcast((name, info) => {
-					lib.character[name] = info;
-				}, character, info);
+				game.broadcast(
+					(name, info) => {
+						lib.character[name] = info;
+					},
+					character,
+					info
+				);
 			}
 			await game.delay(5);
 			game.broadcastAll("closeDialog", event.videoId);
@@ -307,7 +311,7 @@ export const start = async (event, trigger, player) => {
 	}
 
 	await game.phaseLoop(playerFirst);
-}
+};
 
 export const startBefore = () => {
 	const playback = localStorage.getItem(lib.configprefix + "playback");
@@ -315,7 +319,7 @@ export const startBefore = () => {
 	// @ts-expect-error 祖宗之法就是这么写的
 	for (let character in lib.characterPack.mode_guozhan) {
 		if (!get.config("onlyguozhan") && !playback) {
-			if (lib.character[character.slice(3)] && !lib.characterPack.mode_guozhan[character].hasSkinInGuozhan) {
+			if (lib.character[character.slice(3)] && (!get.config("guozhanSkin") || !lib.characterPack.mode_guozhan[character].hasSkinInGuozhan)) {
 				lib.character[character.slice(3)].isUnseen = true;
 			}
 		}
@@ -338,7 +342,7 @@ export const startBefore = () => {
 			lib.character[character].group = lib.character[character].groupInGuozhan;
 		}
 	}
-}
+};
 
 export const onreinit = () => {
 	// @ts-expect-error 祖宗之法就是这么写的
@@ -364,4 +368,4 @@ export const onreinit = () => {
 			lib.character[character].group = lib.character[character].groupInGuozhan;
 		}
 	}
-}
+};
