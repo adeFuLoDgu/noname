@@ -7105,7 +7105,7 @@ const skills = {
 					for (const pos of ["e", "j"]) {
 						const cards = current.getCards(pos, card => get.suit(card) === "spade" && lib.filter.cardDiscardable(card, player));
 						if (cards.length) {
-							dialog.push('<div class="text center">' + (current === player ? "你" : get.translation(current)) + "的" + { e: "手牌区", j: "装备区" }[pos] + "</div>");
+							dialog.push('<div class="text center">' + (current === player ? "你" : get.translation(current)) + "的" + { e: "装备区", j: "判定区" }[pos] + "</div>");
 							dialog.push(cards);
 						}
 					}
@@ -25731,52 +25731,79 @@ const skills = {
 		audio: "wanwei",
 		trigger: {
 			player: "loseAfter",
-			global: "gainAfter",
+			global: ["gainAfter", "loseAsyncAfter"],
 		},
 		filter(event, player) {
-			var evt = event;
-			if (event.name == "lose") {
-				if (event.type != "discard") {
-					return false;
-				}
-				evt = event.getParent();
-			}
-			if (evt[event.name == "gain" ? "bySelf" : "notBySelf"] != true) {
+			const evt = event.getl(player);
+			if (!(evt?.cards2 ?? []).length) {
 				return false;
 			}
-			var evtx = event.getl(player);
-			return evtx && evtx.cards2 && evtx.cards2.length > 0;
+			if (event.name === "gain" || event.type === "gain") {
+				if (
+					evt.cards2.some(card => {
+						return game.hasPlayer(target => {
+							if (target === player) {
+								return false;
+							}
+							return event.getg?.(target)?.includes(card);
+						});
+					})
+				) {
+					return true;
+				}
+			}
+			if (event.type === "discard" && event.getlx !== false) {
+				const discarder = event.discarder || event.getParent(2).player;
+				if (discarder && discarder !== player) {
+					return true;
+				}
+			}
+			return false;
 		},
 		prompt2(event, player) {
-			var evt = event.getl(player),
-				origins = evt.cards2.map(function (i) {
-					return get.name(i, evt.hs.includes(i) ? player : false);
+			const evt = event.getl(player);
+			let origins = evt.cards2;
+			if (event.name === "gain" || event.type === "gain") {
+				origins = origins.filter(card => {
+					return game.hasPlayer(target => {
+						if (target === player) {
+							return false;
+						}
+						return event.getg?.(target)?.includes(card);
+					});
 				});
+			}
 			return "从牌堆中获得" + get.translation(origins) + "；若没有则改为摸一张牌";
 		},
 		usable: 1,
-		content() {
-			var num = 0,
-				cards = [],
-				evt = trigger.getl(player),
-				origins = evt.cards2.map(function (i) {
-					return get.name(i, evt.hs.includes(i) ? player : false);
+		async content(event, trigger, player) {
+			const evt = trigger.getl(player);
+			let origins = evt.cards2;
+			if (trigger.name === "gain" || trigger.type === "gain") {
+				origins = origins.filter(card => {
+					return game.hasPlayer(target => {
+						if (target === player) {
+							return false;
+						}
+						return trigger.getg?.(target)?.includes(card);
+					});
 				});
-			for (var i of origins) {
-				var card = get.cardPile2(function (card) {
-					return card.name == i && !cards.includes(card);
-				});
-				if (card) {
-					cards.push(card);
+			}
+			let cards = [],
+				num = 0;
+			for (const card of origins) {
+				const card2 = get.cardPile2(card2 => card2.name === card.name);
+				if (card2) {
+					cards.push(card2);
 				} else {
 					num++;
 				}
 			}
 			if (cards.length) {
-				player.gain(cards, "gain2");
+				await player.gain(cards, "gain2");
 			}
 			if (num) {
-				player.draw(num);
+				await player.draw(num);
 			}
 		},
 	},
