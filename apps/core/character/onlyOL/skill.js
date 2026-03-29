@@ -9742,7 +9742,7 @@ const skills = {
 				if (!num1 && num2 < 1) {
 					return false;
 				}
-				return player.countCards("hs", card => player.hasUseTarget(get.autoViewAs({ name: "shunshou" }, [card]), false, false));
+				return player.countCards("hs", card => player.hasUseTarget(get.autoViewAs({ name: "shunshou", storage: { olsbjiewan: true } }, [card]), false, false));
 			}
 			return player.countCards("h") == num2 && !player.isMaxMaxHp(true);
 		},
