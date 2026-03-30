@@ -2201,7 +2201,7 @@ export default () => {
 				ui.phasequeue = [];
 				for (var i = 0; i < game.players.length; i++) {
 					var node = ui.create.div(".avatar", ui.chessinfo.firstChild);
-					node.style.backgroundImage = p.node.avatar.style.backgroundImage;
+					node.style.backgroundImage = p.isUnseen() ? `url(${lib.assetURL}/image/character/hidden_image.jpg)` : p.node.avatar.style.backgroundImage;
 					node.link = p;
 					node.listen(ui.click.chessInfo);
 					lib.setIntro(node);
