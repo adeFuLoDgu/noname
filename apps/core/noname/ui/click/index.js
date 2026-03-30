@@ -4194,7 +4194,7 @@ export class Click {
 								intro.appendChild(currentSkinsContainer);
 							}
 
-							game.callHook("refreshSkin", [skinButtonList[0], this.name]);
+							game.callHook("refreshSkin", [skinButtonList[0], this.name, sourcenode, avatar]);
 						});
 						skinButton.name = skinName;
 						skinButton.style.width = "80px";
