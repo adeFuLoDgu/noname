@@ -81,7 +81,7 @@ const skills = {
 				await player.discard(player.getDiscardableCards(player, "j").randomGets(2));
 			} else {
 				for (const target of event.targets) {
-					await target.damege();
+					await target.damage();
 				}
 			}
 		},

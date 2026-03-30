@@ -13786,6 +13786,14 @@ const skills = {
 					}
 				},
 				target(card, player, target) {
+					let name;
+					if (typeof card == "object") {
+						if (card.viewAs) {
+							name = card.viewAs;
+						} else {
+							name = get.name(card);
+						}
+					}
 					if (name == "lebu" || name == "bingliang") {
 						return [target.hasSkillTag("rejudge") ? 0.4 : 1, 2, target.hasSkillTag("rejudge") ? 0.4 : 1, 0];
 					}
