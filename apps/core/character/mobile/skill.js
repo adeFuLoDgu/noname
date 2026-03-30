@@ -10,7 +10,7 @@ const skills = {
 		audio: 2,
 		trigger: {
 			player: "loseAfter",
-			global: "loseAsyncAfter",
+			global: ["equipAfter", "addJudgeAfter", "gainAfter", "loseAsyncAfter", "addToExpansionAfter"],
 		},
 		getIndex(event, player, triggername) {
 			return event.getl?.(player)?.cards2?.length;
