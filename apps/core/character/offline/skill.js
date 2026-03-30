@@ -7,9 +7,9 @@ const skills = {
 		derivation: ["wushen", "liushi", "gongxin", "tianxiang", "guose", "limu", "fengpo", "jiexun", "leiji", "zuoding", "miehai", "jiyu", "luoying", "lianhuan", "zhujiu", "ninghan"].map(i => "huamao_" + i),
 		map: {
 			heart: ["wushen", "liushi", "gongxin", "tianxiang"].map(i => "huamao_" + i),
-			diamond: ["guose", "limu", "fengpo", "jiexun"].map(i => "huamao_" + i),
-			spade: ["leiji"].map(i => "huamao_" + i),//, "zuoding", "miehai", "jiyu"
-			club: ["luoying"].map(i => "huamao_" + i),//, "lianhuan", "zhujiu", "ninghan"
+			diamond: ["guose", "limu", "fengpo", "jiexun", "zuoding", "miehai", "jiyu"].map(i => "huamao_" + i),
+			spade: ["leiji"].map(i => "huamao_" + i),
+			club: ["luoying", "lianhuan", "zhujiu", "ninghan"].map(i => "huamao_" + i),
 		},
 		getSuit(player, skill) {
 			const { map } = get.info("wxdl_huamao");

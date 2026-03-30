@@ -308,6 +308,10 @@ window.noname_character_rank = {
 		"bigsb_dengai",
 	],
 	am: [
+		"o_tadun",
+		"o_chenlan",
+		"o_meicheng",
+		"o_guanyu",
 		"hl_shen_lvbu",
 		"hl_shen_zhouyu",
 		"hl_shen_lvmeng",
@@ -2630,6 +2634,8 @@ window.noname_character_rank = {
 			"v_sunce",
 		],
 		epic: [
+			"o_tadun",
+			"o_guanyu",
 			"wxdl_caozhi",
 			"shie",
 			"dc_xia_wangyue",
@@ -3166,6 +3172,8 @@ window.noname_character_rank = {
 			"dc_sb_chunyuqiong",
 		],
 		rare: [
+			"o_chenlan",
+			"o_meicheng",
 			"zhuji",
 			"ylyg_dianwei",
 			"ylyg_pangtong",

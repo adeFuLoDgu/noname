@@ -103,7 +103,7 @@ window.noname_character_replace = {
 	guanqiujian: ["guanqiujian", "re_guanqiujian", "mb_sp_guanqiujian", "tw_guanqiujian", "old_guanqiujian"],
 	guansuo: ["guansuo", "dc_guansuo", "std_guansuo", "drag_guansuo"],
 	guanyinping: ["guanyinping", "mb_guanyinping", "old_guanyinping", "ty_guanyinping", "drag_guanyinping", "sxrm_guanyinping"],
-	guanyu: ["guanyu", "re_guanyu", "jsp_guanyu", "ol_sb_guanyu", "wu_guanyu", "dc_jsp_guanyu", "sb_guanyu", "tw_jsp_guanyu", "xia_guanyu", "jsrg_guanyu", "jd_sb_guanyu", "drag_guanyu", "ty_guanyu", "jx_guanyu", "ps_guanyu", "old_guanyu", "junk_guanyu", "sxrm_guanyu"],
+	guanyu: ["guanyu", "re_guanyu", "jsp_guanyu", "ol_sb_guanyu", "wu_guanyu", "dc_jsp_guanyu", "sb_guanyu", "tw_jsp_guanyu", "xia_guanyu", "jsrg_guanyu", "jd_sb_guanyu", "drag_guanyu", "ty_guanyu", "jx_guanyu", "ps_guanyu", "old_guanyu", "junk_guanyu", "sxrm_guanyu", "o_guanyu"],
 	guanzhang: ["guanzhang", "ol_guanzhang", "re_guanzhang", "old_guanzhang"],
 	guohuai: ["guohuai", "re_guohuai", "ol_guohuai", "xin_guohuai", "sb_guohuai", "tw_guohuai"],
 	guohuanghou: ["guohuanghou", "ol_guohuanghou", "re_guohuanghou", "std_guohuanghou", "ol_guohuanghou", "pl_sb_guojia"],
@@ -457,4 +457,5 @@ window.noname_character_replace = {
 	liufuren: ["liufuren", "tw_liufuren"],
 	shie: ["shie", "xia_shie"],
 	xia_wangyue: ["dc_xia_wangyue", "xia_wangyue", "ns_wangyue"],
+	tadun: ["tadun", "o_tadun"],
 };
