@@ -4622,6 +4622,9 @@ const skills = {
 			while (cards.length) {
 				if (
 					cards.every(card => {
+						if (!lib.filter.cardEnabled(card, player)) {
+							return true;
+						}
 						const name = ["tao", "wuzhong"];
 						if (name.includes(card.name) || get.type(card) == "equip") {
 							return !game.hasPlayer(target => lib.filter.targetEnabled2(card, player, target));
@@ -4637,6 +4640,9 @@ const skills = {
 						prompt: "思泣：请选择要使用的牌",
 						filter(button) {
 							const card = button.link;
+							if (!lib.filter.cardEnabled(card, player)) {
+								return false;
+							}
 							if (["tao", "wuzhong"].includes(card.name) || get.type(card) == "equip") {
 								return game.hasPlayer(target => lib.filter.targetEnabled2(card, get.player(), target));
 							}
@@ -4681,6 +4687,9 @@ const skills = {
 			if (cards.length) {
 				await player.draw({
 					num: cards.filter(card => {
+						if (!lib.filter.cardEnabled(card, player)) {
+							return true;
+						}
 						const name = ["tao", "wuzhong"];
 						if (name.includes(card.name) || get.type(card) == "equip") {
 							return !game.hasPlayer(target => lib.filter.targetEnabled2(card, player, target));
