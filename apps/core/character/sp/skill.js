@@ -36688,7 +36688,8 @@ const skills = {
 			const result = await player
 				.chooseControl("摸X加1伤", "摸1加X伤", "cancel2")
 				.set("prompt", get.prompt(event.skill, trigger.target))
-				.set("prompt2", "你可以选择一项：1.摸X张牌，令" + str1 + "的伤害+1；2.摸一张牌，令" + str1 + "的伤害+X（X为" + str2 + "的♦牌的数量）。");
+				.set("prompt2", "你可以选择一项：1.摸X张牌，令" + str1 + "的伤害+1；2.摸一张牌，令" + str1 + "的伤害+X（X为" + str2 + "的♦牌的数量）。")
+				.forResult();
 			if (result.control != "cancel2") {
 				event.result = {
 					bool: true,

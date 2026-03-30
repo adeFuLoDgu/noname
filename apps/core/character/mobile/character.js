@@ -1,4 +1,28 @@
 const characters = {
+	o_tadun: {
+		sex: "male",
+		group: "qun",
+		hp: 4,
+		skills: ["youlve", "lianxi"],
+	},
+	o_chenlan: {
+		sex: "male",
+		group: "qun",
+		hp: 4,
+		skills: ["jujun"],
+	},
+	o_meicheng: {
+		sex: "male",
+		group: "qun",
+		hp: 4,
+		skills: ["bixian"],
+	},
+	o_guanyu: {
+		sex: "male",
+		group: "shu",
+		hp: 4,
+		skills: ["mbwusheng", "mbyijue"],
+	},
 	o_sunquan: {
 		sex: "male",
 		group: "wu",

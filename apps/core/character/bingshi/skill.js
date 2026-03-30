@@ -145,8 +145,9 @@ const skills = {
 				skillAnimation: true,
 				animationColor: "wood",
 				async content(event, trigger, player) {
-					game.log(player, "成功完成使命");
 					player.awakenSkill("pothuanshi");
+					game.log(player, "成功完成使命");
+					player.changeSkin({ characterName: "zhuji" }, "zhuji_shadow");
 					game.broadcastAll(
 						(player, name) => {
 							if (player.name == "zhuji" || player.name1 == "zhuji") {

@@ -8,8 +8,8 @@ const skills = {
 		map: {
 			heart: ["wushen", "liushi", "gongxin", "tianxiang"].map(i => "huamao_" + i),
 			diamond: ["guose", "limu", "fengpo", "jiexun"].map(i => "huamao_" + i),
-			spade: ["leiji"].map(i => "huamao_" + i),//, "zuoding", "miehai", "jiyu"
-			club: ["luoying"].map(i => "huamao_" + i),//, "lianhuan", "zhujiu", "ninghan"
+			spade: ["leiji", "zuoding", "miehai", "jiyu"].map(i => "huamao_" + i),
+			club: ["luoying", "lianhuan", "zhujiu", "ninghan"].map(i => "huamao_" + i),
 		},
 		getSuit(player, skill) {
 			const { map } = get.info("wxdl_huamao");
