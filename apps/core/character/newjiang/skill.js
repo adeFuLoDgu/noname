@@ -7238,10 +7238,8 @@ const skills = {
 						await target.link(false);
 						await target.turnOver(false);
 					}
-					if (index > 0) {
-						if (num > 1) {
-							await target.chooseToDiscard(num - 1, "he", true);
-						}
+					if (index > 0 && num > 1) {
+						await target.chooseToDiscard(num - 1, "he", true);
 						await target.recover();
 					}
 					if (index == 2) {

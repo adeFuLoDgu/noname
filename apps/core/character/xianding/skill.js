@@ -21843,6 +21843,9 @@ const skills = {
 					.getGlobalHistory(
 						"useCard",
 						evt => {
+							if (!evt.targets?.includes(player)) {
+								return false;
+							}
 							return filter(evt.card);
 						},
 						evt

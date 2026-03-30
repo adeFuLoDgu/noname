@@ -1339,6 +1339,7 @@ const skills = {
 					filterCard(card, player) {
 						return player.countCards("h") > player.hp && lib.filter.cardDiscardable(card, player, "olhuanpei");
 					},
+					position: "h",
 					selectCard() {
 						const player = get.player(),
 							num = player.countCards("h") - player.hp;
