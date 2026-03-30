@@ -4920,48 +4920,54 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 			if (!srcBase) {
 				return;
 			}
-			game.getFileList(srcBase, (folders, files) => {
-				if (!files.length) {
-					return;
-				}
-				if (!created) {
-					created = true;
-					uiintro.add('<div class="text center">更改皮肤</div>');
-				}
-				const avatars = ui.create.div('.buttons.smallzoom.scrollbuttons');
-				lib.setMousewheel(avatars);
-				uiintro.add(avatars);
-				const originButton = ui.create.div('.button.character.pointerdiv', avatars, function () {
-					delete lib.config.skin[nameskin];
-					if (lib.characterSubstitute[nameskin]) {
-						for (const list of lib.characterSubstitute[nameskin]) delete lib.config.skin[list[0]];
+			game.getFileList(
+				srcBase,
+				(folders, files) => {
+					if (!files.length) {
+						return;
 					}
-					avatarSetter('origin');
-					game.saveConfig('skin', lib.config.skin);
-				});
-				originButton.setBackground(nameskin, 'character', 'noskin');
-				const originSkin = ui.create.caption(`<div class="text" data-nature=shenmm style="font-size: 12px">经典形象</div>`, originButton);
-				originSkin.style.left = "1px";
-				originSkin.style.bottom = "-1px";
-				files.forEach(file => {
-					const src = `${srcBase}${file}`, skinname = file;
-					const button = ui.create.div('.button.character.pointerdiv', avatars, function () {
-						lib.config.skin[nameskin] = [skinname, src];
+					if (!created) {
+						created = true;
+						uiintro.add('<div class="text center">更改皮肤</div>');
+					}
+					const avatars = ui.create.div(".buttons.smallzoom.scrollbuttons");
+					lib.setMousewheel(avatars);
+					uiintro.add(avatars);
+					const originButton = ui.create.div(".button.character.pointerdiv", avatars, function () {
+						delete lib.config.skin[nameskin];
 						if (lib.characterSubstitute[nameskin]) {
-							for (const list of lib.characterSubstitute[nameskin]) {
-								const sub = list[0], [fold, prefix] = skinname.split('.');
-								lib.config.skin[sub] = [skinname, `${srcBase}${fold}/${sub}.${prefix}`];
-							}
+							for (const list of lib.characterSubstitute[nameskin]) delete lib.config.skin[list[0]];
 						}
-						avatarSetter(src);
-						game.saveConfig('skin', lib.config.skin);
+						avatarSetter("origin");
+						game.saveConfig("skin", lib.config.skin);
 					});
-					button.setBackgroundImage(src);
-					const skinCaption = ui.create.caption(`<div class="text" data-nature=shenmm style="font-size: 12px">${get.translation(skinname.slice(0, -4))}</div>`, button);
-					skinCaption.style.left = "1px";
-					skinCaption.style.bottom = "-1px";
-				});
-			}, () => { });
+					originButton.setBackground(nameskin, "character", "noskin");
+					const originSkin = ui.create.caption(`<div class="text" data-nature=shenmm style="font-size: 12px">经典形象</div>`, originButton);
+					originSkin.style.left = "1px";
+					originSkin.style.bottom = "-1px";
+					files.forEach(file => {
+						const src = `${srcBase}${file}`,
+							skinname = file;
+						const button = ui.create.div(".button.character.pointerdiv", avatars, function () {
+							lib.config.skin[nameskin] = [skinname, src];
+							if (lib.characterSubstitute[nameskin]) {
+								for (const list of lib.characterSubstitute[nameskin]) {
+									const sub = list[0],
+										[fold, prefix] = skinname.split(".");
+									lib.config.skin[sub] = [skinname, `${srcBase}${fold}/${sub}.${prefix}`];
+								}
+							}
+							avatarSetter(src);
+							game.saveConfig("skin", lib.config.skin);
+						});
+						button.setBackgroundImage(src);
+						const skinCaption = ui.create.caption(`<div class="text" data-nature=shenmm style="font-size: 12px">${get.translation(skinname.slice(0, -4))}</div>`, button);
+						skinCaption.style.left = "1px";
+						skinCaption.style.bottom = "-1px";
+					});
+				},
+				() => {}
+			);
 		};
 		if (typeof node._customintro == "function") {
 			if (node._customintro(uiintro, evt) === false) {
@@ -5417,8 +5423,8 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 				[node.name1, node.name2].forEach((nameskin, index) => {
 					if (nameskin) {
 						createButtons(nameskin, src => {
-							const avatar = node.node[index ? 'avatar2' : 'avatar'];
-							if (src === 'origin') avatar.setBackground(nameskin, 'character');
+							const avatar = node.node[index ? "avatar2" : "avatar"];
+							if (src === "origin") avatar.setBackground(nameskin, "character");
 							else avatar.style.backgroundImage = `url('${src}')`;
 						});
 					}
@@ -5716,16 +5722,18 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 						}
 					}
 					if (node.gaintag?.length) {
-						let gaintag = node.gaintag.map(tag => {
-							let translate = get.translation(tag);
-							if (translate === tag && tag.startsWith("eternal_")) {
-								translate = get.translation(tag.slice(8));
-							};
-							if (translate === "invisible") {
-								return "";
-							}
-							return translate;
-						}).filter(tag => tag.length);
+						let gaintag = node.gaintag
+							.map(tag => {
+								let translate = get.translation(tag);
+								if (translate === tag && tag.startsWith("eternal_")) {
+									translate = get.translation(tag.slice(8));
+								}
+								if (translate === "invisible") {
+									return "";
+								}
+								return translate;
+							})
+							.filter(tag => tag.length);
 						if (gaintag?.length) {
 							uiintro.add(" ");
 							uiintro.add(`<div class="text" style="display:inline">此牌标签：${gaintag}</div>`);
@@ -5941,7 +5949,7 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 					const nameskin = node.link;
 					if (nameskin) {
 						createButtons(nameskin, src => {
-							if (src === 'origin') node.setBackground(nameskin, 'character');
+							if (src === "origin") node.setBackground(nameskin, "character");
 							else node.style.backgroundImage = `url('${src}')`;
 						});
 					}
@@ -7179,7 +7187,7 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 			player = _status.event.player;
 		}
 		if (player.getCards("j").includes(card)) {
-			var efff = get.effect(
+			return get.effect(
 				player,
 				{
 					name: card.viewAs || card.name,
@@ -7188,13 +7196,6 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 				player,
 				player
 			);
-			if (efff > 0) {
-				return 0.5;
-			}
-			if (efff == 0) {
-				return 0;
-			}
-			return -1.5;
 		}
 		if (player.getCards("e").includes(card)) {
 			var evalue = get.value(card, player);
@@ -7206,8 +7207,11 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 			}
 			return evalue / 3;
 		}
-		if (player.hasSkillTag("noh")) {
+		if (!player.getCards("h").includes(card) || player.hasSkillTag("noh")) {
 			return 0.1;
+		}
+		if (!button.classList.contains("infohidden")) {
+			return get.value(card);
 		}
 		var nh = player.countCards("h");
 		switch (nh) {
@@ -7478,7 +7482,6 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 		return link.protocol == "file:" ? game.promises.readFile(get.relativePath(link)).then(buffer => new Blob([buffer])) : fetch(link).then(response => response.blob());
 	}
 
-	
 	/**
 	 *
 	 * @param {[majorVersion: number, minorVersion: number, patchVersion: number]} require 需求的版本号
