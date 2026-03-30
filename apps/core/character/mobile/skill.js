@@ -7,7 +7,7 @@ import { lib, game, ui, get, ai, _status } from "noname";
 const skills = {
 	//OP孙权
 	mbshizhong: {
-		audio: 2,
+		audio: 3,
 		trigger: { player: ["phaseJieshuBegin", "phaseZhunbeiBegin"] },
 		filter(event, player) {
 			return event.name === "phaseJieshu" || player.hasCard(card => card.hasGaintag("mbshizhong"), "h");

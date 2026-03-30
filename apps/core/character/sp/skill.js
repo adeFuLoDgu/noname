@@ -24401,6 +24401,7 @@ const skills = {
 			}
 			return player.countExpansions("spolzhouxuan");
 		},
+		preHidden: true,
 		async cost(event, trigger, player) {
 			if (trigger.name != "phaseDiscard") {
 				event.result = { bool: true };
@@ -24415,6 +24416,7 @@ const skills = {
 						}
 						return 100 - get.useful(card);
 					})
+					.setHiddenSkill(event.skill)
 					.forResult();
 			}
 		},
@@ -36691,12 +36693,15 @@ const skills = {
 				event.result = {
 					bool: true,
 					cost_data: result.index,
-				}
-			}	
+				};
+			}
 		},
 		logTarget: "target",
 		async content(event, trigger, player) {
-			const { cost_data: index, targets: [target] } = event;
+			const {
+				cost_data: index,
+				targets: [target],
+			} = event;
 			const nd = target.countCards("he", { suit: "diamond" });
 			let draw = 1,
 				damage = 1;
@@ -36711,7 +36716,7 @@ const skills = {
 				evt.baseDamage = 1;
 			}
 			evt.baseDamage += damage;
-		}
+		},
 	},
 	fengpo2: {
 		trigger: { source: "damageBegin1" },
@@ -40869,15 +40874,11 @@ const skills = {
 		audio: 2,
 		trigger: { player: "useCardToPlayered" },
 		filter(event, player) {
-			if (event.getParent().triggeredTargets3.length > 1) {
+			if (!player.isPhaseUsing() || player.hasSkill("xinfu_lingren_used") || !event.isFirstTarget) {
 				return false;
 			}
-			if (!["basic", "trick"].includes(get.type(event.card))) {
-				return false;
-			}
-			return get.tag(event.card, "damage");
+			return event.card.name === "sha" && (get.type(event.card) === "trick" && get.tag(event.card, "damage"));
 		},
-		usable: 1,
 		derivation: ["new_rejianxiong", "rexingshang"],
 		async cost(event, trigger, player) {
 			event.result = await player
@@ -40891,6 +40892,7 @@ const skills = {
 				.forResult();
 		},
 		async content(event, trigger, player) {
+			player.addTempSkill("xinfu_lingren_used", { player: "phaseUseAfter" });
 			const {
 				targets: [target],
 			} = event;
@@ -40980,6 +40982,7 @@ const skills = {
 			}
 		},
 		ai: { threaten: 2.4 },
+		subSkill: { used: { charlotte: true } },
 	},
 	lingren_jianxiong: { audio: 1 },
 	lingren_xingshang: { audio: 1 },
@@ -41014,7 +41017,7 @@ const skills = {
 			}
 		},
 	},
-	fujian: {
+	olfujian: {
 		audio: "xinfu_fujian",
 		trigger: { player: ["phaseZhunbeiBegin", "phaseJieshuBegin"] },
 		filter(event, player) {
