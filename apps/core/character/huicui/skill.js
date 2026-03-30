@@ -18215,22 +18215,15 @@ const skills = {
 	},
 	remumu: {
 		audio: "mumu",
-		trigger: {
-			player: "phaseUseBegin",
-		},
-		direct: true,
+		trigger: { player: "phaseUseBegin" },
 		filter(event, player) {
 			return game.hasPlayer(function (current) {
 				return current.countCards("e") > 0;
 			});
 		},
-		async content(event, trigger, player) {
-			const { target } = event;
-			let result;
-
-			// step 0
-			result = await player
-				.chooseTarget(get.prompt2("remumu"), function (card, player, target) {
+		async cost(event, trigger, player) {
+			event.result = await player
+				.chooseTarget(get.prompt2(event.skill), function (card, player, target) {
 					return target.countCards("e") > 0;
 				})
 				.set("ai", function (target) {
@@ -18248,62 +18241,70 @@ const skills = {
 					return eff;
 				})
 				.forResult();
-			// step 1
-			if (result.bool) {
-				const target = result.targets[0];
-				event.target = target;
-				player.logSkill("remumu", target);
-				if (player == target) {
-					result = { index: 1 };
-				} else {
-					const str = get.translation(target);
-					result = await player
-						.chooseControl()
-						.set("choiceList", [
-							"弃置" + str + "装备区的一张牌且本阶段使用【杀】的次数上限+1",
-							"获得" + str + "装备区的一张牌且本阶段使用【杀】的次数上限-1",
-						])
-						.set("ai", function () {
-							const player = _status.event.player;
-							if (
-								player.countCards("hs", function (card) {
-									return get.name(card, player) == "sha" && player.hasValueTarget(card);
-								}) < Math.max(1, player.getCardUsable("sha"))
-							) {
-								return 1;
-							}
-							return 0;
-						})
-						.forResult();
-				}
+		},
+		async content(event, trigger, player) {
+			const {
+				targets: [target],
+			} = event;
+			let result;
+			if (player == target) {
+				result = { index: 1 };
 			} else {
-				return;
+				const str = get.translation(target);
+				result = await player
+					.chooseControl()
+					.set("choiceList", ["弃置" + str + "装备区的一张牌且本阶段使用【杀】的次数上限+1", "获得" + str + "装备区的一张牌且本阶段使用【杀】的次数上限-1"])
+					.set("ai", function () {
+						const player = _status.event.player;
+						if (
+							player.countCards("hs", function (card) {
+								return get.name(card, player) == "sha" && player.hasValueTarget(card);
+							}) < Math.max(1, player.getCardUsable("sha"))
+						) {
+							return 1;
+						}
+						return 0;
+					})
+					.forResult();
 			}
-			// step 2
-			if (result.index == 0) {
-				player.addTempSkill("remumu3", "phaseUseAfter");
-				await player.discardPlayerCard(target, "e", true);
+			if (result?.index == 0) {
+				player.addTempSkill(`${event.name}_effect`, "phaseUseAfter");
+				await player.discardPlayerCard({ target, position: "e", forced: true });
 			} else {
-				player.addTempSkill("remumu2", "phaseUseAfter");
-				await player.gainPlayerCard(target, "e", true);
+				player.addTempSkill(`${event.name}_debuff`, "phaseUseAfter");
+				await player.gainPlayerCard({ target, position: "e", forced: true });
 			}
 		},
-	},
-	remumu2: {
-		mod: {
-			cardUsable(card, player, num) {
-				if (card.name == "sha") {
-					return num - 1;
-				}
+		subSkill: {
+			debuff: {
+				charlotte: true,
+				mod: {
+					cardUsable(card, player, num) {
+						if (card.name == "sha") {
+							return num - 1;
+						}
+					},
+				},
+				mark: true,
+				intro: {
+					markcount: () => -1,
+					content: "出杀次数-1",
+				},
 			},
-		},
-	},
-	remumu3: {
-		mod: {
-			cardUsable(card, player, num) {
-				if (card.name == "sha") {
-					return num + 1;
-				}
+			effect: {
+				charlotte: true,
+				mod: {
+					cardUsable(card, player, num) {
+						if (card.name == "sha") {
+							return num + 1;
+						}
+					},
+				},
+				mark: true,
+				intro: {
+					markcount: () => 1,
+					content: "出杀次数+1",
+				},
 			},
 		},
 	},
