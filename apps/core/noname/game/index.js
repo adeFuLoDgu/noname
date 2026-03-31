@@ -7989,12 +7989,15 @@ ${e instanceof Error ? e.stack : String(e)}`);
 		return next;
 	}
 	/**
-	 * @param { Player } [player]
+	 * @param { Player } player
+	 * @param { number } num
+	 * @param { Player[] } targets
 	 */
-	gameDraw(player, num = 4) {
+	gameDraw(player = game.me, num = 4, targets = game.players) {
 		let next = game.createEvent("gameDraw");
-		next.player = player || game.me;
+		next.player = player;
 		next.num = num;
+		next.targets = targets;
 		next.setContent("gameDraw");
 		return next;
 	}

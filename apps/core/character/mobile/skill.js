@@ -941,7 +941,7 @@ const skills = {
 				if (!["chooseToUse", "chooseToRespond"].includes(event.name)) {
 					return;
 				}
-				if (card.hasGaintag("mbkoulve")) {
+				if (get.itemtype(card) === "card" && card.hasGaintag("mbkoulve")) {
 					return "sha";
 				}
 			},
@@ -950,7 +950,7 @@ const skills = {
 				if (!["chooseToUse", "chooseToRespond"].includes(event.name)) {
 					return;
 				}
-				if (card.hasGaintag("mbkoulve")) {
+				if (get.itemtype(card) === "card" && card.hasGaintag("mbkoulve")) {
 					return false;
 				}
 			},

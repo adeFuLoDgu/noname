@@ -81,7 +81,7 @@ const skills = {
 				await player.discard(player.getDiscardableCards(player, "j").randomGets(2));
 			} else {
 				for (const target of event.targets) {
-					await target.damege();
+					await target.damage();
 				}
 			}
 		},
@@ -5433,7 +5433,11 @@ const skills = {
 		},
 		ai: {
 			order: 20,
-			result: { player: player => 1 - (player.hasSkill("dcbeijin_buff") && player.hasCard(card => card.hasGaintag("dcbeijin_effect"), "h")) },
+			result: {
+				player(player) {
+					return player.hasCard(card => card.hasGaintag("dcbeijin_effect"), "h") ? 0 : 1;
+				},
+			},
 		},
 		locked: false,
 		mod: {
@@ -5453,12 +5457,16 @@ const skills = {
 						}
 					},
 					aiOrder(player, card, num) {
-						if (player.hasSkill("dcbeijin_buff") && typeof card === "object") {
-							if (get.itemtype(card) === "card" || card.cards?.some(card => card.hasGaintag("dcbeijin_effect"))) {
-								return num + 100;
+						const cards = (get.itemtype(card) === "card" ? [card] : card.cards) ?? [];
+						if (player.getHp() === 1 && player.hasSkill("dcbeijin_buff")) {
+							if (player.hasCard(card => card.hasGaintag("dcbeijin_effect") && !cards.includes(card), "h") && !player.hasCard(card => player.canSaveCard(card, player) && !cards.includes(card), "hs")) {
+								return 0;
 							}
-							return num / (get.tag(card, "recover") ? 1 : 1145141919810);
 						}
+						if (cards.some(card => card.hasGaintag("dcbeijin_effect"))) {
+							return num + 100;
+						}
+						return num / (get.tag(card, "recover") ? 1 : 1145141919810);
 					},
 				},
 				trigger: { player: "useCard1" },

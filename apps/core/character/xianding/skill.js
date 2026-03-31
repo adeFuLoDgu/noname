@@ -2427,10 +2427,11 @@ const skills = {
 										if (card.hasGaintag(tags[i] + "_tag") && !card.classList.contains(glowClass)) {
 											//添加样式+录像
 											game.broadcastAll(
-												(card, glowClass, tag) => {
+												(player, card, glowClass, tag) => {
 													card.classList.add(glowClass);
 													game.addVideo("skill", player, ["dctuoyu", [true, [get.cardInfo(card)], tag]]);
 												},
+												player,
 												card,
 												glowClass,
 												tags[i]
@@ -2446,10 +2447,11 @@ const skills = {
 										if (card.classList.contains(glowClass)) {
 											//移除样式+录像
 											game.broadcastAll(
-												(card, glowClass, tag) => {
+												(player, card, glowClass, tag) => {
 													card.classList.remove(glowClass);
 													game.addVideo("skill", player, ["dctuoyu", [false, [get.cardInfo(card)], tag]]);
 												},
+												player,
 												card,
 												glowClass,
 												tags[i]
@@ -21843,6 +21845,9 @@ const skills = {
 					.getGlobalHistory(
 						"useCard",
 						evt => {
+							if (!evt.targets?.includes(player)) {
+								return false;
+							}
 							return filter(evt.card);
 						},
 						evt

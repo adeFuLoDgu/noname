@@ -631,10 +631,6 @@ export default {
 	gz_ol_sp_zhugeliang_prefix: "界",
 	gz_re_ganning_prefix: "界",
 	gz_re_zhangliao_prefix: "界",
-	gz_caoying: "手杀曹婴",
-	gz_caoying_prefix: "手杀",
-	gz_guansuo: "手杀关索",
-	gz_guansuo_prefix: "手杀",
 
 	guozhan_jun: "君主武将",
 	guozhan_jin: "文德武备",

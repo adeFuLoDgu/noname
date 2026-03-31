@@ -1339,6 +1339,7 @@ const skills = {
 					filterCard(card, player) {
 						return player.countCards("h") > player.hp && lib.filter.cardDiscardable(card, player, "olhuanpei");
 					},
+					position: "h",
 					selectCard() {
 						const player = get.player(),
 							num = player.countCards("h") - player.hp;
@@ -4444,16 +4445,16 @@ const skills = {
 		audio: 2,
 		trigger: { player: "phaseZhunbeiBegin" },
 		filter(event, player) {
-			return game.hasPlayer(t => t.hasUseTarget(new lib.element.VCard({ name: "sha", isCard: true })));
+			return game.hasPlayer(t => t.hasUseTarget(new lib.element.VCard({ name: "sha", storage: { olzongluan: true }, isCard: true })));
 		},
 		async cost(event, trigger, player) {
 			event.result = await player
 				.chooseTarget(get.prompt2(event.skill), (card, player, target) => {
-					return target.hasUseTarget(new lib.element.VCard({ name: "sha", isCard: true }));
+					return target.hasUseTarget(new lib.element.VCard({ name: "sha", storage: { olzongluan: true }, isCard: true }));
 				})
 				.set("ai", target => {
 					const player = get.player(),
-						card = new lib.element.VCard({ name: "sha", isCard: true });
+						card = new lib.element.VCard({ name: "sha", storage: { olzongluan: true }, isCard: true });
 					let targets = game.filterPlayer(current => {
 						if (!target.canUse(card, current)) {
 							return false;
@@ -4473,11 +4474,26 @@ const skills = {
 				.forResult();
 		},
 		async content(event, trigger, player) {
-			await event.targets[0].chooseUseTarget(new lib.element.VCard({ name: "sha", isCard: true }), true, false).set("selectTarget", [1, Infinity]);
+			const target = event.targets[0];
+			target.chooseUseTarget(new lib.element.VCard({ name: "sha", storage: { olzongluan: true }, isCard: true }), true, false).set("selectTarget", [1, Infinity]);
 			const num = game.countPlayer2(c => c.hasHistory("damage", evt => evt.getParent(4).name == "olzongluan"), true);
 			if (num > 0) {
 				await player.chooseToDiscard(num, true, "he");
 			}
+		},
+		init(player, skill) {
+			game.addGlobalSkill(`${skill}_effect`);
+		},
+		subSkill: {
+			effect: {
+				mod: {
+					playerEnabled(card, player, target) {
+						if (card.storage?.olzongluan && !player.inRange(target)) {
+							return false;
+						}
+					},
+				},
+			},
 		},
 	},
 	olzhaohuo: {
@@ -4606,6 +4622,9 @@ const skills = {
 			while (cards.length) {
 				if (
 					cards.every(card => {
+						if (!lib.filter.cardEnabled(card, player)) {
+							return true;
+						}
 						const name = ["tao", "wuzhong"];
 						if (name.includes(card.name) || get.type(card) == "equip") {
 							return !game.hasPlayer(target => lib.filter.targetEnabled2(card, player, target));
@@ -4621,6 +4640,9 @@ const skills = {
 						prompt: "思泣：请选择要使用的牌",
 						filter(button) {
 							const card = button.link;
+							if (!lib.filter.cardEnabled(card, player)) {
+								return false;
+							}
 							if (["tao", "wuzhong"].includes(card.name) || get.type(card) == "equip") {
 								return game.hasPlayer(target => lib.filter.targetEnabled2(card, get.player(), target));
 							}
@@ -4665,6 +4687,9 @@ const skills = {
 			if (cards.length) {
 				await player.draw({
 					num: cards.filter(card => {
+						if (!lib.filter.cardEnabled(card, player)) {
+							return true;
+						}
 						const name = ["tao", "wuzhong"];
 						if (name.includes(card.name) || get.type(card) == "equip") {
 							return !game.hasPlayer(target => lib.filter.targetEnabled2(card, player, target));
@@ -40878,7 +40903,7 @@ const skills = {
 			if (!player.isPhaseUsing() || player.hasSkill("xinfu_lingren_used") || !event.isFirstTarget) {
 				return false;
 			}
-			return event.card.name === "sha" && (get.type(event.card) === "trick" && get.tag(event.card, "damage"));
+			return event.card.name === "sha" && (get.type(event.card) === "trick" || get.tag(event.card, "damage"));
 		},
 		derivation: ["new_rejianxiong", "rexingshang"],
 		async cost(event, trigger, player) {

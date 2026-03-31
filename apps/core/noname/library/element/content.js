@@ -3650,7 +3650,7 @@ export const Content = {
 		//if (cards.length && get.position(cards[0], true) == "o") target.equip(cards[0]);
 	},
 	async gameDraw(event, trigger, player) {
-		const { num } = event;
+		const { num, targets } = event;
 		if (_status.brawl && _status.brawl.noGameDraw) {
 			return;
 		}
@@ -3660,46 +3660,49 @@ export const Content = {
 
 		const waitings = [];
 		do {
-			if (typeof num == "function") {
-				numx = num(player);
-			}
+			if (targets.includes(player)) {
+				if (typeof num == "function") {
+					numx = num(player);
+				}
 
-			/*otherPile主要是针对那些用专属牌堆，不从一般牌堆摸牌的角色（如陈寿），该属性目前只有两个键值对，且都为函数
-			 *getCards函数与获得牌相关，只传入要获得的牌数num作为参数
-			 *discard与手气卡换牌后弃置牌相关，只传入要弃置的牌card作为参数
-			 */
-			const cards = [];
-			const otherGetCards = event.otherPile?.[player.playerid]?.getCards;
-			//先看有没有专属牌堆，再看其他的
-			if (otherGetCards) {
-				cards.addArray(otherGetCards(numx));
-			} else if (player.getTopCards) {
-				cards.addArray(player.getTopCards(numx));
-			} else {
-				cards.addArray(get.cards(numx));
-			}
-			//别问，问就是初始手牌要有标记 by 星の语
-			//event.gaintag支持函数、字符串、数组。数组就是添加一连串的标记；函数的返回格式为[[cards1,gaintag1],[cards2,gaintag2]...]
-			if (event.gaintag?.[player.playerid]) {
-				const gaintag = event.gaintag[player.playerid];
-				const list = typeof gaintag == "function" ? gaintag(numx, cards) : [[cards, gaintag]];
-				game.broadcastAll(
-					(player, list) => {
-						for (let i = list.length - 1; i >= 0; i--) {
-							player.directgain(list[i][0], null, list[i][1]);
-						}
-					},
-					player,
-					list
-				);
-			} else {
-				player.directgain(cards);
+				/*otherPile主要是针对那些用专属牌堆，不从一般牌堆摸牌的角色（如陈寿），该属性目前只有两个键值对，且都为函数
+				 *getCards函数与获得牌相关，只传入要获得的牌数num作为参数
+				 *discard与手气卡换牌后弃置牌相关，只传入要弃置的牌card作为参数
+				 */
+				const cards = [];
+				const otherGetCards = event.otherPile?.[player.playerid]?.getCards;
+				//先看有没有专属牌堆，再看其他的
+				if (otherGetCards) {
+					cards.addArray(otherGetCards(numx));
+				} else if (player.getTopCards) {
+					cards.addArray(player.getTopCards(numx));
+				} else {
+					cards.addArray(get.cards(numx));
+				}
+				//别问，问就是初始手牌要有标记 by 星の语
+				//event.gaintag支持函数、字符串、数组。数组就是添加一连串的标记；函数的返回格式为[[cards1,gaintag1],[cards2,gaintag2]...]
+				if (event.gaintag?.[player.playerid]) {
+					const gaintag = event.gaintag[player.playerid];
+					const list = typeof gaintag == "function" ? gaintag(numx, cards) : [[cards, gaintag]];
+					game.broadcastAll(
+						(player, list) => {
+							for (let i = list.length - 1; i >= 0; i--) {
+								player.directgain(list[i][0], null, list[i][1]);
+							}
+						},
+						player,
+						list
+					);
+				} else {
+					player.directgain(cards);
+				}
 			}
 
 			if (player.singleHp === true && get.mode() != "guozhan" && (lib.config.mode != "doudizhu" || _status.mode != "online")) {
 				const next = player.doubleDraw();
 				waitings.push(next);
 			}
+
 			player._start_cards = player.getCards("h");
 			player = player.next;
 		} while (player != end);
@@ -3711,7 +3714,7 @@ export const Content = {
 
 		await Promise.all(waitings);
 
-		if (event.changeCard == "disabled" || _status.auto || !game.me.countCards("h")) {
+		if (!targets.includes(game.me) || event.changeCard == "disabled" || _status.auto || !game.me.countCards("h")) {
 			return;
 		}
 
