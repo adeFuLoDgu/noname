@@ -92,7 +92,7 @@ const skills = {
 		},
 	},
 	pothuanshi: {
-		audio: 2,
+		audio: "pothuanshi2.mp3",
 		dutySkill: true,
 		locked: false,
 		group: ["pothuanshi_achieve", "pothuanshi_damage"],
@@ -124,7 +124,7 @@ const skills = {
 		},
 		subSkill: {
 			damage: {
-				audio: "pothuanshi",
+				audio: "pothuanshi1.mp3",
 				forced: true,
 				inherit: "zf_cardDamage",
 				filter(event, player) {
@@ -132,7 +132,7 @@ const skills = {
 				},
 			},
 			achieve: {
-				audio: "pothuanshi",
+				audio: "pothuanshi3.mp3",
 				forced: true,
 				locked: false,
 				trigger: {

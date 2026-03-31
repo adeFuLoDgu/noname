@@ -14879,6 +14879,7 @@ const skills = {
 			std_guanxing: "wusheng_guanzhang",
 			ty_guanxing: "wusheng_guanzhang",
 			ol_guanzhang: "wusheng_ol_guanzhang",
+			re_baosanniang: "wusheng_re_baosanniang",
 		},
 		enable: ["chooseToRespond", "chooseToUse"],
 		filterCard(card, player) {

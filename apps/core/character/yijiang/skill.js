@@ -10088,6 +10088,7 @@ const skills = {
 		audioname2: {
 			dc_guansuo: "zhiman_guansuo",
 			guansuo: "zhiman_guansuo",
+			re_baosanniang: "zhiman_re_baosanniang",
 		},
 		trigger: { source: "damageBegin2" },
 		filter(event, player) {

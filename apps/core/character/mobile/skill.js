@@ -87,7 +87,7 @@ const skills = {
 	},
 	// OP陈兰
 	jujun: {
-		audio: 2,
+		audio: 1,
 		trigger: { global: "phaseAnyEnd" },
 		filter(event, player) {
 			if (!player.hasUseTarget({ name: "wanjian", isCard: true })) {
@@ -102,7 +102,7 @@ const skills = {
 	},
 	// OP梅成
 	bixian: {
-		audio: 2,
+		audio: 1,
 		trigger: { global: "phaseAnyEnd" },
 		filter(event, player) {
 			if (!player.hasUseTarget({ name: "juedou", isCard: true })) {
@@ -125,7 +125,7 @@ const skills = {
 				}
 			},
 		},
-		audio: 3,
+		audio: 4,
 		hiddenCard(player, name) {
 			return name == "sha" && player.countCards("hes");
 		},
@@ -272,7 +272,7 @@ const skills = {
 		},
 	},
 	mbyijue: {
-		audio: 3,
+		audio: 4,
 		trigger: { source: "damageBegin4" },
 		filter(event, player) {
 			return event.num >= event.player.hp;
@@ -378,6 +378,7 @@ const skills = {
 	//OP孙权
 	mbshizhong: {
 		audio: 3,
+		logAudio: () => 2,
 		trigger: { player: ["phaseJieshuBegin", "phaseZhunbeiBegin"] },
 		filter(event, player) {
 			return event.name === "phaseJieshu" || player.hasCard(card => card.hasGaintag("mbshizhong"), "h");
@@ -419,7 +420,7 @@ const skills = {
 				charlotte: true,
 				mark: true,
 				intro: { content: "十万！十万！十万！" },
-				audio: "mbshizhong",
+				audio: "mbshizhong3.jpg",
 				trigger: { source: "damageBegin1" },
 				forced: true,
 				async content(event, trigger, player) {
@@ -23567,7 +23568,7 @@ const skills = {
 		forced: true,
 		audio: "dangxian",
 		audioname: ["xin_liaohua"],
-		audioname2: { guansuo: "dangxian_guansuo" },
+		audioname2: { guansuo: "dangxian_guansuo", re_baosanniang: "dangxian_re_baosanniang" },
 		async content(event, trigger, player) {
 			const card = get.discardPile(card => card.name == "sha");
 			if (card) {
