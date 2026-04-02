@@ -9,6 +9,7 @@ const skills = {
 	//朱绩
 	potjiezhu: {
 		audio: 2,
+		audioname: ["zhuji_shadow"],
 		enable: "chooseToUse",
 		getOnlyNum(player, isDiscard) {
 			let num = player.countCards("h");
@@ -259,7 +260,7 @@ const skills = {
 		},
 		subSkill: {
 			phaseUse: {
-				audio: "potjixi",
+				audio: "pottuntian",
 				enable: "phaseUse",
 				filter(event, player) {
 					return player.countCharge() > 0;

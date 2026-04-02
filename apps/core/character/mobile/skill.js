@@ -420,7 +420,7 @@ const skills = {
 				charlotte: true,
 				mark: true,
 				intro: { content: "十万！十万！十万！" },
-				audio: "mbshizhong3.jpg",
+				audio: "mbshizhong3.mp3",
 				trigger: { source: "damageBegin1" },
 				forced: true,
 				async content(event, trigger, player) {
