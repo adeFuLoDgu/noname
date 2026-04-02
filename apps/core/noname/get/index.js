@@ -7214,7 +7214,7 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 			}
 			return evalue / 3;
 		}
-		if (!player.getCards("h").includes(card) || player.hasSkillTag("noh")) {
+		if (player.hasSkillTag("noh")) {
 			return 0.1;
 		}
 		if (!button.classList.contains("infohidden")) {
