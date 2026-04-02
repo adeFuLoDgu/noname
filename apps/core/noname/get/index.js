@@ -7187,7 +7187,7 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 			player = _status.event.player;
 		}
 		if (player.getCards("j").includes(card)) {
-			return get.effect(
+			const efff = get.effect(
 				player,
 				{
 					name: card.viewAs || card.name,
@@ -7196,6 +7196,13 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 				player,
 				player
 			);
+			if (efff > 0) {
+				return 0.5;
+			}
+			if (efff == 0) {
+				return 0;
+			}
+			return -1.5;
 		}
 		if (player.getCards("e").includes(card)) {
 			var evalue = get.value(card, player);
@@ -7207,7 +7214,7 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 			}
 			return evalue / 3;
 		}
-		if (!player.getCards("h").includes(card) || player.hasSkillTag("noh")) {
+		if (player.hasSkillTag("noh")) {
 			return 0.1;
 		}
 		if (!button.classList.contains("infohidden")) {
