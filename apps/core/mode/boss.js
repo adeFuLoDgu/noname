@@ -6095,6 +6095,7 @@ export default () => {
 				},
 			},
 			boss_chiyan2: {
+				charlotte: true,
 				mode: ["boss"],
 				global: "boss_chiyan2x",
 				trigger: { player: "dieBegin" },
@@ -6110,6 +6111,7 @@ export default () => {
 				},
 			},
 			boss_chiyan2x: {
+				charlotte: true,
 				trigger: { global: "dieAfter" },
 				forced: true,
 				priority: -10,
@@ -6182,6 +6184,7 @@ export default () => {
 				},
 			},
 			boss_chiyan3: {
+				charlotte: true,
 				mode: ["boss"],
 				global: "boss_chiyan3x",
 				trigger: { player: "dieBegin" },
@@ -6201,6 +6204,7 @@ export default () => {
 				},
 			},
 			boss_chiyan3x: {
+				charlotte: true,
 				trigger: { global: "dieAfter" },
 				forced: true,
 				priority: -10,
@@ -6273,6 +6277,7 @@ export default () => {
 				},
 			},
 			boss_qingmu2: {
+				charlotte: true,
 				mode: ["boss"],
 				global: "boss_qingmu2x",
 				trigger: { player: "dieBegin" },
@@ -6288,6 +6293,7 @@ export default () => {
 				},
 			},
 			boss_qingmu2x: {
+				charlotte: true,
 				trigger: { global: "dieAfter" },
 				forced: true,
 				priority: -10,
@@ -6360,6 +6366,7 @@ export default () => {
 				},
 			},
 			boss_qingmu3: {
+				charlotte: true,
 				mode: ["boss"],
 				global: "boss_qingmu3x",
 				trigger: { player: "dieBegin" },
@@ -6379,6 +6386,7 @@ export default () => {
 				},
 			},
 			boss_qingmu3x: {
+				charlotte: true,
 				trigger: { global: "dieAfter" },
 				forced: true,
 				priority: -10,
@@ -6451,6 +6459,7 @@ export default () => {
 				},
 			},
 			boss_xuanlin2: {
+				charlotte: true,
 				mode: ["boss"],
 				global: "boss_xuanlin2x",
 				trigger: { player: "dieBegin" },
@@ -6466,6 +6475,7 @@ export default () => {
 				},
 			},
 			boss_xuanlin2x: {
+				charlotte: true,
 				trigger: { global: "dieAfter" },
 				forced: true,
 				priority: -10,
@@ -6537,6 +6547,7 @@ export default () => {
 				},
 			},
 			boss_xuanlin3: {
+				charlotte: true,
 				mode: ["boss"],
 				global: "boss_xuanlin3x",
 				trigger: { player: "dieBegin" },
@@ -6566,6 +6577,7 @@ export default () => {
 				},
 			},
 			boss_xuanlin3x: {
+				charlotte: true,
 				trigger: { global: "dieAfter" },
 				forced: true,
 				priority: -10,
@@ -6645,6 +6657,7 @@ export default () => {
 				},
 			},
 			boss_baimang2: {
+				charlotte: true,
 				mode: ["boss"],
 				global: "boss_baimang2x",
 				trigger: { player: "dieBegin" },
@@ -6660,6 +6673,7 @@ export default () => {
 				},
 			},
 			boss_baimang2x: {
+				charlotte: true,
 				trigger: { global: "dieAfter" },
 				forced: true,
 				priority: -10,
@@ -6732,6 +6746,7 @@ export default () => {
 				},
 			},
 			boss_baimang3: {
+				charlotte: true,
 				mode: ["boss"],
 				global: "boss_baimang3x",
 				trigger: { player: "dieBegin" },
@@ -6751,6 +6766,7 @@ export default () => {
 				},
 			},
 			boss_baimang3x: {
+				charlotte: true,
 				trigger: { global: "dieAfter" },
 				forced: true,
 				priority: -10,
@@ -8723,6 +8739,7 @@ export default () => {
 				},
 			},
 			boss_bianshen2: {
+				charlotte: true,
 				mode: ["boss"],
 				fixed: true,
 				global: "boss_bianshen2x",
@@ -8734,6 +8751,7 @@ export default () => {
 				},
 			},
 			boss_bianshen2x: {
+				charlotte: true,
 				trigger: { global: "dieAfter" },
 				forced: true,
 				priority: -10,
@@ -8753,6 +8771,7 @@ export default () => {
 				},
 			},
 			boss_bianshen3: {
+				charlotte: true,
 				mode: ["boss"],
 				global: "boss_bianshen3x",
 				trigger: { player: "dieBegin" },
@@ -8764,6 +8783,7 @@ export default () => {
 				},
 			},
 			boss_bianshen3x: {
+				charlotte: true,
 				trigger: { global: "dieAfter" },
 				forced: true,
 				priority: -10,
@@ -8783,6 +8803,7 @@ export default () => {
 				},
 			},
 			boss_bianshen4: {
+				charlotte: true,
 				mode: ["boss"],
 				global: "boss_bianshen4x",
 				trigger: { player: "dieBegin" },
@@ -8794,6 +8815,7 @@ export default () => {
 				},
 			},
 			boss_bianshen4x: {
+				charlotte: true,
 				trigger: { global: "dieAfter" },
 				forced: true,
 				priority: -10,

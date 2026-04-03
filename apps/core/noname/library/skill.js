@@ -1,6 +1,7 @@
 import { _status, game, get, lib, ui } from "noname";
 
 /**
+ * @typedef {import("../../typings/Skill").Skill} Skill
  * @type {Record<string, Skill>}
  */
 export default {

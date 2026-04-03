@@ -1,6 +1,9 @@
 import { lib, game, ui, get, ai, _status } from "noname";
 
-/** @type { importCharacterConfig['skill'] } */
+/**
+ * @typedef {import("../../typings/Skill").Skill} Skill
+ * @type {Record<string, Skill>}
+ */
 const skills = {
 	ollianhuan: {
 		audio: "xinlianhuan",
@@ -13775,6 +13778,14 @@ const skills = {
 					}
 				},
 				target(card, player, target) {
+					let name;
+					if (typeof card == "object") {
+						if (card.viewAs) {
+							name = card.viewAs;
+						} else {
+							name = get.name(card);
+						}
+					}
 					if (name == "lebu" || name == "bingliang") {
 						return [target.hasSkillTag("rejudge") ? 0.4 : 1, 2, target.hasSkillTag("rejudge") ? 0.4 : 1, 0];
 					}
@@ -14863,6 +14874,7 @@ const skills = {
 			std_guanxing: "wusheng_guanzhang",
 			ty_guanxing: "wusheng_guanzhang",
 			ol_guanzhang: "wusheng_ol_guanzhang",
+			re_baosanniang: "wusheng_re_baosanniang",
 		},
 		enable: ["chooseToRespond", "chooseToUse"],
 		filterCard(card, player) {
@@ -15438,6 +15450,19 @@ const skills = {
 				} else {
 					break;
 				}
+
+				cards.add(result.card);
+				const continueResult = await player.chooseBool({ prompt: "是否继续进行判定？" }).set("frequentSkill", "reluoshen").forResult();
+				continuing = continueResult.bool;
+			} while (continuing);
+
+			const gainning = [...cards].filter(card => get.position(card, true) === "o");
+			if (gainning.length) {
+				await player.gain({
+					cards: gainning,
+					animate: "gain2",
+					gaintag: ["reluoshen"],
+				});
 			}
 			if (event.cards.someInD()) {
 				await player.gain(event.cards.filterInD(), "gain2").gaintag.add("reluoshen");

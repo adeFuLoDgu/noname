@@ -49,7 +49,7 @@ const skills = {
 				}
 			}
 			let num = 0;
-			["suit", "type2", "length"].forEach(method => {
+			["suit", "length"].forEach(method => {//"type2", 
 				let num1, num2;
 				if (method == "length") {
 					num1 = cards1.length;
@@ -71,7 +71,7 @@ const skills = {
 								[
 									["damage", `对${get.translation(target)}造成一点伤害`],
 									["draw", "摸两张牌"],
-									["hujia", "获得1点护甲"],
+									//["hujia", "获得1点护甲"],
 								],
 								"textbutton",
 							],
@@ -86,8 +86,8 @@ const skills = {
 								return get.damageEffect(targetx, player, player);
 							case "draw":
 								return get.effect(player, { name: "draw" }, player, player) * 2;
-							case "hujia":
-								return player.hujia < 5 ? get.recoverEffect(player, player, player) : 0;
+							/*case "hujia":
+								return player.hujia < 5 ? get.recoverEffect(player, player, player) : 0;*/
 						}
 					})
 					.forResult();
@@ -113,7 +113,7 @@ const skills = {
 		map: {
 			damage: ["对其造成1点伤害", (player, target) => get.damageEffect(target, player, player), player => player.damage()],
 			draw: ["摸两张牌", (player, target) => get.effect(target, { name: "draw" }, player, player), player => player.draw(2)],
-			hujia: ["获得1点护甲", (player, target) => get.recoverEffect(target, player, player), player => player.changeHujia(1, void 0, true)],
+			//hujia: ["获得1点护甲", (player, target) => get.recoverEffect(target, player, player), player => player.changeHujia(1, void 0, true)],
 		},
 		ai: {
 			order: 6,
@@ -405,11 +405,20 @@ const skills = {
 		audio: 2,
 		enable: ["chooseToUse", "chooseToRespond"],
 		hiddenCard(player, name) {
-			return get.type(name) == "basic" && lib.inpile.includes(name) && player.hasCard(card => card.hasGaintag("sbqiaobian"), "h");
+			return (
+				/*get.type(name) == "basic" &&
+				lib.inpile.includes(name) &&*/
+				["sha", "shan"].includes(name) &&
+				player.hasCard(card => card.hasGaintag("sbqiaobian"), "h") &&
+				!player.getStat().skill.sbliaoshi
+			);
 		},
 		getList(event, player) {
 			return get.inpileVCardList(info => {
-				if (info[0] != "basic") {
+				/*if (info[0] != "basic") {
+					return false;
+				}*/
+				if (!["sha", "shan"].includes(info[2])) {
 					return false;
 				}
 				const card = get.autoViewAs({ name: info[2], nature: info[3] }, "unsure");
@@ -469,10 +478,10 @@ const skills = {
 					return false;
 				}
 			},
-			tag: {
+			/*tag: {
 				recover: 1,
 				save: 1,
-			},
+			},*/
 			result: {
 				player(player) {
 					if (_status.event.dying) {

@@ -470,7 +470,12 @@ export const characterPackMenu = function (connectMenu) {
 	if (!connectMenu) {
 		// 下面使用了var的特性，请不要在这里直接改为let
 		var node1 = ui.create.div(".lefttext", "全部开启", start.firstChild, function () {
-			game.saveConfig("characters", lib.config.all.characters);
+			game.saveConfig(
+				"characters",
+				Object.keys(lib.characterPack).filter(mode => {
+					return !mode.startsWith("mode_") || (mode.startsWith("mode_extension_") && lib.config.all.stockextension.includes(mode.slice(15)));
+				})
+			);
 			updateNodes();
 		});
 		var node3 = ui.create.div(".lefttext", "全部关闭", start.firstChild, function () {

@@ -1,4 +1,11 @@
 const characters = {
+	ol_huangfusong: {
+		sex: "male",
+		group: "qun",
+		hp: 4,
+		skills: ["olyanjing", "olfenyue"],
+		names: "皇甫|嵩",
+	},
 	pangji: {
 		sex: "male",
 		group: "qun",
@@ -866,7 +873,6 @@ const characters = {
 		hp: 3,
 		skills: ["yuxu", "xjshijian"],
 	},
-
 	jianggan: {
 		sex: "male",
 		group: "wei",
@@ -877,7 +883,7 @@ const characters = {
 		sex: "female",
 		group: "wei",
 		hp: 4,
-		skills: ["xinfu_lingren", "fujian"],
+		skills: ["ollingren", "olfujian"],
 	},
 	simahui: {
 		sex: "male",
