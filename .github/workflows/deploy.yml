@@ -61,13 +61,14 @@ jobs:
       - name: Run Build
         run: pnpm build
       - name: Setup Pages
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
       - name: Upload artifact
-        # Use v3, as v4 excludes certain files and cannot be configured.
-        uses: actions/upload-pages-artifact@v3
+        # Include-hidden-files change isn't tagged yet, using commit SHA instead.
+        uses: actions/upload-pages-artifact@0ca16172ca884f0a37117fed41734f29784cc980 #v4
         with:
           path: './dist'
           retention-days: 1
+          include-hidden-files: true
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
