@@ -1035,14 +1035,32 @@ const skills = {
 			if (!lib.filter.cardDiscardable(card, player, "olqiwu")) {
 				return false;
 			}
-			return true; //player.hasSkill("olzhuangrong_awaken") || !get.tag(card, "damage");
+			return true;
 		},
 		selectCard: [1, Infinity],
 		check(card) {
-			if (ui.selected.cards.every(cardx => get.suit(card) != get.suit(cardx))) {
+			const player = get.player();
+			const hp = player.hp;
+			const hs = player.countCards("h");
+			if (player.getStorage("olzhuangrong_destroy").includes(card)) {
+				return 0;
+			}
+			if (ui.selected.cards.some(cardx => get.suit(card) == get.suit(cardx))) {
+				return 0;
+			}
+			if (hp == 1) {
+				if (get.name(card) == "shan") {
+					return 10;
+				}
+				return 0;
+			}
+			if (hs > 3) {
+				if (ui.selected.cards.length > 1) {
+					return 0;
+				}
 				return 6 - get.value(card);
 			}
-			return 0;
+			return 6 - get.value(card);
 		},
 		log: false,
 		ignoreMod: true,
@@ -1057,6 +1075,49 @@ const skills = {
 				if (card?.storage?.olqiwu) {
 					return Infinity;
 				}
+			},
+			aiOrder(player, card, num) {
+				if (player.hasSkill("olzhuangrong_awaken", null, null, false)) {
+					return;
+				}
+				if (num > 0 && get.itemtype(card) === "card" && !player.getStorage("olzhuangrong_destroy").includes(card)) {
+					const subtype = get.subtype(card);
+					if (!["equip1", "equip2", "equip5"].includes(subtype)) {
+						return;
+					}
+					const list = player
+						.getCards("e")
+						.filter(card => Object.keys(get.info("olzhuangrong").equipMap).includes(card.name))
+						.map(cardx => get.subtype(cardx));
+					if (list.includes(subtype) && !player.expandedSlots?.[subtype]) {
+						return 0;
+					}
+				}
+			},
+			aiValue(player, card, num) {
+				if (player.hasSkill("olzhuangrong_awaken", null, null, false)) {
+					return;
+				}
+				if (num > 0 && get.itemtype(card) === "card") {
+					if (player.getStorage("olzhuangrong_destroy").includes(card)) {
+						return 1.5 * num;
+					} else {
+						const subtype = get.subtype(card);
+						if (!["equip1", "equip2", "equip5"].includes(subtype)) {
+							return;
+						}
+						const list = player
+							.getCards("e")
+							.filter(card => Object.keys(get.info("olzhuangrong").equipMap).includes(card.name))
+							.map(cardx => get.subtype(cardx));
+						if (list.includes(subtype) && !player.expandedSlots?.[subtype]) {
+							return 0.1 * num;
+						}
+					}
+				}
+			},
+			aiUseful() {
+				return lib.skill.olqiwu.mod.aiValue.apply(this, arguments);
 			},
 		},
 		async precontent(event, trigger, player) {
@@ -1128,9 +1189,7 @@ const skills = {
 	},
 	olzhuangrong: {
 		audio: 2,
-		trigger: {
-			player: "phaseBegin",
-		},
+		trigger: { player: "phaseBegin" },
 		forced: true,
 		equipMap: {
 			shufazijinguan: ["diamond", 1],
@@ -1190,15 +1249,7 @@ const skills = {
 				onremove: true,
 				filter(event, player) {
 					const storage = player.getStorage("olzhuangrong_destroy");
-					if (!storage) {
-						return false;
-					}
-					for (const i of event.cards) {
-						if (storage.includes(i)) {
-							return true;
-						}
-					}
-					return false;
+					return event.cards?.some(card => storage.includes(card));
 				},
 				async content(event, trigger, player) {
 					const storage = player.getStorage(event.name);
@@ -1209,22 +1260,21 @@ const skills = {
 						}
 					}
 					if (!storage.length) {
-						player.removeSkill("olzhuangrong_destroy");
+						player.removeSkill(event.name);
 					}
 				},
 			},
 			count: {
 				audio: "olzhuangrong",
-				trigger: {
-					global: "phaseEnd",
-				},
+				trigger: { global: "phaseEnd" },
 				filter(event, player) {
 					if (player.hasSkill("olzhuangrong_awaken")) {
 						return false;
 					}
 					const evts = player.getAllHistory("useSkill", evt => {
-						const skill = evt.skill.slice(0, -6);
-						return Object.keys(get.info("olzhuangrong").equipMap).includes(skill);
+						return Object.keys(get.info("olzhuangrong").equipMap)
+							.flatMap(name => lib.card[name]?.skills || [])
+							.includes(evt.skill);
 					});
 					return evts.length > 1;
 				},
