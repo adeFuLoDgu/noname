@@ -24929,7 +24929,7 @@ const skills = {
 	zhuangshu_basic: {
 		audio: true,
 		equipSkill: true,
-		trigger: { player: "damageBegin2" },
+		trigger: { player: "damageBegin4" },
 		filter(event, player) {
 			const equip = player.getEquip("zhuangshu_basic");
 			return (
