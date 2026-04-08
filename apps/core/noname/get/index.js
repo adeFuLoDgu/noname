@@ -7197,7 +7197,7 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 		if (!player.getCards("h").includes(card) || player.hasSkillTag("noh")) {
 			return 0.1;
 		}
-		 if (card.isKnownBy(get.player())) {
+		if (!button.classList?.contains("infohidden")) {
 			return get.value(card);
 		}
 		const nh = player.countCards("h");
