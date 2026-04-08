@@ -497,6 +497,9 @@ export class Player extends HTMLDivElement {
 				}
 			});
 		}
+		if (this.getCards("h").every((card, index) => hs[index] == card)) {
+			return false;
+		}
 
 		this.node.handcards1.style.visibility = "hidden";
 		this.node.handcards2.style.visibility = "hidden";
@@ -524,7 +527,7 @@ export class Player extends HTMLDivElement {
 	 * @param {(a: Card, b: Card) => number|Card[]} [sort] 排序方法，如果传的牌数组，就按数组顺序排
 	 */
 	sortHandcardOL(sort) {
-		const bool = game.me.sortHandcard(sort);
+		const bool = this.sortHandcard(sort);
 		//联机要同步手牌状态
 		if (_status.connectMode && bool !== false) {
 			if (game.online) {
@@ -534,7 +537,7 @@ export class Player extends HTMLDivElement {
 				);
 			} else {
 				game.syncHandcard(
-					game.me,
+					this,
 					this.getCards("h").map(i => i.cardid)
 				);
 			}
