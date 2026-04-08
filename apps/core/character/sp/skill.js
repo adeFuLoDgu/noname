@@ -41603,7 +41603,11 @@ const skills = {
 					}
 					return event.type == "phase" || event.filterCard({ name: "tiesuo" }, player, event);
 				},
-				inherit: "ollianhuan",
+				hiddenCard(player, name) {
+					return name == "tiesuo" && player.hasCard((card) => get.suit(card) == "club", "she");
+				},
+				position: "hes",
+				inherit: "lianhuan",
 				group: ["jianjie_yeyan", "jianjie_lianhuan_effect"],
 			},
 			lianhuan_effect: {
