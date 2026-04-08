@@ -287,17 +287,17 @@ const skills = {
 			let result = !target.countCards("he")
 				? { bool: false }
 				: await target
-						.chooseToGive("he", player, get.translation(player) + "对你发动了【义绝】", "是否交给其任意张牌", [1, Infinity])
+						.chooseToGive("he", player, get.translation(player) + "对你发动了【义绝】", "是否交给其任意张牌", [1, Infinity], true)
 						.set("ai", card => {
 							const { player, target } = get.event();
 							const att = get.attitude(player, target);
 							if (att > 0) {
 								return 6 - get.value(card, target);
 							}
-							if (ui.selected.cards.some(cardx => get.suit(cardx) == get.suit(card))) {
+							if (ui.selected.cards.some(cardx => get.suit(cardx) == get.suit(card)) || ui.selected.cards.length > 1) {
 								return 0;
 							}
-							return -get.value(card, target);
+							return -get.value(card);
 						})
 						.forResult();
 			const cards = result?.cards || [];
