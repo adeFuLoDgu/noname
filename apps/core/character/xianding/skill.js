@@ -83,7 +83,7 @@ const skills = {
 			if (event.name == "useCard") {
 				return get.name(event.card) == "juedou" && [...event.targets, event.player].includes(player);
 			}
-			return event.card.name == "juedou" || (event.card.name == "sha" && (player.getAllHistory("sourceDamage", evt => get.name(evt.card) == "sha").indexOf(event) + 1) % 2 == 0);
+			return event.card?.name == "juedou" || (event.card?.name == "sha" && (player.getAllHistory("sourceDamage", evt => get.name(evt.card) == "sha").indexOf(event) + 1) % 2 == 0);
 		},
 		async content(event, trigger, player) {
 			if (trigger.name == "useCard") {
