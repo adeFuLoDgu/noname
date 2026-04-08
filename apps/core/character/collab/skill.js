@@ -1942,7 +1942,7 @@ const skills = {
 					},
 				],
 				[
-					"单次造成至少两点伤害",
+					"单次造成至少2点伤害",
 					{ source: ["damageSource"] },
 					(evt, player) => {
 						const history = player.getAllHistory("sourceDamage", evt => evt.num >= 2 && !player.getStorage("immojin").includes(evt));

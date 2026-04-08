@@ -151,7 +151,7 @@ declare interface Mod {
 	 */
 	attackTo?(from: Player, to: Player, range: number): number | void;
 	/**
-	 * 蓄力点上限
+	 * 蓄力值上限
 	 * @param player 玩家
 	 * @param max 当前上限
 	 */

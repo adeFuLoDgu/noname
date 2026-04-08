@@ -6022,7 +6022,7 @@ const skills = {
 						prompt = get.skillInfoTranslation("dcliexiang", player);
 					const result = await player
 						.chooseTarget(lib.filter.notMe, [1, max], true)
-						.set("prompt", `烈骧：选择${max > 1 ? "至多" : ""}${get.cnNumber(max)}名其他角色并对其造成一点伤害`)
+						.set("prompt", `烈骧：选择${max > 1 ? "至多" : ""}${get.cnNumber(max)}名其他角色并对其造成1点伤害`)
 						.set("prompt2", prompt.slice(prompt.indexOf("若你的手牌数")))
 						.set("ai", target => {
 							const { player, numx, drawNum } = get.event(),

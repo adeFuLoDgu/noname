@@ -69,7 +69,7 @@ const skills = {
 							`镇围：执行至多${num}项`,
 							[
 								[
-									["damage", `对${get.translation(target)}造成一点伤害`],
+									["damage", `对${get.translation(target)}造成1点伤害`],
 									["draw", "摸两张牌"],
 									//["hujia", "获得1点护甲"],
 								],

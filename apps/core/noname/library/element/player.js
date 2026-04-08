@@ -4823,8 +4823,8 @@ export class Player extends HTMLDivElement {
 		}
 	}
 	/**
-	 * 获得蓄力点
-	 * @param { number } [num = 1] 获得蓄力点数
+	 * 获得蓄力值
+	 * @param { number } [num = 1] 获得蓄力值数
 	 * @param { boolean } [log] false: 不进行广播
 	 */
 	addCharge(num, log) {
@@ -4842,8 +4842,8 @@ export class Player extends HTMLDivElement {
 		}
 	}
 	/**
-	 * 移去蓄力点
-	 * @param { number } [num = 1] 移去蓄力点数
+	 * 移去蓄力值
+	 * @param { number } [num = 1] 移去蓄力值数
 	 * @param { boolean } [log] false: 不进行广播
 	 */
 	removeCharge(num, log) {
@@ -4856,8 +4856,8 @@ export class Player extends HTMLDivElement {
 		}
 	}
 	/**
-	 * 返回玩家的蓄力点数
-	 * @param { boolean } [max] true: 返回当前蓄力点与上限之差
+	 * 返回玩家的蓄力值数
+	 * @param { boolean } [max] true: 返回当前蓄力值与上限之差
 	 * @returns { number }
 	 */
 	countCharge(max) {
@@ -4870,7 +4870,7 @@ export class Player extends HTMLDivElement {
 		return this.countMark("charge");
 	}
 	/**
-	 * 获取蓄力点上限
+	 * 获取蓄力值上限
 	 */
 	getMaxCharge() {
 		let skills = game.expandSkills(this.getSkills(null, null, false).concat(lib.skill.global));
