@@ -2952,6 +2952,9 @@ const skills = {
 			check(button) {
 				const card = button.link,
 					player = get.player();
+				if (get.event().getParent().type != "phase") {
+					return 1;
+				}
 				return player.getUseValue(card);
 			},
 			backup(links, player) {
