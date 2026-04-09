@@ -784,7 +784,7 @@ export default {
 				if (max == Infinity) {
 					max = "∞";
 				}
-				return `当前蓄力点数：${storage || 0}/${max}`;
+				return `当前蓄力值数：${storage || 0}/${max}`;
 			},
 		},
 	},

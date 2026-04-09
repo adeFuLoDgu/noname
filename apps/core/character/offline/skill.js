@@ -2354,7 +2354,7 @@ const skills = {
 			await player.recoverTo(3);
 			const result = await player
 				.chooseTarget({
-					prompt: "涅槃：对一名角色造成两点火焰伤害",
+					prompt: "涅槃：对一名角色造成2点火焰伤害",
 					filterTarget: lib.filter.all,
 					ai(target) {
 						return get.damageEffect(target, get.player(), get.player(), "fire");

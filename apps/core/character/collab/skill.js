@@ -1942,7 +1942,7 @@ const skills = {
 					},
 				],
 				[
-					"单次造成至少两点伤害",
+					"单次造成至少2点伤害",
 					{ source: ["damageSource"] },
 					(evt, player) => {
 						const history = player.getAllHistory("sourceDamage", evt => evt.num >= 2 && !player.getStorage("immojin").includes(evt));
@@ -4629,9 +4629,12 @@ const skills = {
 		forced: true,
 		async content(event, trigger, player) {
 			const skill = event.name,
-				storage = player.storage[skill];
+				storage = player.getStorage(skill, [0, 1, 2]);
 			switch (trigger.name) {
 				case "damage": {
+					if (!player.storage?.[skill]) {
+						return;
+					}
 					const list = ["摸牌数", "手牌上限", "体力上限"];
 					const choices = [0, 1, 2].filter(num => storage[num] === Math.min(...storage));
 					const result =
@@ -4678,12 +4681,12 @@ const skills = {
 		},
 		mark: true,
 		intro: {
-			markcount: storage => storage.map(num => num.toString()).join(""),
-			content(storage = []) {
+			markcount: storage => (storage || [0, 1, 2]).map(num => num.toString()).join(""),
+			content(storage = [0, 1, 2]) {
 				return ["摸牌阶段额外摸" + storage[0] + "张牌", "手牌上限+" + storage[1], "体力上限+" + storage[2]].map(str => "<li>" + str).join("<br>");
 			},
 		},
-		mod: { maxHandcard: (player, num) => num + (player.storage?.["olshouhun"]?.[1] || 0) },
+		mod: { maxHandcard: (player, num) => num + (player.getStorage("olshouhun", [0, 1, 2])[1] || 0) },
 	},
 	//十二生肖
 	olzishu: {

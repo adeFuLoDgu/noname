@@ -10408,6 +10408,9 @@ const skills = {
 		},
 		async content(event, trigger, player) {
 			const target = event.target;
+			if (target.countDiscardableCards(player, "he") + player.countDiscardableCards(player, "he") < 3) {
+				return;
+			}
 			const dialog = [];
 			dialog.push("强峙：弃置你与" + get.translation(target) + "的共计三张牌");
 			if (player.countCards("h")) {
@@ -10447,11 +10450,7 @@ const skills = {
 						if (_status.event.damage) {
 							return 15 - get.value(card);
 						}
-						if (
-							player.hp >= 3 ||
-							get.damageEffect(player, target, player) >= 0 ||
-							(player.hasSkill("dcpitian") && player.getHandcardLimit() - player.countCards("h") >= 1 && player.hp > 1)
-						) {
+						if (player.hp >= 3 || get.damageEffect(player, target, player) >= 0 || (player.hasSkill("dcpitian") && player.getHandcardLimit() - player.countCards("h") >= 1 && player.hp > 1)) {
 							return 0;
 						}
 						if (ui.selected.buttons.length == 0) {
@@ -10473,7 +10472,7 @@ const skills = {
 						}) >= 3
 				)
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			const links = result.links;
@@ -10502,22 +10501,20 @@ const skills = {
 			} else {
 				await player.discard(list1);
 			}
-			if (list2.length >= 3) {
-				players.reverse();
+			if (list1.length >= 3 || list2.length >= 3) {
+				if (list2.length >= 3) {
+					players.reverse();
+				}
+				players[0].line(players[1]);
+				await players[1].damage(players[0]);
 			}
-			players[0].line(players[1]);
-			await players[1].damage(players[0]);
 		},
 		ai: {
 			expose: 0.2,
 			order: 4,
 			result: {
 				target(player, target) {
-					return (
-						(get.effect(target, { name: "guohe_copy2" }, player, target) / 2) *
-							(target.countDiscardableCards(player, "he") >= 2 ? 1.25 : 1) +
-						get.damageEffect(target, player, target) / 3
-					);
+					return (get.effect(target, { name: "guohe_copy2" }, player, target) / 2) * (target.countDiscardableCards(player, "he") >= 2 ? 1.25 : 1) + get.damageEffect(target, player, target) / 3;
 				},
 			},
 		},
