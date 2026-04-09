@@ -1597,7 +1597,7 @@ const translates = {
 	ol_piliche_info: "你对其他角色造成伤害后，你可以弃置其区域内的一张牌。此牌进入非装备区时，销毁之。",
 	ol_dongguiren: "董予安",
 	olhexu: "和煦",
-	olhexu_info: "锁定技，你手牌中每有一个类别的非伤害牌，你的手牌上限便+1。",
+	olhexu_info: "锁定技，你的手牌上限+X（X为你非伤害牌的类别数）。",
 	olzeguang: "泽光",
 	olzeguang_info: "每回合限一次，当你成为【杀】的目标后，你可重铸两张牌。然后若此【杀】对你造成伤害，你可令一名角色获得重铸牌。",
 	olchengen: "承恩",
@@ -1614,9 +1614,9 @@ const translates = {
 	olfenyue: "奋钺",
 	olfenyue_info: "转换技，每回合结束时，若本回合有角色受到过属性伤害，你可以：阳：摸两张牌；阴：使用一张【杀】。",
 	ollingren: "凌人",
-	ollingren_info: `每回合限一次，当你使用【杀】或伤害锦囊牌时，你可以猜测其中一个目标的手牌中是否有基本牌、锦囊牌或装备牌，若至少猜对：1项，本回合你下次对其伤害+1；2项，此牌不计入次数且你摸两张牌；3项，你获得${get.poptip("new_rejianxiong")}${get.poptip("rexingshang")}直到你下回合开始。`,
+	ollingren_info: `每回合限一次，当你使用【杀】或伤害锦囊牌时，你可以猜测其中一个目标的手牌中是否有基本牌、锦囊牌或装备牌，若至少猜对：一项，本回合你下次对其伤害+1；两项，此牌不计入次数且你摸两张牌；三项，你获得${get.poptip("new_rejianxiong")}${get.poptip("rexingshang")}直到你下回合开始。`,
 	olfujian: "伏间",
-	olfujian_info: "锁定技，准备阶段和结束阶段，你随机选择一名其他角色（除非这些角色手牌数均相同，否则不能选择其中手牌数最多的角色），观看其手牌。",
+	olfujian_info: "锁定技，准备阶段和结束阶段，你随机观看一名手牌数不为唯一最多的其他角色的手牌。",
 };
 
 export default translates;

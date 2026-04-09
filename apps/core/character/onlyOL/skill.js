@@ -8137,7 +8137,7 @@ const skills = {
 					if (!types.includes(get.type(name))) {
 						return false;
 					}
-					return !player.getStorage("olsblucun_used").includes(name);
+					return !player.getStorage("olsblucun_used").some(item => item.name === info[2] && item.nature === info[3]);
 				})
 				.some(card => event.filterCard(new lib.element.VCard({ name: card[2], nature: card[3], isCard: true }), player, event));
 		},
@@ -8148,7 +8148,7 @@ const skills = {
 			},
 			filter(button, player) {
 				const event = get.event().getParent();
-				if (player.getStorage("olsblucun_used").includes(button.link[2])) {
+				if (player.getStorage("olsblucun_used").some(item => item.name === button.link[2] && item.nature === button.link[3])) {
 					return false;
 				}
 				return event.filterCard(new lib.element.VCard({ name: button.link[2], nature: button.link[3], isCard: true }), player, event);
@@ -8161,13 +8161,7 @@ const skills = {
 				return get.player().getUseValue(new lib.element.VCard({ name: button.link[2], nature: button.link[3], isCard: true }));
 			},
 			prompt(links) {
-				return (
-					'###赂存###<div class="text center">视为使用' +
-					(get.translation(links[0][3]) || "") +
-					"【" +
-					get.translation(links[0][2]) +
-					"】</div>"
-				);
+				return '###赂存###<div class="text center">视为使用' + (get.translation(links[0][3]) || "") + "【" + get.translation(links[0][2]) + "】</div>";
 			},
 			backup(links) {
 				return {
@@ -8187,7 +8181,7 @@ const skills = {
 						player.addTempSkill("olsblucun_round", "roundStart");
 						player.markAuto("olsblucun_round", [get.type(event.result.card.name)]);
 						player.addSkill("olsblucun_used");
-						player.markAuto("olsblucun_used", [event.result.card.name]);
+						player.markAuto("olsblucun_used", [event.result.card]);
 						player.addTempSkill("olsblucun_effect");
 					},
 				};
@@ -8198,7 +8192,10 @@ const skills = {
 			if (player.getStorage("olsblucun_round").includes(type) || !["basic", "trick"].includes(type)) {
 				return false;
 			}
-			return !player.getStorage("olsblucun_used").includes(name);
+			if (get.inpileVCardList().some(info => info[2] === name && player.getStorage("olsblucun_used").some(item => item.name === info[2] && item.nature === info[3]))) {
+				return false;
+			}
+			return true;
 		},
 		marktext: "赂",
 		intro: {
@@ -8236,7 +8233,7 @@ const skills = {
 							if (!["basic", "trick"].includes(get.type(name))) {
 								return false;
 							}
-							return !player.getStorage("olsblucun_used").includes(name);
+							return !player.getStorage("olsblucun_used").some(item => item.name === info[2] && item.nature === info[3]);
 						});
 					names = names.map(namex => new lib.element.VCard({ name: namex[2], nature: namex[3] }));
 					names.forEach(card => {
@@ -8270,7 +8267,15 @@ const skills = {
 			used: {
 				charlotte: true,
 				onremove: true,
-				intro: { content: "已使用牌名：$" },
+				intro: {
+					mark(dialog, storage = []) {
+						if (!storage.length) {
+							return "当前未因【赂存】视为使用牌";
+						}
+						dialog.addText("已因【赂存】视为使用牌");
+						dialog.addSmall([storage, "vcard"]);
+					},
+				},
 			},
 			draw: {
 				audio: "olsblucun",
@@ -8291,36 +8296,30 @@ const skills = {
 			},
 			effect: {
 				charlotte: true,
-				trigger: {
-					player: "useCardAfter",
-				},
+				trigger: { player: "useCardAfter" },
 				filter(event, player) {
-					return (
-						event.skill === "olsblucun_backup" &&
-						event.targets?.some(
-							target => target.isIn() && !event.targets.some(targetx => targetx.countCards("h") > target.countCards("h"))
-						)
-					);
+					return event.skill === "olsblucun_backup" && event.targets?.some(target => target.isIn() && !event.targets.some(targetx => targetx.countCards("h") > target.countCards("h")));
 				},
 				forced: true,
 				popup: false,
 				async content(event, trigger, player) {
-					const target = trigger.targets
-						.filter(target => target.isIn() && !trigger.targets.some(targetx => targetx.countCards("h") > target.countCards("h")))
-						.randomGet();
+					const target = trigger.targets.filter(target => target.isIn() && !trigger.targets.some(targetx => targetx.countCards("h") > target.countCards("h"))).randomGet();
+					if (!target) {
+						return;
+					}
 					player.line(target);
-					const { cards } = await target
+					const result = await target
 						.chooseCard({
 							prompt: "赂存：将一张手牌置于" + get.translation(player) + "的武将牌",
 							position: "h",
 							forced: true,
 						})
 						.forResult();
-					if (cards?.length) {
+					if (result?.cards?.length) {
 						const name = "ol_sb_zhangrang";
 						player.changeSkin({ characterName: name }, `${name}_shadow`);
 						await player.addToExpansion({
-							cards,
+							cards: result.cards,
 							source: target,
 							animate: "give",
 							gaintag: ["olsblucun"],
@@ -8347,7 +8346,11 @@ const skills = {
 		animationColor: "water", //笑点解析——以水蜕生
 		async content(event, trigger, player) {
 			player.awakenSkill(event.name);
-			const names = player.getStorage("olsblucun_used").slice();
+			const names = player
+				.getStorage("olsblucun_used")
+				.map(item => item.name)
+				.toUniqued()
+				.slice();
 			player.removeSkill("olsblucun_used");
 			const goon = player.countCards("h") > 0;
 			let result;
@@ -8368,7 +8371,7 @@ const skills = {
 					.set("discard", discard)
 					.forResult();
 			}
-			if (result.index === 0) {
+			if (result?.index === 0) {
 				await player.addToExpansion({
 					cards: player.getCards("h"),
 					source: player,
