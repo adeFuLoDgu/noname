@@ -4045,7 +4045,7 @@ export const Content = {
 	async createTrigger(event, trigger, player) {
 		const info = get.info(event.skill);
 
-		if (!game.expandSkills(player.getSkills().concat(lib.skill.global)).includes(event.skill)) {
+		if (!game.expandSkills(player.getSkills().concat(lib.skill.global)).includes(event.skill) && !event.uncheckHasSkill) {
 			const hidden = player.hiddenSkills.slice(0);
 			const invisible = player.invisibleSkills.slice(0);
 			game.expandSkills(hidden);
