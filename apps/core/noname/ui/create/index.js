@@ -3318,7 +3318,7 @@ export class Create {
 		 * @returns { import("../../library/index.js").Button }
 		 */
 		blank: (item, type, position, noclick, node) => {
-			node = ui.create.div(".button.card", position);
+			node = ui.create.div(".button.card.blank", position);
 			node.link = item;
 			if (get.position(item) == "j" && item.viewAs && lib.config.cardtempname != "off") {
 				node.classList.add("infoflip");
