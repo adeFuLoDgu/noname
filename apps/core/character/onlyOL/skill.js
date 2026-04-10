@@ -8105,21 +8105,32 @@ const skills = {
 					if (!types.includes(get.type(name))) {
 						return false;
 					}
+					const infox = get.info({ name });
+					if (!infox || infox.notarget || (!infox.selectTarget && !infox.singleCard && !infox.toself)) {
+						return false;
+					}
 					return !player.getStorage("olsblucun_used").some(item => item.name === info[2] && item.nature === info[3]);
 				})
-				.some(card => event.filterCard(new lib.element.VCard({ name: card[2], nature: card[3], isCard: true }), player, event));
+				.some(info => event.filterCard(get.autoViewAs({ name: info[2], nature: info[3], isCard: true }, "unsure"), player, event));
 		},
 		chooseButton: {
 			dialog(event, player) {
 				const types = ["basic", "trick"].removeArray(player.getStorage("olsblucun_round"));
-				return ui.create.dialog("赂存", [get.inpileVCardList(info => types.includes(get.type(info[2]))), "vcard"]);
-			},
-			filter(button, player) {
-				const event = get.event().getParent();
-				if (player.getStorage("olsblucun_used").some(item => item.name === button.link[2] && item.nature === button.link[3])) {
-					return false;
-				}
-				return event.filterCard(new lib.element.VCard({ name: button.link[2], nature: button.link[3], isCard: true }), player, event);
+				const vcards = get.inpileVCardList(info => {
+					const name = info[2];
+					if (!types.includes(get.type(name))) {
+						return false;
+					}
+					const infox = get.info({ name });
+					if (!infox || infox.notarget || (!infox.selectTarget && !infox.singleCard && !infox.toself)) {
+						return false;
+					}
+					if (player.getStorage("olsblucun_used").some(item => item.name === info[2] && item.nature === info[3])) {
+						return false;
+					}
+					return event.filterCard(get.autoViewAs({ name: info[2], nature: info[3], isCard: true }, "unsure"), player, event);
+				});
+				return ui.create.dialog("赂存", [vcards, "vcard"]);
 			},
 			check(button) {
 				const event = get.event().getParent();
@@ -8158,6 +8169,10 @@ const skills = {
 		hiddenCard(player, name) {
 			const type = get.type(name);
 			if (player.getStorage("olsblucun_round").includes(type) || !["basic", "trick"].includes(type)) {
+				return false;
+			}
+			const info = get.info({ name });
+			if (!info || info.notarget || (!info.selectTarget && !info.singleCard && !info.toself)) {
 				return false;
 			}
 			if (get.inpileVCardList().some(info => info[2] === name && player.getStorage("olsblucun_used").some(item => item.name === info[2] && item.nature === info[3]))) {
@@ -8199,6 +8214,10 @@ const skills = {
 						names = get.inpileVCardList(info => {
 							const name = info[2];
 							if (!["basic", "trick"].includes(get.type(name))) {
+								return false;
+							}
+							const infox = get.info({ name });
+							if (!infox || infox.notarget || (!infox.selectTarget && !infox.singleCard && !infox.toself)) {
 								return false;
 							}
 							return !player.getStorage("olsblucun_used").some(item => item.name === info[2] && item.nature === info[3]);

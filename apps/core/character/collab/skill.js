@@ -2,6 +2,28 @@ import { lib, game, ui, get, ai, _status } from "noname";
 
 /** @type { importCharacterConfig['skill'] } */
 const skills = {
+	// 魔周瑜
+	yiran: {
+		audio: 2,
+		trigger: { player: "damageBegin3" },
+		forced: true,
+		filter(event, player) {
+			return  event.hasNature("fire");
+		},
+		async content(event, trigger, player) {
+			trigger.num++;
+		},
+		ai: {
+			neg: true,
+			effect: {
+				target(card, player, target, current) {
+					if (get.tag(card, "fireDamage") && current < 0) {
+						return 2;
+					}
+				},
+			},
+		},
+	},
 	//粘兽
 	olsuizhong: {
 		trigger: { player: "damageEnd" },
