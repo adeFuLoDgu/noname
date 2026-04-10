@@ -117,44 +117,63 @@ const skills = {
 			_status.characterlist.randomSort();
 
 			const list = [];
-			outer: for (const name of _status.characterlist) {
-				const info = lib.character[name];
-
-				for (const skill of info[3]) {
-					const info = get.skillInfoTranslation(skill);
-					if (!info.includes("【杀】")) {
-						continue outer;
-					}
-
-					const list = get.skillCategoriesOf(skill, player);
-					list.remove("锁定技");
-					if (list.length == 0) {
+			for (const name of _status.characterlist) {
+				if (
+					get.character(name, 3).some(skill => {
+						const info = get.plainText(get.skillInfoTranslation(skill));
+						if (!info.includes("【杀】")) {
+							return false;
+						}
+						const list = get.skillCategoriesOf(skill, player);
+						list.remove("锁定技");
+						return list.length == 0;
+					})
+				) {
+					list.push(name);
+					if (list.length >= 5) {
 						break;
 					}
-					continue outer;
-				}
-
-				list.push(name);
-				if (list.length >= 5) {
-					break;
 				}
 			}
-			if (!list.length) {
+			const num = player.countEmptySlot(1);
+			if (!list.length || !num) {
 				return;
 			}
-
-			const num = player.countEmptySlot(1);
-			const vcards = [list, createCard];
-			const title = `挈挟：选择${num > 1 ? "至多" : ""}${get.cnNumber(num)}张武将置入武器栏`;
-
-			const page = [title, vcards];
-			const next = player.chooseButton(page, [1, num], true, "allowChooseAll");
-			next.set("ai", processAI);
-
-			const result = await next.forResult();
-			if (result.bool) {
+			const result = await player
+				.chooseButton(
+					[
+						"挈挟：选择" + (num > 1 ? "至多" : "") + get.cnNumber(num) + "张武将置入武器栏",
+						[
+							list,
+							(item, type, position, noclick, node) => {
+								return lib.skill.qiexie.$createButton(item, type, position, noclick, node);
+							},
+						],
+					],
+					[1, num],
+					true
+				)
+				.set("ai", button => {
+					const name = button.link;
+					const skills = get.character(name, 3).filter(skill => {
+						const info = get.plainText(get.skillInfoTranslation(skill));
+						if (!info.includes("【杀】")) {
+							return false;
+						}
+						const list = get.skillCategoriesOf(skill, get.player());
+						list.remove("锁定技");
+						return list.length == 0;
+					});
+					let eff = 0.2;
+					for (const skill of skills) {
+						eff += get.skillRank(skill, "in");
+					}
+					return eff;
+				})
+				.forResult();
+			if (result?.bool) {
 				const list = result.links;
-				game.addVideo("skill", player, ["qiexie", [list]]);
+				game.addVideo("skill", player, [event.name, [list]]);
 				_status.characterlist.removeArray(list);
 				game.broadcastAll(
 					(player, list) => {
@@ -172,35 +191,9 @@ const skills = {
 				});
 				player.$gain2(cards);
 				await game.delayx();
-				// player.equip(cards);
 				for (const card of cards) {
-					player.equip(card);
+					await player.equip(card);
 				}
-			}
-
-			return;
-
-			function createCard(item, type, position, noclick, node) {
-				return lib.skill.qiexie.$createButton(item, type, position, noclick, node);
-			}
-
-			function processAI(button) {
-				const name = button.link;
-				const info = lib.character[name];
-				const skills = info[3].filter(skill => {
-					const info = get.skillInfoTranslation(skill);
-					if (!info.includes("【杀】")) {
-						return false;
-					}
-					const list = get.skillCategoriesOf(skill, get.player());
-					list.remove("锁定技");
-					return list.length == 0;
-				});
-				let eff = 0.2;
-				for (const skill of skills) {
-					eff += get.skillRank(skill, "in");
-				}
-				return eff;
 			}
 		},
 		$createButton(item, type, position, noclick, node) {
@@ -217,10 +210,7 @@ const skills = {
 			});
 			if (skills.length) {
 				const skillstr = skills.map(i => `[${get.translation(i)}]`).join("<br>");
-				const skillnode = ui.create.caption(
-					`<div class="text" data-nature=${get.groupnature(info[1], "raw")}m style="font-family: ${lib.config.name_font || "xinwei"},xinwei">${skillstr}</div>`,
-					node
-				);
+				const skillnode = ui.create.caption(`<div class="text" data-nature=${get.groupnature(info[1], "raw")}m style="font-family: ${lib.config.name_font || "xinwei"},xinwei">${skillstr}</div>`, node);
 				skillnode.style.left = "2px";
 				skillnode.style.bottom = "2px";
 			}
@@ -240,21 +230,9 @@ const skills = {
 					if (lib.translate[skills[i] + "_info"]) {
 						let translation = lib.translate[skills[i] + "_ab"] || get.translation(skills[i]).slice(0, 2);
 						if (lib.skill[skills[i]] && lib.skill[skills[i]].nobracket) {
-							uiintro.add(
-								'<div><div class="skilln">' +
-									get.translation(skills[i]) +
-									"</div><div>" +
-									get.skillInfoTranslation(skills[i], null, false) +
-									"</div></div>"
-							);
+							uiintro.add('<div><div class="skilln">' + get.translation(skills[i]) + "</div><div>" + get.skillInfoTranslation(skills[i], null, false) + "</div></div>");
 						} else {
-							uiintro.add(
-								'<div><div class="skill">【' +
-									translation +
-									"】</div><div>" +
-									get.skillInfoTranslation(skills[i], null, false) +
-									"</div></div>"
-							);
+							uiintro.add('<div><div class="skill">【' + translation + "】</div><div>" + get.skillInfoTranslation(skills[i], null, false) + "</div></div>");
 						}
 						if (lib.translate[skills[i] + "_append"]) {
 							uiintro._place_text = uiintro.add('<div class="text">' + lib.translate[skills[i] + "_append"] + "</div>");
@@ -347,20 +325,10 @@ const skills = {
 				if (skills.length) {
 					for (var skill of skills) {
 						if (lib.skill[skill].nobracket) {
-							append +=
-								'<div class="skilln">' +
-								get.translation(skill) +
-								'</div><div><span style="font-family: yuanli">' +
-								get.skillInfoTranslation(skill) +
-								"</span></div><br><br>";
+							append += '<div class="skilln">' + get.translation(skill) + '</div><div><span style="font-family: yuanli">' + get.skillInfoTranslation(skill) + "</span></div><br><br>";
 						} else {
 							var translation = lib.translate[skill + "_ab"] || get.translation(skill).slice(0, 2);
-							append +=
-								'<div class="skill">【' +
-								translation +
-								'】</div><div><span style="font-family: yuanli">' +
-								get.skillInfoTranslation(skill) +
-								"</span></div><br><br>";
+							append += '<div class="skill">【' + translation + '】</div><div><span style="font-family: yuanli">' + get.skillInfoTranslation(skill) + "</span></div><br><br>";
 						}
 					}
 					str = str.slice(0, str.length - 8);
@@ -8137,21 +8105,32 @@ const skills = {
 					if (!types.includes(get.type(name))) {
 						return false;
 					}
+					const infox = get.info({ name });
+					if (!infox || infox.notarget || !infox.filterTarget) {
+						return false;
+					}
 					return !player.getStorage("olsblucun_used").some(item => item.name === info[2] && item.nature === info[3]);
 				})
-				.some(card => event.filterCard(new lib.element.VCard({ name: card[2], nature: card[3], isCard: true }), player, event));
+				.some(info => event.filterCard(get.autoViewAs({ name: info[2], nature: info[3], isCard: true }, "unsure"), player, event));
 		},
 		chooseButton: {
 			dialog(event, player) {
 				const types = ["basic", "trick"].removeArray(player.getStorage("olsblucun_round"));
-				return ui.create.dialog("赂存", [get.inpileVCardList(info => types.includes(get.type(info[2]))), "vcard"]);
-			},
-			filter(button, player) {
-				const event = get.event().getParent();
-				if (player.getStorage("olsblucun_used").some(item => item.name === button.link[2] && item.nature === button.link[3])) {
-					return false;
-				}
-				return event.filterCard(new lib.element.VCard({ name: button.link[2], nature: button.link[3], isCard: true }), player, event);
+				const vcards = get.inpileVCardList(info => {
+					const name = info[2];
+					if (!types.includes(get.type(name))) {
+						return false;
+					}
+					const infox = get.info({ name });
+					if (!infox || infox.notarget || !infox.filterTarget) {
+						return false;
+					}
+					if (player.getStorage("olsblucun_used").some(item => item.name === info[2] && item.nature === info[3])) {
+						return false;
+					}
+					return event.filterCard(get.autoViewAs({ name: info[2], nature: info[3], isCard: true }, "unsure"), player, event);
+				});
+				return ui.create.dialog("赂存", [vcards, "vcard"]);
 			},
 			check(button) {
 				const event = get.event().getParent();
@@ -8190,6 +8169,10 @@ const skills = {
 		hiddenCard(player, name) {
 			const type = get.type(name);
 			if (player.getStorage("olsblucun_round").includes(type) || !["basic", "trick"].includes(type)) {
+				return false;
+			}
+			const info = get.info({ name });
+			if (!info || info.notarget || !info.filterTarget) {
 				return false;
 			}
 			if (get.inpileVCardList().some(info => info[2] === name && player.getStorage("olsblucun_used").some(item => item.name === info[2] && item.nature === info[3]))) {
@@ -8231,6 +8214,10 @@ const skills = {
 						names = get.inpileVCardList(info => {
 							const name = info[2];
 							if (!["basic", "trick"].includes(get.type(name))) {
+								return false;
+							}
+							const infox = get.info({ name });
+							if (!infox || infox.notarget || !infox.filterTarget) {
 								return false;
 							}
 							return !player.getStorage("olsblucun_used").some(item => item.name === info[2] && item.nature === info[3]);

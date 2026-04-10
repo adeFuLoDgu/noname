@@ -22385,27 +22385,21 @@ const skills = {
 			) {
 				return false;
 			}
-			for (const name of ["shuiyanqijuny"].concat(lib.inpile)) {
-				if (player.getStorage("dcjuewu_used").includes(name)) {
-					continue;
-				}
-				const card = get.autoViewAs({ name }, "unsure");
-				if (!get.tag(card, "damage")) {
-					continue;
-				}
-				if (event.filterCard(card, player, event)) {
-					return true;
-				}
-				if (name === "sha") {
-					for (const nature of lib.inpile_nature) {
-						card.nature = nature;
-						if (event.filterCard(card, player, event)) {
-							return true;
-						}
-					}
-				}
+			let list = get.inpileVCardList(info => {
+				return get.is.damageCard({ name: info[2], nature: info[3] });
+			});
+			if (!list.some(info => info[2] === "shuiyanqijuny")) {
+				list.add(["锦囊", "", "shuiyanqijuny"]);
 			}
-			return false;
+			list = list.filter(info => {
+				const name = info[2],
+					nature = info[3];
+				if (player.getStorage("dcjuewu_used").includes(name)) {
+					return false;
+				}
+				return event.filterCard(get.autoViewAs({ name, nature }, "unsure"), player, event);
+			});
+			return list.length > 0;
 		},
 		hiddenCard(player, name) {
 			if (!lib.inpile.includes(name)) {
@@ -22421,13 +22415,13 @@ const skills = {
 			) {
 				return false;
 			}
-			return get.tag({ name }, "damage");
+			return get.is.damageCard({ name });
 		},
 		group: "dcjuewu_inTwo",
 		chooseButton: {
 			dialog(event, player) {
 				let list = get.inpileVCardList(info => {
-					return get.tag({ name: info[2] }, "damage");
+					return get.is.damageCard({ name: info[2], nature: info[3] });
 				});
 				if (!list.some(info => info[2] === "shuiyanqijuny")) {
 					list.add(["锦囊", "", "shuiyanqijuny"]);
@@ -22438,8 +22432,7 @@ const skills = {
 					if (player.getStorage("dcjuewu_used").includes(name)) {
 						return false;
 					}
-					const card = get.autoViewAs({ name, nature }, "unsure");
-					return event.filterCard(card, player, event);
+					return event.filterCard(get.autoViewAs({ name, nature }, "unsure"), player, event);
 				});
 				return ui.create.dialog("绝武", [list, "vcard"]);
 			},
@@ -22468,13 +22461,9 @@ const skills = {
 						name: links[0][2],
 						nature: links[0][3],
 					},
-					precontent() {
-						if (!player.storage.dcjuewu_used) {
-							player.when({ global: "phaseAfter" }).step(async () => {
-								delete player.storage.dcjuewu_used;
-							});
-						}
-						player.markAuto("dcjuewu_used", event.result.card.name);
+					async precontent(event, trigger, player) {
+						player.addTempSkill("dcjuewu_used");
+						player.markAuto("dcjuewu_used", [event.result.card.name]);
 					},
 				};
 			},
@@ -22483,6 +22472,11 @@ const skills = {
 			},
 		},
 		subSkill: {
+			used: {
+				charlotte: true,
+				onremove: true,
+				intro: { content: "本回合已使用牌名：$" },
+			},
 			backup: {},
 			inTwo: {
 				audio: "dcjuewu",

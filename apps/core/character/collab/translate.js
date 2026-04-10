@@ -457,6 +457,10 @@ const translates = {
 	})(),
 	olfuyou: "福佑",
 	olfuyou_info: "锁定技。①你使用红色普通锦囊牌额外结算一次。②每回合限一次，你使用红色普通锦囊牌造成伤害后，你摸一张牌。",
+	tw_dm_zhouyu: "TW魔周瑜",
+	tw_dm_zhouyu_prefix: "TW|魔",
+	yiran: "易燃",
+	yiran_info: "锁定技，你受到的火焰伤害+1。",
 };
 
 export default translates;
