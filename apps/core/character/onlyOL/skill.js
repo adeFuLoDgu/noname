@@ -8106,7 +8106,7 @@ const skills = {
 						return false;
 					}
 					const infox = get.info({ name });
-					if (!infox || infox.notarget || (!infox.selectTarget && !infox.singleCard && !infox.toself)) {
+					if (!infox || infox.notarget || !infox.filterTarget) {
 						return false;
 					}
 					return !player.getStorage("olsblucun_used").some(item => item.name === info[2] && item.nature === info[3]);
@@ -8122,7 +8122,7 @@ const skills = {
 						return false;
 					}
 					const infox = get.info({ name });
-					if (!infox || infox.notarget || (!infox.selectTarget && !infox.singleCard && !infox.toself)) {
+					if (!infox || infox.notarget || !infox.filterTarget) {
 						return false;
 					}
 					if (player.getStorage("olsblucun_used").some(item => item.name === info[2] && item.nature === info[3])) {
@@ -8172,7 +8172,7 @@ const skills = {
 				return false;
 			}
 			const info = get.info({ name });
-			if (!info || info.notarget || (!info.selectTarget && !info.singleCard && !info.toself)) {
+			if (!info || info.notarget || !info.filterTarget) {
 				return false;
 			}
 			if (get.inpileVCardList().some(info => info[2] === name && player.getStorage("olsblucun_used").some(item => item.name === info[2] && item.nature === info[3]))) {
@@ -8217,7 +8217,7 @@ const skills = {
 								return false;
 							}
 							const infox = get.info({ name });
-							if (!infox || infox.notarget || (!infox.selectTarget && !infox.singleCard && !infox.toself)) {
+							if (!infox || infox.notarget || !infox.filterTarget) {
 								return false;
 							}
 							return !player.getStorage("olsblucun_used").some(item => item.name === info[2] && item.nature === info[3]);
