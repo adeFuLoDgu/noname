@@ -2,7 +2,7 @@ name: Nightly Publish
 
 on:
   schedule:
-    - cron: '0 14 * * *'
+    - cron: '11 13 * * *' # 每天的 21:11 运行
   workflow_dispatch: # 允许手动点击按钮触发编译
 
 permissions:
@@ -42,6 +42,6 @@ jobs:
       - name: Upload Nightly Artifact
         uses: actions/upload-artifact@v7
         with:
-          name: nightly-${{ steps.info.outputs.date }}
+          name: 测试包-${{ steps.info.outputs.date }}
           path: output/testpack
           retention-days: 7
