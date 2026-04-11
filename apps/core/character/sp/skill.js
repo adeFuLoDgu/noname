@@ -450,6 +450,7 @@ const skills = {
 	},
 	//董予安
 	olhexu: {
+		audio: 2,
 		mod: {
 			maxHandcard(player, num) {
 				return (
