@@ -8848,7 +8848,7 @@ export default () => {
 					});
 					"step 1";
 					if (result.bool) {
-						player.chooseTarget(true, "选择一个目标对其造成两点火焰伤害", function (card, player, target) {
+						player.chooseTarget(true, "选择一个目标对其造成2点火焰伤害", function (card, player, target) {
 							return player != target;
 						}).ai = function (target) {
 							return get.damageEffect(target, player, player, "fire");

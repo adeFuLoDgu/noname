@@ -1,5 +1,3 @@
-import { BroadSelect } from "@/library/element/Player/type";
-
 /** 时机 */
 declare interface SkillTrigger {
 	/** 
@@ -153,7 +151,7 @@ declare interface Mod {
 	 */
 	attackTo?(from: Player, to: Player, range: number): number | void;
 	/**
-	 * 蓄力点上限
+	 * 蓄力值上限
 	 * @param player 玩家
 	 * @param max 当前上限
 	 */
@@ -904,7 +902,7 @@ declare interface Skill {
 	 * 
 	 * 【v1.9.102】扩展：可以使用函数式viewAs，目前核心支持使用地方：backup,ok;
 	 */
-	viewAs?: string | CardBaseUIData | ((cards: Card[], player: Player) => string | VCard | CardBaseUIData | null);
+	viewAs?: string | CardBaseUIData | ((cards: Card[], player: Player) => VCard | CardBaseUIData | null);
 	/**
 	 * 视为技按钮出现条件（即发动条件）
 	 * @param player 
@@ -2067,7 +2065,7 @@ interface ChooseButtonConfigData {
 	 * 
 	 * 既player.chooseButton的selectButton
 	 */
-	select?: BroadSelect;
+	select?: import("@/library/element/Player/type").BroadSelect;
 
 	//成功选择操作后的内容：
 	/**

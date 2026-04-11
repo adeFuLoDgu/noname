@@ -3910,7 +3910,7 @@ export const Content = {
 							if (character.isBoss || character.isHiddenBoss) {
 								lib.config.forbidai.add(termName);
 							}
-							if (lib.config.forbidai_user && lib.config.forbidai_user.includes(termName)) {
+							if (lib.config[`forbidai_user_${charaPackName}`] && lib.config.forbidai_user?.includes(termName)) {
 								lib.config.forbidai.add(termName);
 							}
 							for (const skill of character.skills) {
@@ -4058,7 +4058,7 @@ export const Content = {
 	async createTrigger(event, trigger, player) {
 		const info = get.info(event.skill);
 
-		if (!game.expandSkills(player.getSkills().concat(lib.skill.global)).includes(event.skill)) {
+		if (!game.expandSkills(player.getSkills().concat(lib.skill.global)).includes(event.skill) && !event.uncheckHasSkill) {
 			const hidden = player.hiddenSkills.slice(0);
 			const invisible = player.invisibleSkills.slice(0);
 			game.expandSkills(hidden);
@@ -5845,17 +5845,20 @@ export const Content = {
 			if (event.result != "ai") {
 				return;
 			}
-
-			game.check();
-			if ((ai.basic.chooseCard(event.ai) || forced) && (!event.filterOk || event.filterOk())) {
-				ui.click.ok();
-			} else if (event.skill) {
-				ui.click.cancel();
-				event._aiexclude.add(event.skill);
-				event.redo();
-				game.resume();
+			if (event.processAI) {
+				event.result = event.processAI();
 			} else {
-				ui.click.cancel();
+				game.check();
+				if ((ai.basic.chooseCard(event.ai) || forced) && (!event.filterOk || event.filterOk())) {
+					ui.click.ok();
+				} else if (event.skill) {
+					ui.click.cancel();
+					event._aiexclude.add(event.skill);
+					event.redo();
+					game.resume();
+				} else {
+					ui.click.cancel();
+				}
 			}
 		},
 		async (event, trigger, player) => {
@@ -6039,17 +6042,21 @@ export const Content = {
 		},
 		async (event, trigger, player) => {
 			if (event.result == "ai") {
-				game.check();
-				if ((ai.basic.chooseCard(event.ai) || event.forced) && (!event.filterOk || event.filterOk())) {
-					ui.click.ok();
-				} else if (event.skill) {
-					const skill = event.skill;
-					ui.click.cancel();
-					event._aiexclude.add(skill);
-					event.redo();
-					game.resume();
+				if (event.processAI) {
+					event.result = event.processAI();
 				} else {
-					ui.click.cancel();
+					game.check();
+					if ((ai.basic.chooseCard(event.ai) || event.forced) && (!event.filterOk || event.filterOk())) {
+						ui.click.ok();
+					} else if (event.skill) {
+						const skill = event.skill;
+						ui.click.cancel();
+						event._aiexclude.add(skill);
+						event.redo();
+						game.resume();
+					} else {
+						ui.click.cancel();
+					}
 				}
 			}
 			if (event.rangecards) {
@@ -8154,18 +8161,21 @@ export const Content = {
 			if (event.result != "ai") {
 				return;
 			}
-
-			game.check();
-			if ((ai.basic.chooseCard(event.ai) || forced) && (!event.filterOk || event.filterOk())) {
-				ui.click.ok();
-			} else if (event.skill) {
-				var skill = event.skill;
-				ui.click.cancel();
-				event._aiexclude.add(skill);
-				event.redo();
-				game.resume();
+			if (event.processAI) {
+				event.result = event.processAI();
 			} else {
-				ui.click.cancel();
+				game.check();
+				if ((ai.basic.chooseCard(event.ai) || forced) && (!event.filterOk || event.filterOk())) {
+					ui.click.ok();
+				} else if (event.skill) {
+					var skill = event.skill;
+					ui.click.cancel();
+					event._aiexclude.add(skill);
+					event.redo();
+					game.resume();
+				} else {
+					ui.click.cancel();
+				}
 			}
 		},
 		async (event, trigger, player) => {
@@ -8240,11 +8250,15 @@ export const Content = {
 		async (event, trigger, player) => {
 			const { forced } = event;
 			if (event.result == "ai") {
-				game.check();
-				if ((ai.basic.chooseTarget(event.ai) || forced) && (!event.filterOk || event.filterOk())) {
-					ui.click.ok();
+				if (event.processAI) {
+					event.result = event.processAI();
 				} else {
-					ui.click.cancel();
+					game.check();
+					if ((ai.basic.chooseTarget(event.ai) || forced) && (!event.filterOk || event.filterOk())) {
+						ui.click.ok();
+					} else {
+						ui.click.cancel();
+					}
 				}
 			}
 			if (event.result.bool && event.animate !== false) {
@@ -8296,17 +8310,20 @@ export const Content = {
 			if (event.result != "ai") {
 				return;
 			}
-
-			game.check();
-			if (ai.basic.chooseCard(event.ai1) || forced) {
-				if ((ai.basic.chooseTarget(event.ai2) || forced) && (!event.filterOk || event.filterOk())) {
-					ui.click.ok();
-					_status.event._aiexclude.length = 0;
+			if (event.processAI) {
+				event.result = event.processAI();
+			} else {
+				game.check();
+				if (ai.basic.chooseCard(event.ai1) || forced) {
+					if ((ai.basic.chooseTarget(event.ai2) || forced) && (!event.filterOk || event.filterOk())) {
+						ui.click.ok();
+						_status.event._aiexclude.length = 0;
+					} else {
+						ui.click.cancel();
+					}
 				} else {
 					ui.click.cancel();
 				}
-			} else {
-				ui.click.cancel();
 			}
 		},
 		async (event, trigger, player) => {
