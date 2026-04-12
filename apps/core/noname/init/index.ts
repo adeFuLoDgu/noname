@@ -941,6 +941,9 @@ async function loadConfig() {
 	];
 	let min_screen_width = Math.min(screen.width, screen.height);
 	lib.config.ui_zoom = min_screen_width >= 1080 ? "150%" : min_screen_width < 768 ? "100%" : "120%";
+	if (get.coreInfo()[0] === "firefox") {
+		lib.config.ui_zoom = "100%";
+	}
 	lib.config.identity_banned = [...Character_bannedList];
 	lib.config.connect_identity_banned = [...Character_bannedList];
 	Character_bannedList = null;
