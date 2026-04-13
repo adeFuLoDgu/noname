@@ -1479,7 +1479,7 @@ export const Content = {
 				if (player == game.me) {
 					return;
 				}
-				let str = `${get.translation(player)}正在演奏《" + beatmap.name + "》...`;
+				let str = `${get.translation(player)}正在演奏《` + beatmap.name + `》...`;
 				if (!_status.connectMode) {
 					str += "<br>（点击屏幕可以跳过等待AI操作）";
 				}
