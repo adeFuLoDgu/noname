@@ -10319,25 +10319,25 @@ var spine;
 				if (contextConfig === void 0) { contextConfig = { alpha: "true" }; }
 				var _this = this;
 				this.restorables = new Array();
-				if (canvasOrContext instanceof HTMLCanvasElement) {
+				if (canvasOrContext.canvas !== undefined) { 
+					this.gl = canvasOrContext;
+					this.canvas = this.gl.canvas;
+				} else {
 					var canvas = canvasOrContext;
-					this.gl = (canvas.getContext("webgl", contextConfig) || canvas.getContext("experimental-webgl", contextConfig));
+					this.gl = (canvas.getContext("webgl", contextConfig) || canvas.getContext("webgl2", contextConfig) || canvas.getContext("experimental-webgl", contextConfig));
 					this.canvas = canvas;
-					canvas.addEventListener("webglcontextlost", function (e) {
-						var event = e;
+				}
+				if (this.canvas) {
+					this.canvas.addEventListener("webglcontextlost", function (e) {
 						if (e) {
 							e.preventDefault();
 						}
 					});
-					canvas.addEventListener("webglcontextrestored", function (e) {
+					this.canvas.addEventListener("webglcontextrestored", function (e) {
 						for (var i = 0, n = _this.restorables.length; i < n; i++) {
 							_this.restorables[i].restore();
 						}
 					});
-				}
-				else {
-					this.gl = canvasOrContext;
-					this.canvas = this.gl.canvas;
 				}
 			}
 			ManagedWebGLRenderingContext.prototype.addRestorable = function (restorable) {
