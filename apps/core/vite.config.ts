@@ -8,6 +8,7 @@ const port = {
 };
 
 export default defineConfig({
+	appType: "mpa",
 	root: ".",
 	base: "",
 	resolve: {
