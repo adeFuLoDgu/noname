@@ -4615,7 +4615,7 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 											name: 'effect_panding',
 											action: action
 										});
-									}, apcard, apcard._cardid, action);
+									}, card, card._cardid, action);
 								}
 	
 								event.apcard = undefined;
