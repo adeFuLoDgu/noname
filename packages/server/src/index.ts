@@ -304,7 +304,7 @@ const handlers = {
 	},
 };
 
-const wss = new WebSocketServer({ port: 8082 });
+const wss = new WebSocketServer({ port: 8080 });
 
 wss.on("connection", (ws, req) => {
 	const client = ws as Client;
@@ -410,4 +410,4 @@ wss.on("connection", (ws, req) => {
 	});
 });
 
-console.log("Server listening on port 8082");
+console.log("Server listening on port 8080");
