@@ -10316,30 +10316,39 @@ var spine;
 	(function (webgl) {
 		var ManagedWebGLRenderingContext = (function () {
 			function ManagedWebGLRenderingContext(canvasOrContext, contextConfig) {
-				if (contextConfig === void 0) { contextConfig = { alpha: "true" }; }
+				if (contextConfig === void 0) { contextConfig = { alpha: true }; }
 				var _this = this;
 				this.restorables = new Array();
-				if (canvasOrContext.canvas !== undefined) { 
-					this.gl = canvasOrContext;
-					this.canvas = this.gl.canvas;
-				} else {
+				this.contextLostHandler = this._contextLostHandler.bind(this);
+				this.contextRestoredHandler = this._contextRestoredHandler.bind(this);
+				if (!((canvasOrContext instanceof WebGLRenderingContext) || (typeof WebGL2RenderingContext !== "undefined" && canvasOrContext instanceof WebGL2RenderingContext))) {
 					var canvas = canvasOrContext;
 					this.gl = (canvas.getContext("webgl", contextConfig) || canvas.getContext("webgl2", contextConfig) || canvas.getContext("experimental-webgl", contextConfig));
 					this.canvas = canvas;
+					this.canvas.addEventListener("webglcontextlost", this.contextLostHandler);
+					this.canvas.addEventListener("webglcontextrestored", this.contextRestoredHandler);
 				}
-				if (this.canvas) {
-					this.canvas.addEventListener("webglcontextlost", function (e) {
-						if (e) {
-							e.preventDefault();
-						}
-					});
-					this.canvas.addEventListener("webglcontextrestored", function (e) {
-						for (var i = 0, n = _this.restorables.length; i < n; i++) {
-							_this.restorables[i].restore();
-						}
-					});
+				else {
+					this.gl = canvasOrContext;
+					this.canvas = this.gl.canvas;
 				}
 			}
+			ManagedWebGLRenderingContext.prototype._contextLostHandler = function (e) {
+				if (e) {
+					e.preventDefault();
+				}
+			};
+			ManagedWebGLRenderingContext.prototype._contextRestoredHandler = function () {
+				for (var i = 0, n = this.restorables.length; i < n; i++) {
+					this.restorables[i].restore();
+				}
+			};
+			ManagedWebGLRenderingContext.prototype.dispose = function () {
+				if (this.canvas) {
+					this.canvas.removeEventListener("webglcontextlost", this.contextLostHandler);
+					this.canvas.removeEventListener("webglcontextrestored", this.contextRestoredHandler);
+				}
+			};
 			ManagedWebGLRenderingContext.prototype.addRestorable = function (restorable) {
 				this.restorables.push(restorable);
 			};
