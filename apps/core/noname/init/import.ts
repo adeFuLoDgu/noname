@@ -59,7 +59,8 @@ export async function importMode(name: string) {
 }
 
 async function importFunction(type: "card" | "character" | "extension" | "mode", path: string): Promise<void> {
-	path = (location.href.indexOf("//localhost") == -1 ? "/noname" : "") + path;
+	const github_repo = location.href.indexOf("github.io") == -1 ? "" : import.meta.env.REPO_NAME || "noname";
+	path = (location.href.indexOf("//localhost") == -1 ? "/" + github_repo : "") + path;
 	const modeContent = await import(/* @vite-ignore */ path + ".js").catch(async e => {
 		if (window.isSecureContext) {
 			try {
