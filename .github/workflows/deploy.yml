@@ -63,6 +63,7 @@ jobs:
       - name: Run Build
         run: pnpm build
         env:
+          IS_GITHUB_PAGES: 'true'
           REPO_NAME: ${{ env.REPOSITORY_NAME }}
       - name: Setup Pages
         uses: actions/configure-pages@v6

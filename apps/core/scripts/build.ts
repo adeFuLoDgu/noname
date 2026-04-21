@@ -59,8 +59,7 @@ await build({
 		rollupOptions: {
 			preserveEntrySignatures: "strict",
 			treeshake: false,
-			//commented out for github pages
-			//external: ["vue"],
+			...(process.env.IS_GITHUB_PAGES === "true" ? {} : { external: ["vue"], }),
 			input: {
 				index: "index.html",
 				noname: "noname.js",
