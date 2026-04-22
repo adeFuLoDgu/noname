@@ -13,6 +13,9 @@ await build({
 	entry: ["src/entry.ts"],
 	format: ["esm"],
 	platform: "browser",
+	define: {
+		"process.env.REPO_NAME": JSON.stringify(process.env.REPO_NAME || "noname"),
+	},
 });
 await build({
 	config: false,
