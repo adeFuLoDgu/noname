@@ -1258,9 +1258,34 @@ if (decadeModule) decadeModule.import(function (lib, game, ui, get, ai, _status)
 			{ name: 'effect_taoyuanjieyi' },
 			{ name: 'effect_shandian' },
 			{ name: 'effect_wanjianqifa_full' },
+			{ name: 'Ss_ZB_QiXingDao' },
+			{ name: 'RWJGD_xiao' },
+			{ name: 'XRJXN_xiao' },
+			{ name: 'XTBGZ_xiao' },
+			{ name: 'ZYSZK_xiao' },
+			{ name: 'TYBLJ' },
+			{ name: 'SSHW_TX_chongyingshenfu' },
+			{ name: 'SSHW_TX_lingbaoxianhu' },
+			{ name: 'SSHW_TX_taijifuchen' },
+			{ name: 'taipingyaoshu' },
+			{ name: 'effect_taipingyaoshu_xiexia' },
+			{ name: 'qibaodao2' },
+			{ name: 'feilongduofeng' },
+			{ name: 'Ss_mgk_fire' },
+			{ name: 'Ss_mgk_tslh' },
+			{ name: 'Ss_Gz_WuLiuJian' },
+			{ name: 'Ss_Gz_SanJianLiangRenDao' },
+			{ name: 'Ss_ZB_YiTianJian' },
+			{ name: 'Ss_ZB_YinFengYi' },
+			{ name: 'Ss_ZB_ZhanXiang' },
+			{ name: 'SSHW_TX_chiyanzhenhun' },
+			{ name: 'SSHW_TX_xuwangzhimian' },
+			{ name: 'Ss_ZB_ZheJi' },
+			{ name: 'Ss_ZB_NvZhuang' },
 			{ name: 'effect_xianding', fileType: 'json' },
 			{ name: 'effect_caochuanjiejian', follow: true },
 			{ name: 'effect_guohechaiqiao', follow: true },
+			{ name: 'effect_bingsha', follow: true },
 			{ name: 'effect_leisha', follow: true },
 			{ name: 'effect_heisha', follow: true },
 			{ name: 'effect_huosha', follow: true },
@@ -1306,6 +1331,33 @@ if (decadeModule) decadeModule.import(function (lib, game, ui, get, ai, _status)
 		var skillAnimation = (function () {
 			var defines = {
 				skill: {
+					rw_bagua_skill: { skill: 'rw_bagua_skill', name: 'XTBGZ_xiao', scale: 1 },
+					rw_renwang_skill: { skill: 'rw_renwang_skill', name: 'RWJGD_xiao', scale: 1 },
+					rw_baiyin_skill: { skill: 'rw_baiyin_skill', name: 'ZYSZK_xiao', scale: 1 },
+					rw_zhuge_skill: { skill: 'rw_zhuge_skill', name: 'XRJXN_xiao', scale: 1 },
+					rw_tengjia1: { skill: 'rw_tengjia1', name: 'TYBLJ', action: 'TYBLJ_dang', scale: 1 },
+					rw_tengjia2: { skill: 'rw_tengjia2', name: 'TYBLJ', action: 'TYBLJ_huo', scale: 1 },
+					rw_tengjia3: { skill: 'rw_tengjia3', name: 'TYBLJ', action: 'TYBLJ_dang', scale: 1 },
+					gx_lingbaoxianhu: { skill: 'gx_lingbaoxianhu', name: 'SSHW_TX_lingbaoxianhu', scale: 0.5 },
+					gx_taijifuchen: { skill: 'gx_taijifuchen', name: 'SSHW_TX_taijifuchen', scale: 0.5 },
+					gx_chongyingshenfu: { skill: 'gx_chongyingshenfu', name: 'SSHW_TX_chongyingshenfu', scale: 0.5 },
+					taipingyaoshu: { skill: 'taipingyaoshu', name: 'taipingyaoshu', scale: 0.75 },
+					taipingyaoshu_lose: { skill: 'taipingyaoshu_lose', name: 'effect_taipingyaoshu_xiexia', scale: 0.55 },
+					qibaodao: { skill: 'qibaodao', name: 'qibaodao2', scale: 1 },
+					yitianjian: { skill: 'yitianjian', name: 'Ss_ZB_YiTianJian', scale: 0.5 },
+					yinfengyi: { skill: 'yinfengyi', name: 'Ss_ZB_YinFengYi', scale: 0.5 },
+					zhanxiang: { skill: 'zhanxiang', name: 'Ss_ZB_ZhanXiang', scale: 0.5 },
+					minguangkai_cancel: { skill: 'minguangkai_cancel', name: 'Ss_mgk_fire', scale: 0.5 },
+					minguangkai_link: { skill: 'minguangkai_link', name: 'Ss_mgk_tslh', scale: 0.5 },
+					wuliu: { skill: 'wuliu', name: 'Ss_Gz_WuLiuJian', scale: 0.5 },
+					sanjian_skill: { skill: 'sanjian_skill', name: 'Ss_Gz_SanJianLiangRenDao', scale: 0.4 },
+					feilongduofeng: { skill: 'feilongduofeng', name: 'feilongduofeng', scale: 0.5 },
+					ty_feilongduofeng_skill: { skill: 'ty_feilongduofeng_skill', name: 'feilongduofeng', scale: 0.5 },
+					xuwangzhimian: { skill: 'xuwangzhimian', name: 'SSHW_TX_xuwangzhimian', scale: 0.5 },
+					chiyanzhenhunqin: { skill: 'chiyanzhenhunqin', name: 'SSHW_TX_chiyanzhenhun', scale: 0.5 },
+					duanjian: { skill: 'duanjian', name: 'Ss_ZB_ZheJi', scale: 0.5 },
+					serafuku: { skill: 'serafuku', name: 'Ss_ZB_NvZhuang', scale: 0.5 },
+					qixingbaodao: { skill: 'qixingbaodao', name: 'Ss_ZB_QiXingDao', scale: 0.5 },
 					bagua_skill: { skill: 'bagua_skill', name: 'effect_baguazhen', scale: 0.6 },
 					baiyin_skill: { skill: 'baiyin_skill', name: 'effect_baiyinshizi', scale: 0.5 },
 					bazhen_bagua: { skill: 'bazhen_bagua', name: 'effect_baguazhen', scale: 0.6 },
@@ -1365,12 +1417,27 @@ if (decadeModule) decadeModule.import(function (lib, game, ui, get, ai, _status)
 
 			var trigger = {
 				card: {
+					taipingyaoshu: {
+						onEquip: function () {
+							game.broadcastAll(player => {
+								if (window.decadeUI) lib.animate.skill['taipingyaoshu'].call(player, 'taipingyaoshu');
+							}, player);
+						},
+						onLose: function () {
+							player.addTempSkill('taipingyaoshu_lose');
+							game.broadcastAll(player => {
+								if (window.decadeUI) lib.animate.skill['taipingyaoshu_lose'].call(player, 'taipingyaoshu_lose');
+							}, player);
+						}
+					},
 					nvzhuang: {
 						onEquip: function () {
 							if (player.sex == "male" && player.countCards("he", function (cardx) {
 								return card.cards && !card.cards.includes(cardx);
 							})) {
-								lib.animate.skill['nvzhuang'].call(player, 'nvzhuang');
+								game.broadcastAll(player => {
+									if (window.decadeUI) lib.animate.skill['nvzhuang'].call(player, 'nvzhuang');
+								}, player);
 								player.chooseToDiscard(true, function (card) {
 									return !_status.event.card?.cards.includes(card);
 								}, "he").set("card", card);
@@ -1386,7 +1453,9 @@ if (decadeModule) decadeModule.import(function (lib, game, ui, get, ai, _status)
 							next.player = player;
 							next.setContent(function () {
 								if (player.countCards('he')) {
-									lib.animate.skill['nvzhuang'].call(player, 'nvzhuang');
+									game.broadcastAll(player => {
+										if (window.decadeUI) lib.animate.skill['nvzhuang'].call(player, 'nvzhuang');
+									}, player);
 									player.chooseToDiscard(true, 'he');
 								}
 							});
@@ -1394,18 +1463,45 @@ if (decadeModule) decadeModule.import(function (lib, game, ui, get, ai, _status)
 					},
 					zheji: {
 						onEquip: function () {
-							lib.animate.skill['zheji'].call(player, 'zheji');
+							game.broadcastAll(player => {
+								if (window.decadeUI) lib.animate.skill['zheji'].call(player, 'zheji');
+							}, player);
 						}
 					},
 					numa: {
 						onEquip: function () {
-							lib.animate.skill['numa'].call(player, 'numa');
+							game.broadcastAll(player => {
+								if (window.decadeUI) lib.animate.skill['numa'].call(player, 'numa');
+							}, player);
+						}
+					},
+					wuliu: {
+						onEquip: function () {
+							game.broadcastAll(player => {
+								if (window.decadeUI) lib.animate.skill['wuliu'].call(player, 'wuliu');
+							}, player);
+						}
+					},
+					duanjian: {
+						onEquip: function () {
+							game.broadcastAll(player => {
+								if (window.decadeUI) lib.animate.skill['duanjian'].call(player, 'duanjian');
+							}, player);
+						}
+					},
+					qixingbaodao: {
+						onEquip: function () {
+							game.broadcastAll(player => {
+								if (window.decadeUI) lib.animate.skill['qixingbaodao'].call(player, 'qixingbaodao');
+							}, player);
 						}
 					},
 					lebu: {
 						effect: function () {
 							if (result.bool == false) {
-								lib.animate.skill['lebu'].call(player, 'lebu');
+								game.broadcastAll(player => {
+									if (window.decadeUI) lib.animate.skill['lebu'].call(player, 'lebu');
+								}, player);
 								player.skip('phaseUse');
 							}
 						}
@@ -1416,7 +1512,9 @@ if (decadeModule) decadeModule.import(function (lib, game, ui, get, ai, _status)
 								if (get.is.changban()) {
 									player.addTempSkill('bingliang_changban');
 								} else {
-									lib.animate.skill['bingliang'].call(player, 'bingliang');
+									game.broadcastAll(player => {
+										if (window.decadeUI) lib.animate.skill['bingliang'].call(player, 'bingliang');
+									}, player);
 									player.skip('phaseDraw');
 								}
 							}
@@ -1425,7 +1523,9 @@ if (decadeModule) decadeModule.import(function (lib, game, ui, get, ai, _status)
 					shandian: {
 						effect: function () {
 							if (result.bool == false) {
-								lib.animate.skill['shandian'].call(player, 'shandian');
+								game.broadcastAll(player => {
+									if (window.decadeUI) lib.animate.skill['shandian'].call(player, 'shandian');
+								}, player);
 								player.damage(3, 'thunder', 'nosource');
 							} else {
 								player.addJudgeNext(card);

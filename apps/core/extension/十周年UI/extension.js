@@ -4445,6 +4445,10 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 												decadeUI.animation.cap.playSpineTo(card, 'effect_huosha');
 												animation_playSpineTo_Client(card, 'effect_huosha');
 												break;
+											case 'ice':
+												decadeUI.animation.cap.playSpineTo(card, 'effect_bingsha');
+												animation_playSpineTo_Client(card, 'effect_bingsha');
+												break;
 											default:
 												if (get.color(card) == 'red') {
 													decadeUI.animation.cap.playSpineTo(card, 'effect_hongsha');

@@ -161,7 +161,7 @@ export default () => {
 					await new Promise(resolve => ui.controls[0].replace("如果你感到游戏较卡，在选项-通用-流畅模式中，可以开启流畅模式", resolve));
 					ui.click.menuTab("选项");
 					Click_Left_Menu("外观");
-					await new Promise(resolve => ui.controls[0].replace("在选项-外观-介面缩放中，可以设置介面大小", resolve));
+					await new Promise(resolve => ui.controls[0].replace("在选项-外观-界面缩放中，可以设置介面大小", resolve));
 					ui.click.menuTab("选项");
 					Click_Left_Menu("技能");
 					await new Promise(resolve => ui.controls[0].replace("在选项-技能中，可以设置自动发动或双将禁配的技能", resolve));
