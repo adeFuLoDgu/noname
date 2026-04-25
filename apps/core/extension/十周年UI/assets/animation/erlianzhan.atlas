@@ -1,0 +1,20 @@
+
+erlianzhan.png
+size: 246,246
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+lianzhan_2
+  rotate: false
+  xy: 133, 129
+  size: 111, 115
+  orig: 241, 242
+  offset: 72, 65
+  index: -1
+modi
+  rotate: false
+  xy: 2, 85
+  size: 129, 159
+  orig: 241, 242
+  offset: 79, 29
+  index: -1

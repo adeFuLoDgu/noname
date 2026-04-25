@@ -1,0 +1,20 @@
+
+wulianzhan.png
+size: 246,246
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+lianzhan_5
+  rotate: false
+  xy: 133, 120
+  size: 111, 124
+  orig: 241, 242
+  offset: 72, 65
+  index: -1
+modi
+  rotate: false
+  xy: 2, 85
+  size: 129, 159
+  orig: 241, 242
+  offset: 79, 29
+  index: -1

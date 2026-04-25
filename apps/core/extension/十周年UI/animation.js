@@ -1224,6 +1224,63 @@ if (decadeModule) decadeModule.import(function (lib, game, ui, get, ai, _status)
 		animation.cap = new decadeUI.AnimationPlayerPool(4, decadeUIPath + 'assets/animation/', 'decadeUI.animation');
 
 		var fileList = [
+			{ name: 'effect_xianding', fileType: 'json' },
+			{ name: 'effect_caochuanjiejian', follow: true },
+			{ name: 'effect_guohechaiqiao', follow: true },
+			{ name: 'effect_bingsha', follow: true },
+			{ name: 'effect_leisha', follow: true },
+			{ name: 'effect_heisha', follow: true },
+			{ name: 'effect_huosha', follow: true },
+			{ name: 'effect_hongsha', follow: true },
+			{ name: 'effect_huogong', follow: true },
+			{ name: 'effect_panding', follow: true },
+			{ name: 'effect_shan', follow: true },
+			{ name: 'effect_tao', follow: true },
+			{ name: 'effect_tiesuolianhuan', follow: true },
+			{ name: 'effect_jiu', follow: true },
+			{ name: 'effect_shunshouqianyang', follow: true },
+			{ name: 'effect_shushangkaihua', follow: true },
+			{ name: 'effect_wanjianqifa', follow: true },
+			{ name: 'effect_wuzhongshengyou', follow: true },
+			{ name: 'effect_wuxiekeji', follow: true },
+			{ name: 'effect_wugufengdeng', follow: true },
+			{ name: 'effect_yuanjiaojingong', follow: true },
+			{ name: 'effect_zhijizhibi', follow: true },
+			{ name: 'effect_zhulutianxia', follow: true },
+			//一破•卧龙出山
+			{ name: 'yipo' },
+			//双连•一战成名
+			{ name: 'shuanglian' },
+			//二连斩
+			{ name: 'erlianzhan' },
+			//三连•举世皆惊
+			{ name: 'sanlian' },
+			//三连斩
+			{ name: 'sanlianzhan' },
+			//四连•天下无敌
+			{ name: 'silian' },
+			//四连斩
+			{ name: 'silianzhan' },
+			//五连•诛天灭地
+			{ name: 'wulian' },
+			//五连斩
+			{ name: 'wulianzhan' },
+			//六连•诛天灭地
+			{ name: 'liulian' },
+			//六连斩
+			{ name: 'liulianzhan' },
+			//七连•诛天灭地
+			{ name: 'qilian' },
+			//七连斩
+			{ name: 'qilianzhan' },
+			//医术高超
+			{ name: 'yishugaochao' },
+			//妙手回春
+			{ name: 'miaoshouhuichun' },
+			//癫狂屠戮
+			{ name: 'diankuangtulu' },
+			//无双•万军取首
+			{ name: 'wushuangwanjunqushou' },
 			{ name: 'effect_youxikaishi' },
 			{ name: 'effect_baguazhen' },
 			{ name: 'effect_baiyinshizi' },
@@ -1282,29 +1339,6 @@ if (decadeModule) decadeModule.import(function (lib, game, ui, get, ai, _status)
 			{ name: 'SSHW_TX_xuwangzhimian' },
 			{ name: 'Ss_ZB_ZheJi' },
 			{ name: 'Ss_ZB_NvZhuang' },
-			{ name: 'effect_xianding', fileType: 'json' },
-			{ name: 'effect_caochuanjiejian', follow: true },
-			{ name: 'effect_guohechaiqiao', follow: true },
-			{ name: 'effect_bingsha', follow: true },
-			{ name: 'effect_leisha', follow: true },
-			{ name: 'effect_heisha', follow: true },
-			{ name: 'effect_huosha', follow: true },
-			{ name: 'effect_hongsha', follow: true },
-			{ name: 'effect_huogong', follow: true },
-			{ name: 'effect_panding', follow: true },
-			{ name: 'effect_shan', follow: true },
-			{ name: 'effect_tao', follow: true },
-			{ name: 'effect_tiesuolianhuan', follow: true },
-			{ name: 'effect_jiu', follow: true },
-			{ name: 'effect_shunshouqianyang', follow: true },
-			{ name: 'effect_shushangkaihua', follow: true },
-			{ name: 'effect_wanjianqifa', follow: true },
-			{ name: 'effect_wuzhongshengyou', follow: true },
-			{ name: 'effect_wuxiekeji', follow: true },
-			{ name: 'effect_wugufengdeng', follow: true },
-			{ name: 'effect_yuanjiaojingong', follow: true },
-			{ name: 'effect_zhijizhibi', follow: true },
-			{ name: 'effect_zhulutianxia', follow: true },
 		];
 
 		var fileNameList = fileList.concat();

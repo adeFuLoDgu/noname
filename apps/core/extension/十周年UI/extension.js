@@ -1425,102 +1425,230 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 					};
 
 					lib.skill._decadeUI_dieKillEffect = {
-						trigger:{ source:['dieBegin'] },
+						trigger: { source: ["dieBegin"] },
 						forced: true,
 						popup: false,
 						priority: -100,
 						lastDo: true,
-						content:function(){
+						silent: true,
+						async content(event, trigger) {
 							if (!(trigger.source && trigger.player)) return;
 							game.broadcastAll(function(source, player){
 								if (!window.decadeUI) return;
 								if (!decadeUI.config.playerKillEffect) return;
 								decadeUI.effect.kill(source, player);
 							}, trigger.source, trigger.player);
+						},
+					},
 
-							game.broadcastAll(function(source){
+					lib.skill._o_oshousha_jisha = {
+						trigger: {
+							global: "gameStart",
+							player: "enterGame",
+							source: "dieBegin",
+						},
+						charlotte: true,
+						forced: true,
+						priority: 2021,
+						content: function() {
+							game.broadcastAll(function(player){
 								if (!window.decadeUI) return;
 								if (!decadeUI.config.playerKillAndRecoverEffect) return;
-								var kill_count = 0
-								for(i=0;i<source.stat.length;i++){
-									if(source.stat[i].kill!=undefined) kill_count+=source.stat[i].kill;
-								}
-								if (kill_count+1==1){
-									source.$fullscreenpop('一血  卧龙出山','fire');
-									game.playAudio('../extension', decadeUI.extensionName, 'audio/jstx_audio/jstx_jisha1.mp3');
-								}
-								if (kill_count+1==2){
-									source.$fullscreenpop('双杀  一战成名','water');
-									game.playAudio('../extension', decadeUI.extensionName, 'audio/jstx_audio/jstx_jisha2.mp3');
-								}
-								if (kill_count+1==3){
-									source.$fullscreenpop('三杀  举世皆惊','thunder');
-									game.playAudio('../extension', decadeUI.extensionName, 'audio/jstx_audio/jstx_jisha3.mp3');
-								}
-								if (kill_count+1==4){
-									source.$fullscreenpop('四杀  天下无敌','fire');
-									game.playAudio('../extension', decadeUI.extensionName, 'audio/jstx_audio/jstx_jisha4.mp3');
-								}
-								if (kill_count+1==5){
-									source.$fullscreenpop('五杀  诛天灭地','thunder');
-									game.playAudio('../extension', decadeUI.extensionName, 'audio/jstx_audio/jstx_jisha5.mp3');
-								}
-								if (kill_count+1==6){
-									source.$fullscreenpop('六杀  癫狂杀戮','water');
-									game.playAudio('../extension', decadeUI.extensionName, 'audio/jstx_audio/jstx_jisha6.mp3');
-								}
-								if (kill_count+1==7){
-									source.$fullscreenpop('无双  万军取首','fire');
-									game.playAudio('../extension', decadeUI.extensionName, 'audio/jstx_audio/jstx_jisha7.mp3');
-								}
-							}, trigger.source);
-						}
+								game.countPlayer(function(current) {
+									current.addSkill('o_oshousha_jisha');
+									if (current == player) {
+										if (trigger.name == 'die'&&_status.currentPhase==player) {
+											if (player.storage.o_oshousha_jisha == 1) {
+												decadeUI.animation.playSpine('yipo', { scale: 0.8 });
+												game.playAudio('../extension', decadeUI.extensionName, 'audio/yipo.mp3');
+												decadeUI.delay(2500);
+											}
+											if (current.storage.o_oshousha_jisha == 2) {
+												decadeUI.animation.playSpine('shuanglian', { scale: 0.8 });
+												game.playAudio('../extension', decadeUI.extensionName, 'audio/shuanglian.mp3');
+												decadeUI.delay(2500);
+												decadeUI.animation.playSpine('erlianzhan', { scale: 0.8, parent: player });
+												decadeUI.delay(1500);
+											}
+											if (current.storage.o_oshousha_jisha == 3) {
+												decadeUI.animation.playSpine('sanlian', { scale: 0.8 });
+												game.playAudio('../extension', decadeUI.extensionName, 'audio/sanlian.mp3');
+												decadeUI.delay(2500);
+												decadeUI.animation.playSpine('sanlianzhan', { scale: 0.8, parent: player });
+												decadeUI.delay(1500);
+											}
+											if (current.storage.o_oshousha_jisha == 4) {
+												decadeUI.animation.playSpine('silian', { scale: 0.8 });
+												game.playAudio('../extension', decadeUI.extensionName, 'audio/silian.mp3');
+												decadeUI.delay(2500);
+												decadeUI.animation.playSpine('silianzhan', { scale: 0.8, parent: player });
+												decadeUI.delay(1500);
+											}
+											if (current.storage.o_oshousha_jisha == 5) {
+												decadeUI.animation.playSpine('wulian', { scale: 0.8 });
+												game.playAudio('../extension', decadeUI.extensionName, 'audio/wulian.mp3');
+												decadeUI.delay(2500);
+												decadeUI.animation.playSpine('wulianzhan', { scale: 0.8, parent: player });
+												decadeUI.delay(1500);
+											}
+											if (current.storage.o_oshousha_jisha == 6) {
+												decadeUI.animation.playSpine('liulian', { scale: 0.8 });
+												game.playAudio('../extension', decadeUI.extensionName, 'audio/liulian.mp3');
+												decadeUI.delay(2500);
+												decadeUI.animation.playSpine('liulianzhan', { scale: 0.8, parent: player });
+												decadeUI.delay(1500);
+											}
+											if (current.storage.o_oshousha_jisha >= 7) {
+												decadeUI.animation.playSpine('qilian', { scale: 0.8 });
+												game.playAudio('../extension', decadeUI.extensionName, 'audio/qilian.mp3');
+												decadeUI.delay(2500);
+												decadeUI.animation.playSpine('qilianzhan', { scale: 0.8, parent: player });
+												decadeUI.delay(1500);
+											}
+										}
+									}
+								});
+							}, player);
+						},
 					};
 
-					lib.skill._jstx_recovertrigger={
-						trigger:{global:'recoverEnd'},
+					lib.skill.o_oshousha_jisha = {
+						trigger: { source: "dieBegin" },
+						forced: true,
+						charlotte: true,
+						locked: true,
+						unique: true,
+						priority: Infinity,
+						init: function(player) {
+							player.storage.o_oshousha_jisha = 0;
+							player.unmarkSkill('o_oshousha_jisha');
+							player.syncStorage('o_oshousha_jisha');
+						},
 						filter:function(event,player){
-							if(_status.currentPhase!=player){
-								return event.player!=event.source&&event.source==player;
-							}
-							return true;
+							return _status.currentPhase==player;
 						},
-						direct:true,
-						content:function(){
-							if(_status.currentPhase!=player){
-								if(player.storage.jstxyishugaochao==undefined){
-									player.storage.jstxyishugaochao = trigger.num;
-								} else {
-									player.storage.jstxyishugaochao+=trigger.num;
+						content: function() {
+							player.storage.o_oshousha_jisha++;
+							player.markSkill('o_oshousha_jisha');
+							player.syncStorage('o_oshousha_jisha');
+							player.update();
+						},
+					};
+
+					lib.skill._o_o_miaoshouhuichun = {//一轮救了3次以上其他角色
+						trigger: { source: 'o_omiaoshouhuichun' },
+						priority: 523,
+						forced: true,
+						content: function() {
+							game.broadcastAll(function() {
+								if (!window.decadeUI) return;
+								decadeUI.animation.playSpine('miaoshouhuichun', { scale: 0.6 });
+								game.playAudio('../extension', decadeUI.extensionName, 'audio/miaoshouhuichun.mp3');
+								decadeUI.delay(2500);
+							});
+						},
+					}
+					lib.skill._o_o_yishugaochao = {//每回合一次，自己回合内给自己回复3点以上体力
+						trigger: { player: 'o_oyishugaochao' },
+						priority: 523,
+						forced: true,
+						content: function() {
+							game.broadcastAll(function() {
+								if (!window.decadeUI) return;
+								decadeUI.animation.playSpine('yishugaochao', { scale: 0.6 });
+								game.playAudio('../extension', decadeUI.extensionName, 'audio/yishugaochao.mp3');
+								decadeUI.delay(2500);
+							});
+						},
+					}
+					lib.skill._o_o_recovertrigger = {//判断医术高超和妙手回春
+						trigger: { player: 'recoverEnd' },//自己回复体力后
+						direct: true,
+						filter:function(event,player){
+							return event.source;
+						},
+						content: function() {
+							if(_status.currentPhase==player&&trigger.source==player){//如果是自己回合给自己回血
+								if (player.storage.o_o_yishugaochao == undefined)player.storage.o_o_yishugaochao = 0;
+								var bo=player.storage.o_o_yishugaochao>=3;
+								player.storage.o_o_yishugaochao += trigger.num;
+								if (!bo&&player.storage.o_o_yishugaochao >= 3) {
+									_status.event.trigger('o_oyishugaochao');
 								}
-								if(player.storage.jstxyishugaochao==undefined||player.storage.jstxyishugaochao<3){
-									game.broadcastAll(function(player){
-										if (!window.decadeUI) return;
-										if (!decadeUI.config.playerKillAndRecoverEffect) return;
-										player.$fullscreenpop('妙手回春','water');
-										game.playAudio('../extension', decadeUI.extensionName, 'audio/jstx_audio/jstxmiaoshouhuichun.mp3');
-									}, player);
-								} else {
-									player.storage.jstxyishugaochao-=3;
-									game.broadcastAll(function(player){
-										if (!window.decadeUI) return;
-										if (!decadeUI.config.playerKillAndRecoverEffect) return;
-										player.$fullscreenpop('医术高超','water');
-										game.playAudio('../extension', decadeUI.extensionName, 'audio/jstx_audio/jstxyishugaochao.mp3');
-									}, player);
+							}
+							if(trigger.source!=player&&trigger.num>=player.hp&&player.hp>0){//如果其他角色给自己回复不小于当前体力的体力值，且自己体力大于0
+								if (trigger.source.storage.o_o_miaoshouhuichun == undefined)trigger.source.storage.o_o_miaoshouhuichun = 0;
+								trigger.source.storage.o_o_miaoshouhuichun ++;
+								if (trigger.source.storage.o_o_miaoshouhuichun >= 3) {
+									_status.event.trigger('o_omiaoshouhuichun');
 								}
 							}
 						},
-						group:'_jstx_recovertrigger_Delete',
-						subSkill:{
-							Delete:{
-								trigger:{player:'phaseEnd'},
-								direct:true,
-								content:function(){
-									delete player.storage.jstxyishugaochao;
+						group: '_o_o_recovertrigger_Delete',
+						subSkill: {
+							Delete: {
+								trigger: { player: ['phaseEnd','roundStart'] },
+								direct: true,
+								filter:function(event,player){
+									if(player.storage.o_o_yishugaochao)return true;
+									if(player.storage.o_oshousha_jisha)return true;
+									return event.name!="phase"&&player.storage.o_o_miaoshouhuichun;
+								},
+								content: function() {
+									delete player.storage.o_o_yishugaochao;
+									player.storage.o_oshousha_jisha=0;
+									if(trigger.name!='phase')delete player.storage.o_o_miaoshouhuichun;
 								},
 							}
 						}
+					}
+					lib.skill._o_o_onCause3Damage = {
+						trigger: {
+							source: 'damageBegin4',
+						},
+						forced: true,
+						silent: true,
+						priority: -523,
+						lastDo: true,
+						onremove: function(player) {
+							player.addSkill('o_o_onCause3Damage');
+						},
+						global: "o_o_onCause3Damage",
+						filter: function(event, player) {
+							return event.num == 3;
+						},
+						content: function() {
+							game.broadcastAll(function() {
+								if (!window.decadeUI) return;
+								decadeUI.animation.playSpine('diankuangtulu', { scale: 0.6 });
+								game.playAudio('../extension', decadeUI.extensionName, 'audio/diankuangtulu.mp3');
+								decadeUI.delay(2500);
+							});
+						},
+					};
+					lib.skill._o_o_onCause4Damage = {
+						trigger: {
+							source: 'damageBegin4',
+						},
+						forced: true,
+						silent: true,
+						priority: -523,
+						lastDo: true,
+						onremove: function(player) {
+							player.addSkill('o_o_onCause4Damage');
+						},
+						global: "o_o_onCause4Damage",
+						filter: function(event, player) {
+							return event.num >= 4;
+						},
+						content: function() {
+							game.broadcastAll(function() {
+								if (!window.decadeUI) return;
+								decadeUI.animation.playSpine('wushuangwanjunqushou', { scale: 0.6 });
+								game.playAudio('../extension', decadeUI.extensionName, 'audio/wushuangwanjunqushou.mp3');
+								decadeUI.delay(2500);
+							});
+						},
 					};
 
 					if (!_status.connectMode) {
