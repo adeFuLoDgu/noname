@@ -15447,19 +15447,6 @@ const skills = {
 				} else {
 					break;
 				}
-
-				cards.add(result.card);
-				const continueResult = await player.chooseBool({ prompt: "是否继续进行判定？" }).set("frequentSkill", "reluoshen").forResult();
-				continuing = continueResult.bool;
-			} while (continuing);
-
-			const gainning = [...cards].filter(card => get.position(card, true) === "o");
-			if (gainning.length) {
-				await player.gain({
-					cards: gainning,
-					animate: "gain2",
-					gaintag: ["reluoshen"],
-				});
 			}
 			if (event.cards.someInD()) {
 				await player.gain(event.cards.filterInD(), "gain2").gaintag.add("reluoshen");
