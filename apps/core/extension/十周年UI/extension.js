@@ -1451,64 +1451,88 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 						forced: true,
 						priority: 2021,
 						content: function() {
-							game.broadcastAll(function(player){
-								if (!window.decadeUI) return;
-								if (!decadeUI.config.playerKillAndRecoverEffect) return;
-								game.countPlayer(function(current) {
-									current.addSkill('o_oshousha_jisha');
-									if (current == player) {
-										if (trigger.name == 'die'&&_status.currentPhase==player) {
-											if (player.storage.o_oshousha_jisha == 1) {
+							game.countPlayer(function(current) {
+								current.addSkill('o_oshousha_jisha');
+								if (current == player) {
+									if (trigger.name == 'die'&&_status.currentPhase==player) {
+										if (player.storage.o_oshousha_jisha == 1) {
+											game.broadcastAll(function(player){
+												if (!window.decadeUI) return;
+												if (!decadeUI.config.playerKillAndRecoverEffect) return;
 												decadeUI.animation.playSpine('yipo', { scale: 0.8 });
 												game.playAudio('../extension', decadeUI.extensionName, 'audio/yipo.mp3');
 												decadeUI.delay(2500);
-											}
-											if (current.storage.o_oshousha_jisha == 2) {
+											}, player);
+										}
+										if (current.storage.o_oshousha_jisha == 2) {
+											game.broadcastAll(function(player){
+												if (!window.decadeUI) return;
+												if (!decadeUI.config.playerKillAndRecoverEffect) return;
 												decadeUI.animation.playSpine('shuanglian', { scale: 0.8 });
 												game.playAudio('../extension', decadeUI.extensionName, 'audio/shuanglian.mp3');
 												decadeUI.delay(2500);
 												decadeUI.animation.playSpine('erlianzhan', { scale: 0.8, parent: player });
 												decadeUI.delay(1500);
-											}
-											if (current.storage.o_oshousha_jisha == 3) {
+											}, player);
+										}
+										if (current.storage.o_oshousha_jisha == 3) {
+											game.broadcastAll(function(player){
+												if (!window.decadeUI) return;
+												if (!decadeUI.config.playerKillAndRecoverEffect) return;
 												decadeUI.animation.playSpine('sanlian', { scale: 0.8 });
 												game.playAudio('../extension', decadeUI.extensionName, 'audio/sanlian.mp3');
 												decadeUI.delay(2500);
 												decadeUI.animation.playSpine('sanlianzhan', { scale: 0.8, parent: player });
 												decadeUI.delay(1500);
-											}
-											if (current.storage.o_oshousha_jisha == 4) {
+											}, player);
+										}
+										if (current.storage.o_oshousha_jisha == 4) {
+											game.broadcastAll(function(player){
+												if (!window.decadeUI) return;
+												if (!decadeUI.config.playerKillAndRecoverEffect) return;
 												decadeUI.animation.playSpine('silian', { scale: 0.8 });
 												game.playAudio('../extension', decadeUI.extensionName, 'audio/silian.mp3');
 												decadeUI.delay(2500);
 												decadeUI.animation.playSpine('silianzhan', { scale: 0.8, parent: player });
 												decadeUI.delay(1500);
-											}
-											if (current.storage.o_oshousha_jisha == 5) {
+											}, player);
+										}
+										if (current.storage.o_oshousha_jisha == 5) {
+											game.broadcastAll(function(player){
+												if (!window.decadeUI) return;
+												if (!decadeUI.config.playerKillAndRecoverEffect) return;
 												decadeUI.animation.playSpine('wulian', { scale: 0.8 });
 												game.playAudio('../extension', decadeUI.extensionName, 'audio/wulian.mp3');
 												decadeUI.delay(2500);
 												decadeUI.animation.playSpine('wulianzhan', { scale: 0.8, parent: player });
 												decadeUI.delay(1500);
-											}
-											if (current.storage.o_oshousha_jisha == 6) {
+											}, player);
+										}
+										if (current.storage.o_oshousha_jisha == 6) {
+											game.broadcastAll(function(player){
+												if (!window.decadeUI) return;
+												if (!decadeUI.config.playerKillAndRecoverEffect) return;
 												decadeUI.animation.playSpine('liulian', { scale: 0.8 });
 												game.playAudio('../extension', decadeUI.extensionName, 'audio/liulian.mp3');
 												decadeUI.delay(2500);
 												decadeUI.animation.playSpine('liulianzhan', { scale: 0.8, parent: player });
 												decadeUI.delay(1500);
-											}
-											if (current.storage.o_oshousha_jisha >= 7) {
+											}, player);
+										}
+										if (current.storage.o_oshousha_jisha >= 7) {
+											game.broadcastAll(function(player){
+												if (!window.decadeUI) return;
+												if (!decadeUI.config.playerKillAndRecoverEffect) return;
 												decadeUI.animation.playSpine('qilian', { scale: 0.8 });
 												game.playAudio('../extension', decadeUI.extensionName, 'audio/qilian.mp3');
 												decadeUI.delay(2500);
 												decadeUI.animation.playSpine('qilianzhan', { scale: 0.8, parent: player });
 												decadeUI.delay(1500);
-											}
+											}, player);
 										}
 									}
-								});
-							}, player);
+								}
+							});
 						},
 					};
 
@@ -1542,6 +1566,7 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 						content: function() {
 							game.broadcastAll(function() {
 								if (!window.decadeUI) return;
+								if (!decadeUI.config.playerKillAndRecoverEffect) return;
 								decadeUI.animation.playSpine('miaoshouhuichun', { scale: 0.6 });
 								game.playAudio('../extension', decadeUI.extensionName, 'audio/miaoshouhuichun.mp3');
 								decadeUI.delay(2500);
@@ -1555,6 +1580,7 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 						content: function() {
 							game.broadcastAll(function() {
 								if (!window.decadeUI) return;
+								if (!decadeUI.config.playerKillAndRecoverEffect) return;
 								decadeUI.animation.playSpine('yishugaochao', { scale: 0.6 });
 								game.playAudio('../extension', decadeUI.extensionName, 'audio/yishugaochao.mp3');
 								decadeUI.delay(2500);
@@ -1620,6 +1646,7 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 						content: function() {
 							game.broadcastAll(function() {
 								if (!window.decadeUI) return;
+								if (!decadeUI.config.playerKillAndRecoverEffect) return;
 								decadeUI.animation.playSpine('diankuangtulu', { scale: 0.6 });
 								game.playAudio('../extension', decadeUI.extensionName, 'audio/diankuangtulu.mp3');
 								decadeUI.delay(2500);
@@ -1644,6 +1671,7 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 						content: function() {
 							game.broadcastAll(function() {
 								if (!window.decadeUI) return;
+								if (!decadeUI.config.playerKillAndRecoverEffect) return;
 								decadeUI.animation.playSpine('wushuangwanjunqushou', { scale: 0.6 });
 								game.playAudio('../extension', decadeUI.extensionName, 'audio/wushuangwanjunqushou.mp3');
 								decadeUI.delay(2500);
