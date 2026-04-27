@@ -1631,7 +1631,7 @@ const skills = {
 				}
 				return _status.event.getParent().type == "phase" ? player.getUseValue(card) : 1;
 			},
-			backup(links, player) {
+			backup(links) {
 				return {
 					filterCard: true,
 					audio: "taoluan",
