@@ -940,7 +940,12 @@ async function loadConfig() {
 		"zombie_jiaxu",
 	];
 	let min_screen_width = Math.min(screen.width, screen.height);
-	lib.config.ui_zoom = min_screen_width >= 1080 ? "150%" : min_screen_width < 768 ? "100%" : "120%";
+	lib.config.ui_zoom =
+	  min_screen_width >= 2560 ? "200%" :
+	  min_screen_width >= 1440 ? "175%" :
+	  min_screen_width >= 1080 ? "150%" :
+	  min_screen_width >= 768  ? "120%" :
+	  "100%";
 	if (get.coreInfo()[0] === "firefox") {
 		lib.config.ui_zoom = "100%";
 	}
