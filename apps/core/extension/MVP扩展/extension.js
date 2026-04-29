@@ -10,7 +10,42 @@ let extensionPackage = {
 	precontent: function() {
 		"use strict;"
 		lib.onover.push(resultbool=>{
-			game.broadcastAll(function(){
+			var dead_players=game.players.concat(game.dead);
+			if(!_status.showShouSha局势){
+				dead_players.forEach(value=>{
+					if(game.dead.includes(value)){
+						value.局势分数-=20;
+					}
+					value.getEnemies().forEach(current=>{
+						if(game.dead.includes(current)||current.isDead()){
+							value.局势分数+=2;
+						}
+					})
+					value.getFriends().forEach(current=>{
+						if(current.isDead()||game.dead.includes(current))
+						value.局势分数-=2;
+					})
+				})
+			}
+			_status.showShouSha局势=true;
+			var list=['mvpCount','攻击分数','治疗分数','辅助分数','局势分数','惩罚扣分'];
+			var scoreData = {};
+			for (var i of game.players) {
+				var id = i.playerid;
+				scoreData[id] = {};
+				list.forEach(value => {
+					scoreData[id][value] = i[value] || 0;
+				});
+			}
+			game.broadcastAll(function(server_scoreData){
+				for (var id in server_scoreData) {
+					var client_player= (_status.connectMode ? lib.playerOL : game.playerMap)[id];
+					if (client_player) {
+						for (var value in server_scoreData[id]) {
+							client_player[value] = server_scoreData[id][value];
+						}
+					}
+				}
 				var 手杀MVP=function (){
 					if(_status.showShoushaMvp) return false;
 					_status.showShoushaMvp=true;
@@ -19,24 +54,6 @@ let extensionPackage = {
 						dialog.forEach(value => value.hide());
 						game.playAudio('..', 'extension', 'MVP扩展','images/asqx.mp3');
 						var players=game.players.slice(0);
-						game.players=game.players.concat(game.dead);
-						if(!_status.showShouSha局势){
-							game.players.forEach(value=>{
-								if(game.dead.includes(value)){
-									value.局势分数-=20;
-								}
-								value.getEnemies().forEach(current=>{
-									if(game.dead.includes(current)||current.isDead()){
-										value.局势分数+=2;
-									}
-								})
-								value.getFriends().forEach(current=>{
-									if(current.isDead()||game.dead.includes(current))
-									value.局势分数-=2;
-								})
-							})
-						}
-						_status.showShouSha局势=true;
 						game.players=players;
 						/**
 						* 冒泡排序
@@ -114,7 +131,7 @@ let extensionPackage = {
 				}
 				ui.create.control("手杀MVP",手杀MVP);
 				手杀MVP();
-			});
+			}, scoreData);
 		});
 		['攻击分数','治疗分数','辅助分数','惩罚扣分'].forEach(value=>{
 			HTMLDivElement.prototype[value]=0;
@@ -150,18 +167,16 @@ let extensionPackage = {
 				return get.attitude(event.source, event.player) < 0;
 			},
 			content:function (){
-				game.broadcastAll(function(event, trigger, player){
-					if (event.triggername==='damageSource') {
-						if (get.attitude(trigger.source,trigger.player)<0||trigger.source.identity == 'nei') trigger.num>5?trigger.source.攻击分数+=15:trigger.source.攻击分数+=3*trigger.num;
-					}else if(trigger.card){
-						if (get.tag({name: trigger.card.name}, 'damage'))
-						player.攻击分数+=2
-						if(trigger.card.name==='wuxie')
-						player.辅助分数+=2;
-						if((get.info(trigger.card).selectTarget===-1||get.info(trigger.card).selectTarget>1)&&(!get.info(trigger.card).toself&&get.type(trigger.card)==='trick'))
-						player.辅助分数+=1;
-					}
-				}, event, trigger, player);
+				if (event.triggername==='damageSource') {
+					if (get.attitude(trigger.source,trigger.player)<0||trigger.source.identity == 'nei') trigger.num>5?trigger.source.攻击分数+=15:trigger.source.攻击分数+=3*trigger.num;
+				}else if(trigger.card){
+					if (get.tag({name: trigger.card.name}, 'damage'))
+					player.攻击分数+=2
+					if(trigger.card.name==='wuxie')
+					player.辅助分数+=2;
+					if((get.info(trigger.card).selectTarget===-1||get.info(trigger.card).selectTarget>1)&&(!get.info(trigger.card).toself&&get.type(trigger.card)==='trick'))
+					player.辅助分数+=1;
+				}
 			}
 		}
 		lib.skill['_qy-mvp-effect2']={
@@ -186,10 +201,8 @@ let extensionPackage = {
 				}
 			},
 			content:function(){
-				game.broadcastAll(function(event, trigger){
-					if(event.triggername=='gainEnd') trigger.player.辅助分数+=1*trigger.cards.length;
-					if(event.triggername=='discardEnd') trigger.source.辅助分数+=1*trigger.cards.length;
-				}, event, trigger);
+				if(event.triggername=='gainEnd') trigger.player.辅助分数+=1*trigger.cards.length;
+				if(event.triggername=='discardEnd') trigger.source.辅助分数+=1*trigger.cards.length;
 			},
 		}
 		lib.skill['_qy-mvp-effect3']={
@@ -205,9 +218,7 @@ let extensionPackage = {
 				return event.player.getFriends().includes(event.source)||event.player==event.source;
 			},
 			content:function(){
-				game.broadcastAll(function(trigger){
-					trigger.num>5?trigger.source.治疗分数+=10:trigger.source.治疗分数+=2*trigger.num;
-				}, trigger);
+				trigger.num>5?trigger.source.治疗分数+=10:trigger.source.治疗分数+=2*trigger.num;
 			},
 		}
 		lib.skill['_qy-mvp-effect4']={
@@ -221,18 +232,16 @@ let extensionPackage = {
 				return (event.source&&event.source.isIn());
 			},
 			content:function(){
-				game.broadcastAll(function(trigger){
-					if(trigger.player.getFriends().includes(trigger.source)){
-						trigger.source.惩罚扣分+=5;
-						if(trigger.source.identity == 'nei'&&trigger.player.identity!='zhu'){
-							trigger.source.惩罚扣分-=5;
-							trigger.source.攻击分数+=3;
-						}
-					}
-					if(trigger.player.getEnemies().includes(trigger.source)){
+				if(trigger.player.getFriends().includes(trigger.source)){
+					trigger.source.惩罚扣分+=5;
+					if(trigger.source.identity == 'nei'&&trigger.player.identity!='zhu'){
+						trigger.source.惩罚扣分-=5;
 						trigger.source.攻击分数+=3;
 					}
-				}, trigger);
+				}
+				if(trigger.player.getEnemies().includes(trigger.source)){
+					trigger.source.攻击分数+=3;
+				}
 			},
 		}
 		lib.init.css(lib.assetURL+'extension/MVP扩展','extension');
