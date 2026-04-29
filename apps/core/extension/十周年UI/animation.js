@@ -1410,6 +1410,7 @@ if (decadeModule) decadeModule.import(function (lib, game, ui, get, ai, _status)
 					tengjia3: { skill: 'tengjia3', name: 'effect_tengjiafangyu', scale: 0.6 },
 					zhangba_skill: { skill: 'zhangba_skill', name: 'effect_zhangbashemao', scale: 0.7 },
 					zhuge_skill: { skill: 'zhuge_skill', name: 'effect_zhugeliannu', scale: 0.5 },
+					real_zhuge_skill: { skill: 'real_zhuge_skill', name: 'effect_zhugeliannu', scale: 0.5 },
 					zhuque_skill: { skill: 'zhuque_skill', name: 'effect_zhuqueyushan', scale: 0.6 },
 					jinhe_lose: { skill: 'jinhe_lose', name: 'effect_jinhe', scale: 0.4 },
 					numa: { skill: 'numa', name: 'effect_numa', scale: 0.4 },

@@ -1139,7 +1139,12 @@ game.import("card", function () {
 					useful: 3.5,
 					value: 7.5,
 					result: {
-						target: 1,
+						target(player, target) {
+							if (player.identity == "nei" || player.identity == "commoner" || target.identity == "nei" || target.identity == "commoner") {
+								return 0;
+							}
+							return 1;
+						},
 					},
 				},
 			},

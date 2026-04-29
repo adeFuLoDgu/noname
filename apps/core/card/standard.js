@@ -2491,7 +2491,7 @@ game.import("card", function () {
 							if (viewAs === "lebu") {
 								let needs = target.needsToDiscard(2);
 								btv *= 1.08 + 0.2 * needs;
-							} else if (viewAs === "shandian" || viewAs === "fulei") {
+							} else if (viewAs === "shandian" || viewAs === "fulei" || viewAs === "hongshui" || viewAs === "huoshan" || viewAs === "suibozhuliu") {
 								btv /= 2;
 							}
 						}
@@ -2852,7 +2852,7 @@ game.import("card", function () {
 							if (viewAs === "lebu") {
 								let needs = target.needsToDiscard(2);
 								val *= 1.08 + 0.2 * needs;
-							} else if (viewAs === "shandian" || viewAs === "fulei") {
+							} else if (viewAs === "shandian" || viewAs === "fulei" || viewAs === "hongshui" || viewAs === "huoshan" || viewAs === "suibozhuliu") {
 								val /= 2;
 							}
 						}
