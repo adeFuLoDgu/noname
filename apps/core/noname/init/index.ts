@@ -951,6 +951,9 @@ async function loadConfig() {
 	}
 	lib.config.identity_banned = [...Character_bannedList];
 	lib.config.connect_identity_banned = [...Character_bannedList];
+	lib.config.guozhan_banned = [
+		"gz_key_ushio",
+	];
 	Character_bannedList = null;
 	lib.configOL = {};
 

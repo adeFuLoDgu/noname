@@ -3114,7 +3114,14 @@ export default () => {
 									game.showIdentity();
 								}
 								if (game.zhu && game.zhu.isAlive() && get.population("nei") == 1 && get.config("nei_fullscreenpop")) {
-									game.me.$fullscreenpop('<span style="font-family:xinwei"><span data-nature="fire">主公</span><span data-nature="soil"> vs </span><span data-nature="thunder">内奸</span></span>', null, null, false);
+									if (window.decadeUI) {
+										game.broadcastAll(function() {
+											if (!window.decadeUI) return;
+											decadeUI.animation.playSpine('neijian', { scale: 0.7 });
+										});
+									} else {
+										game.me.$fullscreenpop('<span style="font-family:xinwei"><span data-nature="fire">主公</span><span data-nature="soil"> vs </span><span data-nature="thunder">内奸</span></span>', null, null, false);
+									}
 								}
 							});
 						}

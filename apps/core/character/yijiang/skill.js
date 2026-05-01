@@ -14180,7 +14180,7 @@ const skills = {
 						let has_bad_equip=players[i].countCards('e',function(card){return get.equipValue(card)<=0;})>0;
 						if (get.attitude(player, players[i]) > 0) {
 							list1.push(players[i]);
-						} else if (get.attitude(player, players[i] && !has_bad_equip) < 0) {
+						} else if (get.attitude(player, players[i]) < 0 && !has_bad_equip) {
 							list2.push(players[i]);
 						}
 					}

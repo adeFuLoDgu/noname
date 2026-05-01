@@ -1,0 +1,76 @@
+
+aozhan.png
+size: 811,811
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+glow
+  rotate: false
+  xy: 2, 58
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+guangbo
+  rotate: false
+  xy: 132, 65
+  size: 121, 121
+  orig: 128, 128
+  offset: 4, 3
+  index: -1
+shandian_00000
+  rotate: false
+  xy: 568, 553
+  size: 238, 256
+  orig: 256, 256
+  offset: 14, 0
+  index: -1
+shandian_00001
+  rotate: true
+  xy: 278, 253
+  size: 211, 256
+  orig: 256, 256
+  offset: 20, 0
+  index: -1
+shandian_00002
+  rotate: true
+  xy: 568, 330
+  size: 221, 238
+  orig: 256, 256
+  offset: 3, 18
+  index: -1
+shandian_00003
+  rotate: false
+  xy: 2, 188
+  size: 256, 250
+  orig: 256, 256
+  offset: 0, 6
+  index: -1
+shandian_00004
+  rotate: false
+  xy: 536, 87
+  size: 250, 241
+  orig: 256, 256
+  offset: 6, 15
+  index: -1
+shandian_00005
+  rotate: false
+  xy: 260, 2
+  size: 255, 249
+  orig: 256, 256
+  offset: 1, 6
+  index: -1
+touxiang (1)
+  rotate: false
+  xy: 278, 466
+  size: 288, 343
+  orig: 288, 343
+  offset: 0, 0
+  index: -1
+touxiang (2)
+  rotate: false
+  xy: 2, 440
+  size: 274, 369
+  orig: 274, 369
+  offset: 0, 0
+  index: -1

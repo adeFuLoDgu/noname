@@ -3035,6 +3035,10 @@ export default () => {
 					return !_status._aozhan && game.roundNumber > 10;
 				},
 				content() {
+					game.broadcastAll(function() {
+						if (!window.decadeUI) return;
+						decadeUI.animation.playSpine('aozhan', { scale: 1.0 });
+					});
 					var color = get.groupnature(player.group, "raw");
 					if (player.isUnseen()) {
 						color = "fire";

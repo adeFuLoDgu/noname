@@ -12696,12 +12696,25 @@ export const Content = {
 			return;
 		}
 
+		game.broadcastAll(function(player){
+			if (!window.decadeUI) return;
+			decadeUI.animation.playSpine('effect_loseHp', { scale: 0.6, parent: player });
+		}, player);
+
 		if (lib.config.background_audio) {
-			game.playAudio("effect", "loseHp");
+			if (window.decadeUI) {
+				game.playAudio('../extension', decadeUI.extensionName, 'audio/loseHp.mp3');
+			} else {
+				game.playAudio("effect", "loseHp");
+			}
 		}
 		game.broadcast(function () {
 			if (lib.config.background_audio) {
-				game.playAudio("effect", "loseHp");
+				if (window.decadeUI) {
+					game.playAudio('../extension', decadeUI.extensionName, 'audio/loseHp.mp3');
+				} else {
+					game.playAudio("effect", "loseHp");
+				}
 			}
 		});
 		game.log(player, "失去了" + get.cnNumber(num) + "点体力");

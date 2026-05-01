@@ -1224,6 +1224,7 @@ if (decadeModule) decadeModule.import(function (lib, game, ui, get, ai, _status)
 		animation.cap = new decadeUI.AnimationPlayerPool(4, decadeUIPath + 'assets/animation/', 'decadeUI.animation');
 
 		var fileList = [
+			{ name: 'effect_youxikaishi' },
 			{ name: 'effect_xianding', fileType: 'json' },
 			{ name: 'effect_caochuanjiejian', follow: true },
 			{ name: 'effect_guohechaiqiao', follow: true },
@@ -1247,6 +1248,16 @@ if (decadeModule) decadeModule.import(function (lib, game, ui, get, ai, _status)
 			{ name: 'effect_yuanjiaojingong', follow: true },
 			{ name: 'effect_zhijizhibi', follow: true },
 			{ name: 'effect_zhulutianxia', follow: true },
+			{ name: 'mianshang' },
+			{ name: 'effect_loseHp' },
+			//野心家
+			{ name: 'yexinjia' },
+			//珠联璧合
+			{ name: 'zhulianbihe' },
+			//先驱
+			{ name: 'xianqu' },
+			//阴阳鱼
+			{ name: 'yinyangyu' },
 			//一破•卧龙出山
 			{ name: 'yipo' },
 			//双连•一战成名
@@ -1281,7 +1292,6 @@ if (decadeModule) decadeModule.import(function (lib, game, ui, get, ai, _status)
 			{ name: 'diankuangtulu' },
 			//无双•万军取首
 			{ name: 'wushuangwanjunqushou' },
-			{ name: 'effect_youxikaishi' },
 			{ name: 'effect_baguazhen' },
 			{ name: 'effect_baiyinshizi' },
 			{ name: 'effect_cixiongshuanggujian' },
@@ -1315,6 +1325,10 @@ if (decadeModule) decadeModule.import(function (lib, game, ui, get, ai, _status)
 			{ name: 'effect_taoyuanjieyi' },
 			{ name: 'effect_shandian' },
 			{ name: 'effect_wanjianqifa_full' },
+			//主内单挑特效
+			{ name: 'neijian' },
+			//鏖战
+			{ name: 'aozhan' },
 			{ name: 'Ss_ZB_QiXingDao' },
 			{ name: 'RWJGD_xiao' },
 			{ name: 'XRJXN_xiao' },

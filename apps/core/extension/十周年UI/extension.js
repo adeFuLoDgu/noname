@@ -1327,7 +1327,7 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 						ui.handcards1Container = decadeUI.element.create('hand-cards', ui.me);
 						ui.handcards2Container = ui.create.div('#handcards2');
 						ui.arena.classList.remove('nome');
-						
+
 						if (lib.config.mousewheel && !lib.config.touchscreen) {
 							ui.handcards1Container.onmousewheel = decadeUI.handler.handMousewheel;
 							ui.handcards2Container.onmousewheel = ui.click.mousewheel;
@@ -1678,6 +1678,52 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 							});
 						},
 					};
+					lib.skill._player_missdamage = {
+						trigger:{player:['damageZero','damageCancelled'],},
+						forced:true,
+						content:function(){
+							game.broadcastAll(function(player){
+								if (!window.decadeUI) return;
+								decadeUI.animation.playSpine('mianshang', { scale: 0.8, parent: player });
+							}, player);
+						},
+					};
+					lib.skill._bjj_ccheck={
+						trigger:{
+							player:'addMark',
+						},
+						direct:true,
+						content:function(){
+							if (trigger.markName=='zhulianbihe_mark') {
+								game.broadcastAll(function() {
+									if (!window.decadeUI) return;
+									decadeUI.animation.playSpine('zhulianbihe', { scale: 0.7 });
+									decadeUI.delay(1500);
+								});
+							}
+							if (trigger.markName=='yexinjia_mark') {
+								game.broadcastAll(function(player){
+									if (!window.decadeUI) return;
+									decadeUI.animation.playSpine('yexinjia', { scale: 0.7, y: [150, 0], parent: player });
+									decadeUI.delay(1500);
+								}, player);
+							}
+							if (trigger.markName=='xianqu_mark') {
+								game.broadcastAll(function() {
+									if (!window.decadeUI) return;
+									decadeUI.animation.playSpine('xianqu', { scale: 0.7 });
+									decadeUI.delay(1500);
+								});
+							}
+							if (trigger.markName=='yinyang_mark') {
+								game.broadcastAll(function(player){
+									if (!window.decadeUI) return;
+									decadeUI.animation.playSpine('yinyangyu', { scale: 0.3, parent: player });
+									decadeUI.delay(1500);
+								}, player);
+							}
+						},
+					};
 
 					if (!_status.connectMode) {
 						lib.element.content.chooseToGuanxing = function(){
@@ -1829,7 +1875,7 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 									if (lib.decade_extIdentity && (lib.decade_extIdentity[this.player.identity] || lib.decade_extIdentity[innerHTML]) && innerHTML != '猜') {
 										if (lib.decade_extIdentity[innerHTML]) filename = lib.decade_extIdentity[innerHTML];
 										else filename = lib.decade_extIdentity[this.player.identity];
-										
+
 										isExt = true;
 									} else switch (innerHTML) {
 											case '先':
@@ -1985,9 +2031,13 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 							this.node.gainSkill.gain = function (skill) {
 								if (!this.skills) this.skills = [];
 								if (this.skills.includes(skill) || !lib.translate[skill]) return;
-								const info = lib.skill[skill];
-								if (!info || info.charlotte || info.sub || (info.mark && !info.limited) || (info.nopop || info.popup === false)) return;
-								if (info.onremove && game.me != this.player.storage[skill]) return;
+								if (lib.config.extension_十周年UI_gainSkillsVisible !== "off") {
+									const info = lib.skill[skill];
+									if (!info || info.charlotte || info.sub || (info.mark && !info.limited) || (info.nopop || info.popup === false) || info.equipSkill) return;
+									if (info.onremove && game.me !== this.player.storage[skill]) return;
+									if (lib.config.extension_十周年UI_gainSkillsVisible === "othersOn" && this.player === game.me) return;
+									if (!info.intro) info.intro = { content: () => get.skillInfoTranslation(skill, this.player, false) };
+								}
 								this.skills.push(skill);
 								this.innerHTML = this.skills.reduce((html, senderSkill) => `${html}[${lib.translate[senderSkill]}]`, '');
 							};
@@ -2109,25 +2159,25 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 										filpY: null,
 										/**
 										 * 0~1
-										 * 
+										 *
 										 * 不透明度
 										 * @type {number}
 										 */
 										opacity: null,
 										/**
 										 * 相对于父节点坐标x，不填为居中
-										 * 
+										 *
 										 * (1) x: 10, 相当于 left: 10px；
-										 * 
+										 *
 										 * (2) x: [10, 0.5], 相当于 left: calc(50% + 10px)；
 										 * @type {number | [number, number]}
 										 */
 										x: skin.x,
 										/**
 										 * 相对于父节点坐标y，不填为居中
-										 * 
+										 *
 										 * (1) y: 10，相当于 top: 10px；
-										 * 
+										 *
 										 * (2) y: [10, 0.5]，相当于 top: calc(50% + 10px)；
 										 * @type {number | [number, number]}
 										 */
@@ -3922,7 +3972,7 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 							spreadOffsetRight = 0,
 							baseShift = 0;
 						const folded = totalW > limitW && xMargin < csw - 0.5;
-			
+
 						if (folded && typeof ui.getSpreadOffset === "function") {
 							const spread = ui.getSpreadOffset(cards, { cardWidth: csw, currentMargin: xMargin });
 							({ spreadIndex: selectedIndex, spreadLeft: spreadOffsetLeft, spreadRight: spreadOffsetRight } = spread);
@@ -4692,11 +4742,11 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 								var event = this;
 								var card = event.result.card.clone;
 								var apcard = event.apcard;
-	
+
 								var tagText = '';
 								var tagNode = card.querySelector('.used-info');
 								if (tagNode == null) tagNode = card.appendChild(dui.element.create('used-info'));
-	
+
 								var action;
 								var judgeValue;
 								var getEffect = event.judge2;
@@ -4705,13 +4755,13 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 								} else {
 									judgeValue = decadeUI.get.judgeEffect(event.judgestr, event.result.judge);
 								}
-	
+
 								if ((typeof judgeValue == 'boolean')) {
 									judgeValue = judgeValue ? 1 : -1;
 								} else {
 									judgeValue = event.result.judge;
 								}
-	
+
 								if (judgeValue >= 0) {
 									action = 'play4';
 									tagText = '判定<span class="greentext">生效</span>';
@@ -4719,7 +4769,7 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 									action = 'play5';
 									tagText = '判定<span class="firetext">失效</span>';
 								}
-	
+
 								if (apcard && apcard._ap) {
 									apcard._ap.stopSpineAll();
 
@@ -4777,7 +4827,7 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 										});
 									}, card, card._cardid, action);
 								}
-	
+
 								event.apcard = undefined;
 								let judge_innerHTML_str = '<span style="font-weight:700"><span style="color:#FFD700">' + get.translation(event.judgestr) + "</span>" + tagText + "</span>";
 								tagNode.innerHTML = judge_innerHTML_str;
@@ -4797,7 +4847,7 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 									tagNode.innerHTML = tag_innerHTML;
 								}, card, judge_innerHTML_str, card._cardid);
 							});
-	
+
 							if (duicfg.cardUseEffect) {
 								decadeUI.animation.cap.playSpineTo(card, {
 									name: 'effect_panding',
@@ -4809,7 +4859,7 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 									action: 'play',
 									loop: true
 								});
-	
+
 								event.apcard = card;
 							}
 							break;
@@ -5174,7 +5224,6 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 
 						return dialog;
 					},
-
 				},
 
 				get:{
@@ -5279,7 +5328,7 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 					},
 					cheatJudgeCards:function(cards, judges, friendly){
 						if (!cards || !judges) throw arguments;
-						
+
 						//修正廢除判定區的BUG
 						if (judges.length==1&&get.judge(judges[0])==undefined) return [];
 
@@ -5664,7 +5713,7 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 			if (node.created) return;
 			node.created = true;
 			node.style.overflow = 'scroll';
-			
+
 			const list = ['re_caocao', 're_liubei', 'sp_zhangjiao', 'sunquan'];
 				while (list.length) {
 					ui.create.div('.avatar', ui.create.div('.seat-player.fakeplayer', node)).setBackground(list.randomRemove(), 'character');
@@ -5673,7 +5722,7 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 
 			window.decadeModule = function (decadeModule) {
 				if (ui.css.layout && (!ui.css.layout.href || ui.css.layout.href.indexOf('long2') < 0)) ui.css.layout.href = `${lib.assetURL}layout/long2/layout.css`;
-				
+
 				decadeModule.init = function () {
 					this.css(`${decadeUIPath}decadeLayout.css`);
 					this.css(`${decadeUIPath}layout.css`);
@@ -5808,7 +5857,6 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 					writable: true
 				}
 			});
-			
 		},
 		config:{
 			eruda:{
