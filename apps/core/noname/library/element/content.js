@@ -7213,8 +7213,13 @@ export const Content = {
 				} else {
 					event.compareName = event.parent.name;
 				}
-				if (typeof(event.compareName) == "string" && event.compareName.startsWith("pre_")) {
-					event.compareName = event.compareName.slice(4);
+				if (typeof event.compareName == "string") {
+					if (event.compareName.startsWith("pre_")) {
+						event.compareName = event.compareName.slice(4);
+					}
+					if (event.compareName.startsWith("player_when_")) {
+						event.compareName = "";
+					}
 				}
 				if (!event.isDelay) {
 					game.broadcastAll(function(player, target, eventName){
