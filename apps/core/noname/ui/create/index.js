@@ -3385,9 +3385,14 @@ export class Create {
 			if (node) {
 				node.classList.add("button");
 				node.classList.add("character");
+				if (window.decadeUI) node.classList.add("decadeUI");
 				node.style.display = "";
 			} else {
-				node = ui.create.div(".button.character", position);
+				if (window.decadeUI) {
+					node = ui.create.div(".button.character.decadeUI", position);
+				} else {
+					node = ui.create.div(".button.character", position);
+				}
 			}
 			node._link = item;
 			if (_status.noReplaceCharacter && type == "characterx") {
@@ -3399,6 +3404,7 @@ export class Create {
 				}
 			}
 			node.link = item;
+			if (window.decadeUI) decadeUI.element.create("character", node);
 			var double = get.is.double(node._link, true);
 			if (double) {
 				node._changeGroup = true;
@@ -3417,12 +3423,21 @@ export class Create {
 						node.node.replaceButton.remove();
 					}
 				}
-				node.node = {
-					name: ui.create.div(".name", node),
-					hp: ui.create.div(".hp", node),
-					group: ui.create.div(".identity", node),
-					intro: ui.create.div(".intro", node),
-				};
+				if (window.decadeUI) {
+					node.node = {
+						name: decadeUI.element.create('name', node),
+						hp: decadeUI.element.create('hp', node),
+						group: decadeUI.element.create('identity', node),
+						intro: decadeUI.element.create('intro', node),
+					};
+				} else {
+					node.node = {
+						name: ui.create.div(".name", node),
+						hp: ui.create.div(".hp", node),
+						group: ui.create.div(".identity", node),
+						intro: ui.create.div(".intro", node),
+					};
+				}
 				var infoitem = get.character(item);
 				node.node.name.innerHTML = get.slimName(item);
 				if (lib.config.buttoncharacter_style == "default" || lib.config.buttoncharacter_style == "simple") {

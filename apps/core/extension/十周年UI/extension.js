@@ -661,153 +661,6 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 								intro.style.backgroundImage = 'url("' + decadeUIPath + 'assets/image/rarity_' + rarity + '.png")';
 							},
 
-							buttonPresets: {
-								character: (item, type, position, noclick, node) => {
-									if (node) {
-										node.classList.add('button');
-										node.classList.add('character');
-										node.classList.add('decadeUI');
-										node.style.display = '';
-									} else {
-										node = ui.create.div('.button.character.decadeUI', position);
-									}
-									node._link = item;
-									if (_status.noReplaceCharacter && type == 'characterx') type = 'character';
-									if (type == 'characterx') {
-										if (lib.characterReplace[item] && lib.characterReplace[item].length) item = lib.characterReplace[item].randomGet();
-									}
-									node.link = item;
-
-									var double = get.is.double(node._link, true);
-									var character = dui.element.create('character', node);
-									if (double) node._changeGroup = true;
-									if (type == 'characterx' && lib.characterReplace[node._link] && lib.characterReplace[node._link].length > 1) node._replaceButton = true;
-									var func = function (node, item, intersection) {
-										if (intersection) {
-											node.awaitItem = item;
-											intersection.observe(node);
-										} else {
-											node.setBackground(item, 'character');
-										}
-										if (node.node) {
-											node.node.name.remove();
-											node.node.hp.remove();
-											node.node.group.remove();
-											node.node.intro.remove();
-											if (node.node.replaceButton) node.node.replaceButton.remove();
-										}
-										node.node = {
-											name: decadeUI.element.create('name', node),
-											hp: decadeUI.element.create('hp', node),
-											group: decadeUI.element.create('identity', node),
-											intro: decadeUI.element.create('intro', node),
-										};
-										var infoitem = lib.character[item];
-										if (!infoitem) {
-											for (var itemx in lib.characterPack) {
-												if (lib.characterPack[itemx][item]) {
-													infoitem = lib.characterPack[itemx][item]; break;
-												}
-											}
-										}
-										node.node.name.innerHTML = get.slimName(item);
-										if (lib.config.buttoncharacter_style == 'default' || lib.config.buttoncharacter_style == 'simple') {
-											if (lib.config.buttoncharacter_style == 'simple') {
-												node.node.group.style.display = 'none';
-											}
-											node.classList.add('newstyle');
-											node.node.name.dataset.nature = get.groupnature(get.bordergroup(infoitem));
-											node.node.group.dataset.nature = get.groupnature(get.bordergroup(infoitem), 'raw');
-											ui.create.div(node.node.hp);
-											var hp = get.infoHp(infoitem[2]), maxHp = get.infoMaxHp(infoitem[2]), hujia = get.infoHujia(infoitem[2]);
-											var str = get.numStr(hp);
-											if (hp != maxHp) {
-												str += '/';
-												str += get.numStr(maxHp);
-											}
-											var textnode = ui.create.div('.text', str, node.node.hp);
-											if (infoitem[2] == 0) {
-												node.node.hp.hide();
-											} else if (get.infoHp(infoitem[2]) <= 3) {
-												node.node.hp.dataset.condition = 'mid';
-											} else {
-												node.node.hp.dataset.condition = 'high';
-											}
-											if (hujia > 0) {
-												ui.create.div(node.node.hp, '.shield');
-												ui.create.div('.text', get.numStr(hujia), node.node.hp);
-											}
-										} else {
-											var hp = get.infoHp(infoitem[2]);
-											var maxHp = get.infoMaxHp(infoitem[2]);
-											var shield = get.infoHujia(infoitem[2]);
-											if (maxHp > 14) {
-												if (typeof infoitem[2] == 'string') node.node.hp.innerHTML = infoitem[2];
-												else node.node.hp.innerHTML = get.numStr(infoitem[2]);
-												node.node.hp.classList.add('text');
-											} else {
-												for (var i = 0; i < maxHp; i++) {
-													var next = ui.create.div('', node.node.hp);
-													if (i >= hp) next.classList.add('exclude');
-												}
-												for (var i = 0; i < shield; i++) {
-													ui.create.div(node.node.hp, '.shield');
-												}
-											}
-										}
-										if (node.node.hp.childNodes.length == 0) {
-											node.node.name.style.top = '8px';
-										}
-										if (node.node.name.querySelectorAll('br').length >= 4) {
-											node.node.name.classList.add('long');
-											if (lib.config.buttoncharacter_style == 'old') {
-												node.addEventListener('mouseenter', ui.click.buttonnameenter);
-												node.addEventListener('mouseleave', ui.click.buttonnameleave);
-											}
-										}
-										node.node.intro.innerHTML = lib.config.intro;
-										if (!noclick) {
-											lib.setIntro(node);
-										}
-										if (infoitem[1]) {
-											if (double) {
-												node.node.group.innerHTML = double.reduce((previousValue, currentValue) => `${previousValue}<div data-nature="${get.groupnature(currentValue)}">${get.translation(currentValue)}</div>`, '');
-												if (double.length > 4) if (new Set([5, 6, 9]).has(double.length)) node.node.group.style.height = '48px';
-												else node.node.group.style.height = '64px';
-											} else node.node.group.innerHTML = `<div>${get.translation(infoitem[1])}</div>`;
-											node.node.group.style.backgroundColor = get.translation(`${get.bordergroup(infoitem)}Color`);
-										} else {
-											node.node.group.style.display = 'none';
-										}
-										if (node._replaceButton) {
-											var intro = ui.create.div('.button.replaceButton', node);
-											node.node.replaceButton = intro;
-											intro.innerHTML = '切换';
-											intro._node = node;
-											intro.addEventListener(lib.config.touchscreen ? 'touchend' : 'click', function () {
-												_status.tempNoButton = true;
-												var node = this._node;
-												var list = lib.characterReplace[node._link];
-												var link = node.link;
-												var index = list.indexOf(link);
-												if (index == list.length - 1) index = 0;
-												else index++;
-												link = list[index];
-												node.link = link;
-												node.refresh(node, link);
-												setTimeout(function () {
-													delete _status.tempNoButton;
-												}, 200);
-											});
-										}
-									};
-									node.refresh = func;
-									node.refresh(node, item, position ? position.intersection : undefined);
-
-									return node;
-								}
-							},
-
 							confirm:function(str, func){
 								if (ui.confirm && ui.confirm.str == str) return;
 
@@ -4801,10 +4654,12 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 											});
 										}
 										if (node == undefined || !node.node) return;
-										node._ap.playSpine({
-											name: 'effect_panding',
-											action: action
-										});
+										if (node._ap) {
+											node._ap.playSpine({
+												name: 'effect_panding',
+												action: action
+											});
+										}
 									}, apcard, apcard._cardid, action);
 								} else {
 									decadeUI.animation.cap.playSpineTo(card, {

@@ -939,6 +939,9 @@ async function loadConfig() {
 		"zhurong",
 		"zombie_jiaxu",
 	];
+	let Guozhan_Character_bannedList = [
+		"gz_key_ushio",
+	];
 	let min_screen_width = Math.min(screen.width, screen.height);
 	lib.config.ui_zoom =
 	  min_screen_width >= 2560 ? "200%" :
@@ -951,9 +954,8 @@ async function loadConfig() {
 	}
 	lib.config.identity_banned = [...Character_bannedList];
 	lib.config.connect_identity_banned = [...Character_bannedList];
-	lib.config.guozhan_banned = [
-		"gz_key_ushio",
-	];
+	lib.config.guozhan_banned = [...Guozhan_Character_bannedList];
+	lib.config.connect_guozhan_banned = [...Guozhan_Character_bannedList];
 	Character_bannedList = null;
 	lib.configOL = {};
 

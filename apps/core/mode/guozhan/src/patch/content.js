@@ -788,6 +788,10 @@ export const chooseCharacterOLContent = async (event, _trigger, _player) => {
 				let perfectPairs = [];
 				for (const btn of ui.dialog.buttons) {
 					if (btn !== button) {
+						if (window.decadeUI) {
+							let checkPerfectPair = lib.element.player.perfectPair || lib.element.Player.prototype.perfectPair;
+							lib.element.player.perfectPair = checkPerfectPair;
+						}
 						if (
 							// @ts-expect-error 祖宗之法就是这么写的
 							lib.element.player.perfectPair.call(
