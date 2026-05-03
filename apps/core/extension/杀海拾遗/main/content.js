@@ -1,4 +1,5 @@
 import { lib, game, ui, get, ai, _status } from "./utils.js";
+import characters from "../character/yunchou/character.js";
 
 export function content(config, pack) {
 	if (lib.config.extension_杀海拾遗_forbidconfigs !== lib.extensionPack["杀海拾遗"].version) {
@@ -422,5 +423,19 @@ export function content(config, pack) {
 		}
 		lib.translate[name] = "伊瑟拉";
 		lib.translate[name + "_info"] = get.skillintro("stone_yisela");
+	}
+
+	if (lib.characterReplace) {
+		for (let i in characters) {
+			const name = i.slice(4);
+			if (!lib.character[name]) {
+				continue;
+			}
+			if (!lib.characterReplace[name]) {
+				lib.characterReplace[name] = [name, i];
+			} else {
+				lib.characterReplace[name].push(i);
+			}
+		}
 	}
 }

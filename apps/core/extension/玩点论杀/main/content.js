@@ -1,4 +1,5 @@
 import { lib, game, ui, get, ai, _status } from "noname";
+import characters from "../character/character.js";
 
 export function content(config, pack) {
 	if (lib.rank) {
@@ -16,6 +17,19 @@ export function content(config, pack) {
 			};
 			for (let i in rarity) {
 				lib.rank.rarity[i].addArray(rarity[i]);
+			}
+		}
+	}
+	if (lib.characterReplace) {
+		for (let i in characters) {
+			const name = i.slice(4);
+			if (!lib.character[name]) {
+				continue;
+			}
+			if (!lib.characterReplace[name]) {
+				lib.characterReplace[name] = [name, i];
+			} else {
+				lib.characterReplace[name].push(i);
 			}
 		}
 	}

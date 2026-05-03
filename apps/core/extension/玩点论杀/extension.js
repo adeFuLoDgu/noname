@@ -1,10 +1,12 @@
 import { lib, game, ui, get, ai, _status } from "noname";
+import { content } from "./main/content.js";
 import { precontent } from "./main/precontent.js";
 
 const extensionInfo = await lib.init.promises.json(`${lib.assetURL}extension/玩点论杀/info.json`);
 let extensionPackage = {
 	name: "玩点论杀",
 	config: {},
+	content,
 	help: {},
 	package: {},
 	precontent,

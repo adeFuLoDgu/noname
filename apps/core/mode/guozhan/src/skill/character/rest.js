@@ -7515,7 +7515,7 @@ export default {
 			}, "h");
 		},
 		filterCard(card) {
-			return !card.hasTag("lianheng") && !card.hasGaintag("_lianheng");
+			return card && !card.hasTag("lianheng") && !card.hasGaintag("_lianheng");
 		},
 		position: "h",
 		discard: false,
