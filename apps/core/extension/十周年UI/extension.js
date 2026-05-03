@@ -46,7 +46,7 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 			eval(`${method} = ${redirectedMethod}`);
 		}
 	};
-	const version = '1.2.0.220114.34';
+	const version = '1.2.0.260503.01';
 	return {
 		name: "十周年UI",
 		content:config=>{
@@ -4490,7 +4490,7 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 								var nature = event.card.nature;
 
 								switch (name) {
-									case 'effect_caochuanjiejian':
+									case 'caochuan':
 										decadeUI.animation.cap.playSpineTo(card, 'effect_caochuanjiejian');
 										animation_playSpineTo_Client(card, 'effect_caochuanjiejian');
 										break;
@@ -5920,29 +5920,26 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 					if (window.decadeUI) ui.arena.dataset.playerMarkStyle = lib.config.extension_十周年UI_playerMarkStyle;
 				}
 			},
+			DisableAllSpineEffect:{
+				name: '关闭所有骨骼动画',
+				init: false,
+				onclick: value => {
+					game.saveConfig('extension_十周年UI_DisableAllSpineEffect', value);
+					if (window.decadeUI) decadeUI.config.DisableAllSpineEffect = value;
+				},
+				intro: '若出现卡、网站重复发生问题/出现错误等问题，请开启此选项关闭所有骨骼动画。',
+			},
 		},
 		package:{
 			intro:(function(){
 				var log = [
 				'有bug先检查其他扩展，不行再关闭UI重试，最后再联系作者。',
-				'当前版本：1.2.0.220114',
-				'更新日期：2022-01-14',
-				'- 新增动皮及背景：[曹节-凤历迎春]、[曹婴-巾帼花舞]、[貂蝉-战场绝版]、[何太后-耀紫迷幻]、[王荣-云裳花容]、[吴苋-金玉满堂]、[周夷-剑舞浏漓]；',
-				'- 新增动皮oncomplete支持(函数内部只能调用this.xxx代码)；',
-				'- 优化了主玩家攻击指示线的位置显示；',
-				'- 优化了主玩家出牌摸牌相关呈现动画；',
-				'- 优化折叠手牌，开关跟随系统的设置；',
-				'- 优化部分代码，提升游戏整体流畅度；',
-				'- 修复关闭界包后因界标记弹窗的问题；',
-				'- 修复挑战模式下界武将名丢失的问题；',
-				'- 修复挑战模式下动皮异常拉伸的问题；',
-				'- 修复了加载其他目录的特效文件问题；',
-				'- 修复低版本窗口改动后动皮模糊问题；'
+				'当前版本：1.2.0.260503',
 				];
 
 				return '<p style="color:rgb(210,210,000); font-size:12px; line-height:14px; text-shadow: 0 0 2px black;">' + log.join('<br>') + '</p>';
 			})(),
-			author:"短歌 QQ464598631",
+			author:"",
 			diskURL:"",
 			forumURL:"",
 			version: version,

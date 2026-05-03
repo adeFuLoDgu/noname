@@ -1250,14 +1250,67 @@ if (decadeModule) decadeModule.import(function (lib, game, ui, get, ai, _status)
 			{ name: 'effect_zhulutianxia', follow: true },
 			{ name: 'mianshang' },
 			{ name: 'effect_loseHp' },
-			//野心家
-			{ name: 'yexinjia' },
-			//珠联璧合
-			{ name: 'zhulianbihe' },
-			//先驱
-			{ name: 'xianqu' },
-			//阴阳鱼
-			{ name: 'yinyangyu' },
+			{ name: 'effect_baguazhen' },
+			{ name: 'effect_baiyinshizi' },
+			{ name: 'effect_cixiongshuanggujian' },
+			{ name: 'effect_fangtianhuaji' },
+			{ name: 'effect_guanshifu' },
+			{ name: 'effect_gudingdao' },
+			{ name: 'effect_hanbingjian' },
+			{ name: 'effect_qilingong' },
+			{ name: 'effect_qinggangjian' },
+			{ name: 'effect_qinglongyanyuedao' },
+			{ name: 'effect_renwangdun' },
+			{ name: 'effect_shoujidonghua' },
+			{ name: 'effect_tengjiafangyu' },
+			{ name: 'effect_tengjiaranshao' },
+			{ name: 'effect_zhangbashemao' },
+			{ name: 'effect_zhiliao' },
+			{ name: 'effect_zhugeliannu' },
+			{ name: 'effect_zhuqueyushan' },
+			{ name: 'effect_jinhe' },
+			{ name: 'effect_numa' },
+			{ name: 'effect_nvzhuang' },
+			{ name: 'effect_wufengjian' },
+			{ name: 'effect_yajiaoqiang' },
+			{ name: 'effect_yinfengjia' },
+			{ name: 'effect_zheji' },
+			{ name: 'effect_zhenwang' },
+			{ name: 'effect_lebusishu' },
+			{ name: 'effect_bingliangcunduan' },
+			{ name: 'effect_nanmanruqin' },
+			{ name: 'effect_taoyuanjieyi' },
+			{ name: 'effect_shandian' },
+			{ name: 'effect_wanjianqifa_full' },
+			//主内单挑特效
+			{ name: 'neijian' },
+			{ name: 'Ss_ZB_QiXingDao' },
+			{ name: 'RWJGD_xiao' },
+			{ name: 'XRJXN_xiao' },
+			{ name: 'XTBGZ_xiao' },
+			{ name: 'ZYSZK_xiao' },
+			{ name: 'TYBLJ' },
+			{ name: 'SSHW_TX_chongyingshenfu' },
+			{ name: 'SSHW_TX_lingbaoxianhu' },
+			{ name: 'SSHW_TX_taijifuchen' },
+			{ name: 'taipingyaoshu' },
+			{ name: 'effect_taipingyaoshu_xiexia' },
+			{ name: 'qibaodao2' },
+			{ name: 'feilongduofeng' },
+			{ name: 'Ss_mgk_fire' },
+			{ name: 'Ss_mgk_tslh' },
+			{ name: 'Ss_Gz_WuLiuJian' },
+			{ name: 'Ss_Gz_SanJianLiangRenDao' },
+			{ name: 'Ss_ZB_YiTianJian' },
+			{ name: 'Ss_ZB_YinFengYi' },
+			{ name: 'Ss_ZB_ZhanXiang' },
+			{ name: 'SSHW_TX_chiyanzhenhun' },
+			{ name: 'SSHW_TX_xuwangzhimian' },
+			{ name: 'Ss_ZB_ZheJi' },
+			{ name: 'Ss_ZB_NvZhuang' },
+		];
+
+		var fileList_KillAndRecoverEffect = [
 			//一破•卧龙出山
 			{ name: 'yipo' },
 			//双连•一战成名
@@ -1292,68 +1345,43 @@ if (decadeModule) decadeModule.import(function (lib, game, ui, get, ai, _status)
 			{ name: 'diankuangtulu' },
 			//无双•万军取首
 			{ name: 'wushuangwanjunqushou' },
-			{ name: 'effect_baguazhen' },
-			{ name: 'effect_baiyinshizi' },
-			{ name: 'effect_cixiongshuanggujian' },
-			{ name: 'effect_fangtianhuaji' },
-			{ name: 'effect_guanshifu' },
-			{ name: 'effect_gudingdao' },
-			{ name: 'effect_hanbingjian' },
-			{ name: 'effect_qilingong' },
-			{ name: 'effect_qinggangjian' },
-			{ name: 'effect_qinglongyanyuedao' },
-			{ name: 'effect_renwangdun' },
-			{ name: 'effect_shoujidonghua' },
-			{ name: 'effect_tengjiafangyu' },
-			{ name: 'effect_tengjiaranshao' },
-			{ name: 'effect_zhangbashemao' },
-			{ name: 'effect_zhiliao' },
-			{ name: 'effect_zhugeliannu' },
-			{ name: 'effect_zhuqueyushan' },
-			{ name: 'effect_jinhe' },
-			{ name: 'effect_numa' },
-			{ name: 'effect_nvzhuang' },
-			{ name: 'effect_wufengjian' },
-			{ name: 'effect_yajiaoqiang' },
-			{ name: 'effect_yinfengjia' },
-			{ name: 'effect_zheji' },
-			{ name: 'effect_jisha1' },
-			{ name: 'effect_zhenwang' },
-			{ name: 'effect_lebusishu' },
-			{ name: 'effect_bingliangcunduan' },
-			{ name: 'effect_nanmanruqin' },
-			{ name: 'effect_taoyuanjieyi' },
-			{ name: 'effect_shandian' },
-			{ name: 'effect_wanjianqifa_full' },
-			//主内单挑特效
-			{ name: 'neijian' },
+		];
+		if (decadeUI.config.playerKillAndRecoverEffect) {
+			fileList.splice(26, 0,...fileList_KillAndRecoverEffect); 
+		}
+
+		var fileList_guozhan = [
+			//野心家
+			{ name: 'yexinjia' },
+			//珠联璧合
+			{ name: 'zhulianbihe' },
+			//先驱
+			{ name: 'xianqu' },
+			//阴阳鱼
+			{ name: 'yinyangyu' },
+		];
+		if (get.mode() === "guozhan") {
+			fileList.splice(26, 0,...fileList_guozhan); 
+		}
+
+		var fileList_aozhan = [
 			//鏖战
 			{ name: 'aozhan' },
-			{ name: 'Ss_ZB_QiXingDao' },
-			{ name: 'RWJGD_xiao' },
-			{ name: 'XRJXN_xiao' },
-			{ name: 'XTBGZ_xiao' },
-			{ name: 'ZYSZK_xiao' },
-			{ name: 'TYBLJ' },
-			{ name: 'SSHW_TX_chongyingshenfu' },
-			{ name: 'SSHW_TX_lingbaoxianhu' },
-			{ name: 'SSHW_TX_taijifuchen' },
-			{ name: 'taipingyaoshu' },
-			{ name: 'effect_taipingyaoshu_xiexia' },
-			{ name: 'qibaodao2' },
-			{ name: 'feilongduofeng' },
-			{ name: 'Ss_mgk_fire' },
-			{ name: 'Ss_mgk_tslh' },
-			{ name: 'Ss_Gz_WuLiuJian' },
-			{ name: 'Ss_Gz_SanJianLiangRenDao' },
-			{ name: 'Ss_ZB_YiTianJian' },
-			{ name: 'Ss_ZB_YinFengYi' },
-			{ name: 'Ss_ZB_ZhanXiang' },
-			{ name: 'SSHW_TX_chiyanzhenhun' },
-			{ name: 'SSHW_TX_xuwangzhimian' },
-			{ name: 'Ss_ZB_ZheJi' },
-			{ name: 'Ss_ZB_NvZhuang' },
 		];
+		if (get.mode() === "guozhan" || get.mode() === "doudizhu") {
+			fileList.splice(26, 0,...fileList_aozhan); 
+		}
+
+		var fileList_playerKillEffect = [
+			{ name: 'effect_jisha1' },
+		];
+		if (decadeUI.config.playerKillEffect) {
+			fileList.splice(26, 0,...fileList_playerKillEffect); 
+		}
+
+		if (decadeUI.config.DisableAllSpineEffect) {
+			fileList = [];
+		}
 
 		var fileNameList = fileList.concat();
 
