@@ -1158,31 +1158,12 @@ game.import("card", function () {
 						return 0;
 					},
 					result: {
-						player(player, target) {
-							if (target.hasSkill("undist") || target.hasSkill("diaohulishan")) {
-								return 0;
-							}
-							return player.countCards("hs", card => {
-								if (ui.selected.cards.includes(card)) {
-									return false;
-								}
-								const cardx = get.autoViewAs({ name: get.name(card), nature: get.nature(card), cards: [card] }, [card]);
-								if (!player.hasUseTarget(cardx, null, true)) {
-									return false;
-								}
-								const select = get.select(cardx);
-								if (select[1] === -1) {
-									if (player.canUse(cardx, target, null, true)) {
-										return get.effect(target, cardx, player, player) < 0;
-									}
-									return false;
-								}
-								let eff1 = player.getUseValue(cardx, null, true);
-								target.addSkill("undist");
-								let eff2 = player.getUseValue(cardx, null, true);
-								target.removeSkill("undist");
-								return eff2 > eff1;
-							});
+						target(player, target) {
+							let to_enemry_card_num = player.countCards("h", card => get.type(card) == "trick" && (get.tag(card, "damage") || get.tag(card, "discard")));
+							let to_friend_card_num = player.countCards("h", card => get.tag(card, "recover") || get.tag(card, "draw"));
+							if (to_enemry_card_num > 0) return 1;
+							if (to_friend_card_num > 0) return -1;
+							return 0;
 						},
 					},
 				},
