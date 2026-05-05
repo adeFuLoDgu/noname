@@ -7515,7 +7515,7 @@ export default {
 			}, "h");
 		},
 		filterCard(card) {
-			return card && !card.hasTag("lianheng") && !card.hasGaintag("_lianheng");
+			return typeof card.hasTag == "function" && !card.hasTag("lianheng") && !card.hasGaintag("_lianheng");
 		},
 		position: "h",
 		discard: false,
@@ -16557,14 +16557,14 @@ export default {
 		prompt: "将至多三张可合纵的牌交给一名与你势力不同的角色，或未确定势力的角色，若你交给与你势力不同的角色，则你摸等量的牌",
 		filter(event, player) {
 			return player.hasCard(function (card) {
-				return card && (card.hasTag("lianheng") || card.hasGaintag("_lianheng"));
+				return typeof card.hasTag == "function" && (card.hasTag("lianheng") || card.hasGaintag("_lianheng"));
 			}, "h");
 		},
 		filterCard(card) {
 			if (get.itemtype(card) != "card") {
 				return false;
 			}
-			return card && (card.hasTag("lianheng") || card.hasGaintag("_lianheng"));
+			return typeof card.hasTag == "function" && (card.hasTag("lianheng") || card.hasGaintag("_lianheng"));
 		},
 		filterTarget(card, player, target) {
 			if (target == player) {

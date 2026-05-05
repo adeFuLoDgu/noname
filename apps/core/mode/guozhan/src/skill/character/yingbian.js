@@ -4745,7 +4745,7 @@ export default {
 				}, "hs");
 			}
 			return player.hasCard(function (card) {
-				return card && card.hasTag("lianheng");
+				return typeof card.hasTag == "function" && card.hasTag("lianheng");
 			}, "hs");
 		},
 		chooseButton: {
@@ -4774,7 +4774,7 @@ export default {
 						if (_status.mode == "yingbian") {
 							return get.is.yingbian(card);
 						}
-						return card && card.hasTag("lianheng");
+						return typeof card.hasTag == "function" && card.hasTag("lianheng");
 					},
 					check(card) {
 						return 1 / Math.max(1, get.value(card));
@@ -5051,7 +5051,7 @@ export default {
 					if (cards.includes(card)) {
 						return false;
 					}
-					return card && (card.hasTag("lianheng") || get.is.yingbian(card));
+					return typeof card.hasTag == "function" && (card.hasTag("lianheng") || get.is.yingbian(card));
 				});
 				if (!card) {
 					break;
