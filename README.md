@@ -6,7 +6,13 @@ Click [here](https://adeFuLoDgu.github.io/noname) to play with browser. **(Bette
 
 ## Setting Suggestions
 + Please reset the game after the major version update to get the updated default game settings.
+
 ![image](https://raw.githubusercontent.com/adeFuLoDgu/noname/master/docs/reset_illustration.jpg)
+
++ If you encounter the "A problem repeatedly occured" error on iOS, please adjust the following settings to disable effects:
+
+![image](https://raw.githubusercontent.com/adeFuLoDgu/noname/master/docs/low_performance_settings_1.png)
+![image](https://raw.githubusercontent.com/adeFuLoDgu/noname/master/docs/low_performance_settings_2.png)
 
 ## How to Host the Server
 + For hosting instructions, please visit [this repository](https://github.com/adeFuLoDgu/Simple_Noname_Master_Server).
