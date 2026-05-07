@@ -2065,7 +2065,7 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 
 							let refreshPrefix;
 
-							if (character && duicfg.showJieMark) {
+							if (character && duicfg.showJieMark && get.mode() != "guozhan") {
 								if (lib.characterPack.refresh) refreshPrefix = lib.characterPack.refresh[character];
 
 								if (!refreshPrefix) refreshPrefix = character.substr(0, 3);

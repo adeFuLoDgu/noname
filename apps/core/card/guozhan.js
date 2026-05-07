@@ -1159,8 +1159,8 @@ game.import("card", function () {
 					},
 					result: {
 						target(player, target) {
-							let to_enemry_card_num = player.countCards("h", card => get.type(card) == "trick" && (get.tag(card, "damage") || get.tag(card, "discard")));
-							let to_friend_card_num = player.countCards("h", card => get.tag(card, "recover") || get.tag(card, "draw"));
+							let to_enemry_card_num = player.countCards("h", card => get.tag(card, "multitarget") && get.type(card) == "trick" && (get.tag(card, "damage") || get.tag(card, "discard")));
+							let to_friend_card_num = player.countCards("h", card => get.tag(card, "multitarget") && get.type(card) == "trick" && (get.tag(card, "recover") || get.tag(card, "draw")));
 							if (to_enemry_card_num > 0) return 1;
 							if (to_friend_card_num > 0) return -1;
 							return 0;

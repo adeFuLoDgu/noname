@@ -5826,7 +5826,7 @@ export default {
 				direct: true,
 				content() {
 					"step 0";
-					player.chooseCard(get.prompt("gzrebushi"), "he", "失去1个“义舍”标记，将一张牌交给" + get.translation(trigger.player) + "并摸两张牌").set("ai", function (card) {
+					player.chooseCard(get.prompt("gzrebushi"), "he", "失去1个“布施”标记，将一张牌交给" + get.translation(trigger.player) + "并摸两张牌").set("ai", function (card) {
 						var player = _status.event.player;
 						var trigger = _status.event.getTrigger();
 						var target = trigger.player;

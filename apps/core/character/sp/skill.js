@@ -37341,6 +37341,9 @@ const skills = {
 					const { player, usefulCards } = get.event();
 					if (get.mode() == "guozhan" && card.constructor.name == "VCard" && card?.cards?.[0]) {
 						card = card.cards[0];
+						if (card.name == "tao") {
+							return 7;
+						}
 					}
 					if (usefulCards.includes(card)) {
 						return 0.1;
