@@ -46,7 +46,7 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 			eval(`${method} = ${redirectedMethod}`);
 		}
 	};
-	const version = '1.2.0.260503.01';
+	const version = '1.2.0.260507.01';
 	return {
 		name: "十周年UI",
 		content:config=>{
@@ -1687,6 +1687,9 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 						}
 						buildNode() {
 							super.buildNode();
+							if (get.mode() === "guozhan") {
+								ui.arena.style.setProperty('--player-unseen-bg', 'url("assets/image/bj2.png")');
+							}
 							this.node.avatar.className = 'primary-avatar';
 							this.node.avatar2.className = 'deputy-avatar';
 							if(!duicfg.dynamicSkin) this.node.avatar2.hide();
@@ -5934,7 +5937,7 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 			intro:(function(){
 				var log = [
 				'有bug先检查其他扩展，不行再关闭UI重试，最后再联系作者。',
-				'当前版本：1.2.0.260503',
+				'当前版本：1.2.0.260507',
 				];
 
 				return '<p style="color:rgb(210,210,000); font-size:12px; line-height:14px; text-shadow: 0 0 2px black;">' + log.join('<br>') + '</p>';

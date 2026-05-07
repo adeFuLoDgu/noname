@@ -124,9 +124,15 @@
 	transition: opacity 0.3s linear;
 }
 
+#arena {
+    --player-unseen-bg: url("assets/image/bjOL1.png");
+}
+
 #arena:not(.fewplayer)>.player:not(.minskin),
 #arena:not(.fewplayer):not(*[data-player_height=''])>.player:not(.minskin) {
 	height: 180px !important;
+	background: var(--player-unseen-bg) no-repeat center center !important;
+	background-size: 100% 100% !important;
 }
 
 /*玩家锁链*/

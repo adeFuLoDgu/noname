@@ -1360,7 +1360,7 @@ if (decadeModule) decadeModule.import(function (lib, game, ui, get, ai, _status)
 			//阴阳鱼
 			{ name: 'yinyangyu' },
 		];
-		if (get.mode() === "guozhan") {
+		if (get.mode() === "guozhan" || !get.mode()) {
 			fileList.splice(26, 0,...fileList_guozhan); 
 		}
 
@@ -1368,7 +1368,7 @@ if (decadeModule) decadeModule.import(function (lib, game, ui, get, ai, _status)
 			//鏖战
 			{ name: 'aozhan' },
 		];
-		if (get.mode() === "guozhan" || get.mode() === "doudizhu") {
+		if (get.mode() === "guozhan" || get.mode() === "doudizhu" || !get.mode()) {
 			fileList.splice(26, 0,...fileList_aozhan); 
 		}
 
