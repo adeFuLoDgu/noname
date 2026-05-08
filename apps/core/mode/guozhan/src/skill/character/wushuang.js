@@ -1430,7 +1430,7 @@ export default {
 						}
 					},
 					cardUsable(card) {
-						if (["trick", "delay"].includes(lib.card[card.name].type) && get.position(card) == "h") {
+						if (card.name == "sha" && game.hasNature(card, "thunder") && get.position(card) == "h") {
 							return Infinity;
 						}
 					},
