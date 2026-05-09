@@ -1219,24 +1219,49 @@ export class Player extends HTMLDivElement {
 		return next;
 	}
 	/**
-	 * 获取角色所有的连接手牌
+	 * 返回玩家手牌中所有的连接手牌
+	 *
+	 * 该方法返回一个生成器，需要返回数组请使用`Player#getConnectedCards`
+	 *
+	 * @returns { Generator<Card> }
+	 */
+	*iterableGetConnectedCards() {
+		for (const card of this.iterableGetCards("h")) {
+			if (get.is.connectedCard(card)) {
+				yield card;
+			}
+		}
+	}
+	/**
+	 * 返回玩家手牌中所有的连接牌
+	 *
+	 * @returns { Card[] }
 	 */
 	getConnectedCards() {
-		return this.getCards("h", card => get.is.connectedCard(card));
+		return Array.from(this.iterableGetConnectedCards());
 	}
 	/**
-	 * 获取角色所有的连接手牌数
-	 * @returns {number}
+	 * 返回玩家手牌中连接牌的数量
+	 *
+	 * @returns { number }
 	 */
 	countConnectedCards() {
-		return this.getConnectedCards().length;
+		let count = 0;
+		for (const _ of this.iterableGetConnectedCards()) {
+			++count;
+		}
+		return count;
 	}
 	/**
-	 * 判断一名角色是否拥有连接手牌
-	 * @returns {boolean}
+	 * 判断玩家手牌中是否有连接牌
+	 *
+	 * @returns { boolean }
 	 */
 	hasConnectedCards() {
-		return this.hasCard(card => get.is.connectedCard(card), "h");
+		for (const _ of this.iterableGetConnectedCards()) {
+			return true;
+		}
+		return false;
 	}
 	/**
 	 * 让一名角色明置一些手牌
@@ -1250,7 +1275,7 @@ export class Player extends HTMLDivElement {
 		next.player = this;
 		next.cards = [];
 		next.gaintag = [];
-		if (args.length === 1 && typeof params === "object" && get.itemtype(params) == null) {
+		if (args.length === 1 && typeof params == "object" && params !== null && get.itemtype(params) == null) {
 			Object.assign(next);
 		} else {
 			for (const arg of args) {
@@ -1284,7 +1309,7 @@ export class Player extends HTMLDivElement {
 		next.gaintag = [];
 
 		const args = [...arguments];
-		if (args.length === 1 && typeof params === "object" && get.itemtype(params) == null) {
+		if (args.length === 1 && typeof params == "object" && params !== null && get.itemtype(params) == null) {
 			Object.assign(next, params);
 		} else {
 			for (const arg of args) {
@@ -1307,100 +1332,132 @@ export class Player extends HTMLDivElement {
 		return next;
 	}
 	/**
-	 * 获取角色所有的明置手牌
+	 * 返回玩家手牌中已明置的牌
+	 *
+	 * 该方法返回一个生成器，需要返回数组请使用`Player#getShownCards`
+	 *
+	 * @returns { Generator<Card> }
+	 */
+	*iterableGetShownCards() {
+		for (const card of this.iterableGetCards("h")) {
+			if (get.is.shownCard(card)) {
+				yield card;
+			}
+		}
+	}
+	/**
+	 * 返回玩家手牌中已明置的牌
+	 *
+	 * @returns { Card[] }
 	 */
 	getShownCards() {
-		return this.getCards("h", card => {
-			return get.is.shownCard(card);
-		});
+		return Array.from(this.iterableGetShownCards());
 	}
 	/**
-	 * 获取角色所有的明置手牌数
-	 * @returns {number}
+	 * 返回玩家手牌中已明置牌的数量
+	 *
+	 * @returns { number }
 	 */
 	countShownCards() {
-		return this.getShownCards().length;
+		let count = 0;
+		for (const _ of this.iterableGetShownCards()) {
+			++count;
+		}
+		return count;
 	}
 	/**
-	 * 判断一名角色是否拥有明置手牌
+	 * 判断玩家手牌中存在已明置的牌
+	 *
 	 * @returns {boolean}
 	 */
 	hasShownCards() {
-		return this.hasCard(card => get.is.shownCard(card), "h");
+		for (const _ of this.iterableGetShownCards()) {
+			return true;
+		}
+		return false;
 	}
 	/**
-	 * 获取该角色被other所知的牌
-	 * @param { Player } [other]
-	 * @param { (card: Card) => boolean } [filter]
+	 * 返回玩家手牌中被给定角色所知的牌，默认为当前事件的角色（不存在则改为自身）
+	 *
+	 * 该方法返回一个生成器，需要返回数组请使用`Player#getKnownCards`
+	 *
+	 * @param { Player } [other] - 作为观测者的玩家（即以该玩家为原点观察）
+	 * @param { string | string[] | Record<string, any> | ((card: Card) => boolean) } [filter] - 过滤条件，可以是牌名、牌名数组、属性对象或过滤函数
+	 * @returns { Generator<Card> } 经过过滤后的牌的生成器
 	 */
-	getKnownCards(other = _status.event.player, filter = card => true) {
+	*iterableGetKnownCards(other, filter) {
 		if (!other) {
 			if (other === null) {
-				console.trace(`getKnownCards的other参数不应传入null,可以用void 0或undefined占位`);
+				console.trace("other参数不应传入null，可以用void 0或undefined占位；后续版本可能将不再检查，请及时更改！");
+			} else if (other !== undefined) {
+				console.trace("other参数不应传入假值（如false、0和空字符串）后续版本可能会废除该兼容，请及时更改！");
 			}
-			other = _status.event.player || this;
+			other = get.player() || this;
 		}
-		if (!filter) {
-			if (other === null) {
-				console.trace(`getKnownCards的filter参数不应传入null,可以用void 0或undefined占位`);
+		for (const card of this.iterableGetCards("h", filter)) {
+			if (card.isKnownBy(other)) {
+				yield card;
 			}
-			filter = card => true;
 		}
-		return this.getCards("h", card => {
-			return card.isKnownBy(other) && filter(card);
-		});
 	}
 	/**
-	 * 判断此角色的手牌是否已经被看光了
-	 * @param { Player } [other]
+	 * 返回玩家手牌中被给定角色所知的牌，默认为当前事件的角色（不存在则改为自身）
+	 *
+	 * @param { Player } [other] - 作为观测者的玩家（即以该玩家为原点观察）
+	 * @param { string | string[] | Record<string, any> | ((card: Card) => boolean) } [filter] - 过滤条件，可以是牌名、牌名数组、属性对象或过滤函数
+	 * @returns { Card[] } 经过过滤后的牌的数组
 	 */
-	isAllCardsKnown(other = _status.event.player) {
-		if (!other) {
-			if (other === null) {
-				console.trace(`isAllCardsKnown的other参数不应传入null,可以用void 0或undefined占位`);
-			}
-			other = _status.event.player || this;
-		}
-		if (!other) {
-			other = this;
-		}
-		return (
-			this.countCards("h", card => {
-				return !card.isKnownBy(other);
-			}) == 0
-		);
+	getKnownCards(other, filter) {
+		return Array.from(this.iterableGetKnownCards(other, filter));
 	}
 	/**
-	 * 判断此角色是否有被知的牌。
-	 * @param { Player } [other]
-	 * @param { (card: Card) => boolean } [filter]
+	 * 判断玩家手牌是否全部被给定角色所知，默认为当前事件的角色（不存在则改为自身）
+	 *
+	 * @param { Player } [other] - 作为观测者的玩家（即以该玩家为原点观察）
+	 * @returns { boolean }
 	 */
-	hasKnownCards(other = _status.event.player, filter = card => true) {
+	isAllCardsKnown(other) {
 		if (!other) {
 			if (other === null) {
-				console.trace(`hasKnownCards的other参数不应传入null,可以用void 0或undefined占位`);
+				console.trace("other参数不应传入null，可以用void 0或undefined占位；后续版本可能将不再检查，请及时更改！");
+			} else if (other !== undefined) {
+				console.trace("other参数不应传入假值（如false、0和空字符串）后续版本可能会废除该兼容，请及时更改！");
 			}
-			other = _status.event.player || this;
+			other = get.player() || this;
 		}
-		if (!filter) {
-			if (other === null) {
-				console.trace(`hasKnownCards的filter参数不应传入null,可以用void 0或undefined占位`);
+		for (const card of this.iterableGetCards("h")) {
+			if (!card.isKnownBy(other)) {
+				return false;
 			}
-			filter = card => true;
 		}
-		return (
-			this.countCards("h", card => {
-				return card.isKnownBy(other) && filter(card);
-			}) > 0
-		);
+		return true;
 	}
 	/**
-	 * 数此角色被知道的牌
-	 * @param { Player } [other]
-	 * @param { (card: Card) => boolean } [filter]
+	 * 判断玩家手牌中是否有被给定角色所知的牌，默认为当前事件的角色（不存在则改为自身）
+	 *
+	 * @param { Player } [other] - 作为观测者的玩家（即以该玩家为原点观察）
+	 * @param { string | string[] | Record<string, any> | ((card: Card) => boolean) } [filter] - 过滤条件，可以是牌名、牌名数组、属性对象或过滤函数
+	 * @returns { boolean }
+	 */
+	hasKnownCards(other, filter) {
+		for (const _ of this.iterableGetKnownCards(other, filter)) {
+			return true;
+		}
+		return false;
+	}
+	/**
+	 * 返回玩家手牌中被给定角色所知的牌的数量，默认为当前事件的角色（不存在则改为自身）
+	 *
+	 * @param { Player } [other] - 作为观测者的玩家（即以该玩家为原点观察）
+	 * @param { string | string[] | Record<string, any> | ((card: Card) => boolean) } [filter] - 过滤条件，可以是牌名、牌名数组、属性对象或过滤函数
+	 * @returns { number } 经过过滤后的牌的数量
 	 */
 	countKnownCards(other, filter) {
-		return this.getKnownCards(other, filter).length;
+		let count = 0;
+		for (const _ of this.iterableGetKnownCards(other, filter)) {
+			++count;
+		}
+		return count;
 	}
 	/**
 	 * Execute the delay card effect
@@ -1829,8 +1886,7 @@ export class Player extends HTMLDivElement {
 		next.slots = [];
 
 		const args = [...arguments];
-
-		if (args.length === 1 && typeof params === "object" && !Array.isArray(params) && get.itemtype(params) == null) {
+		if (args.length === 1 && typeof params === "object" && !Array.isArray(params) && params !== null && get.itemtype(params) == null) {
 			Object.assign(next, params);
 		} else {
 			for (const arg of args) {
@@ -1879,7 +1935,7 @@ export class Player extends HTMLDivElement {
 		next.slots = [];
 
 		const args = [...arguments];
-		if (args.length === 1 && typeof params === "object" && !Array.isArray(params) && get.itemtype(params) == null) {
+		if (args.length === 1 && typeof params === "object" && !Array.isArray(params) && params !== null && get.itemtype(params) == null) {
 			Object.assign(next, params);
 		} else {
 			for (const arg of args) {
@@ -1927,7 +1983,7 @@ export class Player extends HTMLDivElement {
 		next.slots = [];
 
 		const args = [...arguments];
-		if (args.length === 1 && typeof params === "object" && !Array.isArray(params) && get.itemtype(params) == null) {
+		if (args.length === 1 && typeof params === "object" && !Array.isArray(params) && params !== null && get.itemtype(params) == null) {
 			Object.assign(next, params);
 		} else {
 			for (const arg of args) {
@@ -2175,7 +2231,7 @@ export class Player extends HTMLDivElement {
 		next.player = this;
 
 		const args = [...arguments];
-		if (args.length === 1 && typeof params === "object" && !Array.isArray(params) && get.itemtype(params) == null) {
+		if (args.length === 1 && typeof params === "object" && !Array.isArray(params) && params !== null && get.itemtype(params) == null) {
 			Object.assign(next, params);
 		} else {
 			for (const arg of args) {
@@ -3248,7 +3304,7 @@ export class Player extends HTMLDivElement {
 		const next = game.createEvent("chooseToEnable");
 
 		const args = [...arguments];
-		if (args.length === 1 && typeof params === "object" && get.itemtype(params) == null) {
+		if (args.length === 1 && typeof params === "object" && params !== null && get.itemtype(params) == null) {
 			Object.assign(next, params);
 			if (typeof next.selectButton === "number") {
 				next.selectButton = [next.selectButton, next.selectButton];
@@ -3280,7 +3336,7 @@ export class Player extends HTMLDivElement {
 		const next = game.createEvent("chooseToDisable");
 
 		const args = [...arguments];
-		if (args.length === 1 && typeof params === "object" && get.itemtype(params) == null) {
+		if (args.length === 1 && typeof params === "object" && params !== null && get.itemtype(params) == null) {
 			Object.assign(next, params);
 			if (typeof next.selectButton === "number") {
 				next.selectButton = [next.selectButton, next.selectButton];
@@ -5177,7 +5233,7 @@ export class Player extends HTMLDivElement {
 	 *
 	 * @param { string } [position="h"] - 牌区，h:手牌区，e:装备区，j:判定区，x:扩展区，s:特殊区(木牛流马牌的位置)
 	 * @param { string | string[] | Record<string, any> | ((card: Card) => boolean) } [filter] - 过滤条件，可以是牌名、牌名数组、属性对象或过滤函数
-	 * @returns { Generator<Card> } - 经过过滤后的牌的生成器
+	 * @returns { Generator<Card> } 经过过滤后的牌的生成器
 	 */
 	*iterableGetCards(position, filter) {
 		if (typeof position != "string") {
@@ -5246,8 +5302,8 @@ export class Player extends HTMLDivElement {
 					break;
 			}
 		}
-		// 只有同时要手牌和特殊牌时才需要区分 glows
-		const needGlowsCheck = !hasH || !hasS;
+		// 只请求 h 或 s 其中之一时，需要用 glows 区分普通手牌和特殊牌
+		const needGlowsCheck = hasH !== hasS;
 
 		// 一些简单的去重
 		let handDone = false;
@@ -5343,7 +5399,7 @@ export class Player extends HTMLDivElement {
 	 *
 	 * @param { string } [position="h"] - 牌区，h:手牌区，e:装备区，j:判定区，x:扩展区，s:特殊区(木牛流马牌的位置)
 	 * @param { string | string[] | Record<string, any> | ((card: Card) => boolean) } [filter] - 过滤条件，可以是牌名、牌名数组、属性对象或过滤函数
-	 * @returns { Card[] } - 经过过滤后的牌的数组
+	 * @returns { Card[] } 经过过滤后的牌的数组
 	 */
 	getCards(position, filter) {
 		return Array.from(this.iterableGetCards(position, filter));
@@ -5356,7 +5412,7 @@ export class Player extends HTMLDivElement {
 	 * @param { Player } player - 进行弃置的角色
 	 * @param { string } [position="h"] - 牌区，h:手牌区，e:装备区，j:判定区，x:扩展区，s:特殊区(木牛流马牌的位置)
 	 * @param { string | string[] | Record<string, any> | ((card: Card) => boolean) } [filter] - 过滤条件，可以是牌名、牌名数组、属性对象或过滤函数
-	 * @returns { Generator<Card> } - 经过过滤后的牌的生成器
+	 * @returns { Generator<Card> } 经过过滤后的牌的生成器
 	 */
 	*iterableGetDiscardableCards(player, position, filter) {
 		for (const card of this.iterableGetCards(position, filter)) {
@@ -5371,7 +5427,7 @@ export class Player extends HTMLDivElement {
 	 * @param { Player } player - 进行弃置的角色
 	 * @param { string } [position="h"] - 牌区，h:手牌区，e:装备区，j:判定区，x:扩展区，s:特殊区(木牛流马牌的位置)
 	 * @param { string | string[] | Record<string, any> | ((card: Card) => boolean) } [filter] - 过滤条件，可以是牌名、牌名数组、属性对象或过滤函数
-	 * @returns { Card[] } - 经过过滤后的牌的数组
+	 * @returns { Card[] } 经过过滤后的牌的数组
 	 */
 	getDiscardableCards(player, position, filter) {
 		return Array.from(this.iterableGetDiscardableCards(player, position, filter));
@@ -5381,10 +5437,10 @@ export class Player extends HTMLDivElement {
 	 *
 	 * 该方法返回一个生成器，需要返回数组请使用`Player#getGainableCards`
 	 *
-	 * @param { Player } player - 进行弃置的角色
+	 * @param { Player } player - 进行获取的角色
 	 * @param { string } [position="h"] - 牌区，h:手牌区，e:装备区，j:判定区，x:扩展区，s:特殊区(木牛流马牌的位置)
 	 * @param { string | string[] | Record<string, any> | ((card: Card) => boolean) } [filter] - 过滤条件，可以是牌名、牌名数组、属性对象或过滤函数
-	 * @returns { Generator<Card> } - 经过过滤后的牌的生成器
+	 * @returns { Generator<Card> } 经过过滤后的牌的生成器
 	 */
 	*iterableGetGainableCards(player, position, filter) {
 		for (const card of this.iterableGetCards(position, filter)) {
@@ -5396,10 +5452,10 @@ export class Player extends HTMLDivElement {
 	/**
 	 * 返回玩家的牌区中能被给定角色获得的牌，默认返回手牌区的牌
 	 *
-	 * @param { Player } player - 进行弃置的角色
+	 * @param { Player } player - 进行获取的角色
 	 * @param { string } [position="h"] - 牌区，h:手牌区，e:装备区，j:判定区，x:扩展区，s:特殊区(木牛流马牌的位置)
 	 * @param { string | string[] | Record<string, any> | ((card: Card) => boolean) } [filter] - 过滤条件，可以是牌名、牌名数组、属性对象或过滤函数
-	 * @returns { Card[] } - 经过过滤后的牌的数组
+	 * @returns { Card[] } 经过过滤后的牌的数组
 	 */
 	getGainableCards(player, position, filter) {
 		return Array.from(this.iterableGetGainableCards(player, position, filter));
@@ -5417,7 +5473,7 @@ export class Player extends HTMLDivElement {
 	 *
 	 * @param { string } [position="h"] - 牌区，h:手牌区，e:装备区，j:判定区，x:扩展区，s:特殊区(木牛流马牌的位置)
 	 * @param { string | string[] | Record<string, any> | ((card: Card) => boolean) } [filter] - 过滤条件，可以是牌名、牌名数组、属性对象或过滤函数
-	 * @returns { number } - 经过过滤后的牌的数量
+	 * @returns { number } 经过过滤后的牌的数量
 	 */
 	countCards(position, filter) {
 		let count = 0;
@@ -5447,7 +5503,7 @@ export class Player extends HTMLDivElement {
 	 * @param { Player } player - 进行弃置的角色
 	 * @param { string } [position="h"] - 牌区，h:手牌区，e:装备区，j:判定区，x:扩展区，s:特殊区(木牛流马牌的位置)
 	 * @param { string | string[] | Record<string, any> | ((card: Card) => boolean) } [filter] - 过滤条件，可以是牌名、牌名数组、属性对象或过滤函数
-	 * @returns { number } - 经过过滤后的牌的数量
+	 * @returns { number } 经过过滤后的牌的数量
 	 */
 	countDiscardableCards(player, position, filter) {
 		let count = 0;
@@ -5459,10 +5515,10 @@ export class Player extends HTMLDivElement {
 	/**
 	 * 返回玩家的牌区中能被给定角色获得的牌的数量，默认返回手牌区的牌的数量
 	 *
-	 * @param { Player } player - 进行弃置的角色
+	 * @param { Player } player - 进行获取的角色
 	 * @param { string } [position="h"] - 牌区，h:手牌区，e:装备区，j:判定区，x:扩展区，s:特殊区(木牛流马牌的位置)
 	 * @param { string | string[] | Record<string, any> | ((card: Card) => boolean) } [filter] - 过滤条件，可以是牌名、牌名数组、属性对象或过滤函数
-	 * @returns { number } - 经过过滤后的牌的数量
+	 * @returns { number } 经过过滤后的牌的数量
 	 */
 	countGainableCards(player, position, filter) {
 		let count = 0;
@@ -5470,6 +5526,47 @@ export class Player extends HTMLDivElement {
 			++count;
 		}
 		return count;
+	}
+	/**
+	 * 判断玩家的牌区中是否有满足条件的牌，默认判断手牌区的牌
+	 *
+	 * @param { string } [position="h"] - 牌区，h:手牌区，e:装备区，j:判定区，x:扩展区，s:特殊区(木牛流马牌的位置)
+	 * @param { string | string[] | Record<string, any> | ((card: Card) => boolean) } [filter] - 过滤条件，可以是牌名、牌名数组、属性对象或过滤函数
+	 * @returns { boolean }
+	 */
+	hasCards(position, filter) {
+		for (const _ of this.iterableGetCards(position, filter)) {
+			return true;
+		}
+		return false;
+	}
+	/**
+	 * 判断玩家的牌区中是否有能被给定角色弃置的牌，默认判断手牌区的牌
+	 *
+	 * @param { Player } player - 进行弃置的角色
+	 * @param { string } [position="h"] - 牌区，h:手牌区，e:装备区，j:判定区，x:扩展区，s:特殊区(木牛流马牌的位置)
+	 * @param { string | string[] | Record<string, any> | ((card: Card) => boolean) } [filter] - 过滤条件，可以是牌名、牌名数组、属性对象或过滤函数
+	 * @returns { boolean }
+	 */
+	hasDiscardableCards(player, position, filter) {
+		for (const _ of this.iterableGetDiscardableCards(player, position, filter)) {
+			return true;
+		}
+		return false;
+	}
+	/**
+	 * 判断玩家的牌区中是否有能被给定角色获得的牌，默认判断手牌区的牌
+	 *
+	 * @param { Player } player - 进行获取的角色
+	 * @param { string } [position="h"] - 牌区，h:手牌区，e:装备区，j:判定区，x:扩展区，s:特殊区(木牛流马牌的位置)
+	 * @param { string | string[] | Record<string, any> | ((card: Card) => boolean) } [filter] - 过滤条件，可以是牌名、牌名数组、属性对象或过滤函数
+	 * @returns { boolean }
+	 */
+	hasGainableCards(player, position, filter) {
+		for (const _ of this.iterableGetGainableCards(player, position, filter)) {
+			return true;
+		}
+		return false;
 	}
 	/**
 	 * 返回武将牌上原有的技能
@@ -5684,7 +5781,7 @@ export class Player extends HTMLDivElement {
 		next.player = this;
 
 		const args = [...arguments];
-		if (arguments.length == 1 && get.objtype(params) == "object" && get.itemtype(params) == null) {
+		if (args.length === 1 && typeof params === "object" && params !== null && get.itemtype(params) == null) {
 			Object.assign(next, params);
 		} else {
 			for (const arg of args) {
@@ -5747,7 +5844,7 @@ export class Player extends HTMLDivElement {
 
 		let filter;
 		const args = [...arguments];
-		if (args.length == 1 && get.objtype(params) == "object" && get.itemtype(params) == null) {
+		if (args.length === 1 && typeof params === "object" && params !== null && get.itemtype(params) == null) {
 			Object.assign(next, params);
 			if (params.card != null) {
 				Reflect.deleteProperty(next, "card");
@@ -6101,7 +6198,7 @@ export class Player extends HTMLDivElement {
 		next.target = target;
 
 		const args = [...arguments].slice(1);
-		if (args.length === 1 && get.is.object(params) && get.itemtype(params) == null) {
+		if (args.length == 1 && params != null && get.is.object(params) && get.itemtype(params) == null) {
 			Object.assign(next, params);
 		} else {
 			for (const arg of args) {
@@ -6129,7 +6226,7 @@ export class Player extends HTMLDivElement {
 		next.forced = true;
 
 		const args = [...arguments].slice(1);
-		if (args.length === 1 && get.is.object(params) && get.itemtype(params) == null) {
+		if (args.length == 1 && params != null && get.is.object(params) && get.itemtype(params) == null) {
 			Object.assign(next, params);
 		} else {
 			for (const arg of args) {
@@ -6167,7 +6264,7 @@ export class Player extends HTMLDivElement {
 		let ai;
 
 		const args = [...arguments];
-		if (args.length === 1 && get.is.object(params) && get.itemtype(params) == null) {
+		if (args.length == 1 && params != null && get.is.object(params) && get.itemtype(params) == null) {
 			cards = params.cards;
 			prompt = params.prompt;
 			forced = params.forced;
@@ -6219,7 +6316,7 @@ export class Player extends HTMLDivElement {
 		let ai;
 
 		const args = [...arguments];
-		if (args.length === 1 && get.is.object(params) && get.itemtype(params) == null) {
+		if (args.length == 1 && params != null && get.is.object(params) && get.itemtype(params) == null) {
 			list = params.list;
 			prompt = params.prompt;
 			forced = params.forced;
@@ -6275,7 +6372,7 @@ export class Player extends HTMLDivElement {
 		const next = game.createEvent("chooseButton");
 
 		const args = [...arguments];
-		if (args.length == 1 && get.is.object(params) && get.itemtype(params) == null) {
+		if (args.length == 1 && params != null && get.is.object(params) && get.itemtype(params) == null) {
 			Object.assign(next, params);
 			if (typeof next.selectButton === "number") {
 				next.selectButton = [next.selectButton, next.selectButton];
@@ -6680,7 +6777,7 @@ export class Player extends HTMLDivElement {
 	 * @param {import("./Player/type.d").EventChooseControlListParams} [params]
 	 */
 	chooseControlList(params) {
-		if (arguments.length === 1 && get.is.object(params) && get.itemtype(params) == null) {
+		if (arguments.length === 1 && get.is.object(params) && params != null && get.itemtype(params) == null) {
 			const controls = !params.forced ? ["cancel2"] : [];
 			return this.chooseControl({
 				controls,
@@ -6728,7 +6825,7 @@ export class Player extends HTMLDivElement {
 		next.controls = [];
 
 		const args = [...arguments];
-		if (args.length === 1 && get.is.object(params) && get.itemtype(params) == null) {
+		if (args.length == 1 && params != null && get.is.object(params) && get.itemtype(params) == null) {
 			Object.assign(next, params);
 		} else {
 			for (const arg of args) {
@@ -6805,7 +6902,7 @@ export class Player extends HTMLDivElement {
 		next.gaintag = [];
 
 		const args = [...arguments];
-		if (args.length === 1 && get.is.object(params) && get.itemtype(params) == null) {
+		if (args.length == 1 && params != null && get.is.object(params) && get.itemtype(params) == null) {
 			Object.assign(next, params);
 		} else {
 			for (const arg of args) {
@@ -7468,7 +7565,7 @@ export class Player extends HTMLDivElement {
 		next.num = 0;
 
 		const args = [...arguments];
-		if (args.length === 1 && get.is.object(params) && get.itemtype(params) == null) {
+		if (args.length == 1 && params != null && get.is.object(params) && get.itemtype(params) == null) {
 			Object.assign(next, params);
 		} else {
 			for (const arg of args) {
@@ -7618,7 +7715,7 @@ export class Player extends HTMLDivElement {
 		next.num = 0;
 
 		const args = [...arguments];
-		if (args.length === 1 && get.is.object(params) && get.itemtype(params) == null) {
+		if (args.length == 1 && params != null && get.is.object(params) && get.itemtype(params) == null) {
 			Object.assign(next, params);
 		} else {
 			for (const arg of args) {
@@ -7708,7 +7805,7 @@ export class Player extends HTMLDivElement {
 		// 就算是drawDeck项，由于已经判断了参数长度，不会出现不同的地方
 		if (args.length === 1 && typeof params === "number") {
 			next.num = params;
-		} else if (args.length === 1 && typeof params === "object" && !Array.isArray(params) && get.itemtype(params) == null) {
+		} else if (args.length === 1 && typeof params === "object" && !Array.isArray(params) && params != null && get.itemtype(params) == null) {
 			Object.assign(next, params);
 			if (params.nodelay) {
 				delete next.nodelay;
@@ -8088,7 +8185,7 @@ export class Player extends HTMLDivElement {
 		next.player = this;
 
 		const args = [...arguments];
-		if (args.length === 1 && get.is.object(params) && get.itemtype(params) == null) {
+		if (args.length == 1 && params != null && get.is.object(params) && get.itemtype(params) == null) {
 			Object.assign(next, params);
 		} else {
 			for (const arg of args) {
@@ -8376,7 +8473,7 @@ export class Player extends HTMLDivElement {
 		next.player = this;
 
 		const args = [...arguments];
-		if (args.length === 1 && get.is.object(params) && get.itemtype(params) == null) {
+		if (args.length == 1 && params != null && get.is.object(params) && get.itemtype(params) == null) {
 			Object.assign(next, params);
 			if (params?.areaNames != null) {
 				delete next.areaNames;
@@ -8730,7 +8827,7 @@ export class Player extends HTMLDivElement {
 		const event = _status.event;
 
 		const args = [...arguments];
-		if (args.length === 1 && typeof params == "object" && get.itemtype(params) == null) {
+		if (args.length === 1 && typeof params == "object" && params !== null && get.itemtype(params) == null) {
 			Object.assign(next, params);
 			if (params.nosource) {
 				noSource = true;
@@ -8846,7 +8943,7 @@ export class Player extends HTMLDivElement {
 
 		const args = [...arguments];
 		const event = _status.event;
-		if (args.length === 1 && typeof params == "object" && get.itemtype(params) == null) {
+		if (args.length === 1 && typeof params == "object" && params !== null && get.itemtype(params) == null) {
 			Object.assign(next, params);
 			if (params.nocard != null) {
 				delete next.nocard;
@@ -8960,7 +9057,7 @@ export class Player extends HTMLDivElement {
 		next.num = 1;
 
 		const args = [...arguments];
-		if (args.length === 1 && typeof params == "object" && get.itemtype(params) == null) {
+		if (args.length === 1 && typeof params == "object" && params !== null && get.itemtype(params) == null) {
 			Object.assign(next, params);
 		} else {
 			for (const arg of args) {
@@ -8986,7 +9083,7 @@ export class Player extends HTMLDivElement {
 		next.num = 1;
 
 		const args = [...arguments];
-		if (args.length === 1 && typeof params == "object" && get.itemtype(params) == null) {
+		if (args.length === 1 && typeof params == "object" && params !== null && get.itemtype(params) == null) {
 			Object.assign(next, params);
 		} else {
 			for (const arg of args) {
@@ -9616,7 +9713,7 @@ export class Player extends HTMLDivElement {
 		next.player = this;
 
 		const args = [...arguments];
-		if (args.length === 1 && typeof params == "object" && get.itemtype(params) == null) {
+		if (args.length === 1 && typeof params == "object" && params !== null && get.itemtype(params) == null) {
 			Object.assign(next, params);
 		} else {
 			for (const arg of args) {
@@ -10179,14 +10276,32 @@ export class Player extends HTMLDivElement {
 			this[storage.length > 0 ? "markSkill" : "unmarkSkill"](name);
 		}
 	}
+	/**
+	 * 获取置于武将牌上给定类型的牌（如【田】和【逆】）
+	 *
+	 * @param { string } tag - 需要获取牌的标签
+	 * @returns { Card[] }
+	 */
 	getExpansions(tag) {
 		return this.getCards("x", card => card.hasGaintag(tag));
 	}
+	/**
+	 * 获取置于武将牌上给定类型的牌的数量（如【田】和【逆】）
+	 *
+	 * @param { string } tag - 需要获取牌的标签
+	 * @returns { number }
+	 */
 	countExpansions(tag) {
-		return this.getExpansions(tag).length;
+		return this.countCards("x", card => card.hasGaintag(tag));
 	}
+	/**
+	 * 判断给定类型的牌是否置于武将牌上（如【田】和【逆】）
+	 *
+	 * @param { string } tag - 需要获取牌的标签
+	 * @returns { boolean }
+	 */
 	hasExpansions(tag) {
-		return this.countExpansions(tag) > 0;
+		return this.hasCards("x", card => card.hasGaintag(tag));
 	}
 	setStorage(name, value, mark) {
 		this.storage[name] = value;
@@ -14866,6 +14981,9 @@ export class Player extends HTMLDivElement {
 			num = get.rand(6) + 1;
 			_status.event.num = num;
 		}
+		if (lib.config.test_game != null) {
+			return;
+		}
 		if (!game.online) {
 			game.pause();
 		}
@@ -16196,4 +16314,4 @@ export class Player extends HTMLDivElement {
 	}
 }
 
-CacheContext.inject(Player.prototype, ["hasCard", "hasValueTarget", "getModableSkills", "getCardIndex", "countCards", "getSkills", "getUseValue", "canUse"]);
+CacheContext.inject(Player.prototype, ["hasCard", "hasCards", "hasDiscardableCards", "hasGainableCards", "hasConnectedCards", "hasShownCards", "hasKnownCards", "isAllCardsKnown", "hasValueTarget", "getModableSkills", "getCardIndex", "countCards", "countDiscardableCards", "countGainableCards", "countConnectedCards", "countShownCards", "countKnownCards", "getSkills", "getUseValue", "canUse"]);

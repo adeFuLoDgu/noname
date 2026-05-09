@@ -3126,28 +3126,29 @@ const skills = {
 		async content_choose(event, trigger, player) {
 			const { target } = event;
 
+			let resultIndex;
 			if (target.isHealthy()) {
-				return;
-			}
-
-			let index;
-			if (get.attitude(player, target) > 0) {
-				index = 1;
+				resultIndex = 0;
 			} else {
-				index = 0;
-			}
+				let index;
+				if (get.attitude(player, target) > 0) {
+					index = 1;
+				} else {
+					index = 0;
+				}
 
-			const chooseResult = await player
-				.chooseControlList({
-					list: ["令" + get.translation(target) + "失去1点体力，随机使用一张装备牌", "令" + get.translation(target) + "回复1点体力，弃置一张装备牌"],
-					forced: true,
-					ai(event, player) {
-						return get.event().index;
-					},
-				})
-				.set("index", index)
-				.forResult();
-			const resultIndex = chooseResult?.index || index;
+				const chooseResult = await player
+					.chooseControlList({
+						list: ["令" + get.translation(target) + "失去1点体力，随机使用一张装备牌", "令" + get.translation(target) + "回复1点体力，弃置一张装备牌"],
+						forced: true,
+						ai(event, player) {
+							return get.event().index;
+						},
+					})
+					.set("index", index)
+					.forResult();
+				resultIndex = chooseResult?.index || index;
+			}
 			let card = null;
 			if (resultIndex == 0) {
 				await target.loseHp();
@@ -4754,7 +4755,6 @@ const skills = {
 	jishe3: {
 		audio: "jishe",
 		trigger: { player: "phaseJieshuBegin" },
-		direct: true,
 		sourceSkill: "jishe",
 		filter(event, player) {
 			if (player.countCards("h")) {
@@ -7024,15 +7024,16 @@ const skills = {
 				cards: event.cards,
 				discarder: player,
 			});
+			let related;
 			let used = false;
 			if (player.canUse({ name: "sha", isCard: true }, trigger.player)) {
 				used = true;
-				await player.useCard({
+				related = await player.useCard({
 					card: get.autoViewAs({ name: "sha", isCard: true }),
 					targets: [trigger.player],
 				});
 			}
-			if (!used || !game.hasPlayer2(current => current.getHistory("damage", evt => evt.getParent(2) == related).length > 0)) {
+			if (!used || !game.hasPlayer2(current => current.hasHistory("damage", evt => evt.getParent(2) == related))) {
 				await player.draw();
 			}
 		},
@@ -7338,7 +7339,7 @@ const skills = {
 				animate: "gain2",
 			});
 			if (cards.some(card => get.color(card) === "red")) {
-				await event.target
+				await target
 					.chooseToUse({
 						prompt: "是否使用一张杀？",
 						filterCard: get.filter({ name: "sha" }),
@@ -12422,6 +12423,7 @@ const skills = {
 		audio: 2,
 		trigger: { player: "damageEnd" },
 		audioname: ["re_chengong"],
+		audioname2: { sxrm_caocao: "zhichi_sxrm_caocao" },
 		forced: true,
 		filter(event, player) {
 			return _status.currentPhase != player;
@@ -12434,6 +12436,7 @@ const skills = {
 		audio: "zhichi",
 		trigger: { target: "useCardToBefore" },
 		audioname: ["re_chengong"],
+		audioname2: { sxrm_caocao: "zhichi_sxrm_caocao" },
 		forced: true,
 		charlotte: true,
 		priority: 15,
@@ -13669,6 +13672,7 @@ const skills = {
 	},
 	zhiyu: {
 		audio: 2,
+		audioname2: { sxrm_caocao: "zhiyu_sxrm_caocao" },
 		trigger: { player: "damageEnd" },
 		preHidden: true,
 		async content(event, trigger, player) {
@@ -14828,6 +14832,7 @@ const skills = {
 		forced: true,
 		audio: 2,
 		audioname: ["xin_jushou"],
+		audioname2: { sxrm_caocao: "shibei_sxrm_caocao" },
 		check(event, player) {
 			return player.getHistory("damage").indexOf(event) == 0;
 		},
