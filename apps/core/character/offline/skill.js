@@ -18686,7 +18686,7 @@ const skills = {
 		},
 		async content(event, trigger, player) {
 			let target = player.getNext();
-			while (target != player) {
+			while (target && target != player) {
 				if (!target.countCards("h")) {
 					target = target.getNext();
 					continue;

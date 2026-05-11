@@ -9726,7 +9726,7 @@ const skills = {
 			game.log(player, "选择了", "#g" + control);
 			if (control == "↖顺时针") {
 				let current = player.getPrevious();
-				while (current != target) {
+				while (current && current != target) {
 					if (current.countDiscardableCards(player, "h")) {
 						targets.push(current);
 					}
@@ -9734,7 +9734,7 @@ const skills = {
 				}
 			} else {
 				let current = player.getNext();
-				while (current != target) {
+				while (current && current != target) {
 					if (current.countDiscardableCards(player, "h")) {
 						targets.push(current);
 					}
@@ -15020,10 +15020,10 @@ const skills = {
 					if (!event.player.isIn()) {
 						return [];
 					}
-					if (event.player.getNext().isIn()) {
+					if (event.player.getNext()?.isIn()) {
 						list.push(event.player.getNext());
 					}
-					if (event.player.getPrevious().isIn()) {
+					if (event.player.getPrevious()?.isIn()) {
 						list.add(event.player.getPrevious());
 					}
 					return list.sortBySeat(_status.currentPhase);
@@ -24011,7 +24011,7 @@ const skills = {
 			game.log(player, "选择了", "#g" + control);
 			if (control == "↖顺时针") {
 				var current = player.getPrevious();
-				while (current != target) {
+				while (current && current != target) {
 					if (lib.filter.targetEnabled2(card, player, current)) {
 						targets.push(current);
 					}
@@ -24019,7 +24019,7 @@ const skills = {
 				}
 			} else {
 				var current = player.getNext();
-				while (current != target) {
+				while (current && current != target) {
 					if (lib.filter.targetEnabled2(card, player, current)) {
 						targets.push(current);
 					}

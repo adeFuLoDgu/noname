@@ -240,11 +240,13 @@ game.import("card", function () {
 					if (result.cards) {
 						let target = player.getNext(),
 							card = result.cards[0];
-						if (target.canEquip(card)) {
-							target.equip(card);
-							player.$give(card, target);
-						} else {
-							player.give(card, target);
+						if (target) {
+							if (target.canEquip(card)) {
+								target.equip(card);
+								player.$give(card, target);
+							} else {
+								player.give(card, target);
+							}
 						}
 					}
 					"step 2";

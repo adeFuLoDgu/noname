@@ -2483,13 +2483,13 @@ const skills = {
 			while (!(left2 == target && right2 == target)) {
 				if (left2 != target) {
 					left2 = left2.getPrevious();
-					if (left2.isIn() && left2 != target) {
+					if (left2?.isIn() && left2 != target) {
 						left.push(left2);
 					}
 				}
 				if (right2 != target) {
 					right2 = right2.getNext();
-					if (right2.isIn() && right2 != target) {
+					if (right2?.isIn() && right2 != target) {
 						right.push(right2);
 					}
 				}

@@ -354,7 +354,7 @@ export default {
 				await player.draw(num);
 			}
 			let target = player.getNext();
-			while (target != player) {
+			while (target && target != player) {
 				if (!target.isUnseen()) {
 					target = target.getNext();
 				} else {
@@ -562,7 +562,7 @@ export default {
 				await target.draw();
 				num++;
 				target = target.getNext();
-				while (!player.isFriendOf(target)) {
+				while (target && !player.isFriendOf(target)) {
 					target = target.getNext();
 				}
 			}

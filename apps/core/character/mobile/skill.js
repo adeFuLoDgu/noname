@@ -13418,7 +13418,7 @@ const skills = {
 				await source.give(source.getExpansions("mutao").randomGet(), togive);
 			}
 			source.line(togive);
-			let num = togive.countCards("h", { name: "sha" });
+			let num = togive?.countCards("h", { name: "sha" });
 			if (num) {
 				await togive.damage(Math.min(2, num), source);
 			}

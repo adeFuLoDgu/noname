@@ -235,7 +235,7 @@ decadeModule.import((lib, game, ui, get, ai, _status) => {
 					var hasFriend = get.attitude(player, next) > 0;
 					
 					// 判断下家是不是队友，令其生效或者失效
-					var judges = next.node.judges.childNodes;
+					var judges = next?.node.judges.childNodes;
 					if (judges.length > 0) cheats = decadeUI.get.cheatJudgeCards(cards, judges, hasFriend);
 						
 					// 如果有【父荫】优先把好牌给队友
@@ -486,7 +486,7 @@ decadeModule.import((lib, game, ui, get, ai, _status) => {
 					
 					if (parent) {
 						var hasZhiYan = player.hasSkill('zhiyan');	//如果有【直言】，AI 1000%肯定会用这个技能
-						var judges = next.node.judges.childNodes;
+						var judges = next?.node.judges.childNodes;
 						if (judges > 0 && hasZhiYan && cards.length > 1) {
 							cheats = decadeUI.get.cheatJudgeCards(cards, judges, hasFriend);
 						}
@@ -844,7 +844,7 @@ decadeModule.import((lib, game, ui, get, ai, _status) => {
 						
 						var next = player.getNext();
 						var friend = (get.attitude(player, next) < 0) ? null : next;
-						judges = next.node.judges.childNodes;
+						judges = next?.node.judges.childNodes;
 						
 						if (judges.length > 0) cheats = decadeUI.get.cheatJudgeCards(cards, judges, friend != null);
 						

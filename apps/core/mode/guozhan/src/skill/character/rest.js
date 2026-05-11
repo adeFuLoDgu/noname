@@ -151,10 +151,10 @@ export default {
 			const list = [],
 				previous = player.getPrevious(),
 				next = player.getNext();
-			if (previous?.isIn() && previous.identity == "qun") {
+			if (previous?.isIn() && previous?.identity == "qun") {
 				list.add("gz_ol_zezhu");
 			}
-			if (next?.isIn() && next.identity == "wei") {
+			if (next?.isIn() && next?.identity == "wei") {
 				list.add("gz_ol_chenggong");
 			}
 			if (list.length) {
@@ -9158,10 +9158,10 @@ export default {
 						var next = player.getNext(),
 							prev = player.getPrevious(),
 							siege = [];
-						if (player.siege(next)) {
+						if (next && player.siege(next)) {
 							siege.push(next.getNext());
 						}
-						if (player.siege(prev)) {
+						if (prev && player.siege(prev)) {
 							siege.push(prev.getPrevious());
 						}
 						if (siege.length) {
@@ -11447,7 +11447,7 @@ export default {
 			var target = trigger.player;
 			target.addTempSkill("gzpozhen2");
 			var list = game.filterPlayer(function (current) {
-				return current != target && (current.inline(target) || (current == target.getNext().getNext() && current.siege(target.getNext())) || (current == target.getPrevious().getPrevious() && current.siege(target.getPrevious())));
+				return current != target && (current.inline(target) || (current == target.getNext()?.getNext() && current.siege(target.getNext())) || (current == target.getPrevious()?.getPrevious() && current.siege(target.getPrevious())));
 			});
 			if (list.length) {
 				list.add(target);
@@ -16277,7 +16277,7 @@ export default {
 		},
 		content() {
 			var target = player.getNext();
-			player.viewCharacter(target, 1);
+			if (target) player.viewCharacter(target, 1);
 		},
 	},
 	_aozhan_judge: {
@@ -16615,16 +16615,16 @@ export default {
 					if (player.isMajor()) {
 						return 0;
 					}
-					if (!player.isMajor() && huoshao && player.getNext().isMajor()) {
+					if (!player.isMajor() && huoshao && player.getNext()?.isMajor()) {
 						return -2;
 					}
-					if (!player.isMajor() && huoshao && player.getNext().isMajor() && player.getNext().getNext().isMajor()) {
+					if (!player.isMajor() && huoshao && player.getNext()?.isMajor() && player.getNext()?.getNext()?.isMajor()) {
 						return -3;
 					}
-					if (!player.isMajor() && huoshao && !target.isMajor() && target.getNext().isMajor() && target.getNext().getNext().isMajor()) {
+					if (!player.isMajor() && huoshao && !target.isMajor() && target.getNext()?.isMajor() && target.getNext()?.getNext()?.isMajor()) {
 						return 3;
 					}
-					if (!player.isMajor() && huoshao && !target.isMajor() && target.getNext().isMajor()) {
+					if (!player.isMajor() && huoshao && !target.isMajor() && target.getNext()?.isMajor()) {
 						return 1.5;
 					}
 					return 1;
@@ -19643,7 +19643,7 @@ export default {
 				}
 			}
 			if (config.siege) {
-				if (target == player.getNext().getNext() || target == player.getPrevious().getPrevious()) {
+				if (target == player.getNext()?.getNext() || target == player.getPrevious()?.getPrevious()) {
 					return true;
 				}
 			}

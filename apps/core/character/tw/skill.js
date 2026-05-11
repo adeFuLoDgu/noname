@@ -13754,7 +13754,7 @@ const skills = {
 				if (togive == gained) {
 					break;
 				}
-				if (togive.isIn()) {
+				if (togive?.isIn()) {
 					await source.give(card, togive);
 					gained = togive;
 				}
@@ -13766,9 +13766,9 @@ const skills = {
 				}
 			}
 			source.line(togive);
-			let num = togive.countCards("h", { name: "sha" });
+			let num = togive?.countCards("h", { name: "sha" });
 			if (num) {
-				await togive.damage(Math.min(2, num), source);
+				await togive?.damage(Math.min(2, num), source);
 			}
 		},
 		ai: {

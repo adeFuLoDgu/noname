@@ -910,7 +910,7 @@ export class PlayerGuozhan extends lib.element.Player {
 			if (next) {
 				// @ts-expect-error 类型就是这么写的
 				next = next.getNext();
-				if (!next.isFriendOf(this) || next == this) {
+				if (!next?.isFriendOf(this) || next == this) {
 					// @ts-expect-error 类型就是这么写的
 					next = null;
 				} else {
@@ -920,7 +920,7 @@ export class PlayerGuozhan extends lib.element.Player {
 			if (previous) {
 				// @ts-expect-error 类型就是这么写的
 				previous = previous.getPrevious();
-				if (!previous.isFriendOf(this) || previous == this) {
+				if (!previous?.isFriendOf(this) || previous == this) {
 					// @ts-expect-error 类型就是这么写的
 					previous = null;
 				} else {

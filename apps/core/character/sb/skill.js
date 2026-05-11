@@ -5070,7 +5070,7 @@ const skills = {
 							player = _status.event.player;
 						var name = _status.event.getTrigger().name;
 						var target = name == "phaseZhunbei" ? player : player.getNext();
-						var judges = target.getCards("j");
+						var judges = target?.getCards("j");
 						var top = [],
 							att = get.sgn(get.attitude(player, target));
 						if (judges.length && att != 0 && (target != player || !player.hasWuxie())) {
