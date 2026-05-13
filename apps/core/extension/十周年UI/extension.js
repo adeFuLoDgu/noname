@@ -46,7 +46,7 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 			eval(`${method} = ${redirectedMethod}`);
 		}
 	};
-	const version = '1.2.0.260507.01';
+	const version = '1.2.0.260514.01';
 	return {
 		name: "十周年UI",
 		content:config=>{
@@ -2066,30 +2066,34 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 								});
 							}
 
-							let refreshPrefix;
-
-							if (character && duicfg.showJieMark && get.mode() != "guozhan") {
-								if (lib.characterPack.refresh) refreshPrefix = lib.characterPack.refresh[character];
-
-								if (!refreshPrefix) refreshPrefix = character.substr(0, 3);
-
-								if (refreshPrefix) {
-									refreshPrefix = lib.translate[character] && lib.translate[character][0];
-
-									if (refreshPrefix == '界') {
-										if (!this.$jieMark) this.$jieMark = dui.element.create('jie-mark', this);
-										else this.appendChild(this.$jieMark);
+							if (character && duicfg.showPrefixMark && get.mode() != "guozhan") {
+								let character_Prefix;
+								let slimName = lib.translate[`${character}_ab`] || lib.translate[character];
+								if (slimName) {
+									if (lib.translate[`${character}_prefix`]) {
+										character_Prefix = lib.translate[`${character}_prefix`];
+										let prefixList = lib.translate[character + "_prefix"].split("|")
+										while (prefixList.length) {
+											const prefix = prefixList.shift();
+											if (slimName.startsWith(prefix)) {
+												slimName = slimName.slice(prefix.length);
+												continue;
+											}
+											break;
+										}
+										if (slimName) {
+											if (character_Prefix) {
+												if (!this.$prefixMark) {
+													this.$prefixMark = dui.element.create('prefix-mark', this);
+												} else {
+													this.appendChild(this.$prefixMark);
+												}
+												this.$prefixMark.innerHTML = get.prefixSpan(character_Prefix, character);
+												this.node.name.innerText = slimName;
+											}
+										}
 									}
 								}
-							}
-
-							if (refreshPrefix == '界') {
-								let text = this.node.name.innerText;
-
-								if (text[1] == '\n') text = text.substr(2);
-								else text = text.substr(1);
-
-								this.node.name.innerText = text;
 							}
 
 							return this;
@@ -5826,8 +5830,8 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 					});
 				}
 			},
-			showJieMark:{
-				name: '界标记显示',
+			showPrefixMark:{
+				name: '武将前缀标记显示',
 				init: true,
 			},
 			cardAlternateNameVisible:{
@@ -5937,7 +5941,7 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 			intro:(function(){
 				var log = [
 				'有bug先检查其他扩展，不行再关闭UI重试，最后再联系作者。',
-				'当前版本：1.2.0.260507',
+				'当前版本：1.2.0.260514',
 				];
 
 				return '<p style="color:rgb(210,210,000); font-size:12px; line-height:14px; text-shadow: 0 0 2px black;">' + log.join('<br>') + '</p>';
