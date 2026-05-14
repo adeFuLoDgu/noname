@@ -2681,6 +2681,7 @@ export class Player extends HTMLDivElement {
 				}
 				this.classList.remove("unseen");
 				this.classList.remove("unseen_show");
+				if (window.decadeUI) this.$prefixMark?.classList.remove("unseen");
 				break;
 			case 1:
 				if (log !== false) {
@@ -2717,6 +2718,7 @@ export class Player extends HTMLDivElement {
 				this.classList.remove("unseen2");
 				this.classList.remove("unseen_show");
 				this.classList.remove("unseen2_show");
+				if (window.decadeUI) this.$prefixMark?.classList.remove("unseen");
 				break;
 		}
 		if (!this.isUnseen(2)) {
@@ -2735,6 +2737,7 @@ export class Player extends HTMLDivElement {
 					case 0:
 						player.classList.remove("unseen");
 						player.classList.remove("unseen_show");
+						if (window.decadeUI) player.$prefixMark?.classList.remove("unseen");
 						break;
 					case 1:
 						player.classList.remove("unseen2");
@@ -2745,6 +2748,7 @@ export class Player extends HTMLDivElement {
 						player.classList.remove("unseen2");
 						player.classList.remove("unseen_show");
 						player.classList.remove("unseen2_show");
+						if (window.decadeUI) player.$prefixMark?.classList.remove("unseen");
 						break;
 				}
 				if (!player.isUnseen(2)) {

@@ -630,6 +630,7 @@ export class PlayerGuozhan extends lib.element.Player {
 				skills = lib.character[this.name][3];
 				this.sex = lib.character[this.name][0];
 				this.classList.remove("unseen");
+				if (window.decadeUI) this.$prefixMark?.classList.remove("unseen");
 				break;
 			case 1:
 				if (log !== false) {
@@ -653,6 +654,7 @@ export class PlayerGuozhan extends lib.element.Player {
 				this.sex = lib.character[this.name][0];
 				this.classList.remove("unseen");
 				this.classList.remove("unseen2");
+				if (window.decadeUI) this.$prefixMark?.classList.remove("unseen");
 				break;
 		}
 		game.broadcast(
@@ -666,6 +668,7 @@ export class PlayerGuozhan extends lib.element.Player {
 				switch (num) {
 					case 0:
 						player.classList.remove("unseen");
+						if (window.decadeUI) player.$prefixMark?.classList.remove("unseen");
 						break;
 					case 1:
 						player.classList.remove("unseen2");
@@ -673,6 +676,7 @@ export class PlayerGuozhan extends lib.element.Player {
 					case 2:
 						player.classList.remove("unseen");
 						player.classList.remove("unseen2");
+						if (window.decadeUI) player.$prefixMark?.classList.remove("unseen");
 						break;
 				}
 				player.ai.shown = 1;

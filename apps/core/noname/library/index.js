@@ -14101,15 +14101,6 @@ export class Library {
 			},
 		],
 		[
-			"SP神",
-			{
-				/**
-				 * @returns {string}
-				 */
-				getSpan: () => `${get.prefixSpan("SP")}${get.prefixSpan("神")}`,
-			},
-		],
-		[
 			"TW将",
 			{
 				/**

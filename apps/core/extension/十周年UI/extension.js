@@ -46,7 +46,7 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 			eval(`${method} = ${redirectedMethod}`);
 		}
 	};
-	const version = '1.2.0.260514.01';
+	const version = '1.2.0.260515.01';
 	return {
 		name: "十周年UI",
 		content:config=>{
@@ -2066,31 +2066,37 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 								});
 							}
 
-							if (character && duicfg.showPrefixMark && get.mode() != "guozhan") {
+							if (character && duicfg.showPrefixMark && lib.config.buttoncharacter_prefix != "off") {
 								let character_Prefix;
 								let slimName = lib.translate[`${character}_ab`] || lib.translate[character];
 								if (slimName) {
 									if (lib.translate[`${character}_prefix`]) {
 										character_Prefix = lib.translate[`${character}_prefix`];
 										let prefixList = lib.translate[character + "_prefix"].split("|")
+										let setPrefix = [];
 										while (prefixList.length) {
 											const prefix = prefixList.shift();
 											if (slimName.startsWith(prefix)) {
+												setPrefix.push(prefix);
 												slimName = slimName.slice(prefix.length);
 												continue;
 											}
 											break;
 										}
-										if (slimName) {
-											if (character_Prefix) {
-												if (!this.$prefixMark) {
-													this.$prefixMark = dui.element.create('prefix-mark', this);
-												} else {
-													this.appendChild(this.$prefixMark);
+										if (character_Prefix && slimName) {
+											if (!this.$prefixMark) {
+												this.$prefixMark = dui.element.create('prefix-mark', this);
+												if (get.mode() == "guozhan" || this.isUnseen(0)) {
+													this.$prefixMark.classList.add("unseen");
 												}
-												this.$prefixMark.innerHTML = get.prefixSpan(character_Prefix, character);
-												this.node.name.innerText = slimName;
+											} else {
+												this.appendChild(this.$prefixMark);
 											}
+											let prefix_innerHTML = `${setPrefix.map(prefix => {
+												return get.prefixSpan(prefix, character).replace(/data-nature="[^"]*"\s*|style="color:\s*[^"]*"\s*/g, "");
+											}).join("")}`;
+											this.$prefixMark.innerHTML = prefix_innerHTML;
+											this.node.name.innerText = slimName;
 										}
 									}
 								}
@@ -2098,8 +2104,47 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 
 							return this;
 						}
+						$reinit(from, to, maxHp, online) {
+							super.$reinit(...arguments);
+							let character = to;
+							if (character && (this.name == character || this.name1 == character) && duicfg.showPrefixMark && lib.config.buttoncharacter_prefix != "off") {
+								let character_Prefix;
+								let slimName = lib.translate[`${character}_ab`] || lib.translate[character];
+								if (slimName) {
+									if (lib.translate[`${character}_prefix`]) {
+										character_Prefix = lib.translate[`${character}_prefix`];
+										let prefixList = lib.translate[character + "_prefix"].split("|")
+										let setPrefix = [];
+										while (prefixList.length) {
+											const prefix = prefixList.shift();
+											if (slimName.startsWith(prefix)) {
+												setPrefix.push(prefix);
+												slimName = slimName.slice(prefix.length);
+												continue;
+											}
+											break;
+										}
+										if (character_Prefix && slimName) {
+											if (!this.$prefixMark) {
+												this.$prefixMark = dui.element.create('prefix-mark', this);
+												if (get.mode() == "guozhan" || this.isUnseen(0)) {
+													this.$prefixMark.classList.add("unseen");
+												}
+											} else {
+												this.appendChild(this.$prefixMark);
+											}
+											let prefix_innerHTML = `${setPrefix.map(prefix => {
+												return get.prefixSpan(prefix, character).replace(/data-nature="[^"]*"\s*|style="color:\s*[^"]*"\s*/g, "");
+											}).join("")}`;
+											this.$prefixMark.innerHTML = prefix_innerHTML;
+											this.node.name.innerText = slimName;
+										}
+									}
+								}
+							}
+						}
 						$uninit() {
-							if (this.$jieMark) this.$jieMark.remove();
+							if (this.$prefixMark) this.$prefixMark.remove();
 
 							this.stopDynamic();
 							this.doubleAvatar = false;
@@ -5941,7 +5986,7 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 			intro:(function(){
 				var log = [
 				'有bug先检查其他扩展，不行再关闭UI重试，最后再联系作者。',
-				'当前版本：1.2.0.260514',
+				'当前版本：1.2.0.260515',
 				];
 
 				return '<p style="color:rgb(210,210,000); font-size:12px; line-height:14px; text-shadow: 0 0 2px black;">' + log.join('<br>') + '</p>';
