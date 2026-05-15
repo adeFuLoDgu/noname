@@ -1687,7 +1687,7 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 						}
 						buildNode() {
 							super.buildNode();
-							if (get.mode() === "guozhan") {
+							if (get.mode() === "guozhan" || get.config("double_character") === true) {
 								ui.arena.style.setProperty('--player-unseen-bg', 'url("assets/image/bj2.png")');
 							}
 							this.node.avatar.className = 'primary-avatar';
@@ -2066,48 +2066,18 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 								});
 							}
 
-							if (character && duicfg.showPrefixMark && lib.config.buttoncharacter_prefix != "off") {
-								let character_Prefix;
-								let slimName = lib.translate[`${character}_ab`] || lib.translate[character];
-								if (slimName) {
-									if (lib.translate[`${character}_prefix`]) {
-										character_Prefix = lib.translate[`${character}_prefix`];
-										let prefixList = lib.translate[character + "_prefix"].split("|")
-										let setPrefix = [];
-										while (prefixList.length) {
-											const prefix = prefixList.shift();
-											if (slimName.startsWith(prefix)) {
-												setPrefix.push(prefix);
-												slimName = slimName.slice(prefix.length);
-												continue;
-											}
-											break;
-										}
-										if (character_Prefix && slimName) {
-											if (!this.$prefixMark) {
-												this.$prefixMark = dui.element.create('prefix-mark', this);
-												if (get.mode() == "guozhan" || this.isUnseen(0)) {
-													this.$prefixMark.classList.add("unseen");
-												}
-											} else {
-												this.appendChild(this.$prefixMark);
-											}
-											let prefix_innerHTML = `${setPrefix.map(prefix => {
-												return get.prefixSpan(prefix, character).replace(/data-nature="[^"]*"\s*|style="color:\s*[^"]*"\s*/g, "");
-											}).join("")}`;
-											this.$prefixMark.innerHTML = prefix_innerHTML;
-											this.node.name.innerText = slimName;
-										}
-									}
-								}
-							}
+							this.AddPrefixMark(character);
 
 							return this;
 						}
 						$reinit(from, to, maxHp, online) {
 							super.$reinit(...arguments);
-							let character = to;
-							if (character && (this.name == character || this.name1 == character) && duicfg.showPrefixMark && lib.config.buttoncharacter_prefix != "off") {
+							if (this.name == to || this.name1 == to) {
+								this.AddPrefixMark(to);
+							}
+						}
+						AddPrefixMark(character) {
+							if (character && typeof character == "string" && duicfg.showPrefixMark && lib.config.buttoncharacter_prefix != "off") {
 								let character_Prefix;
 								let slimName = lib.translate[`${character}_ab`] || lib.translate[character];
 								if (slimName) {
@@ -2134,7 +2104,18 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 												this.appendChild(this.$prefixMark);
 											}
 											let prefix_innerHTML = `${setPrefix.map(prefix => {
-												return get.prefixSpan(prefix, character).replace(/data-nature="[^"]*"\s*|style="color:\s*[^"]*"\s*/g, "");
+												let html = get.prefixSpan(prefix, character);
+												let display_prefix_match = html.match(/<span[^>]*>([\s\S]*?)<\/span>/);
+												if (display_prefix_match && setPrefix.length == 1) {
+													let first_display_prefix = display_prefix_match[1];
+													if (first_display_prefix.length == 1 && prefix.length == 1) {
+														html = html.replace('<span', '<span style="font-size: 16px;"');
+													}
+													if (first_display_prefix.length == 2 && prefix.length == 2 && (/^\p{Script=Han}+$/u).test(first_display_prefix) == true) {
+														html = html.replace('<span', '<span style="letter-spacing: -3px;"');
+													}
+												}
+												return html.replace(/data-nature="[^"]*"\s*|style="color:\s*[^"]*"\s*/g, "");
 											}).join("")}`;
 											this.$prefixMark.innerHTML = prefix_innerHTML;
 											this.node.name.innerText = slimName;

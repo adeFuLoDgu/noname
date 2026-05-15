@@ -369,7 +369,7 @@ export class Library {
 					document.documentElement.style.removeProperty("--cardback-url");
 					return;
 			}
-			document.documentElement.style.setProperty("--cardback-url", `url(${lib.assetURL}/${url})`);
+			document.documentElement.style.setProperty("--cardback-url", `url(${lib.assetURL}` + (location.href.indexOf("github.io") == -1 ? "" : "/" + (process.env.REPO_NAME || "noname")) +`/${url})`);
 		},
 	];
 	onfree = [];
@@ -2687,7 +2687,7 @@ export class Library {
 								document.documentElement.style.removeProperty("--cardback-url");
 								return;
 						}
-						document.documentElement.style.setProperty("--cardback-url", `url(${lib.assetURL}/${url})`);
+						document.documentElement.style.setProperty("--cardback-url", `url(${lib.assetURL}` + (location.href.indexOf("github.io") == -1 ? "" : "/" + (process.env.REPO_NAME || "noname")) +`/${url})`);
 					},
 					unfrequent: true,
 				},
