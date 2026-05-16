@@ -1027,8 +1027,9 @@ const skills = {
 	},
 	//可爱之神
 	dcmaimeng: {
-		trigger: {
-			player: "changeHpAfter",
+		trigger: { player: "changeHpAfter" },
+		filter(event, player) {
+			return event.changedHp != 0;
 		},
 		async cost(event, trigger, player) {
 			let num = player.getHistory("useSkill", evt => evt.skill == event.skill).length + 1;
@@ -1075,13 +1076,9 @@ const skills = {
 		},
 		subSkill: {
 			effect: {
-				trigger: {
-					player: "damageBegin4",
-				},
+				trigger: { player: "damageBegin4" },
 				marktext: "萌",
-				intro: {
-					content: "防止本回合下一次受到的伤害",
-				},
+				intro: { content: "防止本回合下一次受到的伤害" },
 				onremove: true,
 				charlotte: true,
 				forced: true,
@@ -1092,15 +1089,11 @@ const skills = {
 				},
 			},
 			deEffect: {
-				trigger: {
-					player: "useCard",
-				},
+				trigger: { player: "useCard" },
 				forced: true,
 				mark: true,
 				marktext: "萌",
-				intro: {
-					content: "本回合使用的下一张牌无效",
-				},
+				intro: { content: "本回合使用的下一张牌无效" },
 				charlotte: true,
 				onremove: true,
 				async content(event, trigger, player) {
@@ -8318,16 +8311,16 @@ const skills = {
 		audio: 2,
 		enable: "phaseUse",
 		filter(event, player) {
-			var colorx = false,
+			let colorx = false,
 				hs = player.getCards("he");
 			if (hs.length < 2) {
 				return false;
 			}
-			for (var card of hs) {
+			for (const card of hs) {
 				if (!lib.filter.cardDiscardable(card, player)) {
 					continue;
 				}
-				var color = get.color(card, player);
+				const color = get.color(card, player);
 				if (color == "none") {
 					continue;
 				}
@@ -8340,7 +8333,7 @@ const skills = {
 			return false;
 		},
 		filterCard(card, player) {
-			var color = get.color(card, player);
+			const color = get.color(card, player);
 			if (color == "none") {
 				return false;
 			}
@@ -8351,32 +8344,33 @@ const skills = {
 		prompt: "弃置两张颜色不同的牌并改变天气",
 		check: card => 11 - get.value(card),
 		async content(event, trigger, player) {
-			var list = ["烈日", "雷电", "大浪", "暴雨", "大雾"].randomGets(2);
+			const list = ["烈日", "雷电", "大浪", "暴雨", "大雾"].randomGets(2);
 			const result = await player
 				.chooseButton(true, ["请选择执行一个天气", [list.map(i => [i, '<div class="popup text" style="width:calc(100% - 10px);display:inline-block"><div class="skill">【' + i + "】</div><div>" + lib.skill.dcsitian.weathers[i].description + "</div></div>"]), "textbutton"]])
-				.set("ai", function (button) {
+				.set("ai", button => {
 					return lib.skill.dcsitian.weathers[button.link].ai(_status.event.player);
 				})
 				.forResult();
-			if (result.bool) {
-				var choice = result.links[0];
+			if (result?.bool) {
+				const choice = result.links[0];
 				game.log(player, "将当前天气变更为", "#g" + choice);
-				var next = game.createEvent("dcsitian_weather", false);
+				const next = game.createEvent("dcsitian_weather", false);
 				next.player = player;
 				next.setContent(lib.skill.dcsitian.weathers[choice].content);
+				await next;
 			}
 		},
 		ai: {
 			order: 8,
 			result: {
 				player(player) {
-					var num1 = 0,
+					let num1 = 0,
 						num2 = 0;
 					game.countPlayer(function (current) {
 						if (player == current) {
 							return;
 						}
-						var att = get.attitude(player, current);
+						const att = get.attitude(player, current);
 						if (att > 0) {
 							num1++;
 						} else {
@@ -8398,7 +8392,7 @@ const skills = {
 				async content(event, trigger, player) {
 					trigger.targets.length = 0;
 					trigger.all_excluded = true;
-					player.removeSkill("dcsitian_dawu");
+					player.removeSkill(event.name);
 				},
 				mark: true,
 				marktext: "雾",
@@ -8419,7 +8413,7 @@ const skills = {
 					}
 				},
 				ai(player) {
-					var effect = 0;
+					let effect = 0;
 					game.countPlayer(function (current) {
 						if (current == player) {
 							return;
@@ -8432,40 +8426,20 @@ const skills = {
 			雷电: {
 				description: "你令其他角色各进行一次判定。若结果为♠2~9，则其受到3点无来源雷属性伤害。",
 				async content(event, trigger, player) {
-					var targets = game.filterPlayer(current => current != player).sortBySeat();
+					const targets = game.filterPlayer(current => current != player).sortBySeat();
 					player.line(targets, "thunder");
 					for (const target of targets) {
 						if (!target.isIn()) {
 							continue;
 						}
-						const result = await target.judge(lib.card.shandian.judge, get.translation("shandian")).set("judge2", lib.card.shandian.judge2).forResult();
-						var name = "shandian";
-						if (event.cancelled && !event.direct) {
-							if (lib.card[name].cancel) {
-								var next = game.createEvent(name + "Cancel");
-								next.setContent(lib.card[name].cancel);
-								next.cards = [];
-								next.card = get.autoViewAs({ name: name });
-								next.player = target;
-								await next;
-							}
-						} else {
-							var next = game.createEvent(name);
-							next.setContent(function () {
-								if (result.bool == false) {
-									player.damage(3, "thunder", "nosource");
-								}
-							});
-							next._result = result;
-							next.cards = [];
-							next.card = get.autoViewAs({ name: name });
-							next.player = target;
-							await next;
+						const result = await target.judge(lib.card.shandian.judge, "司天·雷电").set("judge2", lib.card.shandian.judge2).forResult();
+						if (result?.bool == false) {
+							await target.damage(3, "thunder", "nosource");
 						}
 					}
 				},
 				ai(player) {
-					var effect = 0;
+					let effect = 0;
 					game.countPlayer(function (current) {
 						if (current == player) {
 							return;
@@ -8478,11 +8452,11 @@ const skills = {
 			大浪: {
 				description: "你弃置其他角色装备区内的所有牌（装备区内没有牌的角色改为失去1点体力）。",
 				async content(event, trigger, player) {
-					var targets = game.filterPlayer(current => current != player).sortBySeat();
+					const targets = game.filterPlayer(current => current != player).sortBySeat();
 					player.line(targets, "green");
 					for (const target of targets) {
 						if (target.isIn()) {
-							var num = target.countCards("e");
+							let num = target.countCards("e");
 							if (num > 0) {
 								await player.discardPlayerCard(target, true, "e", num);
 							} else {
@@ -8493,14 +8467,14 @@ const skills = {
 					}
 				},
 				ai(player) {
-					var effect = 0;
+					let effect = 0;
 					game.countPlayer(function (current) {
 						if (current == player) {
 							return;
 						}
-						var es = current.getCards("e");
+						const es = current.getCards("e");
 						if (es.length > 0) {
-							var att = get.attitude(player, current),
+							const att = get.attitude(player, current),
 								val = get.value(es, current);
 							effect -= Math.sqrt(att) * val;
 						} else {
@@ -8515,25 +8489,25 @@ const skills = {
 				async content(event, trigger, player) {
 					const result = await player
 						.chooseTarget("请选择【暴雨】的目标", "令目标角色弃置所有手牌。若其没有手牌，则其改为失去1点体力。")
-						.set("ai", function (current) {
-							var es = current.getCards("h"),
-								player = _status.event.player;
+						.set("ai", target => {
+							const es = current.getCards("h"),
+								player = get.player();
 							if (es.length > 0) {
-								var att = get.attitude(player, current),
+								const att = get.attitude(player, current),
 									val = get.value(es, current);
 								return -Math.sqrt(att) * val;
 							}
 							return get.effect(current, { name: "losehp" }, player, player);
 						})
 						.forResult();
-					if (result.bool) {
-						var target = result.targets[0];
+					if (result?.bool) {
+						const target = result.targets[0];
 						player.line(target, "green");
-						var num = target.countCards("h");
+						const num = target.countCards("h");
 						if (num > 0) {
-							player.discardPlayerCard(target, true, "h", num);
+							await player.discardPlayerCard(target, true, "h", num);
 						} else {
-							target.loseHp();
+							await target.loseHp();
 							await game.delayex();
 						}
 					}
@@ -8546,9 +8520,9 @@ const skills = {
 								return current != player;
 							})
 							.map(function (current) {
-								var es = current.getCards("h");
+								const es = current.getCards("h");
 								if (es.length > 0) {
-									var att = get.attitude(player, current),
+									const att = get.attitude(player, current),
 										val = get.value(es, current);
 									return -Math.sqrt(att) * val;
 								}
@@ -8567,7 +8541,7 @@ const skills = {
 					}
 				},
 				ai(player) {
-					var effect = 0;
+					let effect = 0;
 					game.countPlayer(function (current) {
 						if (current == player || current.hasSkill("dcsitian_dawu")) {
 							return;
@@ -8972,7 +8946,7 @@ const skills = {
 			return false;
 		},
 		filter(event, player) {
-			return player != event.player && event.player.countDiscardableCards(player, "he") > 0;
+			return player != event.player && event.player.hasDiscardableCards(player, "he");
 		},
 		async content(event, trigger, player) {
 			await player.discardPlayerCard(trigger.player, true, "he", [1, 2]);

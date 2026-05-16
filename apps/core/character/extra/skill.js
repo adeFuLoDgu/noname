@@ -1804,22 +1804,14 @@ const skills = {
 		},
 		prompt: "弃置一枚“忍”，然后弃置任意张牌并摸等量的牌。若弃置了所有的手牌，则可以多摸一张牌。",
 		async content(event, trigger, player) {
-			player.removeMark("renjie", 1);
-
 			const { cards } = event;
-			event.num = 1;
+
+			player.removeMark("renjie", 1);
 			const hs = player.getCards("h");
-			if (hs.length > 0) {
-				event.num = 0;
-			}
-			for (let i = 0; i < hs.length; i++) {
-				if (!cards.includes(hs[i])) {
-					event.num = 0;
-					break;
-				}
-			}
-			await player.discard(cards);
-			await player.draw(event.num + cards.length);
+			const num = hs.length > 0 && hs.every(card => cards.includes(card)) ? 1 : 0;
+
+			await player.discard({ cards });
+			await player.draw(num + cards.length);
 		},
 		ai: {
 			order(item, player) {

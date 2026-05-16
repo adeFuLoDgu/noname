@@ -245,26 +245,36 @@ const skills = {
 	},
 	starfanglang: {
 		audio: 2,
-		trigger: { player: "phaseDrawBegin2" },
+		trigger: { player: "phaseDrawEnd" },
 		filter(event, player) {
-			return !event.numFixed;
+			const hs = player.getCards("he");
+			return player
+				.getHistory("gain", evt => evt.getParent("phaseDraw") == event)
+				.reduce((list, evt) => [...list, ...evt.cards], [])
+				.containsSome(...hs);
 		},
 		check: () => true,
+		async cost(event, trigger, player) {
+			const cards = player.getHistory("gain", evt => evt.getParent("phaseDraw") == trigger).reduce((list, evt) => [...list, ...evt.cards], []);
+			event.result = await player
+				.chooseCard({
+					prompt: get.prompt2(event.skill),
+					position: "he",
+					filterCard(card, player) {
+						return get.event().cards.includes(card);
+					},
+					cards,
+					ai(card) {
+						return Math.random();
+					},
+				})
+				.forResult();
+		},
 		async content(event, trigger, player) {
-			trigger.num = 1;
-			trigger.numFixed = true;
-			player
-				.when("drawEnd")
-				.filter(evt => evt.getParent() == trigger)
-				.then(async (event, trigger, player) => {
-					let { cards } = trigger.result;
-					cards = cards?.filter(card => get.owner(card) == player);
-					if (cards?.length) {
-						player.addTempSkill("starfanglang_draw", { player: "phaseBeforeStart" });
-						player.markAuto("starfanglang_draw", cards);
-						await player.showCards(cards);
-					}
-				});
+			const { cards } = event;
+			player.addTempSkill(event.name + "_draw", { player: "phaseBeforeStart" });
+			player.markAuto(event.name + "_draw", cards);
+			await player.showCards(cards);
 		},
 		group: ["starfanglang_gain"],
 		subSkill: {
@@ -5588,15 +5598,13 @@ const skills = {
 	dcmoukui: {
 		audio: "moukui",
 		trigger: { player: "useCardToPlayered" },
-		direct: true,
 		filter(event, player) {
-			return event.card && event.card.name == "sha" && event.isFirstTarget;
+			return event.card?.name == "sha" && event.isFirstTarget;
 		},
-		content() {
-			"step 0";
-			player
+		async cost(event, trigger, player) {
+			const result = await player
 				.chooseButton([
-					get.prompt("dcmoukui"),
+					get.prompt(event.skill),
 					[
 						[
 							["draw", "摸一张牌"],
@@ -5606,87 +5614,101 @@ const skills = {
 					],
 				])
 				.set("filterButton", button => {
+					const player = get.player();
 					if (
 						button.link == "discard" &&
 						_status.event.getTrigger().targets.every(target => {
-							return target.countDiscardableCards(_status.event.player, "he") == 0;
+							return !target.hasDiscardableCards(player, "he");
 						})
 					) {
 						return false;
 					}
 					return true;
 				})
-				.set("ai", function (button) {
+				.set("ai", button => {
+					const player = get.player();
 					if (
 						button.link == "discard" &&
 						_status.event.getTrigger().targets.every(target => {
-							return get.effect(target, { name: "guohe_copy2" }, _status.event.player) <= 0;
+							return get.effect(target, { name: "guohe_copy2" }, player, player) <= 0;
 						})
 					) {
 						return 0;
 					}
 					return 1;
 				})
-				.set("selectButton", [1, 2]);
-			"step 1";
-			if (result.bool) {
-				player.logSkill("dcmoukui");
-				var choices = result.links;
-				event.choices = choices;
-				if (choices.includes("draw")) {
-					game.log(player, "选择了", "#y选项一");
-					player.draw();
-				}
-				if (choices.includes("discard")) {
-					game.log(player, "选择了", "#y选项二");
-					if (trigger.targets.length == 1) {
-						event.directtarget = trigger.targets[0];
-					} else {
-						player
-							.chooseTarget("谋溃：弃置一名目标角色的一张牌", true, (card, player, target) => {
-								return _status.event.getTrigger().targets.includes(target) && target.countDiscardableCards(player, "he") > 0;
-							})
-							.set("ai", target => {
-								return get.effect(target, { name: "guohe_copy2" }, _status.event.player);
-							});
-					}
-				} else {
-					event.finish();
-				}
-				if (choices.length >= 2) {
-					player.addTempSkill("dcmoukui_conseq");
-					player.markAuto("dcmoukui_conseq", [trigger.card]);
-				}
-			} else {
-				event.finish();
+				.set("selectButton", [1, 2])
+				.forResult();
+			event.result = {
+				bool: result?.bool,
+				cost_data: result?.links,
+			};
+		},
+		async content(event, trigger, player) {
+			const choices = event.cost_data;
+			if (choices.includes("draw")) {
+				game.log(player, "选择了", "#y选项一");
+				await player.draw();
 			}
-			"step 2";
-			player.discardPlayerCard(event.directtarget || result.targets[0], true, "he").boolline = true;
+			if (choices.includes("discard")) {
+				game.log(player, "选择了", "#y选项二");
+				const targets = trigger.targets.filter(current => current.hasDiscardableCards(player, "he"));
+				if (!targets.length) {
+					return;
+				}
+				const reult =
+					targets.length == 1
+						? { bool: true, targets }
+						: await player
+								.chooseTarget("谋溃：弃置一名目标角色的一张牌", true, (card, player, target) => {
+									return get.event().targets?.includes(target);
+								})
+								.set("targets", targets)
+								.set("ai", target => {
+									const player = get.player();
+									return get.effect(target, { name: "guohe_copy2" }, player, player);
+								})
+								.forResult();
+				if (reult?.bool) {
+					const target = reult.targets[0];
+					await player.discardPlayerCard(target, true, "he").set("boolline", true);
+					if (choices.includes("draw")) {
+						player.addTempSkill(event.name + "_conseq");
+						player.markAuto(event.name + "_conseq", [[trigger.card, target]]);
+					}
+				}
+			}
 		},
 		subSkill: {
 			conseq: {
-				trigger: {
-					global: ["shaMiss", "useCardToExcluded", "eventNeutralized", "shaCancelled"],
-				},
-				forced: true,
-				popup: false,
 				charlotte: true,
 				onremove: true,
-				filter(event, player, name) {
+				trigger: { global: ["shaMiss", "useCardToExcluded", "eventNeutralized", "shaCancelled"] },
+				filter(event, player) {
 					if (!event.card) {
 						return false;
 					}
-					var cards = player.getStorage("dcmoukui_conseq");
-					if (!cards.includes(event.card)) {
+					if (!player.getStorage("dcmoukui_conseq").some(([card, target]) => event.card == card && target?.isIn())) {
 						return false;
 					}
 					return true;
 				},
-				content() {
-					"step 0";
-					game.delayx();
-					"step 1";
-					trigger.target.discardPlayerCard(player, true, "he").boolline = true;
+				forced: true,
+				popup: false,
+				async content(event, trigger, player) {
+					let list = player.getStorage(event.name).filter(([card, target]) => trigger.card == card);
+					player.unmarkAuto(event.name, list);
+					if (!player.getStorage(event.name).length) {
+						player.removeSkill(event.name);
+					}
+					list = list.filter(([card, target]) => target?.isIn()).map(item => item[1]);
+					for (const target of list.sortBySeat()) {
+						if (!target.isIn()) {
+							continue;
+						}
+						await game.delayx();
+						await target.discardPlayerCard(player, true, "he").set("boolline", true);
+					}
 				},
 			},
 		},
@@ -7332,7 +7354,7 @@ const skills = {
 		async cost(event, trigger, player) {
 			const num = event.triggername == "damageEnd" ? 1 : -1;
 			event.result = await player
-				.chooseTarget(get.prompt(event.skill), "令一名角色下回合的额定摸牌数" + (event.num > 0 ? "+1" : "-1"))
+				.chooseTarget(get.prompt(event.skill), "令一名角色下回合的额定摸牌数" + (num > 0 ? "+1" : "-1"))
 				.set("ai", target => {
 					const { player, numx: num } = get.event();
 					const att = get.attitude(player, target);
@@ -7376,7 +7398,7 @@ const skills = {
 				onremove: true,
 				trigger: { player: "phaseDrawBegin2" },
 				filter(event, player) {
-					return typeof player.storage.dcbihuo_effect == 'number' && !event.numFixed;
+					return typeof player.storage.dcbihuo_effect == "number" && !event.numFixed;
 				},
 				forced: true,
 				popup: false,

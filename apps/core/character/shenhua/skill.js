@@ -9208,6 +9208,9 @@ const skills = {
 		audio: 2,
 		trigger: { player: "changeHp" },
 		filter(event, player) {
+			if (event.changedHp == 0) {
+				return false;
+			}
 			return player.hp == 1;
 		},
 		forced: true,

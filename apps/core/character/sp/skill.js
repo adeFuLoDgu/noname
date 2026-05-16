@@ -1444,14 +1444,12 @@ const skills = {
 	},
 	olwenyi: {
 		audio: 2,
-		trigger: {
-			global: ["changeHpAfter"],
-		},
+		trigger: { global: ["changeHpAfter"] },
 		filter(event, player) {
 			if (player.countMark("olwenyi_used") > player.countMark("olwenyi_limit")) {
 				return false;
 			}
-			if (event.player.hp != 1 || event.num == 0) {
+			if (event.player.hp != 1 || event.changedHp == 0) {
 				return false;
 			}
 			return player.hasUsableCard("tao", "use") || player.countCards("he", card => _status.connectMode || get.type(card) == "equip");
@@ -1900,19 +1898,7 @@ const skills = {
 				if (opinion == "red") {
 					const cards = result.red.flatMap(i => i[1]).filter(card => get.itemtype(card) == "card");
 					if (cards.length) {
-						await player
-							.gain(cards)
-							.set("animate", event => {
-								const player = event.player,
-									cards = event.cards;
-								event.targets.forEach((target, index) => {
-									target.$give(cards[index], player);
-								});
-							})
-							.set(
-								"targets",
-								result.red.map(i => i[0]).filter(target => target != player)
-							);
+						await player.gain(cards, "giveAuto");
 					}
 				} else if (opinion == "black") {
 					const drawer = result.red
@@ -5665,7 +5651,7 @@ const skills = {
 				effect: {
 					trigger: { player: "changeHpEnd" },
 					filter(event, player) {
-						return event.num !== 0;
+						return event.changedHp != 0;
 					},
 				},
 			},
@@ -33074,7 +33060,7 @@ const skills = {
 		charlotte: true,
 		sourceSkill: "xiahui",
 		filter(event) {
-			return event.num < 0;
+			return event.changedHp < 0;
 		},
 		content() {
 			player.removeSkill("xiahui2");
@@ -38546,29 +38532,34 @@ const skills = {
 			} else if (trigger.target.countCards("he")) {
 				await player.discardPlayerCard(trigger.target, "he", true);
 			}
-			player.markAuto("moukui2", trigger.target);
+			player.addTempSkill(event.name + "_conseq");
+			player.markAuto(event.name + "_conseq", [[trigger.card, trigger.target]]);
 		},
-		group: "moukui2",
-		ai: {
-			expose: 0.1,
-		},
-	},
-	moukui2: {
-		audio: false,
-		trigger: { player: "shaMiss" },
-		forced: true,
-		sourceSkill: "moukui",
-		onremove: true,
-		filter(event, player) {
-			if (!player.getStorage("moukui2").includes(event.target)) {
-				return false;
-			}
-			return player.countCards("he") > 0;
-		},
-		content() {
-			trigger.target.line(player, "green");
-			trigger.target.discardPlayerCard(player, true);
-			player.unmarkAuto("moukui2", [trigger.target]);
+		ai: { expose: 0.1 },
+		subSkill: {
+			conseq: {
+				charlotte: true,
+				onremove: true,
+				trigger: { player: "shaMiss" },
+				filter(event, player) {
+					if (!player.getStorage("moukui_conseq").some(([card, target]) => event.card == card && event.target == target)) {
+						return false;
+					}
+					return player.countCards("he") > 0;
+				},
+				forced: true,
+				popup: false,
+				async content(event, trigger, player) {
+					const list = player.getStorage(event.name).filter(([card, target]) => trigger.card == card && trigger.target == target);
+					player.unmarkAuto(event.name, list);
+					if (!player.getStorage(event.name).length) {
+						player.removeSkill(event.name);
+					}
+					const { target } = trigger;
+					target.line(player, "green");
+					await target.discardPlayerCard(player, true);
+				},
+			},
 		},
 	},
 	shenxian: {

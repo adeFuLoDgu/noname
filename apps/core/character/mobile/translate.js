@@ -1,6 +1,14 @@
 import { lib, game, ui, get, ai, _status } from "noname";
 
 const translates = {
+	mb_shen_machao_prefix: "手杀|神",
+	mb_shen_machao: "手杀神马超",
+	yuli: "驭雳",
+	yuli_info: "锁定技，1.你造成的伤害改为雷电伤害，已是雷电伤害则伤害+1；2.你受到雷电伤害时，防止之并摸等量牌。",
+	tingwei: "霆威",
+	tingwei_info: "你使用【杀】指定目标后，可获得4个“霆”标记并选择一名目标角色，其选择任意项（每选择一项，你失去1个“霆”标记）：1.非锁定技失效至其下个回合结束；2.交给你一张装备牌；3.此牌对其造成伤害+1；4.随机弃一张牌。若其均不选择，其进入连环状态。",
+	jimie: "寂灭",
+	jimie_info: "限定技，出牌阶段结束时，你可失去8个“霆”，对一名角色造成等于其体力上限的伤害。然后你“驭雳”的两项均执行后，该技能可再次发动。",
 	xin_simayi: "手杀神司马懿",
 	xin_simayi_prefix: "手杀神",
 	xinrenjie: "忍戒",
@@ -843,7 +851,7 @@ const translates = {
 	mbcmfangzhu_info: `${get.poptip("rule_chihengji")}。出牌阶段限一次，你可以选择一名不为你上个出牌阶段发动〖放逐〗的目标的其他角色，选择一项：⒈令其不能使用手牌中的非锦囊牌直到其回合结束；⒉令其所有非Charlotte技能失效直到其回合结束。`,
 	mbjuejin: "决进",
 	mbjuejinContentAfter: "决进",
-	mbjuejin_info: `${get.poptip("rule_chihengji")}，限定技。出牌阶段，你可以令所有角色依次将体力调整至1并获得X点护甲（X为一名角色以此法减少的体力值且你以此法获得的护甲数额外+2）。然后你将牌堆、弃牌堆、场上及所有角色手牌中的【闪】、【桃】和【酒】移出游戏且增加全局技能“${get.poptip({
+	mbjuejin_info: `${get.poptip("rule_chihengji")}，限定技。出牌阶段，你可以令所有角色依次将体力值调整至1并获得X点护甲（X为一名角色以此法减少的体力值且你以此法获得的护甲数额外+2）。然后你将牌堆、弃牌堆、场上及所有角色手牌中的【闪】、【桃】和【酒】移出游戏且增加全局技能“${get.poptip({
 		id: "juejin_xiangsicunwei",
 		name: "向死存魏",
 		type: "character",

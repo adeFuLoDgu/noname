@@ -80,7 +80,7 @@ export interface CheckCardParams {
 	 * AI选择牌时的优先级评分函数
 	 * 
 	 * @param card - 选择的牌
-	 * @RETURNS 选择该牌的优先级评分
+	 * @returns 选择该牌的优先级评分
 	 */
 	ai?(card: Card): number;
 }
@@ -338,6 +338,8 @@ export interface EventChooseButtonParams extends ChooseBase, CheckButtonParams {
 	direct?: boolean;
 	// TODO: 加类型
 	createDialog?: any[];
+
+	processAI(): Partial<Result>;
 }
 
 export interface EventChooseCardOLParams {
