@@ -15657,19 +15657,12 @@ const skills = {
 		},
 		async content(event, trigger, player) {
 			const { cards } = event;
-			event.num = 1;
+
 			const hs = player.getCards("h");
-			if (hs.length > 0) {
-				event.num = 0;
-			}
-			for (let i = 0; i < hs.length; i++) {
-				if (!cards.includes(hs[i])) {
-					event.num = 0;
-					break;
-				}
-			}
-			await player.discard(cards);
-			await player.draw(event.num + cards.length);
+			const num = hs.length > 0 && hs.every(card => cards.includes(card)) ? 1 : 0;
+
+			await player.discard({ cards });
+			await player.draw(num + cards.length);
 		},
 		//group:'rezhiheng_draw',
 		subSkill: {
