@@ -63,7 +63,7 @@ await build({
 		rollupOptions: {
 			preserveEntrySignatures: "strict",
 			treeshake: false,
-			...(process.env.IS_GITHUB_PAGES === "true" ? {} : { external: ["vue"], }),
+			...(process.env.IS_GITHUB_PAGES || process.env.IS_CLOUDFLARE_PAGES === "true" ? {} : { external: ["vue"], }),
 			input: {
 				index: "index.html",
 				noname: "noname.js",
@@ -73,7 +73,12 @@ await build({
 				preserveModulesRoot: "./",
 
 				// 去掉 hash
-				entryFileNames: "[name].js", // 入口文件
+				entryFileNames: (chunkInfo) => {
+					if (chunkInfo.name.includes("node_modules")) {
+						return chunkInfo.name.replace(/node_modules/g, "external") + ".js"; // rename node_modules folder
+					}
+					return "[name].js"; // 入口文件
+				},
 				chunkFileNames: "[name].js", // 代码分块
 				assetFileNames: "[name][extname]", // 静态资源
 			},
