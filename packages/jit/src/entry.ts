@@ -47,12 +47,11 @@
 		// await registration.update().catch(e => console.error("worker update失败", e));
 		if (sessionStorage.getItem("canUseTs") !== "true") {
 			let path = "/jit-test.ts";
-			if (location.href.indexOf("//localhost") == -1) {
-				if (location.href.indexOf(".github.io") != -1) {
-					path = "/" + (process.env.REPO_NAME || "noname") + path;
-				} else if (location.href.indexOf(".pages.dev") != -1) {
-					path = location.href + path;
-				}
+			if (location.href.indexOf(".github.io") != -1) {
+				path = "/" + (process.env.REPO_NAME || "noname") + path;
+			} else if (location.href.indexOf(".pages.dev") != -1) {
+				let origin = location.origin
+				path = new URL(path, origin).href;
 			}
 			console.log((await import(/* @vite-ignore */ path)).text);
 			sessionStorage.setItem("canUseTs", "true");

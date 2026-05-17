@@ -55,7 +55,8 @@ https://www.gnu.org/licenses/gpl-3.0.html
 		await boot();
 	} catch (e) {
 		console.error(e);
-		alert(`《无名杀》加载内容失败
+		if (location.href.indexOf("//localhost") != -1) {
+			alert(`《无名杀》加载内容失败
 浏览器UA信息: 
 ${userAgentLowerCase}
 错误信息: 
@@ -66,5 +67,6 @@ ${e instanceof Error ? e.stack : String(e)}
 3. 浏览器是否需要更新
 4. 若您直接打开index.html进行游戏，请改为运行文件夹内的noname-server.exe
 5. 若以上步骤均无法解决问题，请及时向开发组反馈`);
+		}
 	}
 })();
