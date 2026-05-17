@@ -2105,17 +2105,27 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 											}
 											let prefix_innerHTML = `${setPrefix.map(prefix => {
 												let html = get.prefixSpan(prefix, character);
-												let display_prefix_match = html.match(/<span[^>]*>([\s\S]*?)<\/span>/);
-												if (display_prefix_match && setPrefix.length == 1) {
-													let first_display_prefix = display_prefix_match[1];
-													if (first_display_prefix.length == 1 && prefix.length == 1) {
-														html = html.replace('<span', '<span style="font-size: 16px;"');
+												const parser = new DOMParser();
+												const doc = parser.parseFromString(html, 'text/html');
+												const spans = doc.querySelectorAll('span');
+												if (setPrefix.length === 1 && spans.length === 1) {
+													const firstSpan = spans[0];
+													const first_display_prefix = firstSpan.textContent;
+													if (first_display_prefix.length === 1) {
+														firstSpan.style.fontSize = '16px';
 													}
-													if (first_display_prefix.length == 2 && prefix.length == 2 && (/^\p{Script=Han}+$/u).test(first_display_prefix) == true) {
-														html = html.replace('<span', '<span style="letter-spacing: -3px;"');
+													if (first_display_prefix.length === 2 && (/^\p{Script=Han}+$/u).test(first_display_prefix)) {
+														firstSpan.style.letterSpacing = '-3px';
 													}
 												}
-												return html.replace(/data-nature="[^"]*"\s*|style="color:\s*[^"]*"\s*/g, "");
+												spans.forEach(span => {
+													span.removeAttribute('data-nature');
+													span.style.color = '';
+													if (span.getAttribute('style') === '') {
+														span.removeAttribute('style');
+													}
+												});
+												return doc.body.innerHTML;
 											}).join("")}`;
 											this.$prefixMark.innerHTML = prefix_innerHTML;
 											this.node.name.innerText = slimName;

@@ -6074,9 +6074,9 @@ export default () => {
 									card: card,
 								})
 							) {
-								return;
+								return 1;
 							}
-							return lib.skill.sanshou_skill.ai.effect.target(card, player, target);
+							return lib.skill.sanshou.ai.effect.target(card, player, target);
 						},
 					},
 				},
