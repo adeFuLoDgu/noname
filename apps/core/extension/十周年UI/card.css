@@ -115,7 +115,7 @@
 .card>.gaintag.info,
 .card.button>.gaintag.info {
 	left: 4px;
-	top: calc(50% + 38px);
+	top: calc(50% + 24px);
 	bottom: auto;
 	right: 4px;
 	width: auto;
@@ -142,6 +142,10 @@
 .card.fullimage>.gaintag.info {
 	background-color: rgba(0, 0, 0, 0.8);
 	border-color: white;
+}
+
+.card>.gaintag:not(.info) {
+	display: none;
 }
 
 /*卡名辅助显示及控制*/
@@ -173,8 +177,18 @@
 }
 
 #window[data-card-alternate-name-visible='off'] .card>.name,
-#window[data-card-alternate-name-visible='off'] .card>.range:not(.card-tag) {
+#window[data-card-alternate-name-visible='off'] .card>.range:not(:has(.cardtag)) {
 	display: none;
+}
+
+#window[data-card-alternate-name-visible='off'] .card>.range:has(.cardtag) {
+	font-size: 0;
+	line-height: 0;
+}
+
+#window[data-card-alternate-name-visible='off'] .card>.range>.cardtag {
+	font-size: initial;
+	line-height: initial;
 }
 
 

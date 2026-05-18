@@ -2,7 +2,7 @@
 Web [Legends of the Three Kingdoms (SanGuoSha)](https://en.wikipedia.org/wiki/Legends_of_the_Three_Kingdoms).
 
 ## Live Play
-Click [here (github pages)](https://adeFuLoDgu.github.io/noname) or [here (cloudflare pages)](https://master.adefulodgu-noname.pages.dev) to play with browser. **(Better play with chromium based browser)**
+Click [here (github pages)](https://adeFuLoDgu.github.io/noname) or [here (cloudflare pages)](https://adefulodgu-noname.pages.dev) to play with browser. **(Better play with chromium based browser)**
 
 ## Setting Suggestions
 + Please reset the game after the major version update to get the updated default game settings.
