@@ -122,3 +122,13 @@ jobs:
           packageManager: pnpm
           command: pages deploy ./dist --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME }}
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+      - name: Clean up old Cloudflare Pages Deployments
+        uses: mfinelli/cloudflare-pages-cleanup@v1
+        with:
+          cloudflare_api_token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          cloudflare_account_id: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          project: ${{ vars.CLOUDFLARE_PAGES_PROJECT_NAME }}
+          min-to-keep: 1
+          max-to-keep: 1
+          emit_report_artifact: false
+          emit_step_summary: false

@@ -187,8 +187,12 @@
 }
 
 #window[data-card-alternate-name-visible='off'] .card>.range>.cardtag {
-	font-size: initial;
-	line-height: initial;
+	font-size: 14px;
+	line-height: 14px;
+}
+
+.card>.range {
+	background: rgba(230, 210, 166, 0.8);
 }
 
 
