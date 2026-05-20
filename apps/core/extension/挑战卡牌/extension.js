@@ -48,33 +48,6 @@ let extensionPackage = {
 							equipValue: 5,
 						},
 					},
-					huyi_skill: {
-						equipSkill: true,
-						trigger: {
-							source: "damageBegin2",
-						},
-						filter(event) {
-							return event.card && event.card.name == "sha" && event.hasNature("linked");
-						},
-						direct: true,
-						content() {
-							"step 0";
-							player
-							.chooseTarget(get.prompt2("huyi"), [1, 2], (card, player, target) => {
-								return !target.isLinked();
-							})
-							.set("ai", target => {
-								var att = get.attitude(_status.event.player, target);
-								if (att > 0) att /= 1.2;
-								return Math.abs(att);
-							});
-							"step 1";
-							if (result.bool) {
-								var targets = result.targets.sortBySeat();
-								targets.forEach(i => i.link(true));
-							}
-						},
-					},
 				},
 				skill:{
 					sw_juechenjinge: {
@@ -105,9 +78,7 @@ let extensionPackage = {
 								return !target.isLinked();
 							})
 							.set("ai", target => {
-								var att = get.attitude(_status.event.player, target);
-								if (att > 0) att /= 1.2;
-								return Math.abs(att);
+								return get.attitude(_status.event.player, target) > 0 ? 0 : 1;
 							});
 							"step 1";
 							if (result.bool) {

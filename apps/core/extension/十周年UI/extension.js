@@ -2072,6 +2072,7 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 						}
 						$reinit(from, to, maxHp, online) {
 							super.$reinit(...arguments);
+							if (this.$prefixMark) this.$prefixMark.remove();
 							if (this.name == to || this.name1 == to) {
 								this.AddPrefixMark(to);
 							}

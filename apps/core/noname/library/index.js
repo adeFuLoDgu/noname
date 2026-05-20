@@ -2325,7 +2325,7 @@ export class Library {
 				},
 				change_skin_auto: {
 					name: "自动换肤",
-					init: "60000",
+					init: "off",
 					item: {
 						off: "关闭",
 						30000: "半分钟",
