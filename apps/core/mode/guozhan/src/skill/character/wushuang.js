@@ -3825,7 +3825,7 @@ export default {
 				}
 			}
 		},
-		ai: { threaten: 2 },
+		ai: { threaten: 10 },
 		derivation: ["gz_wusheng", "gzdangxian", "gz_zhiman"],
 	},
 	//曹婴

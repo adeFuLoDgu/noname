@@ -389,6 +389,7 @@ export default {
 	gzjiansu: "俭素",
 	gzjiansu_tag: "俭",
 	gzjiansu_info: `${get.poptip("guozhan_viceSkill")}。此武将牌减少半个阴阳鱼。①当你于回合外得到牌后，你可以展示这些牌，称为“俭”。②出牌阶段开始时，你可以弃置任意张“俭”，令一名体力值不大于X的角色回复1点体力（X为你以此法弃置的牌数）。`,
+	gz_tw_liufuren_prefix: "TW",
 	gzzhuidu: "追妒",
 	gzzhuidu_info: "出牌阶段限一次。当你造成伤害时，你可以令受伤角色选择一项：1.此伤害+1；2.弃置装备区里的所有牌。若该角色为女性，则你可以弃置一张牌，改为令其选择两项。",
 	gzshigong: "示恭",

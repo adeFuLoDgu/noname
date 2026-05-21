@@ -254,7 +254,7 @@ export class GetGuozhan extends Get {
 		}, true);
 		if (to.identity == "ye") {
 			to_p += 1.5;
-		}
+		}		
 
 		if (to_p >= max) {
 			return -5;
@@ -314,6 +314,21 @@ export class GetGuozhan extends Get {
 				return 4 + difficulty;
 			}
 		}
+
+		const boss_skills = ["gz_gongao", "gz_zhengnan", "zhengnan"];
+		let boss_skills_players = game.countPlayer(function (current) {
+			return boss_skills.some(skill => current.hasSkill(skill));;
+		}, true);
+		if (!from.isFriendOf(to) && boss_skills_players > 0 && !boss_skills.some(skill => from.hasSkill(skill))) {
+			if (to.hasSkill("gz_gongao")) {
+				return -8.2;
+			}
+			if (to.hasSkill("gz_zhengnan") || to.hasSkill("zhengnan")) {
+				return -8.1;
+			}
+			return 0;
+		}
+
 		var att = get.realAttitude(from, to, difficulty, tid);
 		if (from.storage.zhibi && from.storage.zhibi.includes(to)) {
 			return att;
