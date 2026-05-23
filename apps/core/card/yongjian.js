@@ -823,30 +823,79 @@ game.import("card", function () {
 				discard: false,
 				lose: false,
 				delay: false,
-				check: card => {
-					const player = _status.event.player;
-					if (game.hasPlayer(current => player.canGift(card, current, true) && !current.refuseGifts(card, player) && get.effect(current, card, player, player) > 0)) {
-						return 2;
-					}
+				check(card) {
+					const player = get.player();
 					if (!player.needsToDiscard() && get.position(card) == "h") {
 						return 0;
 					}
-					return 1 + Math.random();
+					const cache = lib.skill._gifting.selectTargetAi(_status.event, player);
+					if (cache?.length) {
+						let max = 0,
+							temp = 0,
+							cardx;
+						for (let i = 0; i < cache.length; i++) {
+							const data = cache[i];
+							const list = data[1];
+							const element = list.find(item => item.card === card);
+							if (element) {
+								temp = Math.abs(element.value);
+								if (temp > max) {
+									max = temp;
+									cardx = element.card;
+								}
+							}
+						}
+						if (cardx == card) {
+							return 1;
+						}
+						return 0;
+					}
+					return 0;
 				},
 				prompt: "出牌阶段，你可将一张拥有“赠”标签的手牌区装备牌置于一名其他角色的装备区内，或将一张拥有“赠”标签的手牌区非装备牌正面朝上交给一名其他角色。",
-				content: () => {
-					player.gift(cards, target);
+				selectTargetAi(event, player) {
+					let cache = _status.event.getTempCache("_gifting", player.playerid);
+					if (Array.isArray(cache)) {
+						return cache;
+					}
+					const map = new Map();
+					const targets = game.filterPlayer(current => player.hasCard(card => lib.skill._gifting.filterCard(card, player), lib.skill._gifting.position));
+					const cards = player.getCards("he");
+					targets.forEach(current => {
+						const result = [];
+						cards.forEach(card => {
+							const value = player.getGiftAIResultTarget(card, current);
+							result.push({ card, value });
+						});
+						result.sort((a, b) => b.value - a.value);
+						map.set(current, result);
+					});
+					const sortedTargets = Array.from(map.entries()).sort((a, b) => (b[1][0]?.value || 0) - (a[1][0]?.value || 0));
+					event.putTempCache("_gifting", player.playerid, sortedTargets);
+					return sortedTargets;
+				},
+				async content(event, trigger, player) {
+					const { cards, target } = event;
+					await player.gift(cards, target);
 				},
 				ai: {
-					order: function(item,player) {
+					order(item, player) {
 						if (player.hasCard(card=>game.hasPlayer(current=>player.canGift(card,current,true)&&!current.refuseGifts(card,player)&&get.effect(current,card,player,player)>0&&get.type(card,false)=='equip'),'h')) return 7;
 						if (player.hasCard(card=>game.hasPlayer(current=>player.canGift(card,current,true)&&!current.refuseGifts(card,player)&&get.effect(current,card,player,player)>0),'h')) return 1;
-						return 0.51;
+						return Math.max(get.order({ name: "sha" }), 0.5) - 0.1;
 					},
 					result: {
-						target: (player, target) => {
-							const result = ui.selected.cards.map(value => player.getGiftAIResultTarget(value, target));
-							return result.reduce((previousValue, currentValue) => previousValue + currentValue, 0) / result.length;
+						target(player, target) {
+							let cache = _status.event.getTempCache("_gifting", player.playerid);
+							if (Array.isArray(cache)) {
+								for (let arr of cache) {
+									if (target === arr[0]) {
+										const element = arr[1].find(item => item.card === ui.selected.cards[0]);
+										return element?.value || 0;
+									}
+								}
+							}
+							return 0;
 						},
 					},
 				},
@@ -967,7 +1016,7 @@ game.import("card", function () {
 			["club", 1, "duanjian", null, ["gifts"]],
 			["club", 2, "sha", "stab"],
 			["club", 3, "yinfengyi", null, ["gifts"]],
-			['club', 4, 'du', null, ['gifts']],
+			["club", 4, "du", null, ["gifts"]],
 			["club", 5, "yitianjian"],
 			["club", 6, "sha", "stab"],
 			["club", 7, "sha", "stab"],
