@@ -11554,13 +11554,12 @@ export const Content: Record<string, ContentFuncByAll | ContentFuncsByAll> = {
 					card.addKnower("everyone");
 				}
 				card.fix();
-				card.style.transform = "";
-				if (!window.decadeUI) cards[num].style.transform = "";
+				if (!window.decadeUI) card.style.transform = "";
 				event.gaintag.forEach(tag => card.addGaintag(tag));
 				if (event.knowers) {
 					card.addKnower(event.knowers); //添加事件设定的知情者。
 				}
-				if (window.decadeUI) fragment.insertBefore(cards[num], fragment.firstChild);
+				if (window.decadeUI) fragment.insertBefore(card, fragment.firstChild);
 				if (_status.discarded) {
 					_status.discarded.remove(card);
 				}
