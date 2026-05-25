@@ -557,7 +557,7 @@ function mixinLibrary(config, lib) {
 	}
 	for (const [name_str, name_group] of duplicates_check.entries()) {
 		if (name_group.length > 1) {
-			console.log("角色取代字串大分類", name_group, "有重複角色子字串", name_str, ", 請檢察character/replace.js");
+			console.log("角色取代字串大分類", name_group, "有重複角色子字串", name_str, ", 請檢查 character/replace.js");
 		}
 	}
 	// @ts-expect-error ignore

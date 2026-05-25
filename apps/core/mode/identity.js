@@ -4631,8 +4631,10 @@ export default () => {
 					} else if (player.hasSkill("tairan")){
 						php -= player.storage.tairan2;
 					}
-					const score = player.countCards("h") + player.countCards("e") * 1.5 + php * 2 + player.hujia * 2;
-					if (skill_score != 0) j += skill_score;
+					let score = player.countCards("h") + player.countCards("e") * 1.5 + php * 2 + player.hujia * 2;
+					if (skill_score != 0) {
+						score += skill_score;
+					}
 					if (player.identity === "zhu") {
 						zhuzhong += score * 1.2 + 5;
 						total += score * 1.2 + 5;
@@ -4647,12 +4649,12 @@ export default () => {
 					} else if (player.identity === "commoner") {
 						let commoner_situation = (1 + get.population("zhong") + get.population("mingzhong")) - get.population("fan");
 						if (commoner_situation >= 0) {
-							zhuzhong += j * 0.8 + 3;
-							total += j * 0.8 + 3;
+							zhuzhong += score * 0.8 + 3;
+							total += score * 0.8 + 3;
 						} else if (commoner_situation < 0) {
-							zhuzhong -= j + 4;
-							total += j + 4;
-							fan += j + 4;
+							zhuzhong -= score + 4;
+							total += score + 4;
+							fan += score + 4;
 						}
 					}
 				}
