@@ -1830,7 +1830,7 @@ game.import("card", function () {
 								}
 							}
 							if (target.hasSkill("dctianji")) return 3 * game.players.length;
-							return -1;
+							return lib.card.shandian.ai.result.target(player, target);
 						},
 					},
 					tag: {

@@ -546,6 +546,20 @@ function mixinLibrary(config, lib) {
 	delete window.noname_character_rank;
 	// @ts-expect-error ignore
 	Object.keys(window.noname_character_replace).forEach(i => (lib.characterReplace[i] = window.noname_character_replace[i]));
+	const duplicates_check = new Map();
+	for (const [name_group, group_array] of Object.entries(lib.characterReplace)) {
+		for (const name_str of group_array) {
+			if (!duplicates_check.has(name_str)) {
+				duplicates_check.set(name_str, []);
+			}
+			duplicates_check.get(name_str).push(name_group);
+		}
+	}
+	for (const [name_str, name_group] of duplicates_check.entries()) {
+		if (name_group.length > 1) {
+			console.log("角色取代字串大分類", name_group, "有重複角色子字串", name_str, ", 請檢察character/replace.js");
+		}
+	}
 	// @ts-expect-error ignore
 	delete window.noname_character_replace;
 	// @ts-expect-error ignore
