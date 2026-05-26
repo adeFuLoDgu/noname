@@ -3438,12 +3438,12 @@ export default () => {
 					};
 					if (effect > 0) {
 						markIdentity(this.ai.identity_mark == "fan" ? this.identity : "zhong");
-						if (this.ai.identity_mark == "fan") {
+						if (this.ai.identity_mark == "nei" || this.ai.identity_mark == "commoner") {
 							this.ai.identity_auto_mark = "finished";
 						}
 					} else if (effect < 0 && get.population("fan") > 0) {
 						markIdentity(this.ai.identity_mark == "zhong" ? this.identity : "fan");
-						if (this.ai.identity_mark == "zhong") {
+						if (this.ai.identity_mark == "nei" || this.ai.identity_mark == "commoner") {
 							this.ai.identity_auto_mark = "finished";
 						}
 					}
