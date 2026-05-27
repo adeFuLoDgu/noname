@@ -3178,7 +3178,7 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 											decadeCardImage.src = decadeExtCardImage[cardName] || `${lib.assetURL}extension/`+window.decadeUI.extensionName+`/image/card/${cardName}.${imgFormat}`;
 										})).then(event => {
 											node.classList.add('decade-card');
-											node.style.background = `url('${event.target.src}')`;
+											if (node.style.background !== "var(--cardback-url)") node.style.background = `url('${event.target.src}')`;
 											if (node.node.avatar) node.node.avatar.remove();
 											if (node.node.framebg) node.node.framebg.remove();
 										}).catch(err => {

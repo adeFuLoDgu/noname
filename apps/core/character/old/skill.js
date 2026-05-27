@@ -1234,16 +1234,20 @@ const skills = {
 					game.broadcastAll(
 						function (card, player) {
 							_status.old_guhuoNode = card.copy("thrown");
-							if (lib.config.cardback_style != "default") {
-								_status.old_guhuoNode.style.transitionProperty = "none";
-								ui.refresh(_status.old_guhuoNode);
-								_status.old_guhuoNode.classList.add("infohidden");
-								ui.refresh(_status.old_guhuoNode);
-								_status.old_guhuoNode.style.transitionProperty = "";
+							if (window.decadeUI) {
+								_status.old_guhuoNode.style.background = "var(--cardback-url)";
 							} else {
-								_status.old_guhuoNode.classList.add("infohidden");
+								if (lib.config.cardback_style != "default") {
+									_status.old_guhuoNode.style.transitionProperty = "none";
+									ui.refresh(_status.old_guhuoNode);
+									_status.old_guhuoNode.classList.add("infohidden");
+									ui.refresh(_status.old_guhuoNode);
+									_status.old_guhuoNode.style.transitionProperty = "";
+								} else {
+									_status.old_guhuoNode.classList.add("infohidden");
+								}
+								_status.old_guhuoNode.style.transform = "perspective(600px) rotateY(180deg) translateX(0)";
 							}
-							_status.old_guhuoNode.style.transform = "perspective(600px) rotateY(180deg) translateX(0)";
 							player.$throwordered2(_status.old_guhuoNode);
 						},
 						trigger.cards[0],
@@ -1313,12 +1317,16 @@ const skills = {
 						}
 					}
 					await game.delayx();
-					game.broadcastAll(function (onEnd) {
+					game.broadcastAll(function (onEnd, guhuo_card) {
 						_status.event.onEnd01 = onEnd;
 						if (_status.old_guhuoNode) {
-							_status.old_guhuoNode.listenTransition(onEnd, 300);
+							if (window.decadeUI) {
+								_status.old_guhuoNode.style.background = guhuo_card.style.background;
+							} else {
+								_status.old_guhuoNode.listenTransition(onEnd, 300);
+							}
 						}
-					}, event.onEnd01);
+					}, event.onEnd01, trigger.cards[0]);
 					await game.delay(2);
 					if (!event.betrayer.length) {
 						return;

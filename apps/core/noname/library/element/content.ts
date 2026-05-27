@@ -11580,13 +11580,11 @@ export const Content: Record<string, ContentFuncByAll | ContentFuncsByAll> = {
 					}
 				}
 			}
-			if (!window.decadeUI) {
-				const addv = () => {
-					if (player == game.me) {
-						game.addVideo("gain12", player, [get.cardsInfo(frag1.childNodes), get.cardsInfo(frag2.childNodes), event.gaintag]);
-					}
-				};
-			}
+			const addv = () => {
+				if (player == game.me) {
+					game.addVideo("gain12", player, [get.cardsInfo(frag1.childNodes), get.cardsInfo(frag2.childNodes), event.gaintag]);
+				}
+			};
 			const broadcast = () => {
 				game.broadcast(
 					(player, cards, num, gaintag) => {
