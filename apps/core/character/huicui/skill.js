@@ -10,7 +10,7 @@ const skills = {
 		filterCard: true,
 		position: "h",
 		filter(event, player) {
-			return player.countCards("h") > 0;
+			return player.hasCards("h") && game.hasPlayer(p => p !== player && p.hasCards("he"));
 		},
 		filterTarget(card, player, target) {
 			return player.inRange(target) && target !== player;
@@ -34,7 +34,7 @@ const skills = {
 				}
 				const result = await target
 					.chooseCardTarget({
-						prompt: `惑众：选择一项：1.获得一名不为你角色的一张牌；2.交给${get.translation(player)}一张牌（不选择卡牌即视为进行获得牌操作）`,
+						prompt: `惑众：选择一项：1.获得另一名其他角色的一张牌；2.交给${get.translation(player)}一张牌（不选择卡牌即视为进行获得牌操作）`,
 						filterCard: true,
 						position: "he",
 						selectCard: [0, 1],
@@ -42,6 +42,9 @@ const skills = {
 						filterTarget(card2, player2, target2) {
 							if (target2 === player2) return false;
 							if (!ui.selected.cards?.length) {
+								if (target2 === get.event().sourcex) {
+									return false;
+								}
 								return target2.hasCards("he");
 							}
 							return target2 === get.event().sourcex;
@@ -80,8 +83,8 @@ const skills = {
 					target.line(targets2);
 					if (!cards2?.length) {
 						await target.gainPlayerCard({
-							target: targets2[0], 
-							position: "he", 
+							target: targets2[0],
+							position: "he",
 							forced: true,
 						});
 					} else {
@@ -89,10 +92,27 @@ const skills = {
 					}
 				}
 			});
-			const targetsx = game.filterPlayer(target => target === player && target.isMaxHandcard(void 0, target2 => target2 !== player));
-			await game.doAsyncInOrder(targetsx, async target => {
+			const otherPlayers = game.filterPlayer(p => p !== player);
+
+			// 计算这些角色的最大手牌数（只计算手牌数，用于判断哪些角色需要弃牌）
+			let maxHandCount = -1;
+			const playersToDiscard = [];
+			for (const p of otherPlayers) {
+				let handNum = p.countCards("h");  // 只计算手牌数量（决定谁弃牌）
+				if (handNum > maxHandCount) {
+					maxHandCount = handNum;
+					playersToDiscard.length = 1;
+					playersToDiscard[0] = p;
+				} else if (handNum === maxHandCount) {
+					playersToDiscard.push(p);
+				}
+			}
+
+			// 让这些角色依次弃置与展示牌类型相同的所有牌（包括手牌和装备区）
+			await game.doAsyncInOrder(playersToDiscard, async target => {
 				await target.showHandcards();
 				const hs = target.getCards("he", card2 => get.type2(card2) === type);
+
 				if (hs.length) {
 					target.$throw(hs.length, 1e3);
 					game.log(target, "将", `#y${get.cnNumber(hs.length)}张牌`, "置于牌堆顶");
