@@ -22490,13 +22490,14 @@ const skills = {
 		},
 		async content(event, trigger, player) {
 			const { cards } = event;
-			if (cards && cards.length) {
+			if (cards?.length) {
 				await player.discard(cards);
 			} else {
 				await player.draw(2);
 			}
 			await game.delayx();
 		},
+		subSkill: { modified: {} },
 	},
 	dcfenhui: {
 		onChooseToUse(event) {
@@ -22532,12 +22533,12 @@ const skills = {
 		limited: true,
 		skillAnimation: true,
 		animationColor: "fire",
-		derivation: ["dcxingmen"],
+		derivation: ["dcxingmen", "dcshouzhi_modified"],
 		async content(event, trigger, player) {
 			player.awakenSkill(event.name);
 			const target = event.target;
 			const count = player.getAllHistory("useCard", evt => {
-				return evt.targets && evt.targets.includes(target);
+				return evt.targets?.includes(target);
 			}).length;
 			target.addMark("dcfenhui_mark", Math.min(5, count));
 			await player.draw(Math.min(5, count));
@@ -22548,10 +22549,16 @@ const skills = {
 				audio: "dcfenhui",
 				trigger: { global: ["damageBegin1", "die", "dyingAfter"] },
 				filter(event, player) {
+					if (!event.player.hasMark("dcfenhui_mark")) {
+						return false;
+					}
+					if (event.name == "damage") {
+						return true;
+					}
 					if (event.name == "dying" && !event.player?.isIn()) {
 						return false;
 					}
-					return event.player.hasMark("dcfenhui_mark");
+					return !player.storage.dcshouzhi_modified;
 				},
 				logTarget: "player",
 				forced: true,
@@ -22615,9 +22622,7 @@ const skills = {
 	},
 	dcxingmen: {
 		audio: 2,
-		trigger: {
-			player: "loseAfter",
-		},
+		trigger: { player: "loseAfter" },
 		filter(event, player) {
 			return event.getParent(2).name === "dcshouzhi" && player.isDamaged();
 		},
@@ -22630,12 +22635,12 @@ const skills = {
 		async content(event, trigger, player) {
 			await player.recover();
 		},
+		derivation: "dcshouzhi",
+		ai: { combo: "dcshouzhi" },
 		subSkill: {
 			norespond: {
 				audio: "dcxingmen",
-				trigger: {
-					player: "gainAfter",
-				},
+				trigger: { player: "gainAfter" },
 				filter(event, player) {
 					return event.getParent().name === "draw" && event.cards.length >= 2;
 				},

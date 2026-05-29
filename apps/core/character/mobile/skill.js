@@ -379,21 +379,14 @@ const skills = {
 	yuli: {
 		audio: 6,
 		trigger: {
-			source: ["damageBegin1", "damageBegin2"],
-			player: ["damageBegin4"],
+			source: "damageBegin1",
+			player: "damageBegin4",
 		},
 		filter(event, player, name) {
-			switch (name) {
-				case "damageBegin1":
-					return event.source === player && get.natureList(event.nature).includes("thunder"); 
-				case "damageBegin2":
-					return event.source === player && !get.natureList(event.nature).includes("thunder");
-				case "damageBegin4":
-					return event.player === player && get.natureList(event.nature).includes("thunder");
-			}
+			return name == "damageBegin1" || event.hasNature("thunder");
 		},
-		locked: true,
 		forced: true,
+		direct: true,
 		logAudio(event) {
 			if (typeof event == "number") {
 				return `yuli${event}.mp3`;
@@ -402,14 +395,14 @@ const skills = {
 		},
 		async content(event, trigger, player) {
 			switch (event.triggername) {
-				// 莫名想贪一波，理论上filter肯定都判断过了
 				case "damageBegin1":
-					player.logSkill("yuli", null, null, null, [get.rand(3, 4)]);
-					++trigger.num;
-					updateState(player, "atk");
-					break;
-				case "damageBegin2":
-					game.setNature(trigger, "thunder");
+					if (!trigger.hasNature("thunder")) {
+						player.logSkill("yuli");
+						game.setNature(trigger, "thunder");
+					} else {
+						player.logSkill("yuli", null, null, null, [get.rand(3, 4)]);
+						trigger.num++;
+					}
 					updateState(player, "atk");
 					break;
 				case "damageBegin4":
@@ -423,8 +416,8 @@ const skills = {
 			return;
 
 			/**
-			 * 神秘小零食
-			 * 
+			 * 重置【寂灭】
+			 *
 			 * @param {Player} player
 			 * @param {"atk" | "def"} type
 			 */
@@ -432,21 +425,41 @@ const skills = {
 				if (!player.awakenedSkills.includes("jimie")) {
 					return;
 				}
-				player.storage.yuli ??= 0;
 				switch (type) {
 					case "atk":
-						player.storage.yuli |= 1 /* StateType.atk */;
+						player.markAuto("yuli", ["atk"]) /* StateType.atk */;
+						game.log(player, "触发了", "#g【驭雳】", "的第一项");
 						break;
 					case "def":
-						player.storage.yuli |= 2 /* StateType.def */;
+						player.markAuto("yuli", ["def"]) /* StateType.def */;
+						game.log(player, "触发了", "#g【驭雳】", "的第二项");
 						break;
 				}
-				if (player.storage.yuli === 0b11) {
+				if (["atk", "def"].every(item => player.getStorage("yuli").includes(item)) && player.hasSkill("jimie", null, false, false)) {
 					player.logSkill("jimie", null, null, null, [get.rand(3, 4)]);
-					player.restoreSkill("jimie");
-					player.storage.yuli = 0;
+					player.refreshSkill("jimie");
+					player.setStorage("yuli", [], true);
 				}
 			}
+		},
+		onremove: true,
+		intro: {
+			content(storage = [], player) {
+				if (!storage?.length) {
+					return "尚未触发【驭雳】的任一项";
+				}
+				let str = "已触发【驭雳】的";
+				if (storage.includes("atk")) {
+					str += "第一项";
+					if (storage.includes("def")) {
+						str += "和";
+					}
+				}
+				if (storage.includes("def")) {
+					str += "第二项";
+				}
+				return str;
+			},
 		},
 		ai: {
 			nothunder: true,
@@ -461,9 +474,7 @@ const skills = {
 	},
 	tingwei: {
 		audio: 4,
-		trigger: {
-			player: "useCardToPlayered",
-		},
+		trigger: { player: "useCardToPlayered" },
 		filter(event) {
 			return event.isFirstTarget && event.card?.name === "sha";
 		},
@@ -476,7 +487,7 @@ const skills = {
 		async cost(event, trigger, player) {
 			event.result = await player
 				.chooseTarget({
-					prompt: get.prompt2("tingwei"),
+					prompt: get.prompt2(event.skill),
 					filterTarget(_card, _player, target) {
 						const event = get.event();
 						return event.targets.includes(target);
@@ -554,12 +565,12 @@ const skills = {
 			const result = await target
 				.chooseButton({
 					createDialog: [
-						"霆威：请选择一项",
+						"霆威：请选择任意项，若点击“取消”，则你横置",
 						[
 							[
 								["fengyin", "非锁定技失效至下个回合结束"],
-								["equip", "交给其一张装备牌"],
-								["damage", "此牌对你造成伤害+1"],
+								["equip", `交给${get.translation(player)}一张装备牌`],
+								["damage", `${get.translation(trigger.card)}对你造成伤害+1`],
 								["discard", "随机弃一张牌"],
 							],
 							"textbutton",
@@ -642,7 +653,7 @@ const skills = {
 						}
 
 						// 选项3：此杀伤害+1
-						const card = trigger.card
+						const card = trigger.card;
 						const damageEff = get.damageEffect(target, player, target, get.nature(card));
 						if (damageEff < 0) {
 							costs[2] = -damageEff * 1.8;
@@ -724,12 +735,12 @@ const skills = {
 						} else {
 							return {
 								bool: false,
-							}
+							};
 						}
 
 						/**
 						 * 计算移除【霆】的收益
-						 * 
+						 *
 						 * @param {Player} player - 发动【霆威】的角色
 						 * @param {Player} target - 目前正在选择的角色
 						 * @returns {number}
@@ -778,7 +789,7 @@ const skills = {
 
 						/**
 						 * 计算【霆】伤害造成的威胁
-						 * 
+						 *
 						 * @param {Player} player - 发动【霆威】的角色
 						 * @param {Player} target - 目前正在选择的角色
 						 * @returns {number}
@@ -798,14 +809,14 @@ const skills = {
 				.set("source", player)
 				.forResult();
 
-			if (!result.bool || !result.links?.length) {
+			if (!result?.bool || !result.links?.length) {
 				player.logSkill("tingwei", null, null, null, [get.rand(3, 4)]);
 				await target.link(true);
 				return;
 			}
 
 			const links = ["fengyin", "equip", "damage", "discard"];
-
+			player.removeMark("tingwei", result.links.length);
 			for (const link of links) {
 				if (!result.links.includes(link)) {
 					continue;
@@ -857,12 +868,10 @@ const skills = {
 						break;
 					}
 					case "discard": {
-						const cards = target.getDiscardableCards(target, "he").randomGets(1);
-						await target.discard({ cards });
+						await target.randomDiscard("he");
 						break;
 					}
 				}
-				player.removeMark("tingwei", 1);
 			}
 
 			return;
@@ -881,16 +890,9 @@ const skills = {
 	},
 	jimie: {
 		audio: 4,
-		trigger: {
-			player: ["phaseUseEnd"],
-		},
+		trigger: { player: "phaseUseEnd" },
 		limited: true,
 		skillAnimation: true,
-		init(player, skill) {
-			if (!player.hasMark(skill)) {
-				player.setMark(skill, 0);
-			}
-		},
 		filter(_event, player) {
 			return player.countMark("tingwei") >= 8;
 		},
@@ -903,12 +905,12 @@ const skills = {
 		async cost(event, trigger, player) {
 			event.result = await player
 				.chooseTarget({
-					prompt: get.prompt("jimie"),
-					prompt2: "是否失去8个“霆”，对一名角色造成等于其体力上限的伤害",
+					prompt: get.prompt(event.skill),
+					prompt2: "弃8枚“霆”标记，对一名角色造成等于其体力上限的伤害",
 					ai(target) {
 						const player = get.player();
 						return get.damageEffect(target, player, player);
-					}
+					},
 				})
 				.forResult();
 		},
@@ -919,10 +921,7 @@ const skills = {
 			await target.damage({
 				num: target.maxHp,
 			});
-
-			if (player.hasSkill("yuli")) {
-				player.storage.yuli = 0;
-			}
+			player.setStorage("yuli", [], true);
 		},
 	},
 	// OP蹋顿
