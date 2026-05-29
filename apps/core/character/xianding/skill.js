@@ -6401,11 +6401,11 @@ const skills = {
 		audio: 2,
 		enable: "phaseUse",
 		usable(skill, player) {
-			return player.hasSkill("dcliexiang_extra") ? 2 : 1;
+			return player.hasSkill(skill + "_extra", null, null, false) ? 2 : 1;
 		},
 		chooseButton: {
 			dialog(event, player) {
-				return ui.create.dialog(`烈骧：摸至多五张牌`, "hidden");
+				return ui.create.dialog(`烈骧：你可以摸至多五张牌`, "hidden");
 			},
 			chooseControl(event, player) {
 				const num = 5;
@@ -6433,7 +6433,7 @@ const skills = {
 				const num = result.index + 1;
 				let prompt = get.skillInfoTranslation("dcliexiang", player),
 					draw = `摸${get.cnNumber(num)}张牌`;
-				return `###烈骧###${prompt.replace("出牌阶段限一次，你可摸至多五张牌", draw)}`;
+				return `###烈骧###${prompt.replace("出牌阶段限一次，你可以摸至多五张牌", draw)}`;
 			},
 			backup(result, player) {
 				const info = get.copy(lib.skill["dcliexiang_backup"]);
@@ -6482,12 +6482,16 @@ const skills = {
 					if (!game.hasPlayer(current => current != player)) {
 						return;
 					}
-					const max = player.countMark("dcliexiang_extra") + 1,
-						prompt = get.skillInfoTranslation("dcliexiang", player);
+					const max = player.countMark("dcliexiang_extra") + 1;
 					const result = await player
 						.chooseTarget(lib.filter.notMe, [1, max], true)
-						.set("prompt", `烈骧：选择${max > 1 ? "至多" : ""}${get.cnNumber(max)}名其他角色并对其造成1点伤害`)
-						.set("prompt2", prompt.slice(prompt.indexOf("若你的手牌数")))
+						.set("prompt", `烈骧：请选择${max > 1 ? "至多" : ""}${get.cnNumber(max)}名其他角色`)
+						.set("prompt2", "这些角色按照你选择的顺序依次执行：{你对其造成1点伤害，然后若你的手牌数：1.大于其，本回合你出【杀】次数+1且你可以交给一名其他角色至多X张牌；2.等于其，你获得其一张牌且其下回合使用的前X张牌无效；3.小于其，你失去X点体力，此技能本回合修改为“出牌阶段限两次”且可额外选择至多X名其他角色（X为你选择的摸牌数）。}。")
+						.set("multitarget", true)
+						.set("targetprompt", target => {
+							const num = ui.selected.targets.length;
+							return "第" + num + "个结算";
+						})
 						.set("ai", target => {
 							const { player, numx, drawNum } = get.event(),
 								num = target.countCards("h");
@@ -6518,10 +6522,10 @@ const skills = {
 							const skill = "dcliexiang_effect";
 							player.addTempSkill(skill);
 							player.addMark(skill, 1, false);
-							if (player.countCards("he") > 0) {
+							if (player.hasCards("he") && game.hasPlayer(current => current != player)) {
 								const result = await player
 									.chooseCardTarget({
-										prompt: `烈骧：你可以将至多${index + 1}张牌交给其他角色`,
+										prompt: `烈骧：你可以将至多${get.cnNumber(index + 1)}张牌交给其他角色`,
 										filterCard: true,
 										position: "he",
 										selectCard: [1, index + 1],
@@ -6561,7 +6565,6 @@ const skills = {
 						}
 						if (num < 0) {
 							await player.loseHp(index + 1);
-							//await target.damage();
 							if (player.hasSkill("dcliexiang", null, null, false)) {
 								player.addTempSkill("dcliexiang_extra");
 								player.setMark("dcliexiang_extra", index + 1, false);
@@ -6569,7 +6572,7 @@ const skills = {
 						}
 					};
 					player.line(result.targets);
-					await game.doAsyncInOrder(result.targets, func);
+					await game.doAsyncInOrder(result.targets, func, () => 0);
 				},
 			},
 			debuff: {
