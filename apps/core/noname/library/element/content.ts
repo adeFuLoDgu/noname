@@ -6859,14 +6859,16 @@ export const Content: Record<string, ContentFuncByAll | ContentFuncsByAll> = {
 					event.compareName = event.parent.name;
 				}
 				game.broadcastAll(function(player, target, eventName){
-					var dialog = decadeUI.create.compareDialog();
-					dialog.caption = get.translation(eventName) + '拼点';
-					dialog.player = player;
-					dialog.target = target;
-					dialog.open();
+					if (window.decadeUI) {
+						var dialog = decadeUI.create.compareDialog();
+						dialog.caption = get.translation(eventName) + '拼点';
+						dialog.player = player;
+						dialog.target = target;
+						dialog.open();
 
-					decadeUI.delay(400);
-					ui.dialogs[eventName] = dialog;
+						decadeUI.delay(400);
+						ui.dialogs[eventName] = dialog;
+					}
 				}, player, targets[0], event.compareName);
 			}
 			event.filterCard ??= lib.filter.all;
@@ -6953,8 +6955,10 @@ export const Content: Record<string, ContentFuncByAll | ContentFuncsByAll> = {
 			game.log(player, "的拼点牌为", event.card1);
 			if (window.decadeUI) {
 				game.broadcastAll(function(eventName, playerCard){
-					var dialog = ui.dialogs[eventName];
-					dialog.playerCard = playerCard.copy();
+					if (window.decadeUI) {
+						var dialog = ui.dialogs[eventName];
+						dialog.playerCard = playerCard.copy();
+					}
 				}, event.compareName, event.card1);
 			} else {
 				player.showCards(event.card1).set("triggeronly", true);
@@ -6975,21 +6979,25 @@ export const Content: Record<string, ContentFuncByAll | ContentFuncsByAll> = {
 					event.target.showCards(event.card2).set("triggeronly", true);
 				} else {
 					game.broadcastAll(function(eventName, player, target, playerCard, targetCard){
-						var dialog = ui.dialogs[eventName];
-						dialog.show();
-						dialog.target = target;
-						dialog.targetCard = targetCard.copy();
+						if (window.decadeUI) {
+							var dialog = ui.dialogs[eventName];
+							dialog.show();
+							dialog.target = target;
+							dialog.targetCard = targetCard.copy();
+						}
 					}, event.compareName, player, event.target, event.card1, event.card2);
 					decadeUI.delay(400);
 				}
 			} else {
 				if (window.decadeUI) {
 					game.broadcastAll(function(eventName){
-						var dialog = ui.dialogs[eventName];
-						dialog.close();
-						setTimeout(function(dialog){
-							dialog.player.$throwordered2(dialog.playerCard, true);
-						}, 110, dialog);
+						if (window.decadeUI) {
+							var dialog = ui.dialogs[eventName];
+							dialog.close();
+							setTimeout(function(dialog){
+								dialog.player.$throwordered2(dialog.playerCard, true);
+							}, 110, dialog);
+						}
 					}, event.compareName);
 				}
 				event.goto(12);
@@ -7040,17 +7048,17 @@ export const Content: Record<string, ContentFuncByAll | ContentFuncsByAll> = {
 				game.delay(2);
 			} else {
 				game.broadcastAll(function(str, eventName, result) {
-					var dialog = ui.dialogs[eventName];
-					dialog.$playerCard.dataset.result = result ? '赢' : '没赢';
-
-					setTimeout(function(dialog, eventName){
-						dialog.hide();
-						dialog.$playerCard.dataset.result = '';
-						setTimeout(function(dialog){
-							dialog.target.$throwordered2(dialog.targetCard, true);
-						}, 180, dialog);
-					}, 1400, dialog, eventName);
-
+					if (window.decadeUI) {
+						var dialog = ui.dialogs[eventName];
+						dialog.$playerCard.dataset.result = result ? '赢' : '没赢';
+						setTimeout(function(dialog, eventName){
+							dialog.hide();
+							dialog.$playerCard.dataset.result = '';
+							setTimeout(function(dialog){
+								dialog.target.$throwordered2(dialog.targetCard, true);
+							}, 180, dialog);
+						}, 1400, dialog, eventName);
+					}
 				}, event.str, event.compareName, event.chooseToCompareMultiple_result);
 				decadeUI.delay(1800);
 			}
@@ -7126,14 +7134,16 @@ export const Content: Record<string, ContentFuncByAll | ContentFuncsByAll> = {
 				}
 				if (!event.isDelay) {
 					game.broadcastAll(function(player, target, eventName){
-						var dialog = decadeUI.create.compareDialog();
-						dialog.caption = get.translation(eventName) + '拼点';
-						dialog.player = player;
-						dialog.target = typeof(target) == "string" ? player : target;
-						dialog.open();
+						if (window.decadeUI) {
+							var dialog = decadeUI.create.compareDialog();
+							dialog.caption = get.translation(eventName) + '拼点';
+							dialog.player = player;
+							dialog.target = typeof(target) == "string" ? player : target;
+							dialog.open();
 
-						decadeUI.delay(400);
-						ui.dialogs[eventName] = dialog;
+							decadeUI.delay(400);
+							ui.dialogs[eventName] = dialog;
+						}
 					}, player, target, event.compareName);
 				}
 			}
@@ -7168,9 +7178,11 @@ export const Content: Record<string, ContentFuncByAll | ContentFuncsByAll> = {
 			event.card1 = lose_list[0][1][0];
 			if (window.decadeUI && !event.isDelay) {
 				game.broadcastAll(function(eventName){
-					var dialog = ui.dialogs[eventName];
-					dialog.$playerCard.classList.add('infohidden');
-					dialog.$playerCard.classList.add('infoflip');
+					if (window.decadeUI) {
+						var dialog = ui.dialogs[eventName];
+						dialog.$playerCard.classList.add('infohidden');
+						dialog.$playerCard.classList.add('infoflip');
+					}
 				}, event.compareName);
 			}
 			if (event.list.includes(target)) {
@@ -7196,9 +7208,11 @@ export const Content: Record<string, ContentFuncByAll | ContentFuncsByAll> = {
 			event.card2 = card2;
 			if (window.decadeUI && !event.isDelay) {
 				game.broadcastAll(function(eventName){
-					var dialog = ui.dialogs[eventName];
-					dialog.$targetCard.classList.add('infohidden');
-					dialog.$targetCard.classList.add('infoflip');
+					if (window.decadeUI) {
+						var dialog = ui.dialogs[eventName];
+						dialog.$targetCard.classList.add('infohidden');
+						dialog.$targetCard.classList.add('infoflip');
+					}
 				}, event.compareName);
 			}
 			event.lose_list = lose_list;
@@ -7257,9 +7271,11 @@ export const Content: Record<string, ContentFuncByAll | ContentFuncsByAll> = {
 				player.$compare(event.card1, event.compareWithCardPile ? player : target, event.card2);
 			} else {
 				game.broadcastAll(function(eventName, player, target, playerCard, targetCard){
-					var dialog = ui.dialogs[eventName];
-					dialog.playerCard = playerCard.copy();
-					dialog.targetCard = targetCard.copy();
+					if (window.decadeUI) {
+						var dialog = ui.dialogs[eventName];
+						dialog.playerCard = playerCard.copy();
+						dialog.targetCard = targetCard.copy();
+					}
 				}, event.compareName, player, target, event.card1, event.card2);
 			}
 		},
@@ -7337,19 +7353,18 @@ export const Content: Record<string, ContentFuncByAll | ContentFuncsByAll> = {
 				game.delay(2);
 			} else {
 				game.broadcastAll(function(str, eventName, result) {
-					var dialog = ui.dialogs[eventName];
-					dialog.$playerCard.dataset.result = result ? '赢' : '没赢';
-
-					setTimeout(function(dialog, eventName){
-						dialog.close();
-						setTimeout(function(dialog){
-							dialog.player.$throwordered2(dialog.playerCard, true);
-							dialog.target.$throwordered2(dialog.targetCard, true);
-						}, 180, dialog);
-						ui.dialogs[eventName] = undefined;
-
-					}, 1400, dialog, eventName);
-
+					if (window.decadeUI) {
+						var dialog = ui.dialogs[eventName];
+						dialog.$playerCard.dataset.result = result ? '赢' : '没赢';
+						setTimeout(function(dialog, eventName){
+							dialog.close();
+							setTimeout(function(dialog){
+								dialog.player.$throwordered2(dialog.playerCard, true);
+								dialog.target.$throwordered2(dialog.targetCard, true);
+							}, 180, dialog);
+							ui.dialogs[eventName] = undefined;
+						}, 1400, dialog, eventName);
+					}
 				}, event.str, event.compareName, event.result.bool);
 				decadeUI.delay(1800);
 			}
@@ -7403,15 +7418,17 @@ export const Content: Record<string, ContentFuncByAll | ContentFuncsByAll> = {
 				player.$compare(event.card1, target, event.card2);
 			} else {
 				game.broadcastAll(function(eventName, player, target, playerCard, targetCard){
-					var dialog = decadeUI.create.compareDialog();
-					dialog.caption = get.translation(eventName) + '拼点';
-					dialog.player = player;
-					dialog.target = target;
-					dialog.open();
-					decadeUI.delay(400);
-					ui.dialogs[eventName] = dialog;
-					dialog.playerCard = playerCard.copy();
-					dialog.targetCard = targetCard.copy();
+					if (window.decadeUI) {
+						var dialog = decadeUI.create.compareDialog();
+						dialog.caption = get.translation(eventName) + '拼点';
+						dialog.player = player;
+						dialog.target = target;
+						dialog.open();
+						decadeUI.delay(400);
+						ui.dialogs[eventName] = dialog;
+						dialog.playerCard = playerCard.copy();
+						dialog.targetCard = targetCard.copy();
+					}
 				}, evt.compareName, player, target, event.card1, event.card2);
 			}
 		},
@@ -7476,19 +7493,18 @@ export const Content: Record<string, ContentFuncByAll | ContentFuncsByAll> = {
 				await game.delay(2);
 			} else {
 				game.broadcastAll(function(str, eventName, result) {
-					var dialog = ui.dialogs[eventName];
-					dialog.$playerCard.dataset.result = result ? '赢' : '没赢';
-
-					setTimeout(function(dialog, eventName){
-						dialog.close();
-						setTimeout(function(dialog){
-							dialog.player.$throwordered2(dialog.playerCard, true);
-							dialog.target.$throwordered2(dialog.targetCard, true);
-						}, 180, dialog);
-						ui.dialogs[eventName] = undefined;
-
-					}, 1400, dialog, eventName);
-
+					if (window.decadeUI) {
+						var dialog = ui.dialogs[eventName];
+						dialog.$playerCard.dataset.result = result ? '赢' : '没赢';
+						setTimeout(function(dialog, eventName){
+							dialog.close();
+							setTimeout(function(dialog){
+								dialog.player.$throwordered2(dialog.playerCard, true);
+								dialog.target.$throwordered2(dialog.targetCard, true);
+							}, 180, dialog);
+							ui.dialogs[eventName] = undefined;
+						}, 1400, dialog, eventName);
+					}
 				}, event.str, evt.compareName, event.result.bool);
 				decadeUI.delay(1800);
 			}

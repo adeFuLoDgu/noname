@@ -1147,8 +1147,8 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 							continue;
 
 							if (nodes[i].classList.contains('card')){
-								decadeUI.layout.clearout(nodes[i]);
-							}else{
+								if (window.decadeUI) decadeUI.layout.clearout(nodes[i]);
+							} else {
 								nodes[i].delete();
 							}
 						}
@@ -1924,14 +1924,16 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 						setSeatNum() {
 							super.setSeatNum(...arguments);
 							game.broadcastAll(function(firstAction){
-								let cur;
-								for (var i = 0; i < game.players.length; i++) {
-									cur = game.players[i];
-									if (!cur.node.seat)
-									cur.node.seat = decadeUI.element.create('seat', cur);
+								if (window.decadeUI) {
+									let cur;
+									for (var i = 0; i < game.players.length; i++) {
+										cur = game.players[i];
+										if (!cur.node.seat)
+										cur.node.seat = decadeUI.element.create('seat', cur);
 
-									cur.seat = cur.getSeatNum();
-									cur.node.seat.innerHTML = get.cnNumber(cur.seat, true);
+										cur.seat = cur.getSeatNum();
+										cur.node.seat.innerHTML = get.cnNumber(cur.seat, true);
+									}
 								}
 							}, this);
 							this.seat = this.getSeatNum();
