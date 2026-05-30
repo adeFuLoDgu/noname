@@ -2189,6 +2189,7 @@ const skills = {
 		group: ["olmojin_equip", "olmojin_effect"],
 		subSkill: {
 			equip: {
+				audio: "olmojin",
 				trigger: {
 					player: ["phaseBegin"],
 				},
@@ -2202,6 +2203,7 @@ const skills = {
 				},
 			},
 			effect: {
+				audio: "olmojin",
 				trigger: {
 					player: "useCard",
 					global: "recoverBegin",

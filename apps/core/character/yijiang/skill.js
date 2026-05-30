@@ -1370,6 +1370,7 @@ const skills = {
 		},
 	},
 	xindangxian: {
+		derivation: "xinfuli",
 		trigger: { player: "phaseBegin" },
 		forced: true,
 		audio: "dangxian",
@@ -1401,7 +1402,7 @@ const skills = {
 						return;
 					}
 					await player.loseHp();
-					const card = get.cardPile(card => card.name == "sha");
+					const card = get.discardPile(card => card.name == "sha");
 					if (card) {
 						await player.gain(card, "gain2");
 					}
