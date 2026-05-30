@@ -446,7 +446,7 @@ const card = {
 							return 6 - get.value(link) + target.hasCard(card => get.color(link, player) == get.color(card, target), "h") ? 2 : 0;
 						}
 						const cardx = ui.selected.buttons[0].link;
-						return 6 + (get.color(cardx, player) == get.color(link, target) ? 3 : 1) - get.value(link);
+						return (get.color(cardx, player) == get.color(link, target) ? 0 : -3) + get.value(link);
 					})
 					.set("target", target)
 					.forResult();
