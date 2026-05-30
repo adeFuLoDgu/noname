@@ -6384,8 +6384,8 @@ const skills = {
 	wansha: {
 		locked: true,
 		audio: 2,
-		audioname: ["re_jiaxu", "boss_lvbu3", "new_simayi"],
-		audioname2: { shen_simayi: "jilue_wansha" },
+		audioname: ["re_jiaxu", "boss_lvbu3"],
+		audioname2: { shen_simayi: "jilue_wansha", new_simayi: "wansha_new_simayi" },
 		global: "wansha2",
 		trigger: { global: "dying" },
 		priority: 15,
@@ -6396,6 +6396,7 @@ const skills = {
 		},
 		async content() {},
 	},
+	wansha_new_simayi: { audio: 1 },
 	wansha2: {
 		mod: {
 			cardSavable(card, player) {
