@@ -6529,7 +6529,7 @@ export const Content: Record<string, ContentFuncByAll | ContentFuncsByAll> = {
 			event.cards = cards;
 			for (const [target, targetCards] of event.lose_list) {
 				const next = target.lose(targetCards, event.position);
-				game.log(target, "将", targetCards, "置入了弃牌堆");
+				game.log(target, "将", targetCards, `置入了${lib.areaList.get(event.position.id)}`);
 				next.animate = false;
 				next.delay = false;
 				cards.addArray(targetCards);

@@ -186,7 +186,7 @@ declare interface Mod {
 	 */
 	targetInRange?(card: Card, player: Player, target: Player, result: boolean | number): boolean | number | void;
 	/**
-	 * 弃牌阶段时，忽略弃置的的手牌
+	 * 弃牌阶段时，忽略弃置的手牌
 	 * @param card 
 	 * @param player 
 	 */
@@ -1390,7 +1390,7 @@ declare interface Skill {
 	 * 
 	 * 在ai.basic.chooseTarget中使用；
 	 * 
-	 * 注：其实这些应该都有两个参数的，既第二个参数其实当前所有选中的的数据；
+	 * 注：其实这些应该都有两个参数的，既第二个参数其实当前所有选中的数据；
 	 * 
 	 * 有时甚至不传参，所以遇到保存，做好健壮性屏蔽；
 	 * 
