@@ -2715,8 +2715,8 @@ const skills = {
 					forced: true,
 				})
 				.forResult();
-			if (result.bool && result.autochoose && result.cards?.length === result.rawcards.length) {
-				player.removeSkills("jiexun");
+			if (result?.cards?.length > 0 && result.autochoose && result.cards?.length === result.rawcards?.length) {
+				await player.removeSkills("jiexun");
 				player.addSkill("funan_jiexun");
 			}
 		},
@@ -2774,8 +2774,8 @@ const skills = {
 					})
 					.forResult();
 
-				if (result.bool && result.autochoose && result.cards?.length === result.rawcards.length) {
-					player.removeMark("xinjiexun", player.countMark("xinjiexun"), false);
+				if (result?.cards?.length > 0 && result.autochoose && result.cards?.length === result.rawcards?.length) {
+					player.clearMarkMark("xinjiexun", false);
 					player.addSkill("funan_jiexun");
 				}
 			}
@@ -12129,7 +12129,7 @@ const skills = {
 			const result = await gainner
 				.gainPlayerCard({
 					target: giver,
-					positon: "h",
+					position: "h",
 					forced: true,
 					visibleMove: true,
 				})
