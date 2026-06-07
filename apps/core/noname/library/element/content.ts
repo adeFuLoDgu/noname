@@ -9767,9 +9767,13 @@ export const Content: Record<string, ContentFuncByAll | ContentFuncsByAll> = {
 					if (
 						!_status.event.nojudge &&
 						target.countVCards("j", function (card) {
-							if (!filterCard(card)) return false;
-							if (get.effect(target, card, target, target) <= -5) noEffect = false;
-							return ['lebu','bingliang','caomu','hongshui','huoshan','suibozhuliu'].includes(card.name)&&game.hasPlayer(function (current) {
+							if (!filterCard(card)) {
+								return false;
+							}
+							if (get.effect(target, card, target, target) <= -5) {
+								noEffect = false;
+							}
+							return ["lebu", "bingliang", "caomu", "hongshui", "huoshan", "suibozhuliu"].includes(card.name) && game.hasPlayer(function (current) {
 								if (!aimTargets.includes(current)) return false;
 								return current != target && current.canAddJudge(card) && get.attitude(player, current) < 0;
 							});
@@ -9795,7 +9799,7 @@ export const Content: Record<string, ContentFuncByAll | ContentFuncsByAll> = {
 					) {
 						return 9;
 					}
-				} else if (att < 0) {
+				} else if (att <= 0) {
 					if (
 						game.hasPlayer(current => {
 							if (current != target && get.attitude(player, current) > 0) {
@@ -9813,22 +9817,22 @@ export const Content: Record<string, ContentFuncByAll | ContentFuncsByAll> = {
 				}
 				return 0;
 			}
-			var sec_target=ui.selected.targets[0];
-			var sec_att1=get.attitude(player,sec_target);
-			var sec_att2=get.attitude(player,target);
-			if (sec_target!=target){
-				if (sec_att1>0&&sec_att2<0){
-					if (!_status.event.nojudge&&sec_target.countCards('j',function(card){
+			var sec_target = ui.selected.targets[0];
+			var sec_att1 = get.attitude(player, sec_target);
+			var sec_att2 = get.attitude(player, target);
+			if (sec_target != target) {
+				if (sec_att1 > 0 && sec_att2 < 0) {
+					if (!_status.event.nojudge && sec_target.countCards("j", function(card) {
 						if (!filterCard(card)) return false;
-						return ['lebu','bingliang','caomu','hongshui','huoshan','suibozhuliu'].includes(card.name)&&target.canAddJudge(card);
+						return ["lebu", "bingliang", "caomu", "hongshui", "huoshan", "suibozhuliu"].includes(card.name) && target.canAddJudge(card);
 					})) return 14;
-					if (sec_target.countCards('e',function(card){
-						return get.equipValue(card)<0&&target.canEquip(card);
-					})>0) return 9;
-				} else if (sec_att1<0&&sec_att2>0){
-					if (sec_target.countCards('e',function(card){
-						return get.equipValue(card)>0&&target.canEquip(card,_status.event.canReplace);
-					})>0) return 8;
+					if (sec_target.countCards("e", function(card) {
+						return get.equipValue(card) < 0 && target.canEquip(card);
+					}) > 0) return 9;
+				} else if (sec_att1 <= 0 && sec_att2 > 0) {
+					if (sec_target.countCards("e", function(card) {
+						return get.equipValue(card) > 0 && target.canEquip(card, _status.event.canReplace);
+					}) > 0) return 8;
 				}
 			}
 			return 0;
@@ -9895,12 +9899,20 @@ export const Content: Record<string, ContentFuncByAll | ContentFuncsByAll> = {
 						const targets0 = _status.event.targets0;
 						const targets1 = _status.event.targets1;
 						if (get.attitude(player, targets0) > 0 && get.attitude(player, targets1) < 0) {
-							if (get.position(button.link) == 'j' && ['lebu','bingliang','caomu','hongshui','huoshan','suibozhuliu'].includes(button.link.name)) return 12+get.value(button.link);
-							if (get.equipValue(button.link) < 0) return 10;
+							if (get.position(button.link) == "j" && ["lebu", "bingliang", "caomu", "hongshui", "huoshan", "suibozhuliu"].includes(button.link.name)) {
+								return 12 + get.value(button.link);
+							}
+							if (get.equipValue(button.link) < 0) {
+								return 10;
+							}
 							return -10;
-						} else if(get.attitude(player,targets0)<0&&get.attitude(player,targets1)>0){
-							if (get.position(button.link) == "j") return -10;
-							if (get.equipValue(button.link) > 0 && get.effect(targets1,button.link,player,targets1) > 0) return 10+get.equipValue(button.link);
+						} else if (get.attitude(player, targets0) <= 0 && get.attitude(player, targets1) > 0) {
+							if (get.position(button.link) == "j") {
+								return -10;
+							}
+							if (get.equipValue(button.link) > 0 && get.effect(targets1, button.link, player, targets1) > 0) {
+								return 10 + get.equipValue(button.link);
+							}
 						}
 						return 0
 					})
