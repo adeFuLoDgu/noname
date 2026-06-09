@@ -315,21 +315,23 @@ export class GetGuozhan extends Get {
 			}
 		}
 
+		var att = get.realAttitude(from, to, difficulty, tid);
 		const boss_skills = ["gz_gongao", "gz_zhengnan", "zhengnan"];
-		let boss_skills_players = game.countPlayer(function (current) {
-			return boss_skills.some(skill => current.hasSkill(skill));;
+		let boss_skills_enemy = game.countPlayer(function (current) {
+			return boss_skills.some(skill => current.hasSkill(skill) && !current.isFriendOf(from) && from !== current);
 		}, true);
-		if (!from.isFriendOf(to) && boss_skills_players > 0 && !boss_skills.some(skill => from.hasSkill(skill))) {
+		if (boss_skills_enemy > 0) {
 			if (to.hasSkill("gz_gongao")) {
-				return -8.2;
+				return -10;
 			}
 			if (to.hasSkill("gz_zhengnan") || to.hasSkill("zhengnan")) {
-				return -8.1;
+				return -9;
+			}
+			if (att > 0) {
+				return att;
 			}
 			return 0;
 		}
-
-		var att = get.realAttitude(from, to, difficulty, tid);
 		if (from.storage.zhibi && from.storage.zhibi.includes(to)) {
 			return att;
 		}
