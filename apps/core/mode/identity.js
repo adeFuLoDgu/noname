@@ -4244,13 +4244,13 @@ export default () => {
 				}
 				const zhongmode = !game.zhu.isZhu;
 				let max_hp_exclude_zhu_and_self = 0;
-				let nei_zhong_or_no_mark = false;
+				let nei_mark_zhong_or_none = false;
 				for (let i = 0; i < game.players.length; i++) {
 					if (game.players[i] !== from && game.players[i].identity !== "zhu") {
 						max_hp_exclude_zhu_and_self = Math.max(max_hp_exclude_zhu_and_self, game.players[i].hp);
 					}
 					if ((game.players[i].identity === "nei") && (game.players[i].ai.identity_mark === "zhong" || game.players[i].ai.identity_mark === undefined) && game.players[i].ai.shown < 1) {
-						nei_zhong_or_no_mark = true;
+						nei_mark_zhong_or_none = true;
 					}
 				}
 				let no_fan_find_nei_target_effect = to.hp === max_hp_exclude_zhu_and_self ? - (to.countCards("h") + to.countCards("e") * 1.5 + to.hp * 2 + to.hujia * 2) : 0;
@@ -4267,7 +4267,7 @@ export default () => {
 							case "zhu":
 								return 10;
 							case "zhong":
-								if (get.population("fan") === 0 && get.population("nei") > 0 && nei_zhong_or_no_mark) {
+								if (get.population("fan") === 0 && get.population("nei") > 0 && nei_mark_zhong_or_none) {
 									if (get.population("zhong") + get.population("mingzhong") === 0) {
 										return -3;
 									}
@@ -4295,20 +4295,20 @@ export default () => {
 								if (to.identity === "zhong" && get.population("fan") > 0) {
 									return 0;
 								}
-								if (get.population("fan") === 0 && !nei_zhong_or_no_mark) {
-									return -10;
-								}
-								if (get.population("fan") === 0 && get.population("nei") > 0 && nei_zhong_or_no_mark) {
+								if (get.population("fan") === 0 && get.population("nei") > 0) {
 									if (get.population("zhong") + get.population("mingzhong") === 0) {
 										return -3;
 									}
-									if (to.hp >= 3 && !from.hasSkill("yimie")) {
-										return no_fan_find_nei_target_effect;
-									}
-									if (to.ai.identity_mark === "zhong" && to.ai.shown < 0.95) {
+									if (nei_mark_zhong_or_none) {
+										if (to.hp >= 3 && !from.hasSkill("yimie")) {
+											return no_fan_find_nei_target_effect;
+										}
+										if (to.ai.identity_mark === "zhong" && to.ai.shown < 0.95) {
+											return 0;
+										}
 										return 0;
 									}
-									return 0;
+									return -10;
 								}
 								if (zhongmode && to.ai.sizhong && to.ai.shown < 0.95) {
 									return 6;
@@ -4337,7 +4337,7 @@ export default () => {
 								if (to.identity === "zhong") {
 									return 0;
 								}
-								if (get.population("fan") === 0 && get.population("nei") > 0 && nei_zhong_or_no_mark) {
+								if (get.population("fan") === 0 && get.population("nei") > 0 && nei_mark_zhong_or_none) {
 									if (get.population("zhong") + get.population("mingzhong") === 0) {
 										return -1;
 									}
@@ -4374,7 +4374,7 @@ export default () => {
 							case "zhu":
 								return 10;
 							case "zhong":
-								if (get.population("fan") === 0 && get.population("nei") > 0 && from !== to && nei_zhong_or_no_mark) {
+								if (get.population("fan") === 0 && get.population("nei") > 0 && from !== to && nei_mark_zhong_or_none) {
 									return no_fan_find_nei_target_effect;
 								}
 								if (zhongmode && to.ai.sizhong && to.ai.shown < 0.95) {
@@ -4384,11 +4384,11 @@ export default () => {
 							case "mingzhong":
 								return 4;
 							case "nei":
-								if (get.population("fan") === 0 && !nei_zhong_or_no_mark) {
+								if (get.population("fan") === 0 && get.population("nei") > 0) {
+									if (nei_mark_zhong_or_none) {
+										return no_fan_find_nei_target_effect;
+									}
 									return -10;
-								}
-								if (get.population("fan") === 0 && get.population("nei") > 0 && nei_zhong_or_no_mark) {
-									return no_fan_find_nei_target_effect;
 								}
 								if (zhongmode && to.ai.sizhong && to.ai.shown < 0.95) {
 									return 6;
@@ -4400,7 +4400,7 @@ export default () => {
 							case "fan":
 								return -8;
 							case "commoner":
-								if (get.population("fan") === 0 && get.population("nei") > 0 && nei_zhong_or_no_mark) {
+								if (get.population("fan") === 0 && get.population("nei") > 0 && nei_mark_zhong_or_none) {
 									return no_fan_find_nei_target_effect;
 								}
 								if (zhongmode && to.ai.sizhong && to.ai.shown < 0.95) {
@@ -4620,7 +4620,7 @@ export default () => {
 					case "commoner":
 						switch (identity2) {
 							case "zhu":
-								if (get.population("fan") === 0 && get.population("nei") > 0 && nei_zhong_or_no_mark) {
+								if (get.population("fan") === 0 && get.population("nei") > 0 && nei_mark_zhong_or_none) {
 									if (get.population("zhong") + get.population("mingzhong") === 0) {
 										return -3;
 									}
@@ -4629,7 +4629,7 @@ export default () => {
 								return situation;
 							case "zhong":
 							case "mingzhong":
-								if (get.population("fan") === 0 && get.population("nei") > 0 && nei_zhong_or_no_mark) {
+								if (get.population("fan") === 0 && get.population("nei") > 0 && nei_mark_zhong_or_none) {
 									if (get.population("zhong") + get.population("mingzhong") === 0) {
 										return -3;
 									}
@@ -4637,14 +4637,16 @@ export default () => {
 								}
 								return situation;
 							case "nei":
-								if (get.population("fan") === 0 && !nei_zhong_or_no_mark) {
-									return -10;
-								}
-								if (get.population("fan") === 0 && get.population("nei") > 0 && nei_zhong_or_no_mark) {
-									if (get.population("zhong") + get.population("mingzhong") === 0) {
-										return -3;
+								if (get.population("fan") === 0 && get.population("nei") > 0) {
+									if (nei_mark_zhong_or_none) {
+										if (get.population("zhong") + get.population("mingzhong") === 0) {
+											return -3;
+										}
+										return no_fan_find_nei_target_effect;
 									}
-									return no_fan_find_nei_target_effect;
+									if (get.population("zhong") + get.population("mingzhong") > 0) {
+										return -10;
+									}
 								}
 								if (game.players.length === 3 && get.population("nei") === 1) {
 									return Math.min(3.5, to.hp - 1.5 + to.countCards("h") / 3) - (to.hp < (game.zhu ? game.zhu.hp : 0) ? 4 : 0);
@@ -4659,7 +4661,7 @@ export default () => {
 							case "fan":
 								return -situation;
 							case "commoner":
-								if (get.population("fan") === 0 && get.population("nei") > 0 && from !== to && nei_zhong_or_no_mark) {
+								if (get.population("fan") === 0 && get.population("nei") > 0 && from !== to && nei_mark_zhong_or_none) {
 									if (get.population("zhong") + get.population("mingzhong") === 0) {
 										return -3;
 									}
