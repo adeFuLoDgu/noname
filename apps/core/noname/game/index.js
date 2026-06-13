@@ -6853,12 +6853,17 @@ ${e instanceof Error ? e.stack : String(e)}`);
 				tr.appendChild(td);
 				td = document.createElement("td");
 				let target = game.players[i];
+				let muniu = target.getVEquip("muniu");
 				td.innerHTML = get.poptip({
 					name: `<img style="width:15px; vertical-align: middle;" src="${lib.assetURL}image/card/handcard.png">`,
 					dialog(dialog) {
 						let hs = hsMap.get(target) ?? [];
 						dialog.add(`${get.translation(target)}的手牌`);
 						dialog[hs.length > 0 ? "addSmall" : "addText"](hs.length > 0 ? hs : "（没有手牌）");
+						if (muniu && muniu.storages && muniu.storages.length > 0 ) {
+							dialog.add(`${get.translation(target)}的${get.translation("muniu")}`);
+							dialog.addSmall(muniu.storages);
+						}
 						return dialog;
 					},
 				});
@@ -6946,12 +6951,17 @@ ${e instanceof Error ? e.stack : String(e)}`);
 				tr.appendChild(td);
 				td = document.createElement("td");
 				let target = game.dead[i];
+				let muniu = target.getVEquip("muniu");
 				td.innerHTML = get.poptip({
 					name: `<img style="width:15px; vertical-align: middle;" src="${lib.assetURL}image/card/handcard.png">`,
 					dialog(dialog) {
 						let hs = hsMap.get(target) ?? [];
 						dialog.add(`${get.translation(target)}的手牌`);
 						dialog[hs.length > 0 ? "addSmall" : "addText"](hs.length > 0 ? hs : "（没有手牌）");
+						if (muniu && muniu.storages && muniu.storages.length > 0 ) {
+							dialog.add(`${get.translation(target)}的${get.translation("muniu")}`);
+							dialog.addSmall(muniu.storages);
+						}
 						return dialog;
 					},
 				});
@@ -7016,12 +7026,17 @@ ${e instanceof Error ? e.stack : String(e)}`);
 				tr.appendChild(td);
 				td = document.createElement("td");
 				let target = game.additionaldead[i];
+				let muniu = target.getVEquip("muniu");
 				td.innerHTML = get.poptip({
 					name: `<img style="width:15px; vertical-align: middle;" src="${lib.assetURL}image/card/handcard.png">`,
 					dialog(dialog) {
 						let hs = hsMap.get(target) ?? [];
 						dialog.add(`${get.translation(target)}的手牌`);
 						dialog[hs.length > 0 ? "addSmall" : "addText"](hs.length > 0 ? hs : "（没有手牌）");
+						if (muniu && muniu.storages && muniu.storages.length > 0 ) {
+							dialog.add(`${get.translation(target)}的${get.translation("muniu")}`);
+							dialog.addSmall(muniu.storages);
+						}
 						return dialog;
 					},
 				});
