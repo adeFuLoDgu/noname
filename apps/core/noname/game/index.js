@@ -6591,6 +6591,30 @@ ${e instanceof Error ? e.stack : String(e)}`);
 			}
 			ui.update();
 			dialog.add(ui.create.div(".placeholder"));
+			for (let i = 0; i < game.players.length; i++) {
+				let hs = game.players[i].getCards("h");
+				if (hs.length) {
+					dialog.add('<div class="text center">' + get.translation(game.players[i]) + "</div>");
+					dialog.addSmall(hs);
+				}
+				let muniu = game.players[i].getVEquip("muniu");
+				if (muniu && muniu.storages && muniu.storages.length) {
+					dialog.add('<div class="text center">' + get.translation(game.players[i]) + '的' + get.translation('muniu') + '</div>');
+					dialog.addSmall(muniu.storages);
+				}
+			}
+			for (let j = 0; j < game.dead.length; j++) {
+				let hs = game.dead[j].getCards("h");
+				if (hs.length) {
+					dialog.add('<div class="text center">' + get.translation(game.dead[j]) + "</div>");
+					dialog.addSmall(hs);
+				}
+				let muniu = game.dead[j].getVEquip("muniu");
+				if (muniu && muniu.storages && muniu.storages.length) {
+					dialog.add('<div class="text center">' + get.translation(game.dead[j]) + '的' + get.translation('muniu') + '</div>');
+					dialog.addSmall(muniu.storages);
+				}
+			}
 			dialog.add(ui.create.div(".placeholder.slim"));
 			if (lib.config.background_audio) {
 				if (result2 === true) {
@@ -6797,9 +6821,11 @@ ${e instanceof Error ? e.stack : String(e)}`);
 			td = document.createElement("td");
 			td.innerHTML = "杀敌";
 			tr.appendChild(td);
+			/*
 			td = document.createElement("td");
 			td.innerHTML = "手牌";
 			tr.appendChild(td);
+			*/
 			table.appendChild(tr);
 			for (i = 0; i < game.players.length; i++) {
 				tr = document.createElement("tr");
@@ -6851,6 +6877,7 @@ ${e instanceof Error ? e.stack : String(e)}`);
 				}
 				td.innerHTML = num;
 				tr.appendChild(td);
+				/*
 				td = document.createElement("td");
 				let target = game.players[i];
 				let muniu = target.getVEquip("muniu");
@@ -6860,7 +6887,7 @@ ${e instanceof Error ? e.stack : String(e)}`);
 						let hs = hsMap.get(target) ?? [];
 						dialog.add(`${get.translation(target)}的手牌`);
 						dialog[hs.length > 0 ? "addSmall" : "addText"](hs.length > 0 ? hs : "（没有手牌）");
-						if (muniu && muniu.storages && muniu.storages.length > 0 ) {
+						if (muniu && muniu.storages && muniu.storages.length) {
 							dialog.add(`${get.translation(target)}的${get.translation("muniu")}`);
 							dialog.addSmall(muniu.storages);
 						}
@@ -6868,6 +6895,7 @@ ${e instanceof Error ? e.stack : String(e)}`);
 					},
 				});
 				tr.appendChild(td);
+				*/
 				table.appendChild(tr);
 			}
 			dialog.add(ui.create.div(".placeholder"));
@@ -6894,9 +6922,11 @@ ${e instanceof Error ? e.stack : String(e)}`);
 				td = document.createElement("td");
 				td.innerHTML = "杀敌";
 				tr.appendChild(td);
+				/*
 				td = document.createElement("td");
 				td.innerHTML = "手牌";
 				tr.appendChild(td);
+				*/
 				table.appendChild(tr);
 			}
 			for (i = 0; i < game.dead.length; i++) {
@@ -6949,6 +6979,7 @@ ${e instanceof Error ? e.stack : String(e)}`);
 				}
 				td.innerHTML = num;
 				tr.appendChild(td);
+				/*
 				td = document.createElement("td");
 				let target = game.dead[i];
 				let muniu = target.getVEquip("muniu");
@@ -6958,7 +6989,7 @@ ${e instanceof Error ? e.stack : String(e)}`);
 						let hs = hsMap.get(target) ?? [];
 						dialog.add(`${get.translation(target)}的手牌`);
 						dialog[hs.length > 0 ? "addSmall" : "addText"](hs.length > 0 ? hs : "（没有手牌）");
-						if (muniu && muniu.storages && muniu.storages.length > 0 ) {
+						if (muniu && muniu.storages && muniu.storages.length) {
 							dialog.add(`${get.translation(target)}的${get.translation("muniu")}`);
 							dialog.addSmall(muniu.storages);
 						}
@@ -6966,6 +6997,7 @@ ${e instanceof Error ? e.stack : String(e)}`);
 					},
 				});
 				tr.appendChild(td);
+				*/
 				table.appendChild(tr);
 			}
 			dialog.add(ui.create.div(".placeholder"));
@@ -7015,6 +7047,7 @@ ${e instanceof Error ? e.stack : String(e)}`);
 				}
 				td.innerHTML = num;
 				tr.appendChild(td);
+				/*
 				td = document.createElement("td");
 				num = 0;
 				for (j = 0; j < game.additionaldead[i].stat.length; j++) {
@@ -7033,13 +7066,14 @@ ${e instanceof Error ? e.stack : String(e)}`);
 						let hs = hsMap.get(target) ?? [];
 						dialog.add(`${get.translation(target)}的手牌`);
 						dialog[hs.length > 0 ? "addSmall" : "addText"](hs.length > 0 ? hs : "（没有手牌）");
-						if (muniu && muniu.storages && muniu.storages.length > 0 ) {
+						if (muniu && muniu.storages && muniu.storages.length) {
 							dialog.add(`${get.translation(target)}的${get.translation("muniu")}`);
 							dialog.addSmall(muniu.storages);
 						}
 						return dialog;
 					},
 				});
+				*/
 				table.appendChild(tr);
 			}
 			dialog.add(ui.create.div(".placeholder"));
@@ -7056,6 +7090,36 @@ ${e instanceof Error ? e.stack : String(e)}`);
 		}
 
 		dialog.add(ui.create.div(".placeholder"));
+		for (let i = 0; i < game.players.length; i++) {
+			if (!_status.connectMode && game.players[i].isUnderControl(true) && game.layout != "long2") {
+				continue;
+			}
+			let hs = game.players[i].getCards("h");
+			if (hs.length) {
+				dialog.add('<div class="text center">' + get.translation(game.players[i]) + "</div>");
+				dialog.addSmall(hs);
+			}
+			let muniu = game.players[i].getVEquip("muniu");
+			if (muniu && muniu.storages && muniu.storages.length) {
+				dialog.add('<div class="text center">' + get.translation(game.players[i]) + '的' + get.translation('muniu') + '</div>');
+				dialog.addSmall(muniu.storages);
+			}
+		}
+		for (let i = 0; i < game.dead.length; i++) {
+			if (!_status.connectMode && game.dead[i].isUnderControl(true) && game.layout != "long2") {
+				continue;
+			}
+			let hs = game.dead[i].getCards("h");
+			if (hs.length) {
+				dialog.add('<div class="text center">' + get.translation(game.dead[i]) + "</div>");
+				dialog.addSmall(hs);
+			}
+			let muniu = game.dead[i].getVEquip("muniu");
+			if (muniu && muniu.storages && muniu.storages.length) {
+				dialog.add('<div class="text center">' + get.translation(game.dead[i]) + '的' + get.translation('muniu') + '</div>');
+				dialog.addSmall(muniu.storages);
+			}
+		}
 		dialog.add(ui.create.div(".placeholder.slim"));
 		game.addVideo("over", null, dialog.content.innerHTML);
 		let vinum = parseInt(lib.config.video);
