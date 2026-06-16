@@ -640,8 +640,6 @@ export default {
 	"#taomie2": "韩濊之乱，再无可生之机！",
 	"#taomie3": "颅且远行万里，要席何用？",
 	"#gongsunkang:die": "枭雄一世，何有所憾！",
-	"#xiaoxi_hansui1": "打你个措手不及！",
-	"#xiaoxi_hansui2": "两军交战，勇者为胜！",
 	"#daoji1": "八十斤双戟？于我如探囊取物！",
 	"#daoji2": "以汝之矛，攻汝之盾！",
 	"#hucheer:die": "未料一伸手，便被……敌酋捉……",

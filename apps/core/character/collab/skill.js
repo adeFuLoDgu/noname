@@ -8440,14 +8440,14 @@ const skills = {
 					const result = await player
 						.chooseTarget("请选择【暴雨】的目标", "令目标角色弃置所有手牌。若其没有手牌，则其改为失去1点体力。")
 						.set("ai", target => {
-							const es = current.getCards("h"),
+							const es = target.getCards("h"),
 								player = get.player();
 							if (es.length > 0) {
-								const att = get.attitude(player, current),
-									val = get.value(es, current);
+								const att = get.attitude(player, target),
+									val = get.value(es, target);
 								return -Math.sqrt(att) * val;
 							}
-							return get.effect(current, { name: "losehp" }, player, player);
+							return get.effect(target, { name: "losehp" }, player, player);
 						})
 						.forResult();
 					if (result?.bool) {
