@@ -280,3 +280,7 @@
 .buttons .card.button>.info:empty {
 	display: none;
 }
+
+.dialog:has(.count-handcards-container) {
+	scale: 0.75;
+}
