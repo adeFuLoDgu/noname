@@ -9,7 +9,7 @@ Click [here (github pages)](https://adeFuLoDgu.github.io/noname) or [here (cloud
 
 ![image](https://raw.githubusercontent.com/adeFuLoDgu/noname/master/docs/reset_illustration.jpg)
 
-+ If you encounter the "A problem repeatedly occured" error on iOS, please adjust the following settings to disable effects:
++ If you encounter the "A problem repeatedly occurred" error on iOS, please adjust the following settings to disable effects:
 
 ![image](https://raw.githubusercontent.com/adeFuLoDgu/noname/master/docs/low_performance_settings_1.png)
 ![image](https://raw.githubusercontent.com/adeFuLoDgu/noname/master/docs/low_performance_settings_2.png)
