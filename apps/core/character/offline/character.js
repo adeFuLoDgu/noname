@@ -1,4 +1,10 @@
 const characters = {
+	tcmj_lishimin: {
+		sex: "male",
+		group: "qun",
+		hp: 4,
+		skills: ["tcmjpozhen", "tcmjtaoge", "tcmjzhenguan"],
+	},
 	ylyg_xuhuang: {
 		sex: "male",
 		group: "wei",

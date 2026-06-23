@@ -1,6 +1,14 @@
 import { lib, game, ui, get, ai, _status } from "noname";
 
 const translates = {
+	dc_sb_zhugeliang: "新杀谋诸葛亮",
+	dc_sb_zhugeliang_prefix: "新杀谋",
+	dcsbjingmou: "靖谋",
+	dcsbjingmou_info: `转换技，①游戏开始时你可自选阴阳状态；②任意角色出牌阶段开始时，若你未有记录的花色或牌类型，你可弃置任意张牌并秘密记录其中包含的至多三种花色与牌类型。有角色使用与你记录的花色或类型相同的牌时，移除该记录。阳：你可令此牌无效并弃置牌堆顶一张牌，若与此牌花色一致对其造成1点火焰伤害；阴：此牌结算后将其交给任意一名角色。若你移除过所有花色与类型，你获得${get.poptip("dcsbdingnan")}。`,
+	dcsbdingnan: "定南",
+	dcsbdingnan_info: "出牌阶段限一次，你可令任意名角色依次打出一张【杀】，否则受到1点伤害。",
+	dcsbguyi: "孤熠",
+	dcsbguyi_info: "锁定技，分发手牌后，你选择一张手牌并标记为“熠”。每回合限三次，“熠”牌离开手牌区后，观看牌堆顶X张牌选择其中一张牌获得并标记为“熠”，然后以任意顺序放回牌堆顶(X为本轮触发此效果的次数且至多为7)，每回合结束时，若你手牌中没有熠牌，摸一张牌并标记为“熠”。",
 	dc_shen_guanyu: "新杀神关羽",
 	dc_shen_guanyu_prefix: "新杀|神",
 	dcwushen: "武神",
