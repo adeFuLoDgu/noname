@@ -6277,7 +6277,7 @@ const skills = {
 		async content(event, trigger, player) {
 			const keys = ["花色", "颜色", "红色", "黑色"].concat(lib.suit.flatMap(i => [get.translation(i), get.translation(`${i}2`)]));
 			const map = new Map();
-			game.filterPlayer(target => target != player && target.sex == "male").forEach(target => {
+			game.filterPlayer(target => target != player && target.hasSex("male")).forEach(target => {
 				map.set(target, []);
 				const skills = target.getSkills(null, false, false).filter(i => !get.info(i).charlotte);
 				if (skills.length) {

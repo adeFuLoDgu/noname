@@ -1104,7 +1104,8 @@ const characters = {
 		hp: 5,
 		skills: ["psxiaofan", "psjiaohu", "psquanpan", "pshuoluan"],
 		//doubleGroup: ["qun", "shu", "wu"],
-	}, hm_shen_zhangjiao: {
+	},
+	hm_shen_zhangjiao: {
 		sex: "male",
 		group: "shen",
 		hp: 4,
