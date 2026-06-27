@@ -62,7 +62,7 @@ const skills = {
 			}
 			const list = [player.getDamagedHp(), player.getHp()].sort((a, b) => a - b);
 			const hs = player.getCards("h", card => result.cards.includes(card));
-			if (hs.length <= list[0]) {
+			if (hs.length <= list[1]) {
 				result = { bool: true, cards: hs };
 			} else {
 				result = await player
@@ -1874,11 +1874,8 @@ const skills = {
 	starzhiji: {
 		audio: 2,
 		trigger: { player: "phaseZhunbeiBegin" },
-		filter(event, player) {
-			return player.hasCard(card => _status.connectMode || lib.filter.cardDiscardable(card, player), "h");
-		},
 		async cost(event, trigger, player) {
-			const next = player.chooseToDiscard(get.prompt2(event.skill), [1, Infinity], "allowChooseAll").set("logSkill", "starzhiji");
+			const next = player.chooseToDiscard(get.prompt2(event.skill), [0, Infinity], "allowChooseAll").set("logSkill", "starzhiji");
 			if (_status.auto || !(player === game.me || player.isOnline())) {
 				next.complexCard = true;
 				next.ai = function (card) {
@@ -1900,7 +1897,8 @@ const skills = {
 		},
 		popup: false,
 		async content(event, trigger, player) {
-			const num = event.cards.length - ((await player.drawTo(5).forResult()).cards || []).length;
+			const discardedCards = event.cards || [];
+			const num = discaredCards.length - ((await player.drawTo(5).forResult()).cards || []).length;
 			switch (get.sgn(num)) {
 				case 1: {
 					const result = await player
@@ -3209,14 +3207,14 @@ const skills = {
 			if (event.targets.length !== 1) {
 				return false;
 			}
-			if (!player.hasCards("he", card => lib.skill.starweigu.isSelf(card, player) && lib.filter.cardDiscardable(card, player, "starweigu"))) {
+			if (!player.hasCards("he", card => get.info("starweigu").isSelf(card, player) && lib.filter.cardDiscardable(card, player, "starweigu"))) {
 				return false;
 			}
 			return true;
 		},
 		async cost(event, trigger, player) {
 			let prompt = "弃置一张可指定自己为目标的牌，然后选择一项:";
-			if (player.getStorage(event.name)) {
+			if (player.getStorage("starweigu", false)) {
 				prompt += "<span class=text center>1、对一名角色造成2点伤害；</span>";
 			} else {
 				prompt += "<span class=text center>1、移动场上一张牌；</span>";
@@ -3226,7 +3224,7 @@ const skills = {
 				.chooseToDiscard({
 					prompt: get.prompt("starweigu"),
 					prompt2: prompt,
-					filterCard: lib.skill.starweigu.isSelf,
+					filterCard: get.info("starweigu").isSelf,
 					position: "he",
 					ai(card) {
 						return get.value(card);
@@ -3254,19 +3252,19 @@ const skills = {
 			if (info.toself) {
 				return true;
 			}
-			return lib.filter.targetEnabled3(card, player, evt);
+			return lib.filter.targetEnabled3(card, player, player);
 		},
 		async content(event, trigger, player) {
 			await player.discard({ cards: event.cards });
 			const choiceList = [];
-			if (!player.getStorage(event.name)) {
+			if (!player.getStorage("starweigu", false)) {
 				if (player.canMoveCard()) {
 					choiceList.push(["move", "移动场上的一张牌"]);
 				}
 			} else {
 				choiceList.push(["damage", "对一名角色造成2点伤害"]);
 			}
-			const targets = lib.skill.starweigu.getTargets(trigger.card, player);
+			const targets = get.info("starweigu").getTargets(trigger.card, player);
 			if (targets.length) {
 				choiceList.push(["addtarget", `令${get.translation(targets)}成为${get.translation(trigger.card)}的额外目标`]);
 			}
@@ -3348,7 +3346,7 @@ const skills = {
 		animationColor: "red",
 		manualConfirm: true,
 		filter(event, player) {
-			return !player.getStorage("starweigu");
+			return !player.getStorage("starweigu", false);
 		},
 		async content(event, trigger, player) {
 			player.awakenSkill(event.name);
@@ -3359,7 +3357,7 @@ const skills = {
 				charlotte: true,
 				forced: true,
 				init(player, skill) {
-					player.markAuto("starweigu");
+					player.setStorage("starweigu", true);
 					player.addSkill("starjuefa_remove");
 					player.markAuto("starjuefa_remove", "die");
 				},
@@ -3392,13 +3390,13 @@ const skills = {
 					player: "phaseEnd",
 				},
 				async content(event, trigger, player) {
-					if (!player.getStorage("starjuefa_remove", "remove")) {
+					if (!player.getStorage("starjuefa_remove").includes("remove")) {
 						player.markAuto("starjuefa_remove", "remove");
 					} else {
-						player.unmarkAuto("starweigu");
+						player.setStorage("starweigu", false);
 						player.removeSkill("starjuefa_effect");
 						player.removeSkill("starjuefa_remove");
-						if (player.getStorage("starjuefa_remove", "die")) {
+						if (player.getStorage("starjuefa_remove").includes("die")) {
 							if (player.hp > 0) {
 								await player.loseHp(player.getHp());
 							}
@@ -13177,7 +13175,7 @@ const skills = {
 		audioname: ["sp_key_yuri"],
 		trigger: { source: "damageBegin2" },
 		filter(event, player) {
-			return event.player != player && !player.getStorage("ziqu").includes(event.player) && event.player.countCards("he") > 0;
+			return event.player != player && !player.getStorage("ziqu").includes(event.player);
 		},
 		check(event, player) {
 			var target = event.player;
@@ -15306,7 +15304,7 @@ const skills = {
 				event.finish();
 				return;
 			}
-			target.chooseToDiscard(true, "h", [1, player.countCards("h")], "弃置至多" + get.cnNumber(player.countCards("h")) + "张手牌，并获得" + get.translation(player) + "等量的手牌", "allowChooseAll").ai = function (card) {
+			target.chooseToDiscard(true, "h", [0, player.countCards("h")], "弃置至多" + get.cnNumber(player.countCards("h")) + "张手牌，并获得" + get.translation(player) + "等量的手牌", "allowChooseAll").ai = function (card) {
 				if (ui.selected.cards.length > 1) {
 					return -1;
 				}

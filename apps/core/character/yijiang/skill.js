@@ -243,6 +243,7 @@ const skills = {
 					filterTarget(card, player, target) {
 						return player !== target;
 					},
+					selectTarget: [1, num],
 					ai(target) {
 						const player = get.player();
 						let att = get.attitude(player, target) / Math.sqrt(1 + target.countCards("h"));
@@ -7364,6 +7365,7 @@ const skills = {
 	},
 	longyin: {
 		audio: 2,
+		audioname: ["ol_guanping"],
 		init: player => {
 			game.addGlobalSkill("longyin_order");
 		},
@@ -8645,7 +8647,7 @@ const skills = {
 			return (
 				get.suit(event.card) == "spade" &&
 				_status.currentPhase == event.player &&
-				event.targets &&
+				event.targets && event.player.isPhaseUsing() &&
 				event.targets.length &&
 				event.player != player &&
 				game.countPlayer2(function (current) {
@@ -10902,7 +10904,7 @@ const skills = {
 			return (color == "red" && get.position(card) == "h" ? 8 : 4) - get.value(card);
 		},
 		async content(event, trigger, player) {
-			player.draw();
+			await player.draw();
 		},
 		ai: {
 			order: 9,
@@ -14645,7 +14647,7 @@ const skills = {
 			if (targets?.length && targets[0]?.isIn()) {
 				result = await targets[0]
 					.chooseToDiscard({
-						prompt: "弃置一张不为" + get.translation(type) + "牌的牌或令" + get.translation(player) + "回复1点体力",
+						prompt: "弃置一张不为" + get.translation(type) + "牌的手牌或令" + get.translation(player) + "回复1点体力",
 						filterCard(card) {
 							return get.type(card, "trick") != _status.event.type;
 						},

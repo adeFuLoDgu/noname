@@ -1,9 +1,11 @@
 export default {
+	//pot_xiahouba: "",
+	//pot_chenqun: "",
+	//pot_caozhen: "",
 	//pot_lvyi: "",
 	pot_caoshuang: "擅政专权",
 	//pot_zhangren: "",
 	pot_sunchen: "凶竖盈溢",
-	//zhuji: "",
 	pot_dengai: "勇气陵云",
 	//pot_chenjiao: "",
 	//pot_zanghong: "",
