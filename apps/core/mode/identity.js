@@ -1,4 +1,4 @@
-import html from "dedent";
+//import html from "dedent";
 import { lib, game, ui, get, ai, _status } from "noname";
 export const type = "mode";
 /**
@@ -188,6 +188,8 @@ export default () => {
 					ui.control.style.top = "";
 
 					clear();
+					ui.create.dialog("如果还有其它问题，欢迎来到百度无名杀吧进行交流");
+					/*
 					ui.create.dialog("如果还有问题，欢迎来到无名杀仓库交流");
 					ui.dialog.add(html`
 						<div class="text center">
@@ -198,6 +200,7 @@ export default () => {
 							讨论/提问/吹水: https://github.com/libnoname/noname/discussions
 						</div>
 					`);
+					*/
 					await new Promise(resolve => ui.create.control("完成", resolve));
 				}
 

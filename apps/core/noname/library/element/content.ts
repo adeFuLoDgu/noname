@@ -11623,7 +11623,7 @@ export const Content: Record<string, ContentFuncByAll | ContentFuncsByAll> = {
 			} else {
 				const waiting = typeof animateTime === "number" ? delay(get.delayx(animateTime, animateTime)) : animateTime;
 				if (window.decadeUI) {
-					waiting.then(gainTo(cards)).finally(() => void game.resume());
+					gainTo(cards);
 				} else {
 					waiting.then(postAnimate).finally(() => void game.resume());
 				}

@@ -281,6 +281,6 @@
 	display: none;
 }
 
-.dialog:has(.count-handcards-container) {
+.dialog:has(.handcards-container) {
 	scale: 0.75;
 }
