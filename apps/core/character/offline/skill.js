@@ -10524,19 +10524,31 @@ const skills = {
 				};
 				onEnd01();
 			};
-			game.broadcastAll(
-				function (player, throwc, card1, card2, cardsetions) {
-					const node1 = player.$throwxy2(card1, "calc(50% - 114px)", "calc(50% - 52px)", "perspective(600px) rotateY(90deg) translateX(0px)", true);
-					throwc(node1);
-					const node2 = player.$throwxy2(card2, "50%", "calc(50% - 52px)", "perspective(600px) rotateY(90deg) translateX(0px)", true);
-					throwc(node2);
-				},
-				player,
-				throwc,
-				shengBei1,
-				shengBei2,
-				cardsetions
-			);
+			if (window.decadeUI) {
+				game.broadcastAll(
+					function (player, card1, card2) {
+						player.$throwordered2(card1);
+						player.$throwordered2(card2);
+					},
+					player,
+					shengBei1,
+					shengBei2
+				);
+			} else {
+				game.broadcastAll(
+					function (player, throwc, card1, card2, cardsetions) {
+						const node1 = player.$throwxy2(card1, "calc(50% - 114px)", "calc(50% - 52px)", "perspective(600px) rotateY(90deg) translateX(0px)", true);
+						throwc(node1);
+						const node2 = player.$throwxy2(card2, "50%", "calc(50% - 52px)", "perspective(600px) rotateY(90deg) translateX(0px)", true);
+						throwc(node2);
+					},
+					player,
+					throwc,
+					shengBei1,
+					shengBei2,
+					cardsetions
+				);
+			}
 			game.addVideo("compare", player, [get.cardInfo(shengBei1), player.dataset.position, get.cardInfo(shengBei2)]);
 			//等待一会儿
 			await game.delay(0, 1500);

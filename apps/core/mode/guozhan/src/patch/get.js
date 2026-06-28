@@ -254,7 +254,7 @@ export class GetGuozhan extends Get {
 		}, true);
 		if (to.identity == "ye") {
 			to_p += 1.5;
-		}		
+		}
 
 		if (to_p >= max) {
 			return -5;

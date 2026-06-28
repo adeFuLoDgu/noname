@@ -5475,7 +5475,11 @@ const skills = {
 		},
 		ai: {
 			order: 20,
-			result: { player: player => (player.hp < 3 || player.hasCard(card => card.hasGaintag("dcbeijin_effect"), "h")) ? 0 : 1 },
+			result: {
+				player(player) {
+					return (player.hp < 3 || player.hasCard(card => card.hasGaintag("dcbeijin_effect"), "h")) ? 0 : 1;
+				},
+			},
 		},
 		locked: false,
 		mod: {

@@ -9207,23 +9207,23 @@ const skills = {
 					],
 				])
 				.set("filterButton", button => {
-					var player = _status.event.player;
-					var handcard_num = player.countCards("h");
-					var hasEnemy = game.hasPlayer(current => get.attitude(player, current) < 0);
-					var have_sha = player.getCards("h").some(c => c.name == "sha");
-					var need_tao = player.countCards("h", "tao") > 0 && player.hp < 3;
-					var has_damage_trick_card = player.countCards("h", c => get.type(c) == "trick" && get.tag(c, "damage")) > 0;
-					var has_draw_trick_card = handcard_num > 2 && player.countCards("h", c => get.type(c) == "trick" && get.tag(c, "draw")) > 0;
 					if (button.link == "discard") {
-						return hasEnemy && have_sha && !need_tao && !has_damage_trick_card && !has_draw_trick_card;
+						const player = get.player();
+						return player.countCards("h") && !player.hasCard(card => !lib.filter.cardDiscardable(card, player, "olsbnilan"), "h");
 					}
 					return true;
 				})
 				.set("ai", button => {
 					const player = get.player();
 					const { link } = button;
+					let handcard_num = player.countCards("h");
+					let hasEnemy = game.hasPlayer(current => get.attitude(player, current) < 0);
+					let have_sha = player.getCards("h").some(c => c.name == "sha");
+					let need_tao = player.countCards("h", "tao") > 0 && player.hp < 3;
+					let has_damage_trick_card = player.countCards("h", c => get.type(c) == "trick" && get.tag(c, "damage")) > 0;
+					let has_draw_trick_card = handcard_num > 2 && player.countCards("h", c => get.type(c) == "trick" && get.tag(c, "draw")) > 0;
 					if (link == "discard") {
-						return player.countCards("h") < 4 && game.hasPlayer(current => current != player && get.damageEffect(current, player, player) > 0) && player.countCards("h", "sha");
+						return hasEnemy && have_sha && !need_tao && !has_damage_trick_card && !has_draw_trick_card;
 					}
 					if (link == "draw") {
 						return 1;

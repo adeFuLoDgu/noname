@@ -11503,7 +11503,7 @@ export const Content: Record<string, ContentFuncByAll | ContentFuncsByAll> = {
 					}
 				}
 				if (!window.decadeUI) {
-						if (player == game.me) {
+					if (player == game.me) {
 						card.classList.add("drawinghidden");
 					}
 					if (get.is.singleHandcard() || sort > 1) {
