@@ -13,7 +13,7 @@ const translates = {
 	ylyg_lieren: "烈刃",
 	ylyg_lieren_info: "当你每回合首次使用【杀】指定唯一目标后，你可以与其拼点，赢的角色于此【杀】结算后将所有手牌当【南蛮入侵】使用。",
 	ylyg_juxiang: "巨象",
-	ylyg_juxiang_info: "当一名角色使用【南蛮入侵]时，若使用者不为你，此牌对你无效且你于结算后获得之；否则你可令此牌对体力值大于你的角色造成的伤害+1。",
+	ylyg_juxiang_info: "当一名角色使用【南蛮入侵】时，若使用者不为你，此牌对你无效且你于结算后获得之；否则你可令此牌对体力值大于你的角色造成的伤害+1。",
 	ylyg_xuhuang: "雁翎徐晃",
 	ylyg_xuhuang_prefix: "雁翎",
 	ylyg_duanliang: "断粮",

@@ -23686,7 +23686,7 @@ const skills = {
 			}
 			return 6.5 - get.value(card) - get.value(ui.selected.cards[0]);
 		},
-		filterCard: true,
+		filterCard: lib.filter.cardDiscardable,
 		content() {
 			player.draw(get.color(cards) == "none" ? 2 : 1);
 		},

@@ -10098,7 +10098,7 @@ const skills = {
 				audio: "dcfuji",
 				charlotte: true,
 				onremove: true,
-				trigger: { target: "useCardToTargeted" },
+				trigger: { target: "useCardToPlayered" },
 				intro: { content: "本轮其他角色使用牌指定你为目标后，你可将所有手牌交给一名其他角色并令此牌无效" },
 				mark: true,
 				filter(event, player) {
@@ -10137,7 +10137,6 @@ const skills = {
 					if (evt) {
 						game.log(trigger.card, "被无效了");
 						evt.all_excluded = true;
-						evt.targets.length = 0;
 					}
 				},
 			},
@@ -10921,6 +10920,16 @@ const skills = {
 					["牌堆底", bottom],
 				],
 			]);
+			next.set("top", top);
+			next.set("filterMove", (from, to, moved) => {
+				if (typeof to != "number") {
+					return false;
+				}
+				if (get.event().top?.includes(from.link) && to == 2) {
+					return false;
+				}
+				return true;
+			});
 			next.set("processAI", list => {
 				let player = get.player(),
 					trigger = get.event().getTrigger(),
@@ -10963,7 +10972,6 @@ const skills = {
 				}
 				return null;
 			});
-			game.updateRoundNumber();
 			await game.delay();
 		},
 		subSkill: {
@@ -12270,7 +12278,6 @@ const skills = {
 			if (trigger.player === player) {
 				trigger.getParent().effectCount++;
 			} else {
-				trigger.targets.length = 0;
 				trigger.all_excluded = true;
 			}
 		},
@@ -22042,7 +22049,6 @@ const skills = {
 			const cards = player.getExpansions("dcyanzuo");
 			if (cards.some(card => card.name == trigger.card.name)) {
 				trigger.getParent().all_excluded = true;
-				trigger.getParent().targets.length = 0;
 				const discards = cards.filter(card => card.name == trigger.card.name);
 				if (discards.length) {
 					await player.loseToDiscardpile(discards);
@@ -25625,12 +25631,10 @@ const skills = {
 			},
 		},
 	},
-	xica: {
+	xicha: {
 		trigger: { player: "damageEnd" },
 		filter(event, player) {
-			if (event.source?.countCards("h") !== 0) {
-				return true;
-			}
+			return event.source?.hasCards("h");
 		},
 		getIndex(event, player) {
 			return event.num;
@@ -25638,18 +25642,22 @@ const skills = {
 		check(event, player) {
 			return get.attitude(player, event.source) < 0;
 		},
+		logTarget: "source",
 		async content(event, trigger, player) {
-			let num;
 			const target = trigger.source;
-			if (target.countCards("h") < 2) num = 1;
-			else num = 2;
+			const num = Math.min(target.countCards("h"), 2);
+			if (!num) {
+				return;
+			}
 			const result = await player
-				.chooseButton({
-					createDialog: [`析察：秘密选择${get.cnNumber(num)}张牌，若其下一张牌为这些牌则失效且你获得之`, target.getCards("h")],
+				.choosePlayerCard({
+					prompt: `析察：秘密选择${get.translation(target)}${get.cnNumber(num)}张牌，若其下一张牌为这些牌则失效且你获得之`,
+					position: "h",
 					forced: true,
+					visible: true,
 					selectButton: num,
 					ai(button) {
-						const target = get.event().targetx;
+						const target = get.event().target;
 						const card = button.link;
 						const val = target.getUseValue(card);
 						if (val > 0) {
@@ -25657,29 +25665,51 @@ const skills = {
 						}
 						return get.value(card);
 					},
-					targetx: target,
+					target,
 				})
 				.forResult();
 			if (result?.bool) {
-				target.addGaintag(result.links, "xica_tag");
-				target.when("useCard").then(async (event2, trigger2, player2) => {
-					const card = trigger2.card;
-					player2.removeGaintag("xica_tag", player2.getCards("h"));
+				const tag = `${event.name}_${player.playerid}`;
+				game.addTempTag(tag, "invisible");
+				target.addGaintag(result.links, tag);
+				const effect = `${event.name}_effect`;
+				player.addTempSkill(effect);
+				player.markAuto(effect, [target]);
+			}
+		},
+		subSkill: {
+			effect: {
+				charlotte: true,
+				onremove: true,
+				trigger: { global: "useCard" },
+				filter(event, player) {
+					return player.getStorage("xicha_effect").includes(event.player);
+				},
+				forced: true,
+				popup: false,
+				async content(event, trigger, player) {
+					const target = trigger.player;
+					player.unmarkAuto(event.name, [target]);
+					if (!player.getStorage(event.name).length) {
+						player.removeSkill(event.name);
+					}
+					const card = trigger.card;
+					target.removeGaintag(`xicha_${player.playerid}`);
 					if (
-						player2.hasHistory("lose", evt => {
+						target.hasHistory("lose", evt => {
 							const evtx = evt.relatedEvent || evt.getParent();
-							return evtx === trigger2 && Object.values(evt.gaintag_map).flat().includes("xica_tag");
+							return evtx === trigger && Object.values(evt.gaintag_map).flat().includes(`xicha_${player.playerid}`);
 						})
 					) {
-						trigger2.targets.length = 0;
-						trigger2.all_excluded = true;
+						trigger.targets.length = 0;
+						trigger.all_excluded = true;
 						game.log(card, "被无效了");
-						if (card.cards?.someInD()) {
-							await player.gain(card.cards.filterInD(), "gain2");
+						if (trigger.cards?.someInD()) {
+							await player.gain(trigger.cards.filterInD(), "gain2");
 						}
 					}
-				});
-			}
+				},
+			},
 		},
 	},
 	//胡遵

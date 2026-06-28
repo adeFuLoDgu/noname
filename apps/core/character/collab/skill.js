@@ -960,7 +960,7 @@ const skills = {
 	dcweiqu: {
 		audio: 2,
 		trigger: {
-			target: "useCardToTargeted",
+			target: "useCardToTarget",
 		},
 		filter(event, player) {
 			return event.targets.length == 1 && event.cards.length > 0 && player.countCards("he") > 0;
