@@ -1,4 +1,5 @@
 export default {
+	pot_chengpu: "焚乌荡寇",
 	//pot_xiahouba: "",
 	//pot_chenqun: "",
 	//pot_caozhen: "",

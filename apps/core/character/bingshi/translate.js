@@ -1,6 +1,12 @@
 import { lib, game, ui, get, ai, _status } from "noname";
 
 const translates = {
+	pot_chengpu: "势程普",
+	pot_chengpu_prefix: "势",
+	potduzuo: "督佐",
+	potduzuo_info: "你不因此技能获得牌后，可令一名角色获得一张火【杀】。",
+	potbiqian: "蔽扦",
+	potbiqian_info: "一名角色受到【杀】的伤害时，你可令你或其将手牌弃至当前体力值，令此【杀】伤害-1。",
 	pot_xiahouba: "势夏侯霸",
 	pot_xiahouba_prefix: "势",
 	potlibing: "厉兵",

@@ -43406,13 +43406,18 @@ const skills = {
 		async cost(event, trigger, player) {
 			const { player: target } = trigger;
 			event.result = await player
-				.chooseToDiscard("he", get.prompt(event.name.slice(0, -5), target), "弃置一张牌，令其摸两张牌并进行一个额外的出牌阶段。")
-				.set("ai", card => {
-					const { player, targetx } = get.event();
-					if (get.attitude(player, targetx) < 1) {
-						return 0;
-					}
-					return 9 - get.value(card);
+				.chooseToDiscard({
+					prompt: get.prompt(event.skill, target),
+					prompt2: "弃置一张牌，令其摸两张牌并进行一个额外的出牌阶段",
+					position: "he",
+					ai(card) {
+						const { player, targetx } = get.event();
+						if (get.attitude(player, targetx) < 1) {
+							return 0;
+						}
+						return 9 - get.value(card);
+					},
+					chooseonly: true,
 				})
 				.set("targetx", target)
 				.forResult();
@@ -43420,6 +43425,8 @@ const skills = {
 		logTarget: "player",
 		async content(event, trigger, player) {
 			const { player: target } = trigger;
+			const { cards } = event;
+			await player.modedDiscard(cards);
 			player.line(target, "green");
 			await target.draw(2);
 			const evt = trigger.getParent("phase", true);
