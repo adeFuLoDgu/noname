@@ -960,7 +960,7 @@ const skills = {
 	dcweiqu: {
 		audio: 2,
 		trigger: {
-			target: "useCardToTargeted",
+			target: "useCardToTarget",
 		},
 		filter(event, player) {
 			return event.targets.length == 1 && event.cards.length > 0 && player.countCards("he") > 0;
@@ -1135,6 +1135,10 @@ const skills = {
 				return false;
 			}
 			return true;
+		},
+		check(event, player) {
+			const hs = player.getCards("h");
+			return hs.length < 3 && hs.every(card => !player.hasUseTarget(card));
 		},
 		async content(event, trigger, player) {
 			let card = get.cardPile(card => get.type(card) == "equip" && player.hasUseTarget(card));
@@ -8321,7 +8325,7 @@ const skills = {
 				player(player) {
 					let num1 = 0,
 						num2 = 0;
-					game.countPlayer(function (current) {
+					game.countPlayer(current => {
 						if (player == current) {
 							return;
 						}
@@ -8444,15 +8448,15 @@ const skills = {
 				async content(event, trigger, player) {
 					const result = await player
 						.chooseTarget("请选择【暴雨】的目标", "令目标角色弃置所有手牌。若其没有手牌，则其改为失去1点体力。")
-						.set("ai", target => {
-							const es = target.getCards("h"),
+						.set("ai", current => {
+							const es = current.getCards("h"),
 								player = get.player();
 							if (es.length > 0) {
-								const att = get.attitude(player, target),
-									val = get.value(es, target);
+								const att = get.attitude(player, current),
+									val = get.value(es, current);
 								return -Math.sqrt(att) * val;
 							}
-							return get.effect(target, { name: "losehp" }, player, player);
+							return get.effect(current, { name: "losehp" }, player, player);
 						})
 						.forResult();
 					if (result?.bool) {

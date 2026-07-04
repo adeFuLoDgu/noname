@@ -1,4 +1,6 @@
 export default {
+	pot_zhouyu: "燎琰涤浪",
+	pot_chengpu: "焚乌荡寇",
 	//pot_xiahouba: "",
 	//pot_chenqun: "",
 	//pot_caozhen: "",
