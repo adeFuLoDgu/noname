@@ -727,6 +727,9 @@ game.import("card", function () {
 								return 2;
 							}
 							if (player !== target) {
+								if (get.mode() === "guozhan" && get.attitude(player, target) <= 0) {
+									return 0;
+								}
 								if (target.hp < 0 && taos.length + target.hp <= 0) {
 									return 0;
 								}
