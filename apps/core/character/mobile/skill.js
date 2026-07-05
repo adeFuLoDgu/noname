@@ -21256,7 +21256,7 @@ const skills = {
 					var num = player.maxHp - player.hp;
 					var players = game.filterPlayer();
 					for (var i = 0; i < players.length; i++) {
-						let has_bad_equip=players[i].countCards('e',function(card){return get.equipValue(card)<=0;})>0;
+						let has_bad_equip = players[i].countCards("e", function(card) { return get.equipValue(card) <= 0;}) > 0;
 						if (get.attitude(player, players[i]) > 0) {
 							list1.push(players[i]);
 						} else if (get.attitude(player, players[i]) < 0 && !has_bad_equip) {
@@ -21264,9 +21264,9 @@ const skills = {
 						}
 					}
 					list1.sort(function (a, b) {
-						if (a.countCards('e',function(card){return get.equipValue(card)<=0;})>0) return -1;
-						if (b.countCards('e',function(card){return get.equipValue(card)<=0;})>0) return -1;
-						return a.countCards('e',function(card){return get.equipValue(card)>0;})-b.countCards('e',function(card){return get.equipValue(card)>0;});
+						if (a.countCards("e", function(card) { return get.equipValue(card) <= 0;}) > 0) return -1;
+						if (b.countCards("e", function(card) { return get.equipValue(card) <= 0;}) > 0) return -1;
+						return a.countCards("e", function(card) { return get.equipValue(card) > 0;}) - b.countCards("e", function(card) { return get.equipValue(card) > 0;});
 					});
 					list2.sort(function (a, b) {
 						return b.countCards("e") - a.countCards("e");
@@ -29824,8 +29824,8 @@ const skills = {
 				return false;
 			},
 			effect: {
-				target: function (card,player,target,current) {
-					if (card.name=='sha'&&target.isDamaged()&&target.getFriends().length>0) return 'zeroplayertarget';
+				target(card, player, target, current) {
+					if (card.name == "sha" && target.isDamaged() && target.getFriends().length > 0) return "zeroplayertarget";
 				}
 			},
 		},
@@ -30269,9 +30269,9 @@ const skills = {
 		check(card) {
 			const player = get.player();
 			const type = get.type2(card);
-			if (!game.hasPlayer(function(current){
-				return get.attitude(player,current)<0;
-			})){
+			if (!game.hasPlayer(function(current) {
+				return get.attitude(player, current) < 0;
+			})) {
 				return 0;
 			}
 			if (!["basic", "equip", "trick"].includes(type)) {

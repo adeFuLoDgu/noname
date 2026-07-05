@@ -864,7 +864,7 @@ const skills = {
 		prompt: "将一张装备牌当无距离限制的【杀】使用或打出",
 		check(card) {
 			var val = get.value(card);
-			if (lib.skill.oldjiefan.ai.result.player(_status.event.player)>0) return 10-val;
+			if (lib.skill.oldjiefan.ai.result.player(_status.event.player) > 0) return 10 - val;
 			if (_status.event.name == "chooseToRespond") {
 				return 1 / Math.max(0.1, val);
 			}
@@ -933,11 +933,11 @@ const skills = {
 			save: true,
 			order: 3,
 			result: {
-				player: function (player,target) {
-					let evt=_status.event.getParent('_save');
-					let card={name:'tao',isCard:true};
-					let current_player=_status.currentPhase;
-					if (player!=current_player&&evt&&evt.dying&&get.attitude(player,evt.dying)>0&&lib.filter.cardUsable(card,player,evt.dying)) return 1;
+				player(player, target) {
+					let evt = _status.event.getParent("_save");
+					let card = { name: "tao", isCard: true};
+					let current_player = _status.currentPhase;
+					if (player != current_player && evt && evt.dying && get.attitude(player, evt.dying) > 0 && lib.filter.cardUsable(card, player, evt.dying)) return 1;
 					return 0;
 				},
 			},
@@ -956,7 +956,7 @@ const skills = {
 					trigger.cancel();
 					const evt = event.getParent("_save");
 					const card = { name: "tao", isCard: true };
-					if (evt && evt.dying && lib.filter.cardUsable(card, player, evt.dying)){
+					if (evt && evt.dying && lib.filter.cardUsable(card, player, evt.dying)) {
 						await player.useCard({
 							card: get.autoViewAs(card),
 							targets: [evt.dying],
@@ -1462,9 +1462,9 @@ const skills = {
 			},
 		},
 		ai:{
-			effect:{
-				player:function(card,player,target,current){
-					if(player.isEmpty(2)&&get.type(card)=='equip'&&get.subtype(card)=='equip2') return 'zeroplayertarget';
+			effect: {
+				player(card, player, target, current) {
+					if (player.isEmpty(2) && get.type(card) == "equip" && get.subtype(card) == "equip2") return "zeroplayertarget";
 				}
 			}
 		},

@@ -23,17 +23,17 @@ let extensionPackage = {
 		}
 		if (load_cards) {
 			let add_deleted_yinbian_card_pile = {
-				name:'add_deleted_yinbian_card_pile',
-				connect:true,
-				card:{
+				name: "add_deleted_yinbian_card_pile",
+				connect: true,
+				card: {
 				},
-				skill:{
+				skill: {
 				},
-				translate:{
+				translate: {
 				},
-				list:[],
+				list: [],
 			}
-			add_deleted_yinbian_card_pile.list=[
+			add_deleted_yinbian_card_pile.list = [
 				["heart", 2, "huogong"],
 				["heart", 3, "huogong"],
 				["diamond", 12, "huogong"],
@@ -48,12 +48,12 @@ let extensionPackage = {
 				["club", 13, "jiedao"],
 				["spade", 2, "hanbing"],
 			];
-			game.import('card',function(lib,game,ui,get,ai,_status){
+			game.import("card", function(lib, game, ui, get, ai, _status) {
 				return add_deleted_yinbian_card_pile;
 			});
-			lib.translate['add_deleted_yinbian_card_pile_card_config']='补应变卡';
-			lib.config.all.cards.push('add_deleted_yinbian_card_pile');
-			if(!lib.config.cards.includes('add_deleted_yinbian_card_pile')) lib.config.cards.push('add_deleted_yinbian_card_pile');
+			lib.translate["add_deleted_yinbian_card_pile_card_config"] = "补应变卡";
+			lib.config.all.cards.push("add_deleted_yinbian_card_pile");
+			if (!lib.config.cards.includes("add_deleted_yinbian_card_pile")) lib.config.cards.push("add_deleted_yinbian_card_pile");
 		}
 	},
 	files: { character: [], card: [], skill: [], audio: [] },

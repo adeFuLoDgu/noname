@@ -104,7 +104,7 @@ const cards = {
 		ai: {
 			order: 9.5,
 			equipValue(card, player) {
-				if (get.position(card)=='e'&&player.isDamaged()) return -3;
+				if (get.position(card) === "e" && player.isDamaged()) return -3;
 				if (player.hp == player.maxHp) {
 					return 5;
 				}

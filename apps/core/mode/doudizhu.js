@@ -3037,7 +3037,7 @@ export default () => {
 				content() {
 					game.broadcastAll(function() {
 						if (!window.decadeUI) return;
-						decadeUI.animation.playSpine('aozhan', { scale: 1.0 });
+						decadeUI.animation.playSpine("aozhan", { scale: 1.0 });
 					});
 					var color = get.groupnature(player.group, "raw");
 					if (player.isUnseen()) {

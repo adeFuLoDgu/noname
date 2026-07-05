@@ -51,11 +51,11 @@ const card = {
 			value: [5, 1],
 			result: {
 				target(player, target) {
-					if (target.hasSkillTag('directHit_ai',true,{
-						player:target,
-						target:player,
-						card:{name:'sha'},
-					},true)){
+					if (target.hasSkillTag("directHit_ai", true, {
+						player: target,
+						target: player,
+						card: { name: "sha" },
+					}, true)) {
 						return 0;
 					}
 					if (player.hasShan()) {
@@ -286,18 +286,18 @@ const card = {
 			useful: 6,
 			value: 6,
 			result: {
-				target: function(player,target) {
-					if (target.getCards('h').length==0){
-						let bad_equip_num=0;
-						for (let i=0;i<target.getCards('e').length;i++){
-							if (get.equipValue(target.getCards('e')[i])<=0) bad_equip_num+=1;
+				target(player, target) {
+					if (target.getCards("h").length == 0) {
+						let bad_equip_num = 0;
+						for (let i = 0; i < target.getCards("e").length; i++) {
+							if (get.equipValue(target.getCards("e")[i]) <= 0) bad_equip_num += 1;
 						}
-						if (bad_equip_num==target.getCards('e').length) return 0;
+						if (bad_equip_num == target.getCards("e").length) return 0;
 					}
-					if (game.players.length>2){
-						var list=player.getEnemies();
-						for (var i=0;i<list.length;i++){
-							if (list[i].getEquip('shanrangzhaoshu')) return 0;
+					if (game.players.length > 2) {
+						var list = player.getEnemies();
+						for (var i = 0; i < list.length; i++) {
+							if (list[i].getEquip("shanrangzhaoshu")) return 0;
 						}
 					}
 					return -1;
@@ -372,38 +372,38 @@ const card = {
 			result: {
 				target(player, target) {
 					for (var i = 0; i < game.players.length; i++) {
-						if (get.attitude(player, game.players[i]) <= 0 && game.players[i].hasSkill('dclaoyan')) return 0;
+						if (get.attitude(player, game.players[i]) <= 0 && game.players[i].hasSkill("dclaoyan")) return 0;
 					}
-					if (game.players.length>2){
-						var list=target.getFriends(true);
-						for (var i=0;i<list.length;i++){
-							if (list[i].hasSkill('sphuangen')&&list[i].hp>1) return 0;
+					if (game.players.length > 2) {
+						var list = target.getFriends(true);
+						for (var i =0 ; i < list.length; i++) {
+							if (list[i].hasSkill("sphuangen") && list[i].hp > 1) return 0;
 						}
 					}
-					var do_not_use=false;
-					var friend_list=player.getFriends(true);
-					for (var i=0;i<friend_list.length;i++){
-						var treasures=friend_list[i].getEquips(5);
-						for (var treasure of treasures){
-							if (friend_list[i].getCards('e').length==1){
-								if (treasure.name=='muniu'&&treasure.cards&&treasure.cards.length>0){
-									do_not_use=true;
+					var do_not_use = false;
+					var friend_list = player.getFriends(true);
+					for (var i = 0; i < friend_list.length; i++) {
+						var treasures = friend_list[i].getEquips(5);
+						for (var treasure of treasures) {
+							if (friend_list[i].getCards("e").length == 1) {
+								if (treasure.name == "muniu" && treasure.cards && treasure.cards.length > 0) {
+									do_not_use = true;
 									break;
 								}
-								if (friend_list[i].getCards('h').length>0&&_status.jinhe&&_status.jinhe[treasure.cardid]){
-									do_not_use=true;
+								if (friend_list[i].getCards("h").length > 0 && _status.jinhe && _status.jinhe[treasure.cardid]) {
+									do_not_use = true;
 									break;
 								}
 							}
 						}
 					}
 					if (do_not_use) return 0;
-					var card=target.getCards('e');
-					var val=0;
-					for (var i=0;i<card.length;i++){
+					var card = target.getCards("e");
+					var val = 0;
+					for (var i = 0; i < card.length; i++) {
 						if (lib.filter.cardDiscardable(card[i], target)) val+=get.equipValue(card[i]);
 					}
-					if (val>0) return -val;
+					if (val > 0) return -val;
 					return 0;
 				},
 			},

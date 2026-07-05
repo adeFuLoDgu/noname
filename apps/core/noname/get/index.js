@@ -3249,7 +3249,7 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 	 * 裝備欄排序用函數
 	 */
 	sort_equipNum(old_equip_num) {
-		if (old_equip_num==5) return -1;
+		if (old_equip_num == 5) return -1;
 		return old_equip_num;
 	}
 	/**

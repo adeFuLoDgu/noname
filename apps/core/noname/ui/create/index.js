@@ -2785,8 +2785,8 @@ export class Create {
 					return new Promise((resolve, reject) => {
 						if (game.online) {
 							try {
-								game.ws.send(JSON.stringify(['cardPile']));
-								game.ws.addEventListener('message', function (e) {
+								game.ws.send(JSON.stringify(["cardPile"]));
+								game.ws.addEventListener("message", function (e) {
 									let received_data = JSON.parse(e.data)[0];
 									let received_message_data_type = JSON.parse(e.data)[1];
 									if (received_message_data_type == "cardPile") {
@@ -3296,7 +3296,7 @@ export class Create {
 			delete node.activate;
 		};
 		_status.prebutton.push(node);
-		if (window.decadeUI&&position) position.appendChild(node);
+		if (window.decadeUI && position) position.appendChild(node);
 		return node;
 	}
 	buttonPresets = {

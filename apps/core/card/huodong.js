@@ -1595,7 +1595,7 @@ export default {
 						if (game.players.length > 2) {
 							if (target.hasSkill("sphuangen") && target.hp > 0) return 0;
 							var list = target.getFriends(true);
-							for (var i = 0; i < list.length; i++){
+							for (var i = 0; i < list.length; i++) {
 								if (list[i].hasSkill("sphuangen") && list[i].hp > 1) return 0;
 							}
 						}
@@ -1872,7 +1872,7 @@ export default {
 				result: {
 					target: (player, target) => {
 						if (game.players.length > 2) {
-							var list=player.getEnemies();
+							var list = player.getEnemies();
 							for (var i = 0; i < list.length; i++) {
 								if (list[i].hasSkill("sphuangen") && list[i].hp > 1) return 0;
 							}

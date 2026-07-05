@@ -437,7 +437,7 @@ export default {
 				result: {
 					target: (player, target) => {
 						for (var i = 0; i < game.players.length; i++) {
-						if (get.attitude(player, game.players[i]) <= 0 && game.players[i].hasSkill('dclaoyan')) return 0;
+						if (get.attitude(player, game.players[i]) <= 0 && game.players[i].hasSkill("dclaoyan")) return 0;
 						}
 						if (game.players.length > 2) {
 							var list = player.getEnemies();
@@ -711,7 +711,7 @@ export default {
 			ai: {
 				order: 9.5,
 				equipValue(card, player) {
-					if (get.position(card)=='e'&&player.isDamaged()) return -1;
+					if (get.position(card) === "e" && player.isDamaged()) return -1;
 					if (player.hp === player.maxHp) {
 						return 5;
 					}

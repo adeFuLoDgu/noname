@@ -82,10 +82,10 @@ export class Check {
 			}
 
 			if (window.decadeUI) {
-				if (item.classList.contains('selected')||item.classList.contains('selectable')){
-					item.classList.remove('un-selectable');
+				if (item.classList.contains("selected") || item.classList.contains("selectable")) {
+					item.classList.remove("un-selectable");
 				} else {
-					item.classList.add('un-selectable');
+					item.classList.add("un-selectable");
 				}
 			}
 

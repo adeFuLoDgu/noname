@@ -3950,7 +3950,7 @@ const skills = {
 				ai: {
 					result: {
 						target(player, target) {
-							if (get.attitude(player, target) > 3){
+							if (get.attitude(player, target) > 3) {
 								if (target.isLinked() && !target.hasSkill("nzry_jieying")) return 5;
 								if (target.isTurnedOver()) return 10;
 							}
@@ -8109,8 +8109,8 @@ const skills = {
 			result: {
 				player(player) {
 					if (_status.event.dying) {
-						let taos=player.getCards('h',i=>get.name(i)==='tao');
-						return _status.event.dying.hp+taos.length+1>0?get.attitude(player,_status.event.dying):0;
+						let taos = player.getCards("h", i => get.name(i) === "tao");
+						return _status.event.dying.hp + taos.length + 1 > 0 ? get.attitude(player, _status.event.dying) : 0;
 					}
 					return 1;
 				},

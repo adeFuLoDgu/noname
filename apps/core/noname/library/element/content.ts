@@ -6831,7 +6831,7 @@ export const Content: Record<string, ContentFuncByAll | ContentFuncsByAll> = {
 				} else {
 					event.compareName = event.parent.name;
 				}
-				game.broadcastAll(function(player, target, eventName){
+				game.broadcastAll(function(player, target, eventName) {
 					if (window.decadeUI) {
 						var dialog = decadeUI.create.compareDialog();
 						dialog.caption = get.translation(eventName) + '拼点';
@@ -6927,7 +6927,7 @@ export const Content: Record<string, ContentFuncByAll | ContentFuncsByAll> = {
 		async (event, trigger, player) => {
 			game.log(player, "的拼点牌为", event.card1);
 			if (window.decadeUI) {
-				game.broadcastAll(function(eventName, playerCard){
+				game.broadcastAll(function(eventName, playerCard) {
 					if (window.decadeUI) {
 						var dialog = ui.dialogs[eventName];
 						dialog.playerCard = playerCard.copy();
@@ -6951,7 +6951,7 @@ export const Content: Record<string, ContentFuncByAll | ContentFuncsByAll> = {
 					player.$compare(event.card1, event.target, event.card2);
 					event.target.showCards(event.card2).set("triggeronly", true);
 				} else {
-					game.broadcastAll(function(eventName, player, target, playerCard, targetCard){
+					game.broadcastAll(function(eventName, player, target, playerCard, targetCard) {
 						if (window.decadeUI) {
 							var dialog = ui.dialogs[eventName];
 							dialog.show();
@@ -6963,11 +6963,11 @@ export const Content: Record<string, ContentFuncByAll | ContentFuncsByAll> = {
 				}
 			} else {
 				if (window.decadeUI) {
-					game.broadcastAll(function(eventName){
+					game.broadcastAll(function(eventName) {
 						if (window.decadeUI) {
 							var dialog = ui.dialogs[eventName];
 							dialog.close();
-							setTimeout(function(dialog){
+							setTimeout(function(dialog) {
 								dialog.player.$throwordered2(dialog.playerCard, true);
 							}, 110, dialog);
 						}
@@ -7024,10 +7024,10 @@ export const Content: Record<string, ContentFuncByAll | ContentFuncsByAll> = {
 					if (window.decadeUI) {
 						var dialog = ui.dialogs[eventName];
 						dialog.$playerCard.dataset.result = result ? '赢' : '没赢';
-						setTimeout(function(dialog, eventName){
+						setTimeout(function(dialog, eventName) {
 							dialog.hide();
 							dialog.$playerCard.dataset.result = '';
-							setTimeout(function(dialog){
+							setTimeout(function(dialog) {
 								dialog.target.$throwordered2(dialog.targetCard, true);
 							}, 180, dialog);
 						}, 1400, dialog, eventName);
@@ -7106,7 +7106,7 @@ export const Content: Record<string, ContentFuncByAll | ContentFuncsByAll> = {
 					}
 				}
 				if (!event.isDelay) {
-					game.broadcastAll(function(player, target, eventName){
+					game.broadcastAll(function(player, target, eventName) {
 						if (window.decadeUI) {
 							var dialog = decadeUI.create.compareDialog();
 							dialog.caption = get.translation(eventName) + '拼点';
@@ -7150,7 +7150,7 @@ export const Content: Record<string, ContentFuncByAll | ContentFuncsByAll> = {
 			}
 			event.card1 = lose_list[0][1][0];
 			if (window.decadeUI && !event.isDelay) {
-				game.broadcastAll(function(eventName){
+				game.broadcastAll(function(eventName) {
 					if (window.decadeUI) {
 						var dialog = ui.dialogs[eventName];
 						dialog.$playerCard.classList.add('infohidden');
@@ -7180,7 +7180,7 @@ export const Content: Record<string, ContentFuncByAll | ContentFuncsByAll> = {
 			}
 			event.card2 = card2;
 			if (window.decadeUI && !event.isDelay) {
-				game.broadcastAll(function(eventName){
+				game.broadcastAll(function(eventName) {
 					if (window.decadeUI) {
 						var dialog = ui.dialogs[eventName];
 						dialog.$targetCard.classList.add('infohidden');
@@ -7243,7 +7243,7 @@ export const Content: Record<string, ContentFuncByAll | ContentFuncsByAll> = {
 				game.addVideo("thrownhighlight1");
 				player.$compare(event.card1, event.compareWithCardPile ? player : target, event.card2);
 			} else {
-				game.broadcastAll(function(eventName, player, target, playerCard, targetCard){
+				game.broadcastAll(function(eventName, player, target, playerCard, targetCard) {
 					if (window.decadeUI) {
 						var dialog = ui.dialogs[eventName];
 						dialog.playerCard = playerCard.copy();
@@ -7329,9 +7329,9 @@ export const Content: Record<string, ContentFuncByAll | ContentFuncsByAll> = {
 					if (window.decadeUI) {
 						var dialog = ui.dialogs[eventName];
 						dialog.$playerCard.dataset.result = result ? '赢' : '没赢';
-						setTimeout(function(dialog, eventName){
+						setTimeout(function(dialog, eventName) {
 							dialog.close();
-							setTimeout(function(dialog){
+							setTimeout(function(dialog) {
 								dialog.player.$throwordered2(dialog.playerCard, true);
 								dialog.target.$throwordered2(dialog.targetCard, true);
 							}, 180, dialog);
@@ -7390,7 +7390,7 @@ export const Content: Record<string, ContentFuncByAll | ContentFuncsByAll> = {
 				game.addVideo("thrownhighlight1");
 				player.$compare(event.card1, target, event.card2);
 			} else {
-				game.broadcastAll(function(eventName, player, target, playerCard, targetCard){
+				game.broadcastAll(function(eventName, player, target, playerCard, targetCard) {
 					if (window.decadeUI) {
 						var dialog = decadeUI.create.compareDialog();
 						dialog.caption = get.translation(eventName) + '拼点';
@@ -7469,9 +7469,9 @@ export const Content: Record<string, ContentFuncByAll | ContentFuncsByAll> = {
 					if (window.decadeUI) {
 						var dialog = ui.dialogs[eventName];
 						dialog.$playerCard.dataset.result = result ? '赢' : '没赢';
-						setTimeout(function(dialog, eventName){
+						setTimeout(function(dialog, eventName) {
 							dialog.close();
-							setTimeout(function(dialog){
+							setTimeout(function(dialog) {
 								dialog.player.$throwordered2(dialog.playerCard, true);
 								dialog.target.$throwordered2(dialog.targetCard, true);
 							}, 180, dialog);
@@ -12441,9 +12441,9 @@ export const Content: Record<string, ContentFuncByAll | ContentFuncsByAll> = {
 			return;
 		}
 
-		game.broadcastAll(function(player){
+		game.broadcastAll(function(player) {
 			if (!window.decadeUI) return;
-			decadeUI.animation.playSpine('effect_loseHp', { scale: 0.6, parent: player });
+			decadeUI.animation.playSpine("effect_loseHp", { scale: 0.6, parent: player });
 		}, player);
 
 		if (lib.config.background_audio) {

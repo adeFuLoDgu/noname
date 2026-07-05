@@ -4637,7 +4637,7 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 							}
 							break;
 						case 'judge':
-							event.addMessageHook('judgeResult', function(){
+							event.addMessageHook("judgeResult", function(){
 								var event = this;
 								var card = event.result.card.clone;
 								var apcard = event.apcard;
@@ -4971,7 +4971,7 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 								return this;
 							},
 							show:function(){
-								this.style.animation = 'open-dialog 0.4s';;
+								this.style.animation = 'open-dialog 0.4s';
 							},
 							hide:function(){
 								this.style.animation = 'close-dialog 0.1s forwards';

@@ -75,9 +75,9 @@ const card = {
 				event.dialog.setCaption("选择一张牌并用一张手牌替换之");
 			}
 			var next = target.chooseButton(function (button) {
-				var list=target.getEnemies();
-				for (var i=0;i<list.length;i++){
-					if (list[i].getEquip('shanrangzhaoshu')) return 0;
+				var list = target.getEnemies();
+				for (var i = 0; i < list.length; i++) {
+					if (list[i].getEquip("shanrangzhaoshu")) return 0;
 				}
 				return get.value(button.link, _status.event.player) - minValue;
 			});
@@ -190,11 +190,11 @@ const card = {
 				value: [5, 1],
 			},
 			result: {
-				player: (player, target) => {
-					if (game.players.length>2&&player.hasFriend()){
-						var list=player.getEnemies();
-						for (var i=0;i<list.length;i++){
-							if (list[i].getEquip('shanrangzhaoshu')) return 0;
+				player(player, target) {
+					if (game.players.length > 2 && player.hasFriend()) {
+						var list = player.getEnemies();
+						for (var i = 0; i < list.length; i++) {
+							if (list[i].getEquip("shanrangzhaoshu")) return 0;
 						}
 					}
 					return 1 / game.countPlayer();
@@ -203,10 +203,10 @@ const card = {
 					if (target.countCards("h") === 0) {
 						return 0;
 					}
-					if (game.players.length>2&&player.hasFriend()){
-						var list=player.getEnemies();
-						for (var i=0;i<list.length;i++){
-							if (list[i].getEquip('shanrangzhaoshu')) return 0;
+					if (game.players.length > 2 && player.hasFriend()) {
+						var list = player.getEnemies();
+						for (var i = 0; i < list.length; i++) {
+							if (list[i].getEquip("shanrangzhaoshu")) return 0;
 						}
 					}
 					return (Math.sqrt(target.countCards("h")) - get.distance(player, target, "absolute") / game.countPlayer() / 3) / 2;

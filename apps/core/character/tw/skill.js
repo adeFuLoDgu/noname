@@ -22848,7 +22848,7 @@ const skills = {
 						player
 							.chooseBool("征建：是否对" + get.translation(target) + "造成1点伤害？")
 							.set("ai", () => _status.event.goon)
-							.set("goon", get.damageEffect(target, player, _status.event.player) > 0 && get.attitude(target,player)<0);
+							.set("goon", get.damageEffect(target, player, _status.event.player) > 0 && get.attitude(target, player) < 0);
 					} else {
 						target.chooseCard("he", true, "交给" + get.translation(player) + "一张牌");
 					}
@@ -22907,7 +22907,7 @@ const skills = {
 						player
 							.chooseBool("征建：是否对" + get.translation(target) + "造成1点伤害？")
 							.set("ai", () => _status.event.goon)
-							.set("goon", get.damageEffect(target, player, _status.event.player) > 0 && get.attitude(target,player)<0);
+							.set("goon", get.damageEffect(target, player, _status.event.player) > 0 && get.attitude(target, player) < 0);
 					} else {
 						target.chooseCard("he", true, "交给" + get.translation(player) + "一张牌");
 					}
@@ -28268,7 +28268,7 @@ const skills = {
 			"step 3";
 			if (target.isDamaged() && target.hp <= player.hp) {
 				player.chooseBool("是否令" + get.translation(target) + "回复1点体力？").set("ai", function () {
-					return get.recoverEffect(target, player, player) && get.attitude(target,player)>0;
+					return get.recoverEffect(target, player, player) && get.attitude(target, player) > 0;
 				});
 			}
 			"step 4";
@@ -28280,7 +28280,7 @@ const skills = {
 			order: 8,
 			result: {
 				target(player, target) {
-					var eff = target.isDamaged() && get.attitude(target,player)>0 ? get.recoverEffect(target, player, target) : 0;
+					var eff = target.isDamaged() && get.attitude(target, player) > 0 ? get.recoverEffect(target, player, target) : 0;
 					if (eff <= 0 && !player.countGainableCards(target, "e")) {
 						return -1;
 					}
@@ -28394,7 +28394,7 @@ const skills = {
 			},
 			result: {
 				target(player, target) {
-					if (get.attitude(player,target)<0&&get.effect(target,{name:'sha'},player,player)>0) return -1;
+					if (get.attitude(player, target) < 0 && get.effect(target, { name: "sha" }, player, player) > 0) return -1;
 				},
 			},
 		},

@@ -96,7 +96,7 @@ const skills = {
 		},
 		forced: true,
 		async content(event, trigger, player) {
-			if (!trigger.card || !(trigger.cards&&trigger.cards.length)) {
+			if (!trigger.card || !(trigger.cards && trigger.cards.length)) {
 				trigger.num++;
 				event.finish();
 				return;

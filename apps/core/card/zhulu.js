@@ -177,7 +177,7 @@ export default {
 				result: {
 					target(player, target) {
 						for (var i = 0; i < game.players.length; i++) {
-							if (get.attitude(player, game.players[i]) <= 0 && game.players[i].hasSkill('dclaoyan')) return 0;
+							if (get.attitude(player, game.players[i]) <= 0 && game.players[i].hasSkill("dclaoyan")) return 0;
 						}
 						if (game.players.length > 2) {
 							var list = player.getEnemies();
@@ -245,12 +245,12 @@ export default {
 				result: {
 					target(player, target, card) {
 						if (target == player) {
-							var cards = target.getCards("he");
+							var h_cards = target.getCards("he");
 							var du_count = 0;
-							for (var i = 0; i < cards.length; i++) {
-								if (cards[i].name == "du") du_count += 1;
+							for (var i = 0; i < h_cards.length; i++) {
+								if (h_cards[i].name == "du") du_count += 1;
 							}
-							if (cards.length <= 1 + du_count) return 0;
+							if (h_cards.length <= 1 + du_count) return 0;
 						}
 						const cards = ui.selected.cards.concat(card.cards || []);
 						const num = player.countCards("he", card => {
@@ -366,8 +366,8 @@ export default {
 				});
 			},
 			ai: {
-				wuxie: function (target,card,player,current,state) {
-					return -state*get.attitude(player,current);
+				wuxie: function (target, card, player, current, state) {
+					return -state * get.attitude(player, current);
 				},
 				basic: {
 					useful: [6, 4],
@@ -748,8 +748,8 @@ export default {
 			ai: {
 				order: 9.5,
 				equipValue(card, player) {
-					if ((get.position(card?.cards?.[0]) === "e") && card?.cards?.[0]?.cardid) return 1+3*player.countCards('h');
-					if (_status.jinhe&&_status.jinhe[card.cardid]&&(_status.event.name=='discardPlayerCard'||_status.event.name=='chooseToDiscard'||_status.event.name=='chooseToUse')) return 1+3*player.countCards('h');
+					if ((get.position(card?.cards?.[0]) === "e") && card?.cards?.[0]?.cardid) return 1 + 3 * player.countCards("h");
+					if (_status.jinhe && _status.jinhe[card.cardid] && (_status.event.name == "discardPlayerCard" || _status.event.name == "chooseToDiscard" || _status.event.name == "chooseToUse")) return 1 + 3 * player.countCards("h");
 					return 0;
 				},
 				value() {
@@ -757,8 +757,8 @@ export default {
 				},
 				basic: {
 					equipValue: 5,
-					value: function(card,player,i) {
-						if (_status.jinhe&&_status.jinhe[card.cardid]&&(_status.event.name=='discardPlayerCard'||_status.event.name=='chooseToDiscard'||_status.event.name=='chooseToUse')) return 1+2*player.countCards('h');
+					value: function(card, player, i) {
+						if (_status.jinhe && _status.jinhe[card.cardid] && (_status.event.name == "discardPlayerCard" || _status.event.name == "chooseToDiscard" || _status.event.name == "chooseToUse")) return 1 + 2 * player.countCards("h");
 						return 0;
 					},
 				},
@@ -896,7 +896,7 @@ export default {
 			ai: {
 				basic: {
 					order: 1,
-				}
+				},
 				result: {
 					player(player) {
 						var cards = player.getCards("h");

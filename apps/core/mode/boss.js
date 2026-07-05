@@ -534,8 +534,8 @@ export default () => {
 					order: 12,
 					result: {
 						target(player, target) {
-							let active_skills=target.getStockSkills(false);
-							return active_skills.length>0?-2:0;
+							let active_skills = target.getStockSkills(false);
+							return active_skills.length > 0 ? -2 : 0;
 						},
 					},
 				},
@@ -588,8 +588,8 @@ export default () => {
 				modeimage: "boss",
 				distance: { attackFrom: -8 },
 				ai: {
-					equipValue: function(card,player) {
-						return get.mode()=='boss'?7.5:3;
+					equipValue: function(card, player) {
+						return get.mode() === "boss" ? 7.5 : 3;
 					},
 					basic: {
 						equipValue: 3,
@@ -731,11 +731,11 @@ export default () => {
 							if (target.hasSha() && _status.event.getRand() < 0.5) {
 								return 1;
 							}
-							if (target.getCards('h').length>4) return 1;
-							let target_equips=target.getCards('e');
-							if (target_equips.length>0){
-								for (var i=0;i<target_equips.length;i++){
-									if (get.equipValue(target_equips[i])<=0) return 1;
+							if (target.getCards("h").length > 4) return 1;
+							let target_equips = target.getCards("e");
+							if (target_equips.length > 0) {
+								for (var i = 0; i < target_equips.length; i++) {
+									if (get.equipValue(target_equips[i]) <= 0) return 1;
 								}
 							}
 							return -2;
@@ -3110,21 +3110,21 @@ export default () => {
 								.set("choiceList", list)
 								.set("prompt", get.prompt("shanrangzhaoshu", target))
 								.set("ai", function () {
-									var give_me='cancel2';
-									for (var i=0;i<list.length;i++){
-										if(list[i].indexOf('令')==0) give_me=i;break;
+									var give_me = "cancel2";
+									for (var i = 0; i < list.length; i++) {
+										if (list[i].indexOf("令") == 0) give_me = i; break;
 									}
-									var source_player=_status.event.player;
-									var target_player=_status.event.getParent().target;
-									var target_player_handcards=target_player.getCards('h');
-									var target_player_gain_history=target_player.getHistory('gain');
-									for (var i=0;i<target_player_gain_history.length;i++){
-										for (var j=0;j<target_player_gain_history[i].cards.length;j++){
-											var current_card=target_player_gain_history[i].cards[j];
-											if (target_player_handcards.includes(current_card)&&current_card.name=='du') return 'cancel2';
+									var source_player = _status.event.player;
+									var target_player = _status.event.getParent().target;
+									var target_player_handcards = target_player.getCards("h");
+									var target_player_gain_history = target_player.getHistory("gain");
+									for (var i = 0; i < target_player_gain_history.length; i++) {
+										for (var j = 0; j < target_player_gain_history[i].cards.length; j++) {
+											var current_card = target_player_gain_history[i].cards[j];
+											if (target_player_handcards.includes(current_card) && current_card.name == "du") return "cancel2";
 										}
 									}
-									if (get.attitude(_status.event.player,_status.event.getParent().target)<0) return give_me;
+									if (get.attitude(_status.event.player, _status.event.getParent().target) < 0) return give_me;
 									return "cancel2";
 								});
 						}

@@ -19354,15 +19354,15 @@ const skills = {
 			},
 			result: {
 				target(player, target) {
-					var att=get.attitude(player,target);
-					let bad_equip_num=target.countCards('e',function(card){
-						return get.equipValue(card)<0;
+					var att = get.attitude(player, target);
+					let bad_equip_num = target.countCards("e", function(card) {
+						return get.equipValue(card) < 0;
 					});
-					let good_equip_num=target.countCards('e',function(card){
-						return get.equipValue(card)>=0;
+					let good_equip_num = target.countCards("e", function(card) {
+						return get.equipValue(card) >= 0;
 					});
-					if (att>0&&bad_equip_num>0) return target.hasSkillTag('noe')?3:1;
-					if (att<=0&&good_equip_num>0&&get.effect(target,{name:'sha'},player,player)>0&&!target.hasSkillTag('noe')) return -1;
+					if (att > 0 && bad_equip_num > 0) return target.hasSkillTag("noe") ? 3 : 1;
+					if (att <= 0 && good_equip_num > 0 && get.effect(target, { name: "sha" }, player, player) > 0 && !target.hasSkillTag("noe")) return -1;
 					return 0;
 				},
 			},

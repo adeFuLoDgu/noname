@@ -4575,7 +4575,7 @@ export default () => {
 									num--;
 								}
 								if (game.zhu.hp >= 3 && situation > 1) {
-									num=6;
+									num = 6;
 								}
 								return num;
 							case "commoner":

@@ -1573,11 +1573,11 @@ export class Player extends HTMLDivElement {
 			return 0;
 		}
 		if (get.type(card, null, target) == "equip") {
-			var target_equip_cards=target.getEquips(get.equipNum(card));
-			for (let target_equip_card of target_equip_cards){
-				if (target_equip_card){
-					if (get.equipValue(target_equip_card)<=0&&get.equipValue(card)<=0) return 0;
-					if (get.equipValue(target_equip_card)>0&&get.equipValue(card)<=0) return -1+get.equipValue(card);
+			var target_equip_cards = target.getEquips(get.equipNum(card));
+			for (let target_equip_card of target_equip_cards) {
+				if (target_equip_card) {
+					if (get.equipValue(target_equip_card) <= 0 && get.equipValue(card) <= 0) return 0;
+					if (get.equipValue(target_equip_card) > 0 && get.equipValue(card) <= 0) return -1 + get.equipValue(card);
 				}
 			}
 			return get.effect(target, card, target, target);
@@ -1603,8 +1603,8 @@ export class Player extends HTMLDivElement {
 		if (target.hasSkillTag("nogain")) {
 			return 0;
 		}
-		if (game.hasPlayer(function(current){
-			return current.getEquip('shanrangzhaoshu')&&get.attitude(target,current)<0;
+		if (game.hasPlayer(function(current) {
+			return current.getEquip("shanrangzhaoshu") && get.attitude(target, current) < 0;
 		})) return 0;
 		return Math.max(1, get.value(card, this) - get.value(card, target));
 	}

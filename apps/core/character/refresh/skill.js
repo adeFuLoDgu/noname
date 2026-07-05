@@ -2840,7 +2840,7 @@ const skills = {
 						) {
 							return true;
 						}
-						return evt.player.countCards('h')>3?true:false;
+						return evt.player.countCards("h") > 3 ? true : false;
 					})
 					.forResult();
 				if (!result) {
@@ -11413,7 +11413,7 @@ const skills = {
 			order: 14,
 			result: {
 				player(player) {
-					if (get.mode()=='identity'&&player.hasUnknown(2)) return 0;
+					if (get.mode() === "identity" && player.hasUnknown(2)) return 0;
 					if (player.hp < 3) {
 						return false;
 					}
@@ -15957,10 +15957,10 @@ const skills = {
 		},
 		ai: {
 			effect: {
-				player: function(card,player,target,current) {
-					var draw_two_cards=get.tag(card,'draw')>1;
-					if (player.hasSkill('keji')&&!player.hasSkill('gongxin')&&!draw_two_cards){
-						return 'zeroplayertarget';
+				player(card, player, target, current) {
+					var draw_two_cards = get.tag(card, "draw") > 1;
+					if (player.hasSkill("keji") && !player.hasSkill("gongxin") && !draw_two_cards) {
+						return "zeroplayertarget";
 					}
 				}
 			}

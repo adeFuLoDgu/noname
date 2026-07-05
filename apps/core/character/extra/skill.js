@@ -1600,11 +1600,11 @@ const skills = {
 		derivation: ["jilue", "jilue_guicai", "jilue_fangzhu", "jilue_jizhi", "jilue_zhiheng", "jilue_wansha"],
 		ai: {
 			combo: "renjie",
-			effect:{
-				player:function(card,player,target,current){
-					var draw_two_cards=get.tag(card,'draw')>1;
-					if (player.hasSkill('renjie2')&&!player.hasSkill('jilue')&&!draw_two_cards){
-						return 'zeroplayertarget';
+			effect: {
+				player(card, player, target, current) {
+					var draw_two_cards = get.tag(card, "draw") > 1;
+					if (player.hasSkill("renjie2") && !player.hasSkill("jilue") && !draw_two_cards) {
+						return "zeroplayertarget";
 					}
 				}
 			}
@@ -3253,10 +3253,10 @@ const skills = {
 								return 0.6;
 							}
 						},
-						player: function(card,player,target,current) {
-							var type=get.type(card);
-							if (player.getCards('h').length-player.getHandcardLimit()<=0){
-								if (type=='trick'||type=='delay') return 'zeroplayertarget';
+						player(card, player, target, current) {
+							var type = get.type(card);
+							if (player.getCards("h").length - player.getHandcardLimit() <= 0) {
+								if (type == "trick" || type == "delay") return "zeroplayertarget";
 							}
 						},
 					},

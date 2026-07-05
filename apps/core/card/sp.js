@@ -25,8 +25,8 @@ export default {
 				await player.draw(2);
 			},
 			ai: {
-				wuxie: function (target,card,player,current,state) {
-					return -state*get.attitude(player,current);
+				wuxie: function (target, card, player, current, state) {
+					return -state * get.attitude(player, current);
 				},
 				useful() {
 					const player = _status.event.player;
@@ -356,8 +356,8 @@ export default {
 							return 2;
 						}
 						if (game.players.length > 2) {
-							var list=player.getEnemies();
-							for(var i = 0; i < list.length; i++) {
+							var list = player.getEnemies();
+							for (var i = 0; i < list.length; i++) {
 								if (list[i].getEquip("shanrangzhaoshu")) return 0;
 							}
 						}

@@ -13,7 +13,7 @@ export default {
 			global: ["g_du", "g_du_give"],
 			async content(_) {},
 			ai: {
-				value: function(card,player,i) {
+				value: function(card, player, i) {
 					if (!player.hasSkillTag("nodu")) {
 						if (player.hp <= 1 && _status.currentPhase == player && _status.event.getParent("phaseUse").name == "phaseUse"
 						&& _status.event.name != "chooseButton" && _status.event.name != "chooseCard" && _status.event.name != "chooseToGive") {
@@ -26,8 +26,8 @@ export default {
 					}
 					return -5;
 				},
-				useful: function(card,i) {
-					var player=_status.event.player
+				useful: function(card, i) {
+					var player = _status.event.player;
 					if (!player.hasSkillTag("nodu")) {
 						if (player.hp <= 1 && _status.currentPhase == player && _status.event.getParent("phaseDiscard").name == "phaseDiscard" && player.countCards("h", "tao") + player.countCards("h", "jiu") <= 0) {
 							return 11;
@@ -178,9 +178,9 @@ export default {
 				result: {
 					target(player, target) {
 						if (get.attitude(player, target) <= 0) {
-							if (target.getCards('h')<=0&&target.countCards('e',function(card){
-								return get.equipValue(card)<=0;
-							})>0) return 0;
+							if (target.getCards("h") <= 0 && target.countCards("e", function(card) {
+								return get.equipValue(card) <= 0;
+							}) > 0) return 0;
 							return (
 								(target.hasCards("he", card => {
 									if (get.position(card) == "e") return get.equipValue(card) > 0;
@@ -247,10 +247,10 @@ export default {
 						const cards = target.getCards("e");
 						const js = target.getCards("j");
 						let val = 0;
-						for (var i=0;i<cards.length;i++){
-							val+=get.equipValue(cards[i]);
+						for (var i = 0; i < cards.length; i++) {
+							val += get.equipValue(cards[i]);
 						};
-						if (target.getEquip('tianjitu')&&target.getCards('h').length<=5&&cards.length<=3) return 2-target.getCards('h').length;
+						if (target.getEquip("tianjitu") && target.getCards("h").length <= 5 && cards.length <= 3) return 2 - target.getCards("h").length;
 						for (const card of js) {
 							val += get.effect(target, card.viewAs ? { name: card.viewAs } : card, target, player);
 						}
@@ -399,7 +399,7 @@ export default {
 				},
 				result:{
 					keepAI: true,
-					target: function (player,target) {
+					target: function (player, target) {
 						var val = 2.5;
 						var cards = target.getEquips(4);
 						for (var card of cards) {
@@ -862,8 +862,8 @@ export default {
 			},
 			ai: {
 				order(item, player) {
-					if (player.hasCard(card=>game.hasPlayer(current=>player.canGift(card,current,true)&&!current.refuseGifts(card,player)&&get.effect(current,card,player,player)>0&&get.type(card,false)=='equip'),'h')) return 7;
-					if (player.hasCard(card=>game.hasPlayer(current=>player.canGift(card,current,true)&&!current.refuseGifts(card,player)&&get.effect(current,card,player,player)>0),'h')) return 1;
+					if (player.hasCard(card => game.hasPlayer(current => player.canGift(card, current, true) && !current.refuseGifts(card, player) && get.effect(current, card, player, player) > 0 && get.type(card, false) == "equip"), "h")) return 7;
+					if (player.hasCard(card => game.hasPlayer(current => player.canGift(card, current, true) && !current.refuseGifts(card, player) && get.effect(current, card, player, player) > 0), "h")) return 1;
 					return Math.max(get.order({ name: "sha" }), 0.5) - 0.1;
 				},
 				result: {

@@ -29518,7 +29518,7 @@ const skills = {
 			var prompt = "即将失去" + get.translation(trigger.result.cards) + "，是否发动【挽危】？";
 			var next = player.choosePlayerCard(player, prompt, trigger.position);
 			next.set("ai", function (button) {
-				return get.effect(player,button.link,player,player)<0?20-get.effect(player,button.link,player,player):20-get.value(button.link);
+				return get.effect(player, button.link, player, player) < 0 ? 20 - get.effect(player, button.link, player, player) : 20 - get.value(button.link);
 			});
 			next.filterButton = trigger.filterButton;
 			next.selectButton = trigger.result.cards.length;
@@ -33296,9 +33296,9 @@ const skills = {
 		position: "he",
 		check(card) {
 			var player = _status.event.player;
-			if (!game.hasPlayer(function(current){
-				return get.attitude(player,current)<0;
-			})){
+			if (!game.hasPlayer(function(current) {
+				return get.attitude(player, current) < 0;
+			})) {
 				return 0;
 			}
 			if (player.hp < 3) {
@@ -37484,7 +37484,7 @@ const skills = {
 			await player
 				.chooseToDiscard(true, "he", card => {
 					const { player, usefulCards } = get.event();
-					if (get.mode() == "guozhan" && card.constructor.name == "VCard" && card?.cards?.[0]) {
+					if (get.mode() == "guozhan" && card.constructor.name === "VCard" && card?.cards?.[0]) {
 						card = card.cards[0];
 						if (card.name == "tao") {
 							return 7;
@@ -40770,7 +40770,7 @@ const skills = {
 					return 0;
 				},
 				target(player, target) {
-					if (get.mode()=='identity'&&player.hasUnknown(2)) return 0;
+					if (get.mode() === "identity" && player.hasUnknown(2)) return 0;
 					if (target.countCards("h") > target.hp) {
 						return target.hp - target.countCards("h");
 					}
@@ -41304,7 +41304,7 @@ const skills = {
 			result: {
 				target(player, target) {
 					if (
-						(player.countMark("xinfu_xionghuo") >= (player.hp>1?2:0) ||
+						(player.countMark("xinfu_xionghuo") >= (player.hp > 1 ? 2 : 0) ||
 							!game.hasPlayer(function (current) {
 								return current != player && get.attitude(player, current) < 0 && current.hasMark("xinfu_xionghuo");
 							})) &&
@@ -41321,7 +41321,7 @@ const skills = {
 							);
 						})
 					) {
-						return player.hp>1?-3/Math.max(1,target.hp):-1;
+						return player.hp > 1 ? -3 / Math.max(1, target.hp) : -1;
 					}
 					if (
 						(!player.hasUnknown() &&
@@ -41621,15 +41621,15 @@ const skills = {
 					result: {
 						target(player, target) {
 							if (ui.selected.targets.length == 0) {
-								if (get.attitude(player,target)<0){
+								if (get.attitude(player, target) < 0) {
 									return -999;
 								}
-								else if (get.attitude(player,target)>0){
-									return target.countCards("h")>2?-3:999;
+								else if (get.attitude(player, target) > 0) {
+									return target.countCards("h") > 2 ? -3 : 999;
 								}
 								return -3;
 							} else {
-								return target.countCards("h")>2?999:target.countCards("h")+1;
+								return target.countCards("h") > 2 ? 999 : target.countCards("h") + 1;
 							}
 						},
 					},
@@ -41865,9 +41865,9 @@ const skills = {
 			notrick: true,
 			nofire: true,
 			nothunder: true,
-			skillTagFilter: function(player,tag) {
-				if (tag=='notrick'||tag=='nofire'||tag=='nothunder'){
-					if (player.hasSkill('smh_huoji')||player.hasSkill('smh_lianhuan')) return false;
+			skillTagFilter: function(player, tag) {
+				if (tag == "notrick" || tag == "nofire" || tag == "nothunder") {
+					if (player.hasSkill("smh_huoji") || player.hasSkill("smh_lianhuan")) return false;
 					if (!player.isEmpty(2)) return false;
 				}
 			},
@@ -42641,7 +42641,7 @@ const skills = {
 				if (get.attitude(targets[event.num], evt.player) > 0) {
 					return evt.player.countCards("h", "sha") ? false : true;
 				}
-				return evt.player.countCards('h')>3?true:false;
+				return evt.player.countCards("h") > 3 ? true : false;
 			};
 			"step 2";
 			if (result.bool) {
@@ -43616,19 +43616,19 @@ const skills = {
 			}
 		},
 		ai:{
-			effect:{
-				target:function(card,player,target){
-					if(player.hasSkillTag('jueqing',false,target)) return [1,-1];
-					if(get.tag(card,'damage')&&player!=target&&get.attitude(player,target)<0){
-						var cards=player.getCards('h',function(cardx){
-							return card!=cardx&&(!card.cards||!card.cards.includes(cardx))&&get.suit(cardx)=='heart';
+			effect: {
+				target(card, player, target) {
+					if (player.hasSkillTag("jueqing", false, target)) return [1, -1];
+					if (get.tag(card, "damage") && player != target && get.attitude(player, target) < 0) {
+						var cards = player.getCards("h", function(cardx) {
+							return card != cardx && (!card.cards || !card.cards.includes(cardx)) && get.suit(cardx) == "heart";
 						});
-						if(!cards.length) return 'zeroplayertarget';
-						for(var i of cards){
-							if(get.name(i,target)=='tao') return 'zeroplayertarget';
+						if (!cards.length) return "zeroplayertarget";
+						for (var i of cards) {
+							if (get.name(i, target) == "tao") return "zeroplayertarget";
 						}
-						if(get.value(cards,target)>=(6+target.getDamagedHp())) return 'zeroplayertarget';
-						return [1,0.6];
+						if (get.value(cards, target) >= (6 + target.getDamagedHp())) return "zeroplayertarget";
+						return [1, 0.6];
 					}
 				},
 			},
@@ -44282,15 +44282,15 @@ const skills = {
 					return 0;
 				}
 			}
-			var has_sha_target=(player.hasSha()&&game.hasPlayer(function(current){
-				return player.canUse(card,current,null,true)
-				&&player.getUseValue(card)>0&&get.effect_use(current,card,player)>0
-				&&!current.hasSkillTag('filterDamage',null,{
-					player:current,
-					card:card,
+			var has_sha_target = (player.hasSha() && game.hasPlayer(function(current) {
+				return player.canUse(card, current, null, true)
+				&& player.getUseValue(card) > 0 && get.effect_use(current, card, player) > 0
+				&& !current.hasSkillTag("filterDamage", null, {
+					player: current,
+					card: card,
 				});
 			}));
-			if (!has_sha_target&&player.maxHp==player.hp) return 0;
+			if (!has_sha_target && player.maxHp == player.hp) return 0;
 			if (card.name == "shan") {
 				return 15;
 			}
