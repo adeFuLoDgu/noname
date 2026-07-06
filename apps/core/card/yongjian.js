@@ -366,7 +366,7 @@ export default {
 				result: {
 					keepAI: true,
 					target(player, target) {
-						const val = 2;
+						var val = 2;
 						var cards = target.getEquips(2);
 						for (var card of cards) {
 							if (card && get.equipValue(card) <= 0) return 0;
