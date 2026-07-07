@@ -1297,7 +1297,7 @@ const skills = {
 				player_use(card, player) {
 					if (get.type(card) == "trick") {
 						if (get.tag(card, "draw") && player.hp > 2) return get.value(card);
-						if (get.tag(card, "damage") && player.hp + player.num("h", "tao") > 1) return get.value(card);
+						if (get.tag(card, "damage") && player.hp + player.countCards("h", "tao") > 1) return get.value(card);
 						return "zeroplayertarget";
 					}
 				},

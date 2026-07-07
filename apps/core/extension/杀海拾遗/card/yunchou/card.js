@@ -35,7 +35,7 @@ const card = {
 					} else {
 						game.log(target, "展示了", target.getCards("h"));
 					}
-					player.discardPlayerCard(target, "h", true, "visible").set('ai',(card)=>get.value(card));
+					player.discardPlayerCard(target, "h", true, "visible").set("ai", (card) => get.value(card));
 				}
 				event.finish();
 			} else {
@@ -401,7 +401,7 @@ const card = {
 					var card = target.getCards("e");
 					var val = 0;
 					for (var i = 0; i < card.length; i++) {
-						if (lib.filter.cardDiscardable(card[i], target)) val+=get.equipValue(card[i]);
+						if (lib.filter.cardDiscardable(card[i], target)) val += get.equipValue(card[i]);
 					}
 					if (val > 0) return -val;
 					return 0;

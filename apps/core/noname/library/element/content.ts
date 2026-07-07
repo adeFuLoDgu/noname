@@ -9676,7 +9676,7 @@ export const Content: Record<string, ContentFuncByAll | ContentFuncsByAll> = {
 					let noEffect = true;
 					if (
 						!_status.event.nojudge &&
-						target.countVCards("j", function (card) {
+						target.countVCards("j", card => {
 							if (!filterCard(card)) {
 								return false;
 							}

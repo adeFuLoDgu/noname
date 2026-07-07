@@ -33315,8 +33315,8 @@ const skills = {
 			effect: {
 				target(card, player, target, current) {
 					if (get.type(card) == "delay" && current < 0) {
-						let current_player = _status.currentPhase;
-						if (current_player && (current_player.getSeatNum() > target.getSeatNum())) {
+						var current2 = _status.currentPhase;
+						if (current2 && current2.getSeatNum() > target.getSeatNum()) {
 							return 0.1;
 						}
 					}
