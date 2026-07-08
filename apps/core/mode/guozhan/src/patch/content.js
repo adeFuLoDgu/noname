@@ -1663,7 +1663,7 @@ export const transCharacter = async (event, _trigger, player) => {
 		if (target.hasSkill(key, null, null, false)) {
 			const cards = map1.get(key);
 			if (cards?.length) {
-				target.$addToExpansion(cards, null, key);
+				target.$addToExpansion(cards, null, Array.isArray(key) ? key : [key]);
 				target.markSkill(key);
 			}
 		}
@@ -1672,7 +1672,7 @@ export const transCharacter = async (event, _trigger, player) => {
 		if (player.hasSkill(key, null, null, false)) {
 			const cards = map2.get(key);
 			if (cards?.length) {
-				player.$addToExpansion(cards, null, key);
+				player.$addToExpansion(cards, null, Array.isArray(key) ? key : [key]);
 				player.markSkill(key);
 			}
 		}

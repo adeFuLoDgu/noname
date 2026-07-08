@@ -200,7 +200,7 @@ export class GetGuozhan extends Get {
 		if (fid == toidentity && toidentity != "ye") {
 			return 4 + difficulty;
 		}
-		if (from.identity == "unknown" && fid == toidentity) {
+		if (from.identity == "unknown" && fid == toidentity && toidentity != "ye") {
 			if (from.wontYe()) {
 				return 4 + difficulty;
 			}
@@ -309,7 +309,7 @@ export class GetGuozhan extends Get {
 		if (from.isFriendOf(to)) {
 			return 5 + difficulty;
 		}
-		if (from.identity == "unknown" && fid == to.identity) {
+		if (from.identity == "unknown" && fid == to.identity && to.identity != "ye") {
 			if (from.wontYe()) {
 				return 4 + difficulty;
 			}
