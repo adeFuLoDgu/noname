@@ -569,10 +569,10 @@ const skills = {
 			event.result = {
 				bool: result.bool,
 				cost_data: result.bool ? result.links[0] : undefined,
-			},
+			};
 		},
 		async content(event, trigger, player) {
-			const card = event.result.cost_data;
+			const card = event?.cost_data;
 			if (!card) {
 				return;
 			}
@@ -622,12 +622,13 @@ const skills = {
 		},
 		filter(event, player, name) {
 			const target = name == "damageBegin1" ? event.source : event.player;
-			if (target.isPhaseUsing()) {
+			if (target?.isPhaseUsing()) {
 				return false;
 			}
 			let awaken1 = false, awaken2 = false;
 			if (player.storage["dcsbzhubo"]) {
-				{ awaken1, awaken2 } = player.storage["dcsbzhubo"];
+				awaken1 = player.storage["dcsbzhubo"].awaken1;
+				awaken2 = player.storage["dcsbzhubo"].awaken2;
 			}
 			return (awaken2 && target == player) ||
 				(awaken1 && name == "damageBegin3") ||
@@ -637,7 +638,8 @@ const skills = {
 			let triggername = event.triggername;
 			let awaken1 = false, awaken2 = false;
 			if (player.storage["dcsbzhubo"]) {
-				{ awaken1, awaken2 } = player.storage["dcsbzhubo"];
+				awaken1 = player.storage["dcsbzhubo"].awaken1;
+				awaken2 = player.storage["dcsbzhubo"].awaken2;
 			}
 			if (!awaken2) {
 				await player.loseHp();
@@ -668,13 +670,15 @@ const skills = {
 				trigger.num++;
 			}
 			else {
-				await game.asyncDraw([player, target], 2);
+				if (player) await player.draw(2);
+				if (target) await target.draw(2);
 			}
 		},
 		check(event, player, name) {
 			let awaken1 = false, awaken2 = false;
 			if (player.storage["dcsbzhubo"]) {
-				{ awaken1, awaken2 } = player.storage["dcsbzhubo"];
+				awaken1 = player.storage["dcsbzhubo"].awaken1;
+				awaken2 = player.storage["dcsbzhubo"].awaken2;
 			}
 			let target = name == "damageBegin1" ? event.source : event.player;
 			if (get.attitude(player, target) > 0) {
@@ -973,7 +977,7 @@ const skills = {
 					controls: controlList,
 					choiceList: choiceList,
 					ai: () => {
-						const list = get.event("list"),
+						const list = get.event().list,
 							player = get.player();
 						if (list.includes("弃置牌") && player.countCards("he", i => {
 							if (["wuxie", "shan", "tao"].includes(get.name(i, player))) { 
@@ -1306,7 +1310,7 @@ const skills = {
 				})
 				.forResult();
 			event.forceDie = true;
-			if (result.moved[1]?.length) {
+			if (result.moved?.[1]?.length) {
 				const lose = result.moved[0].slice();
 				const gain = result.moved[1].slice().filter(i => !get.owner(i));
 				if (lose.some(i => get.owner(i))) {
@@ -1322,7 +1326,7 @@ const skills = {
 				}
 			}
 			else {
-				await game.cardsGotoPile(result.moved[0].slice().reverse(), "insert");
+				await game.cardsGotoPile(result.moved?.[0].slice().reverse(), "insert");
 			}
 			if (game.countPlayer() < 2) {
 				return;
@@ -1408,7 +1412,7 @@ const skills = {
 		},
 		check: (event, player) => {
 			return game.hasPlayer(current => {
-				return current != player && get.attitude(player, target) > 0;
+				return current != player && get.attitude(player, current) > 0;
 			})
 		},
 		subSkill: {
