@@ -627,8 +627,7 @@ const skills = {
 			}
 			let awaken1 = false, awaken2 = false;
 			if (player.storage["dcsbzhubo"]) {
-				awaken1 = player.storage["dcsbzhubo"].awaken1;
-				awaken2 = player.storage["dcsbzhubo"].awaken2;
+				({ awaken1, awaken2 } = player.storage["dcsbzhubo"]);
 			}
 			return (awaken2 && target == player) ||
 				(awaken1 && name == "damageBegin3") ||
@@ -638,8 +637,7 @@ const skills = {
 			let triggername = event.triggername;
 			let awaken1 = false, awaken2 = false;
 			if (player.storage["dcsbzhubo"]) {
-				awaken1 = player.storage["dcsbzhubo"].awaken1;
-				awaken2 = player.storage["dcsbzhubo"].awaken2;
+				({ awaken1, awaken2 } = player.storage["dcsbzhubo"]);
 			}
 			if (!awaken2) {
 				await player.loseHp();
@@ -677,8 +675,7 @@ const skills = {
 		check(event, player, name) {
 			let awaken1 = false, awaken2 = false;
 			if (player.storage["dcsbzhubo"]) {
-				awaken1 = player.storage["dcsbzhubo"].awaken1;
-				awaken2 = player.storage["dcsbzhubo"].awaken2;
+				({ awaken1, awaken2 } = player.storage["dcsbzhubo"]);
 			}
 			let target = name == "damageBegin1" ? event.source : event.player;
 			if (get.attitude(player, target) > 0) {
