@@ -3,7 +3,7 @@ import vue from "@vitejs/plugin-vue";
 import path from "path";
 
 const port = {
-	client: 8080,
+	client: 8081,
 	server: 8089,
 };
 

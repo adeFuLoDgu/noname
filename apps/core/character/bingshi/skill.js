@@ -6,7 +6,12 @@ const skills = {
 	//势周瑜------by 清风
 	potchiyun: {
 		audio: 2,
-		audioname: ["pot_zhouyu_shadow", "pot_zhouyu_shadow2"],
+		audioname2: {
+			pot_zhouyu_shadow: "potchiyun_pot_zhouyu_shadow",
+		},
+		logAudio2: {
+			pot_zhouyu_shadow: (event, player) => "potchiyun_pot_zhouyu_shadow" + (player.storage.potchiyun1 ? get.rand(3, 4) : get.rand(1, 2)) + ".mp3",
+		},
 		trigger: {
 			player: "gainAfter",
 			global: "loseAsyncAfter",
@@ -21,7 +26,7 @@ const skills = {
 			return (
 				event.getg?.(player)?.length &&
 				lib.phaseName.some(phase => {
-					return player.getHistory("gain", evt => evt.getParent(phase) === event.getParent(phase)).indexOf(event) === 0;
+					return player.getHistory("gain", evt => evt.getParent(phase) === event.getParent(phase)).map(evt => event.name == "gain" ? evt : evt.getParent()).indexOf(event) === 0;
 				})
 			);
 		},
@@ -97,10 +102,13 @@ const skills = {
 				}
 			}
 		},
+		subSkill: {
+			pot_zhouyu_shadow: { audio: 4 },
+		},
 	},
 	potyanhui: {
 		audio: 6,
-		audioname: ["pot_zhouyu_shadow", "pot_zhouyu_shadow2"],
+		audioname: ["pot_zhouyu_shadow"],
 		logAudio: (player, indexedData) => "potyanhui" + (lib.skill.potyanhui.audioname.includes(player.skin.name) ? "_pot_zhouyu_shadow" : "") + (indexedData ? indexedData : get.rand(1, 2)) + ".mp3",
 		popup: false,
 		trigger: { player: "useCardToPlayered" },
@@ -277,11 +285,42 @@ const skills = {
 				trigger: {
 					global: ["showCardsAfter", "gainAfter", "loseAsyncAfter", "phaseAfter"],
 				},
+				filter(event, player) {
+					return player == _status.currentPhase || (!player.storage.potyanhui1 && !player.storage.potyanhui2);
+				},
+				getIndex(event, player) {
+					if (event.name == "phase") {
+						return game.filterPlayer();
+					}
+					if (event.name == "showCards") {
+						return [event.player];
+					}
+					return game.filterPlayer(current => {
+						if (!event.getg?.(current)?.length) {
+							return false;
+						}
+						return current.hasCards("h", card => {
+							const shown = game
+								.getGlobalHistory("everything", evt => {
+									return evt.name == "showCards" && evt.cards?.length > 0;
+								})
+								.map(evt => evt.cards)
+								.flat();
+							return shown.includes(card);
+						});
+					});
+				},
 				async content(event, trigger, player) {
+					const target = event.indexedData;
 					if (trigger.name == "phase") {
-						game.countPlayer(current => current.removeGaintag("potyanhui"));
+						target.removeGaintag("potyanhui");
+					} else if (trigger.name == "showCards") {
+						const cards = trigger.cards;
+						game.broadcastAll(cards => {
+							cards.forEach(card => card.addGaintag("potyanhui"));
+						}, cards);
 					} else {
-						const cards = trigger.player.getCards("h", card => {
+						const cards = target.getCards("h", card => {
 							const shown = game
 								.getGlobalHistory("everything", evt => {
 									return evt.name == "showCards" && evt.cards?.length > 0;
@@ -291,20 +330,21 @@ const skills = {
 							return shown.includes(card);
 						});
 						if (cards.length) {
-							trigger.player.addGaintag(cards, "potyanhui");
+							target.addGaintag(cards, "potyanhui");
 						}
 					}
 				},
 			},
 		},
 	},
-	potfentao_pot_zhouyu_shadow: { audio: 4 },
 	potfentao: {
 		audio: 2,
 		forced: true,
 		audioname2: {
 			pot_zhouyu_shadow: "potfentao_pot_zhouyu_shadow",
-			pot_zhouyu_shadow2: "potfentao_pot_zhouyu_shadow",
+		},
+		logAudio2: {
+			pot_zhouyu_shadow: (event, player) => "potfentao_pot_zhouyu_shadow" + (player.storage.potfentao2 ? get.rand(3, 4) : get.rand(1, 2)) + ".mp3",
 		},
 		trigger: { global: "damageBegin4" },
 		filter(event, player) {
@@ -364,13 +404,16 @@ const skills = {
 						.when({ player: "damageAfter" })
 						.filter(evt => evt === trigger)
 						.step(async (event, trigger, player2) => {
-							player.logSkill("potfentao", target);
+							player.logSkill("potfentao", target, null, null, [event, player]);
 							await player2.link(true);
 						});
 				}
 			}
 		},
-		subSkill: { dam: { charlotte: true, onremove: true } },
+		subSkill: {
+			dam: { charlotte: true, onremove: true },
+			pot_zhouyu_shadow: { audio: 4 },
+		},
 	},
 	potxiongzi: {
 		audio: 4,
@@ -407,7 +450,7 @@ const skills = {
 		async content(event, trigger, player) {
 			const { cost_data: link } = event;
 			player.awakenSkill(event.name);
-			player.changeSkin({ characterName: "pot_zhouyu" }, link === "保留选项一" ? "pot_zhouyu_shadow" : "pot_zhouyu_shadow2");
+			player.changeSkin({ characterName: "pot_zhouyu" }, "pot_zhouyu_shadow");
 			for (const skill of ["potchiyun", "potyanhui", "potfentao"]) {
 				player.setStorage(skill + (link === "保留选项一" ? "2" : "1"), true, true);
 			}
@@ -445,7 +488,7 @@ const skills = {
 			}
 		},
 	},
-	potbiqian: {
+	potbihan: {
 		audio: 2,
 		trigger: { global: "damageBegin3" },
 		filter(event, player) {
@@ -779,18 +822,16 @@ const skills = {
 				return;
 			}
 			await game.cardsGotoOrdering(cards);
-			const targets = [];
-			while (cards.length && targets.length < 2) {
-				const num = targets.length || game.countPlayer(current => current != player) == 1 ? cards.length : [1, Infinity];
+			while (cards.length) {
 				const result = await player
 					.chooseButtonTarget({
 						createDialog: [`伺锋：请选择要分配的“伺锋”牌和目标（先选择的牌在前面）`, cards],
 						forced: true,
 						allowChooseAll: true,
-						selectButton: num,
+						selectButton: [1, Infinity],
 						filterTarget: lib.filter.notMe,
 						ai1(button) {
-							return get.value(button.link);
+							return 1 + Math.random();
 						},
 						ai2(target) {
 							const player = get.player();
@@ -805,7 +846,6 @@ const skills = {
 					} = result;
 					cards.removeArray(links);
 					player.line(target);
-					targets.add(target);
 					await target.addToExpansion({ cards: links.reverse(), source: player, animate: "give", gaintag: [event.name] });
 				}
 			}

@@ -4716,7 +4716,7 @@ export class Player extends HTMLDivElement {
 			}
 			this.node.count.innerHTML = numh;
 		}*/
-		this.node.count.innerHTML = numh.toString();
+		this.node.count.innerHTML = numh?.toString();
 		if (numh < 10) {
 			this.node.count.dataset.condition = "low";
 		} else if (numh < 100) {
@@ -11498,6 +11498,17 @@ export class Player extends HTMLDivElement {
 		if (this.storage[skill] === undefined || this.storage[skill] === false) {
 			this.storage[skill] = true;
 		}
+		_status.event.clearStepCache();
+		return this;
+	}
+	awakenQidingSkill(skill){
+		if (this.storage[skill]) {
+			return;
+		}
+		if (this.storage[skill] === undefined || this.storage[skill] === false) {
+			this.storage[skill] = true;
+		}
+		game.log(`契约已成，${get.translation(this)}将【${get.translation(skill)}】改为锁定技。`);
 		_status.event.clearStepCache();
 		return this;
 	}

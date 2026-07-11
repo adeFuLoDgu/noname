@@ -1,19 +1,19 @@
 const characters = {
-	sm_shen_sunquan: {
+	ps_shen_weiyan: {
 		sex: "male",
 		group: "shen",
-		hp: 0,
-		maxHp: 10,
-		skills: ["smshenjiang", "smshengshou", "smshifeng"],
-		isUnseen: true,
+		hp: 4,
+		maxHp: 7,
+		skills: ["psjimou", "psyuxue", "pskuifa"],
+		groupInGuozhan: "shu",
 	},
-	sm_mo_sunquan: {
+	ps_devil_weiyan: {
 		sex: "male",
 		group: "devil",
-		hp: 0,
-		maxHp: 3,
-		skills: ["smmobian", "smyanshi", "smpoyu"],
-		isUnseen: true,
+		hp: 2,
+		hujia: 4,
+		skills: ["psnimou", "pskexue", "psjiefa"],
+		groupInGuozhan: "shu",
 	},
 	sm_shenmo_sunquan: {
 		sex: "male",
@@ -21,12 +21,15 @@ const characters = {
 		hp: 6,
 		skills: ["smsibian", "smqihua", "smdue"],
 		doubleGroup: ["shen", "devil"],
+		groupBorder: "devil",
+		groupInGuozhan: "wu",
 	},
 	pe_liuhui: {
 		sex: "male",
 		group: "qun",
 		hp: 4,
 		skills: ["pejieshu", "pegeyuan", "pegusuan"],
+		dieAudios: ["liuhui"],
 	},
 	pe_baiqi: {
 		sex: "male",
