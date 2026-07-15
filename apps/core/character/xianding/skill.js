@@ -2854,8 +2854,11 @@ const skills = {
 					if (event.name == "phase") {
 						return true;
 					}
+					if (_status.currentPhase !== player) {
+						return false;
+					}
 					if (event.name != "damage") {
-						return _status.currentPhase == player && !event.gaintag.includes("dcyinzhi_reset");
+						return !event.gaintag.includes("dcyinzhi_reset");
 					}
 					return player.getStorage("dcyinzhi_reset").includes(event.player);
 				},
@@ -2868,11 +2871,6 @@ const skills = {
 						trigger.gaintag.add(event.name);
 					} else {
 						player.removeSkill(event.name);
-						const storage = trigger.player.getStorage("dcyinzhi", {});
-						if (storage[player.playerid] > 0) {
-							storage[player.playerid]--;
-							trigger.player.setStorage("dcyingzhi", storage, true);
-						}
 					}
 				},
 			},
@@ -13918,8 +13916,10 @@ const skills = {
 			await player.give(cards, target);
 			if (trigger.player === player) {
 				trigger.getParent().effectCount++;
+				game.log(trigger.card, "额外结算一次");
 			} else {
-				trigger.all_excluded = true;
+				trigger.getParent().all_excluded = true;
+				game.log(trigger.card, "无效了");
 			}
 		},
 	},
