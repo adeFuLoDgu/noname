@@ -48,7 +48,7 @@
 		if (sessionStorage.getItem("canUseTs") !== "true") {
 			let path = "/jit-test.ts";
 			if (location.href.indexOf(".github.io") != -1) {
-				path = "/" + (process.env.REPO_NAME || "noname") + path;
+				path = (process.env.VITE_BASE_PATH || "") + path;
 			} else if (location.href.indexOf(".pages.dev") != -1) {
 				let origin = location.origin
 				path = new URL(path, origin).href;

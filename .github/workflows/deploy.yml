@@ -61,17 +61,15 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Get repository name
-        run: echo "REPOSITORY_NAME=${GITHUB_REPOSITORY#*/}" >> $GITHUB_ENV
+      - name: Setup Pages
+        id: pages
+        uses: actions/configure-pages@v6
 
       - name: Run Build
         run: pnpm build
         env:
           IS_GITHUB_PAGES: 'true'
-          REPO_NAME: ${{ env.REPOSITORY_NAME }}
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v6
+          VITE_BASE_PATH: ${{ steps.pages.outputs.base_path }}
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v5

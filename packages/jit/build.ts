@@ -14,7 +14,7 @@ await build({
 	format: ["esm"],
 	platform: "browser",
 	define: {
-		"process.env.REPO_NAME": JSON.stringify(process.env.REPO_NAME || "noname"),
+		"process.env.VITE_BASE_PATH": JSON.stringify(process.env.VITE_BASE_PATH || "noname"),
 	},
 });
 await build({
