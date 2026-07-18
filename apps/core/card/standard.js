@@ -1102,6 +1102,7 @@ export default {
 					orderingEvent.relatedEvent = event.getParent();
 					nextEvents.push(orderingEvent);
 				}
+				event.getParent().set(get.name(event.card) + "ShownCards", cards);
 				const dialog = ui.create.dialog("五谷丰登", cards, true);
 				_status.dieClose.push(dialog);
 				dialog.videoId = lib.status.videoId++;
@@ -1223,6 +1224,10 @@ export default {
 				game.addVideo("cardDialog", null, event.preResult);
 				if (remainedEvent) {
 					await remainedEvent;
+				}
+				const { [get.name(event.card) + "ShownCards"]: cards } = event.getParent();
+				if (cards.someInD()) {
+					await game.cardsDiscard(cards.filterInD());
 				}
 			},
 			ai: {
@@ -3736,7 +3741,8 @@ export default {
 							}
 							return 1.8 / Math.min(1.8, trigger.target.getHp());
 						})()
-					);
+					)
+					.forResult();
 
 				if (!result?.bool) {
 					player.draw();

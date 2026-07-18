@@ -5375,7 +5375,7 @@ const skills = {
 		},
 	},
 	sbweiliu: {
-		audio: 2,
+		audio: "sbzhenliang",
 		trigger: {
 			global: "phaseBegin",
 		},
@@ -10560,6 +10560,7 @@ const skills = {
 		},
 	},
 	sbxiaoji: {
+		audio: 2,
 		audioname: ["sp_sunshangxiang", "re_sunshangxiang", "db_sunshangxiang"],
 		trigger: {
 			global: ["loseAfter", "equipAfter", "addJudgeAfter", "gainAfter", "loseAsyncAfter", "addToExpansionAfter"],
