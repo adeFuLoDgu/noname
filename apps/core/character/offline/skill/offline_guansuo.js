@@ -1,5 +1,13 @@
 import { lib, game, ui, get, ai, _status } from "noname";
-import html from "dedent";
+// 以下註釋掉, 不然網頁部屬不能import
+//import html from "dedent";
+// 改用同個庫中同結果寫法, 見
+// \noname\apps\core\noname\ui\create\menu\new.js
+// \noname\apps\core\noname\ui\create\menu\nonameConfig.js
+/**
+ * 使字符串有html的代码提示
+ */
+const html = (strings, ...values) => String.raw({ raw: strings }, ...values);
 
 /** @type { importCharacterConfig["skill"] } */
 const skills = {
@@ -509,7 +517,7 @@ const skills = {
 				async content(event, trigger, player) {
 					const card = get.autoViewAs({ name: "sha", isCard: true });
 					if (player.hasUseTarget(card)) {
-						await player.chooseUseTarget(card);
+						await player.chooseUseTarget(card, false);
 					}
 				},
 			},
@@ -1308,7 +1316,18 @@ const skills = {
 				ai: {
 					order: 1,
 					result: {
-						player: 1,
+						player(player) {
+							let dragshiyao_player = null;
+							for (let i = 0; i < game.players.length; i++) {
+								if (game.players[i].hasSkill("dragshiyao")) {
+									dragshiyao_player = game.players[i];
+								}
+							}
+							if (get.mode() === "identity" && dragshiyao_player && (player.identity == "zhu" || player.identity == "zhong") && dragshiyao_player.hp <= 1) {
+								return 0;
+							}
+							return 1;
+						},
 					},
 				},
 			},
@@ -1418,7 +1437,7 @@ const skills = {
 				if (player.getStorage("dragduyi_used").includes(name)) {
 					return false;
 				}
-				return event.filterCard(get.autoViewAs({ name: name }, "unsure"), player, event);
+				return event.filterCard && event.filterCard(get.autoViewAs({ name: name }, "unsure"), player, event);
 			});
 		},
 		chooseButton: {
@@ -1526,7 +1545,7 @@ const skills = {
 				trigger.cancel();
 			} else {
 				const target = trigger.target,
-					bool = target.maxHp > 1 && get.effect(target, trigger.card, player, target) <= -7;
+					bool = target.maxHp > 1 && target.hp <= 1;
 				const result = await target
 					.chooseBool(`拒疗：是否减少1点体力上限，令【${get.translation(trigger.card)}】对你无效？`)
 					.set("choice", bool)

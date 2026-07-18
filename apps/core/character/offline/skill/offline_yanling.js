@@ -1,5 +1,13 @@
 import { lib, game, ui, get, ai, _status } from "noname";
-import html from "dedent";
+// 以下註釋掉, 不然網頁部屬不能import
+//import html from "dedent";
+// 改用同個庫中同結果寫法, 見
+// \noname\apps\core\noname\ui\create\menu\new.js
+// \noname\apps\core\noname\ui\create\menu\nonameConfig.js
+/**
+ * 使字符串有html的代码提示
+ */
+const html = (strings, ...values) => String.raw({ raw: strings }, ...values);
 
 /** @type { importCharacterConfig["skill"] } */
 const skills = {
@@ -843,16 +851,20 @@ const skills = {
 					game.broadcastAll(
 						function (card, player) {
 							_status.guhuoNode = card.copy("thrown");
-							if (lib.config.cardback_style != "default") {
-								_status.guhuoNode.style.transitionProperty = "none";
-								ui.refresh(_status.guhuoNode);
-								_status.guhuoNode.classList.add("infohidden");
-								ui.refresh(_status.guhuoNode);
-								_status.guhuoNode.style.transitionProperty = "";
+							if (window.decadeUI) {
+								_status.guhuoNode.style.background = "var(--cardback-url)";
 							} else {
-								_status.guhuoNode.classList.add("infohidden");
+								if (lib.config.cardback_style != "default") {
+									_status.guhuoNode.style.transitionProperty = "none";
+									ui.refresh(_status.guhuoNode);
+									_status.guhuoNode.classList.add("infohidden");
+									ui.refresh(_status.guhuoNode);
+									_status.guhuoNode.style.transitionProperty = "";
+								} else {
+									_status.guhuoNode.classList.add("infohidden");
+								}
+								_status.guhuoNode.style.transform = "perspective(600px) rotateY(180deg) translateX(0)";
 							}
-							_status.guhuoNode.style.transform = "perspective(600px) rotateY(180deg) translateX(0)";
 							player.$throwordered2(_status.guhuoNode);
 						},
 						trigger.cards[0],
@@ -929,12 +941,16 @@ const skills = {
 						}
 					}
 					await game.delayx();
-					game.broadcastAll(function (onEnd) {
+					game.broadcastAll(function (onEnd, guhuo_card) {
 						_status.event.onEnd01 = onEnd;
 						if (_status.guhuoNode) {
-							_status.guhuoNode.listenTransition(onEnd, 300);
+							if (window.decadeUI) {
+								_status.guhuoNode.style.background = guhuo_card.style.background;
+							} else {
+								_status.guhuoNode.listenTransition(onEnd, 300);
+							}
 						}
-					}, event.onEnd01);
+					}, event.onEnd01, trigger.cards[0]);
 					await game.delay(2);
 					if (isFake) {
 						if (doubter.length) {

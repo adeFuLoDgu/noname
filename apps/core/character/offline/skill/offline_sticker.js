@@ -1,5 +1,13 @@
 import { lib, game, ui, get, ai, _status } from "noname";
-import html from "dedent";
+// 以下註釋掉, 不然網頁部屬不能import
+//import html from "dedent";
+// 改用同個庫中同結果寫法, 見
+// \noname\apps\core\noname\ui\create\menu\new.js
+// \noname\apps\core\noname\ui\create\menu\nonameConfig.js
+/**
+ * 使字符串有html的代码提示
+ */
+const html = (strings, ...values) => String.raw({ raw: strings }, ...values);
 
 /** @type { importCharacterConfig["skill"] } */
 const skills = {
@@ -433,7 +441,12 @@ const skills = {
 					return _status.event.targets.includes(target);
 				})
 				.set("ai", function (target) {
-					return -get.effect(target, trigger.card, trigger.player, _status.event.player);
+					var eff = -get.effect(target, trigger.card, trigger.player, _status.event.player);
+					if (eff == 0 && get.tag(trigger.card, "damage")) eff = get.tag(trigger.card, "damage") * get.attitude(target, _status.event.player);
+					if (eff == 0 && get.tag(trigger.card, "draw")) eff = -get.tag(trigger.card, "draw") * get.attitude(target, _status.event.player);
+					if (eff == 0 && get.tag(trigger.card, "recover")) eff = -get.tag(trigger.card, "recover") * get.attitude(target, _status.event.player);
+					if (eff == 0 && trigger.card.name == "tiesuo") eff = get.attitude(target, _status.event.player);
+					return eff;
 				})
 				.set("targets", trigger.targets);
 			"step 1";
@@ -443,7 +456,10 @@ const skills = {
 				player.draw();
 			}
 		},
-		ai: { threaten: 3.5 },
+		ai: {
+			expose: 0.2,
+			threaten: 3.5
+		},
 		global: "sphuangen_ai",
 		subSkill: {
 			ai: {

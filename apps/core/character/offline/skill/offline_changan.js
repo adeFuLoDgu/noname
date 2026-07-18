@@ -1,5 +1,13 @@
 import { lib, game, ui, get, ai, _status } from "noname";
-import html from "dedent";
+// 以下註釋掉, 不然網頁部屬不能import
+//import html from "dedent";
+// 改用同個庫中同結果寫法, 見
+// \noname\apps\core\noname\ui\create\menu\new.js
+// \noname\apps\core\noname\ui\create\menu\nonameConfig.js
+/**
+ * 使字符串有html的代码提示
+ */
+const html = (strings, ...values) => String.raw({ raw: strings }, ...values);
 
 /** @type { importCharacterConfig["skill"] } */
 const skills = {
@@ -467,7 +475,7 @@ const skills = {
 		},
 		async content(event, trigger, player) {
 			let target = player.getNext();
-			while (target != player) {
+			while (target && target != player) {
 				if (!target.countCards("h")) {
 					target = target.getNext();
 					continue;
@@ -1914,6 +1922,7 @@ const skills = {
 						return;
 					}
 					_status.zombieshibian = true;
+					/*
 					//检测游戏胜负
 					if (typeof game.checkResult === "function") {
 						const origin_checkResult = game.checkResult;
@@ -1934,7 +1943,7 @@ const skills = {
 							return origin_checkOnlineResult.apply(this, arguments);
 						};
 					}
-					/*/检测态度
+					//检测态度
 					if (typeof get.attitude === "function") {
 						const origin_attitude = get.attitude;
 						get.attitude = function (from, to) {
@@ -1952,7 +1961,7 @@ const skills = {
 							}
 							return origin_rawAttitude.apply(this, arguments);
 						};
-					}*/
+					}
 					//敌友判定
 					//实际上只是友方，敌方不用写
 					if (typeof lib.element.player.getFriends === "function") {
@@ -1999,6 +2008,7 @@ const skills = {
 						lib.element.player.getEnemies = getEnemies;
 						[...game.players, ...game.dead].forEach(i => (i.getEnemies = getEnemies));
 					}
+					*/
 				},
 				player,
 				target
