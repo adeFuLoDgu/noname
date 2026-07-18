@@ -46,7 +46,7 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 			eval(`${method} = ${redirectedMethod}`);
 		}
 	};
-	const version = '1.2.0.260515.01';
+	const version = '1.2.0.260718.01';
 	return {
 		name: "十周年UI",
 		content:config=>{
@@ -4815,10 +4815,14 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 				},
 				getPlayerIdentity:function(player, identity, chinese, isMark){
 					if (!(player instanceof HTMLElement && get.itemtype(player) == 'player')) throw 'player';
-					if (!identity) identity = player.identity;
-
-
 					var mode = get.mode();
+					if (!identity) {
+						identity = player.identity;
+						if (mode === "guozhan") {
+							identity = player.getGuozhanGroup(0);
+						}
+					}
+
 					var translated = false;
 					if (!chinese) {
 						switch (mode) {
@@ -5980,7 +5984,7 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 			intro:(function(){
 				var log = [
 				'有bug先检查其他扩展，不行再关闭UI重试，最后再联系作者。',
-				'当前版本：1.2.0.260515',
+				'当前版本：1.2.0.260718',
 				];
 
 				return '<p style="color:rgb(210,210,000); font-size:12px; line-height:14px; text-shadow: 0 0 2px black;">' + log.join('<br>') + '</p>';
