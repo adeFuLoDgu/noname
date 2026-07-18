@@ -2248,8 +2248,8 @@ const skills = {
 								if (target.hp > 2 && (target.isHealthy() || target.hasSkillTag("maixie"))) {
 									return false;
 								}
-								if (target.hp == 1 && target.countCards('h') < 4) return true;
-								if (target.hp == 2 && target.countCards('h') < 4) return true;
+								if (target.hp == 1 && target.countCards("h") < 4) return true;
+								if (target.hp == 2 && target.countCards("h") < 4) return true;
 							}
 							return false;
 						});
@@ -2268,8 +2268,8 @@ const skills = {
 							if (target.hp > 2 && (target.isHealthy() || target.hasSkillTag("maixie"))) {
 								return 0;
 							}
-							if (target.hp == 1 && target.countCards('h') < 4) return att;
-							if (target.hp == 2 && target.countCards('h') < 4) return att * 0.7;
+							if (target.hp == 1 && target.countCards("h") < 4) return att;
+							if (target.hp == 2 && target.countCards("h") < 4) return att * 0.7;
 							return 0;
 						}
 						return -1;

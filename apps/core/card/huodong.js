@@ -72,7 +72,6 @@ export default {
 			skills: ["mb_chuanguoyuxi_skill"],
 			ai: {
 				equipValue(card, player) {
-					if (card.constructor.name === "VCard" && card?.cards?.[0]) card = card.cards[0];
 					if (player.isZhu2()) {
 						return 9;
 					}
