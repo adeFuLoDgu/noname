@@ -1356,7 +1356,7 @@ export default {
 					player(player) {
 						let has_enemy = false;
 						for (var i = 0; i < game.players.length; i++) {
-							if (get.attitude(player, game.players[i]) <= 0) {
+							if (get.attitude(player, game.players[i]) <= 0 && !game.players[i].isRest()) {
 								has_enemy = true;
 								break;
 							}

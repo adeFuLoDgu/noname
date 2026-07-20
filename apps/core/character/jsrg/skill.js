@@ -1682,6 +1682,7 @@ const skills = {
 			await game.cardsGotoOrdering(cards);
 			await player.showCards(cards, `${get.translation(player)}发动了【执盟】`);
 			const targets = game.filterPlayer(current => current.countCards("h") > 0).sortBySeat();
+			if (targets.length == 0) return;
 			//选牌
 			const showCardEvent = player.chooseCardOL(targets, `${get.translation(player)}发动了【执盟】，请展示一张手牌`, true);
 			showCardEvent.set("ai", card => {

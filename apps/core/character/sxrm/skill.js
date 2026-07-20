@@ -387,7 +387,7 @@ const skills = {
 					prompt: `将${get.translation(card)}移动至一名角色的装备区`,
 					filterTarget(card, player, target) {
 						const { card0 } = get.event();
-						return target.canEquip(card0) && target !== target;
+						return target.canEquip(card0);
 					},
 					forced: true,
 				})
