@@ -3359,10 +3359,11 @@ const skills = {
 								return 1;
 							}
 							const player = get.player();
-							const cards = get
-								.event()
-								.list?.map(i => i[0])
-								.flat() || [];
+							const cards =
+								get
+									.event()
+									.list?.map(i => i[0])
+									.flat() || [];
 							return -get.attitude(player, target) * target.countCards("h", cardx => !cards?.includes(cardx));
 						},
 					})
@@ -3488,8 +3489,9 @@ const skills = {
 			}
 			const name = get.info(event.name).pasts[result.number - 1],
 				skill = get.info(event.name).derivation[result.number - 1];
-			const mark = `desigu_${player.playerid}`;
+			const mark = `sxrmsigu_${player.playerid}`;
 			if (name && skill) {
+				game.broadcastAll((player, name) => player.tempname.add(name), target, "sxrm_caocao");
 				await target.addAdditionalSkills(mark, [skill], true);
 				//写个标记吧
 				target.addTip(mark, `似故 ${get.translation(skill)}`);
@@ -3501,6 +3503,9 @@ const skills = {
 			await target.damage();
 			await target.damage();
 			if (name && skill) {
+				if (Array.isArray(target.tempname)) {
+					game.broadcastAll((player, name) => player.tempname.remove(name), target, "sxrm_caocao");
+				}
 				target.removeAdditionalSkills(mark);
 				target.removeTip(mark);
 				target.setAvatar(target.name, target.name);
@@ -3531,7 +3536,7 @@ const skills = {
 				damage: 1,
 			},
 		},
-		pasts: ["chengong", "re_xiahoudun", "re_simayi", "re_guojia", "ol_xunyu", "sb_caopi", "shenpei", "re_caochong", "re_xunyou", "yangxiu", "chengyu", "xizhicai", "shen_guanyu"],
+		pasts: ["chengong", "re_xiahoudun", "re_simayi", "re_guojia", "ol_xunyu", "sb_caopi", "jushou", "re_caochong", "re_xunyou", "yangxiu", "chengyu", "xizhicai", "shen_guanyu"],
 		derivation: ["zhichi", "reganglie", "refankui", "new_reyiji", "oljieming", "fangzhu", "shibei", "rechengxiang", "zhiyu", "jilei", "benyu", "chouce", "new_wuhun"],
 	},
 	//刘备

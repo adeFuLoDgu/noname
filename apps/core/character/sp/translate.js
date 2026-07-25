@@ -1618,7 +1618,29 @@ const translates = {
 	olfujian: "伏间",
 	olfujian_info: "锁定技，准备阶段和结束阶段，你随机观看一名手牌数不为唯一最多的其他角色的手牌。",
 	olremaozhu: "茂著",
-	olremaozhu_info: "锁定技，回合开始时，或你绘制了一幅“地图”的所有城市，你将手牌中的花色补至4，并展开一幅“地图”。回合结束时，你获得一个本回合已展开的“地图”技能，直到你下回合结束。",
+	olremaozhu_info: `锁定技，回合开始时，或你绘制了一幅“地图”的所有城市，你将手牌中的花色补至4，并展开一幅“地图”。回合结束时，你获得一个本回合已展开的“地图”技能，直到你下回合结束。`,
+	olremaozhu_faq: "关于【茂著】“地图”",
+	get olremaozhu_faq_info() {
+		const mapSkill = new Map([
+			["pxbingzhou", ["pxqixian", "pxyanmen", "pxjiuyuan", "pxwuxiang"]],
+			["pxjizhou", ["pxbohai", "pxchangshan", "pxjulu", "pxpingyuan"]],
+			["pxjingzhou", ["pxnanyang", "pxshangyong", "pxxiangyang", "pxjiangxia"]],
+			["pxliangzhou", ["pxjuyan", "pxdunhuang", "pxyumen", "pxwuwei"]],
+			["pxliangzhoux", ["pxhanzhong", "pxbaxi", "pxmianzhu", "pxfuling"]],
+			["pxningzhou", ["pxdianchi", "pxailao", "pxquting", "pxnanfu"]],
+			["pxqinzhou", ["pxlongxi", "pxtianshui", "pxwudu", "pxyinping"]],
+			["pxqingzhou", ["pxlean", "pxdonglai", "pxlinzi", "pxbeihai"]],
+			["pxsizhou", ["pxwenxi", "pxhandan", "pxhongnong", "pxwenxian"]],
+			["pxxuzhou", ["pxlangya", "pxpengcheng", "pxdonghai", "pxguangling"]],
+			["pxyanzhou", ["pxtaishan", "pxjuancheng", "pxchenliu", "pxrencheng"]],
+			["pxyangzhou", ["pxshouchun", "pxhefei", "pxjuchao", "pxlujiang"]],
+			["pxyizhou", ["pxchengdu", "pxlinqiong", "pxzangke", "pxzhuti"]],
+			["pxyongzhou", ["pxanding", "pxfengyi", "pxfufeng", "pxjingzhao"]],
+			["pxyouzhou", ["pxxuantu", "pxbeiping", "pxfanyang", "pxdaifang"]],
+			["pxyuzhou", ["pxxuchang", "pxpeixian", "pxqiaoxian", "pxrunan"]],
+		]);
+		return "<br>" + [...mapSkill].map(([mapName, cities]) => `<li>${get.poptip(mapName)}：${cities.map(get.poptip).join("、")}`).join("<br>");
+	},
 	olrejinlan: "尽览",
 	olrejinlan_info: "当你于回合内使用♠/♥/♣/♦牌时，你可以绘制东/西/南/北方位的所有“地图”。你绘制一处城市后，执行对应城市的效果。",
 	olcaifeng: "采风",
@@ -1738,6 +1760,8 @@ const translates = {
 	pxyanzhou_info: "每回合限一次。当你回复体力后，你摸一张牌。",
 	pxtaishan: "泰山",
 	pxtaishan_info: "当你获得此技能后，你将一张【螭纹玉佩】置入手牌。",
+	chiwenyupei: "螭纹玉佩",
+	chiwenyupei_info: "锁定技。出牌阶段结束时，你回复1点体力；摸牌阶段，若你未受伤，你多摸两张牌。",
 	pxjuancheng: "鄄城",
 	pxjuancheng_info: "当你获得此技能后，你判定，若为黑色，你获得判定牌并重复此流程。",
 	pxchenliu: "陈留",
@@ -1799,6 +1823,10 @@ const translates = {
 	pxqiaoxian_info: "当你受到伤害后，你可以摸一张牌。",
 	pxrunan: "汝南",
 	pxrunan_info: "当你获得此技能后，你可以令一名角色摸X张牌（X为你的手牌上限）。",
+	ol_duanwei: "OL段煨",
+	ol_duanwei_prefix: "OL",
+	oltaohuai: "讨怀",
+	oltaohuai_info: "转换技，你使用手牌中点数<br>阳：最大的牌<br>阴：最小的牌<br>时摸一张牌，否则你可以弃置一张牌。",
 };
 
 export default translates;

@@ -38,8 +38,10 @@ const skills = {
 			game.broadcastAll(lib.skill.olremaozhu.createDialog, player.playerid, get.translation(map), city);
 		},
 		ai: { combo: "olrejinlan" },
+		derivation: "olremaozhu_faq",
 		group: "olremaozhu_gain",
 		subSkill: {
+			faq: {},
 			effect: {
 				charlotte: true,
 				init(player, skill) {
@@ -97,6 +99,458 @@ const skills = {
 				},
 			},
 		},
+		// 最短路线
+		bestLine: {
+			并州: [
+				// 雁门→九泉→祁县→武乡（♦♥♣♠上右下左）
+				[
+					{ start: "3,1", suit: "diamond" },
+					{ start: "3,3", suit: "heart" },
+					{ start: "1,3", suit: "club" },
+					{ start: "1,2", suit: "spade" },
+				],
+			],
+			冀州: [
+				// 常山→渤海→平原→巨鹿（♥♠♦♣♥左右上下左）
+				[
+					{ start: "3,3", suit: "heart" },
+					{ start: "1,3", suit: "spade" },
+					{ start: "4,3", suit: "diamond" },
+					{ start: "4,4", suit: "club" },
+					{ start: "4,2", suit: "heart" },
+				],
+				// 渤海→平原→巨鹿→常山（♦♠♣♥♥上右下左左）
+				[
+					{ start: "3,3", suit: "diamond" },
+					{ start: "3,4", suit: "spade" },
+					{ start: "4,4", suit: "club" },
+					{ start: "4,2", suit: "heart" },
+					{ start: "2,3", suit: "heart" },
+				],
+				// 渤海→平原→巨鹿→常山（♠♦♣♥♥右上下左左）
+				[
+					{ start: "3,3", suit: "spade" },
+					{ start: "4,3", suit: "diamond" },
+					{ start: "4,4", suit: "club" },
+					{ start: "4,2", suit: "heart" },
+					{ start: "2,3", suit: "heart" },
+				],
+			],
+			荆州: [
+				// 上庸→南阳→江夏→襄阳（♥♦♠♣♠♥左上右下右左）
+				[
+					{ start: "3,2", suit: "heart" },
+					{ start: "1,2", suit: "diamond" },
+					{ start: "1,3", suit: "spade" },
+					{ start: "4,3", suit: "club" },
+					{ start: "4,1", suit: "spade" },
+					{ start: "5,1", suit: "heart" },
+				],
+				// 上庸→南阳→江夏→襄阳（♥♠♦♣♠♥左右上下右左）
+				[
+					{ start: "3,2", suit: "heart" },
+					{ start: "1,2", suit: "spade" },
+					{ start: "4,2", suit: "diamond" },
+					{ start: "4,3", suit: "club" },
+					{ start: "4,1", suit: "spade" },
+					{ start: "5,1", suit: "heart" },
+				],
+				// 南阳→江夏→襄阳→上庸（♦♠♣♠♥♥上右下右左左）
+				[
+					{ start: "3,2", suit: "diamond" },
+					{ start: "3,3", suit: "spade" },
+					{ start: "4,3", suit: "club" },
+					{ start: "4,1", suit: "spade" },
+					{ start: "5,1", suit: "heart" },
+					{ start: "2,1", suit: "heart" },
+				],
+				// 南阳→江夏→襄阳→上庸（♠♦♣♠♥♥右上下右左左）
+				[
+					{ start: "3,2", suit: "spade" },
+					{ start: "4,2", suit: "diamond" },
+					{ start: "4,3", suit: "club" },
+					{ start: "4,1", suit: "spade" },
+					{ start: "5,1", suit: "heart" },
+					{ start: "2,1", suit: "heart" },
+				],
+				// 江夏→襄阳→上庸→南阳（♣♠♥♥♦♠下右左左上右）
+				[
+					{ start: "3,2", suit: "club" },
+					{ start: "3,1", suit: "spade" },
+					{ start: "5,1", suit: "heart" },
+					{ start: "2,2", suit: "heart" },
+					{ start: "1,2", suit: "diamond" },
+					{ start: "1,3", suit: "spade" },
+				],
+				// 江夏→襄阳→上庸→南阳（♣♠♥♥♠♦下右左左右上）
+				[
+					{ start: "3,2", suit: "club" },
+					{ start: "3,1", suit: "spade" },
+					{ start: "5,1", suit: "heart" },
+					{ start: "2,2", suit: "heart" },
+					{ start: "1,2", suit: "spade" },
+					{ start: "4,2", suit: "diamond" },
+				],
+			],
+			凉州: [
+				[
+					// 武威→玉门→居延→敦煌（♦♥♦♥♠♥♣上左上左右左下）
+					{ start: "5,1", suit: "diamond" },
+					{ start: "5,2", suit: "heart" },
+					{ start: "4,2", suit: "diamond" },
+					{ start: "4,3", suit: "heart" },
+					{ start: "2,5", suit: "spade" },
+					{ start: "3,5", suit: "heart" },
+					{ start: "1,5", suit: "club" },
+				],
+			],
+			梁州: [
+				[
+					// 绵竹→巴西→汉中→涪陵（♥♦♠♦♠左上右上右）
+					{ start: "2,3", suit: "heart" },
+					{ start: "1,3", suit: "diamond" },
+					{ start: "1,4", suit: "spade" },
+					{ start: "3,4", suit: "diamond" },
+					{ start: "3,2", suit: "spade" },
+				],
+			],
+			宁州: [
+				[
+					// 哀牢→句町→滇池→南涪（♣♠♦♣♥下右上下左）
+					{ start: "1,4", suit: "club" },
+					{ start: "1,2", suit: "spade" },
+					{ start: "3,2", suit: "diamond" },
+					{ start: "3,3", suit: "club" },
+					{ start: "3,1", suit: "heart" },
+				],
+			],
+			秦州: [
+				[
+					// 陇西→天水→武都→阴平（♥♠♣♥♣♥左右下左下左）
+					{
+						start: "2,3",
+						suit: "heart",
+						filter(dialog) {
+							return dialog.querySelector(`[data-city-name='pxlongxi']`) && dialog.querySelector(`[data-city-name='pxtianshui']`) && dialog.querySelector(`[data-city-name='pxwudu']`) && dialog.querySelector(`[data-city-name='pxyinping']`);
+						},
+					},
+					{
+						start: "2,3",
+						suit: "spade",
+						filter(dialog) {
+							return !dialog.querySelector(`[data-city-name='pxlongxi']`) && dialog.querySelector(`[data-city-name='pxtianshui']`) && dialog.querySelector(`[data-city-name='pxwudu']`) && dialog.querySelector(`[data-city-name='pxyinping']`);
+						},
+					},
+					{
+						start: "4,3",
+						suit: "club",
+						filter(dialog) {
+							return !dialog.querySelector(`[data-city-name='pxlongxi']`) && !dialog.querySelector(`[data-city-name='pxtianshui']`) && dialog.querySelector(`[data-city-name='pxwudu']`) && dialog.querySelector(`[data-city-name='pxyinping']`);
+						},
+					},
+					{
+						start: "4,2",
+						suit: "heart",
+						filter(dialog) {
+							return !dialog.querySelector(`[data-city-name='pxlongxi']`) && !dialog.querySelector(`[data-city-name='pxtianshui']`) && !dialog.querySelector(`[data-city-name='pxwudu']`) && dialog.querySelector(`[data-city-name='pxyinping']`);
+						},
+					},
+					{ start: "2,2", suit: "club" },
+					{ start: "2,1", suit: "heart" },
+				],
+				[
+					// 天水→武都→陇西→阴平（♠♣♦♥♣♥右下上左下左）
+					{
+						start: "2,3",
+						suit: "spade",
+						filter(dialog) {
+							return dialog.querySelector(`[data-city-name='pxlongxi']`) && dialog.querySelector(`[data-city-name='pxtianshui']`) && dialog.querySelector(`[data-city-name='pxwudu']`) && dialog.querySelector(`[data-city-name='pxyinping']`);
+						},
+					},
+					{
+						start: "4,3",
+						suit: "club",
+						filter(dialog) {
+							return dialog.querySelector(`[data-city-name='pxlongxi']`) && !dialog.querySelector(`[data-city-name='pxtianshui']`) && dialog.querySelector(`[data-city-name='pxwudu']`) && dialog.querySelector(`[data-city-name='pxyinping']`);
+						},
+					},
+					{
+						start: "4,2",
+						suit: "diamond",
+						filter(dialog) {
+							return dialog.querySelector(`[data-city-name='pxlongxi']`) && !dialog.querySelector(`[data-city-name='pxtianshui']`) && !dialog.querySelector(`[data-city-name='pxwudu']`) && dialog.querySelector(`[data-city-name='pxyinping']`);
+						},
+					},
+					{
+						start: "4,3",
+						suit: "heart",
+						filter(dialog) {
+							return dialog.querySelector(`[data-city-name='pxlongxi']`) && !dialog.querySelector(`[data-city-name='pxtianshui']`) && !dialog.querySelector(`[data-city-name='pxwudu']`) && dialog.querySelector(`[data-city-name='pxyinping']`);
+						},
+					},
+					{
+						start: "2,3",
+						suit: "club",
+						filter(dialog) {
+							return !dialog.querySelector(`[data-city-name='pxlongxi']`) && !dialog.querySelector(`[data-city-name='pxtianshui']`) && !dialog.querySelector(`[data-city-name='pxwudu']`) && dialog.querySelector(`[data-city-name='pxyinping']`);
+						},
+					},
+					{ start: "2,1", suit: "heart" },
+				],
+			],
+			青州: [
+				[
+					// 北海→临淄→乐安→东莱（♠♥♦♣♠♦右左上下右上）
+					{ start: "2,2", suit: "spade" },
+					{ start: "3,3", suit: "heart" },
+					{
+						start: "1,3",
+						suit: "diamond",
+						filter(dialog) {
+							return dialog.querySelector(`[data-city-name='pxlean']`) && dialog.querySelector(`[data-city-name='pxdonglai']`) && !dialog.querySelector(`[data-city-name='pxlinzi']`) && !dialog.querySelector(`[data-city-name='pxbaihai']`);
+						},
+					},
+					{ start: "1,4", suit: "club" },
+					{
+						start: "1,3",
+						suit: "spade",
+						filter(dialog) {
+							return !dialog.querySelector(`[data-city-name='pxlean']`) && dialog.querySelector(`[data-city-name='pxdonglai']`) && !dialog.querySelector(`[data-city-name='pxlinzi']`) && !dialog.querySelector(`[data-city-name='pxbaihai']`);
+						},
+					},
+					{
+						start: "4,3",
+						suit: "diamond",
+						filter(dialog) {
+							return !dialog.querySelector(`[data-city-name='pxlean']`) && dialog.querySelector(`[data-city-name='pxdonglai']`) && !dialog.querySelector(`[data-city-name='pxlinzi']`) && !dialog.querySelector(`[data-city-name='pxbaihai']`);
+						},
+					},
+				],
+				[
+					// 北海→东莱→临淄→乐安（♠♠♦♣♥♦右右上下左上）
+					{ start: "2,2", suit: "spade" },
+					{ start: "3,3", suit: "spade" },
+					{
+						start: "4,3",
+						suit: "diamond",
+						filter(dialog) {
+							return dialog.querySelector(`[data-city-name='pxlean']`) && dialog.querySelector(`[data-city-name='pxdonglai']`) && dialog.querySelector(`[data-city-name='pxlinzi']`) && !dialog.querySelector(`[data-city-name='pxbaihai']`);
+						},
+					},
+					{ start: "4,5", suit: "club" },
+					{
+						start: "4,3",
+						suit: "heart",
+						filter(dialog) {
+							return dialog.querySelector(`[data-city-name='pxlean']`) && !dialog.querySelector(`[data-city-name='pxdonglai']`) && dialog.querySelector(`[data-city-name='pxlinzi']`) && !dialog.querySelector(`[data-city-name='pxbaihai']`);
+						},
+					},
+					{
+						start: "1,3",
+						suit: "diamond",
+						filter(dialog) {
+							return dialog.querySelector(`[data-city-name='pxlean']`) && !dialog.querySelector(`[data-city-name='pxdonglai']`) && !dialog.querySelector(`[data-city-name='pxlinzi']`) && !dialog.querySelector(`[data-city-name='pxbaihai']`);
+						},
+					},
+				],
+			],
+			司州: [
+				[
+					// 温县→弘农→闻喜→邯郸（♣♦♠♦♠下上右上右）
+					{ start: "3,3", suit: "club" },
+					{ start: "2,1", suit: "diamond" },
+					{ start: "2,3", suit: "spade" },
+					{ start: "4,3", suit: "diamond" },
+					{ start: "4,4", suit: "spade" },
+				],
+			],
+			徐州: [
+				[
+					// 彭城→琅琊→广陵→东海（♥♠♦♣♦左右上下上）
+					{
+						start: "3,3",
+						suit: "heart",
+						filter(dialog) {
+							return dialog.querySelector(`[data-city-name='pxpengcheng']`);
+						},
+					},
+					{ start: "1,3", suit: "spade" },
+					{
+						start: "3,3",
+						suit: "diamond",
+						filter(dialog) {
+							return !dialog.querySelector(`[data-city-name='pxpengcheng']`);
+						},
+					},
+					{ start: "3,5", suit: "club" },
+					{ start: "4,1", suit: "diamond" },
+				],
+			],
+			兖州: [
+				[
+					// 泰山→任城→陈留→鄄城（♠♦♥♦右上左上）
+					{ start: "3,2", suit: "spade" },
+					{ start: "4,2", suit: "diamond" },
+					{ start: "4,1", suit: "heart" },
+					{ start: "4,2", suit: "diamond" },
+				],
+			],
+			扬州: [
+				[
+					// 庐江→合肥→居巢→寿春（♥♣♠♦♥左下右上左）
+					{ start: "3,3", suit: "heart" },
+					{ start: "1,3", suit: "club" },
+					{ start: "1,2", suit: "spade" },
+					{ start: "3,2", suit: "diamond" },
+					{ start: "3,4", suit: "heart" },
+				],
+				[
+					// 寿春→合肥→庐江→居巢（♦♥♣♥♠上左下左右）
+					{ start: "3,3", suit: "diamond" },
+					{ start: "3,4", suit: "heart" },
+					{ start: "2,4", suit: "club" },
+					{ start: "2,1", suit: "heart" },
+					{ start: "1,2", suit: "spade" },
+				],
+			],
+			益州: [
+				[
+					// 临邛→牂牁→朱提→成都（♥♣♠♣♥♦左下右下左上）
+					{ start: "3,3", suit: "heart" },
+					{ start: "1,3", suit: "club" },
+					{ start: "1,2", suit: "spade" },
+					{ start: "4,2", suit: "club" },
+					{ start: "4,1", suit: "heart" },
+					{ start: "2,1", suit: "diamond" },
+				],
+				[
+					// 朱提→成都→临邛→牂牁（♣♥♦♥♣♠下左上左下右）
+					{ start: "3,3", suit: "club" },
+					{ start: "3,1", suit: "heart" },
+					{ start: "2,1", suit: "diamond" },
+					{ start: "2,3", suit: "heart" },
+					{ start: "1,3", suit: "club" },
+					{ start: "1,2", suit: "spade" },
+				],
+			],
+			雍州: [
+				[
+					// 冯翊→京兆→扶风→安定（♠♦♠♥♣♦右上右左下上）
+					{ start: "3,2", suit: "spade" },
+					{ start: "4,2", suit: "diamond" },
+					{
+						start: "4,3",
+						suit: "spade",
+						filter(dialog) {
+							return dialog.querySelector(`[data-city-name='pxfengyi']`);
+						},
+					},
+					{ start: "5,3", suit: "heart" },
+					{
+						start: "4,3",
+						suit: "club",
+						filter(dialog) {
+							return !dialog.querySelector(`[data-city-name='pxfengyi']`);
+						},
+					},
+					{ start: "2,1", suit: "diamond" },
+				],
+			],
+			幽州: [
+				[
+					// 范阳→北平→玄菟→带方（♠♦♠♦♣♠♣右上右上下右下）
+					{ start: "1,1", suit: "spade" },
+					{ start: "2,1", suit: "diamond" },
+					{ start: "2,3", suit: "spade" },
+					{ start: "4,3", suit: "diamond" },
+					{ start: "4,5", suit: "club" },
+					{ start: "4,2", suit: "spade" },
+					{ start: "5,2", suit: "club" },
+				],
+			],
+			豫州: [
+				[
+					// 许昌→汝南→沛县→谯县（♥♦♣♠♣左上下右下）
+					{ start: "3,3", suit: "heart" },
+					{ start: "1,3", suit: "diamond" },
+					{
+						start: "2,4",
+						suit: "club",
+						filter(dialog) {
+							return !dialog.querySelector(`[data-city-name='pxxuchang']`) && dialog.querySelector(`[data-city-name='pxpeixian']`) && dialog.querySelector(`[data-city-name='pxqiaoxian']`) && dialog.querySelector(`[data-city-name='pxrunan']`);
+						},
+					},
+					{
+						start: "2,4",
+						suit: "spade",
+						filter(dialog) {
+							return !dialog.querySelector(`[data-city-name='pxxuchang']`) && dialog.querySelector(`[data-city-name='pxpeixian']`) && dialog.querySelector(`[data-city-name='pxqiaoxian']`) && !dialog.querySelector(`[data-city-name='pxrunan']`);
+						},
+					},
+					{ start: "4,4", suit: "club" },
+				],
+				[
+					// 沛县→许昌→汝南→谯县（♦♥♣♠♣上左下右下）
+					{ start: "3,3", suit: "diamond" },
+					{ start: "3,4", suit: "heart" },
+					{
+						start: "2,4",
+						suit: "club",
+						filter(dialog) {
+							return !dialog.querySelector(`[data-city-name='pxxuchang']`) && !dialog.querySelector(`[data-city-name='pxpeixian']`) && dialog.querySelector(`[data-city-name='pxqiaoxian']`) && dialog.querySelector(`[data-city-name='pxrunan']`);
+						},
+					},
+					{
+						start: "2,4",
+						suit: "spade",
+						filter(dialog) {
+							return !dialog.querySelector(`[data-city-name='pxxuchang']`) && !dialog.querySelector(`[data-city-name='pxpeixian']`) && dialog.querySelector(`[data-city-name='pxqiaoxian']`) && !dialog.querySelector(`[data-city-name='pxrunan']`);
+						},
+					},
+					{ start: "4,4", suit: "club" },
+				],
+				[
+					// 谯县→许昌→汝南→沛县（♠♥♦♣♠右左上下右）
+					{ start: "3,3", suit: "spade" },
+					{ start: "5,3", suit: "heart" },
+					{ start: "1,3", suit: "diamond" },
+					{
+						start: "2,4",
+						suit: "club",
+						filter(dialog) {
+							return !dialog.querySelector(`[data-city-name='pxxuchang']`) && dialog.querySelector(`[data-city-name='pxpeixian']`) && !dialog.querySelector(`[data-city-name='pxqiaoxian']`) && dialog.querySelector(`[data-city-name='pxrunan']`);
+						},
+					},
+					{
+						start: "2,4",
+						suit: "spade",
+						filter(dialog) {
+							return !dialog.querySelector(`[data-city-name='pxxuchang']`) && dialog.querySelector(`[data-city-name='pxpeixian']`) && !dialog.querySelector(`[data-city-name='pxqiaoxian']`) && !dialog.querySelector(`[data-city-name='pxrunan']`);
+						},
+					},
+				],
+				[
+					// 谯县→许昌→汝南→沛县（♣♥♥♠♣下左左右下）
+					{ start: "3,3", suit: "club" },
+					{ start: "3,2", suit: "heart" },
+					{
+						start: "2,4",
+						suit: "heart",
+						filter(dialog) {
+							return dialog.querySelector(`[data-city-name='pxxuchang']`) && dialog.querySelector(`[data-city-name='pxpeixian']`) && dialog.querySelector(`[data-city-name='pxqiaoxian']`) && !dialog.querySelector(`[data-city-name='pxrunan']`);
+						},
+					},
+					{
+						start: "2,4",
+						suit: "spade",
+						filter(dialog) {
+							return !dialog.querySelector(`[data-city-name='pxxuchang']`) && dialog.querySelector(`[data-city-name='pxpeixian']`) && !dialog.querySelector(`[data-city-name='pxqiaoxian']`) && !dialog.querySelector(`[data-city-name='pxrunan']`);
+						},
+					},
+					{ start: "4,4", suit: "club" },
+				],
+			],
+		},
 		mapData: new Map([
 			// 并州
 			["pxbingzhou", "xx(down,2,pxyanmen)x;xooo;o(draw,1,pxjiuyuan)ox;(draw,1,pxqixian)oo(draw,1,pxwuxiang);xxpx"],
@@ -107,7 +561,7 @@ const skills = {
 			// 凉州
 			["pxliangzhou", "oo(left,2,pxjuyan)xx;(draw,3,pxdunhuang)oxxx;x(up,2,pxyumen)o(draw,2,pxwuwei)x;xoxoo;xoxxp"],
 			// 梁州
-			["pxliangzhoux", "xo(down,2,pxhanzhong)x;o(draw,1,pxbaxi)ox;(recover,1,pxmianzhu)pox;xoo(draw,2,pxfuling);xxox"],
+			["pxliangzhoux", "xo(down,3,pxhanzhong)x;o(draw,1,pxbaxi)ox;(recover,1,pxmianzhu)pox;xoo(draw,2,pxfuling);xxox"],
 			// 宁州
 			["pxningzhou", "pxxxx;oo(recover,1,pxdianchi)xx;(draw,3,pxailao)oo(left,2,pxquting)o;x(recover,1,pxnanfu)oox"],
 			// 秦州
@@ -253,7 +707,7 @@ const skills = {
 						case "p":
 							cell.setBackground("ol_peixiu", "character");
 							lib.skill.olremaozhu.createArrow(cell);
-							dialog.playerPositon = cell;
+							dialog.playerPosition = cell;
 							break;
 						default:
 							throw new Error(`请检查棍母地图数据: ${item[i]}`);
@@ -319,7 +773,7 @@ const skills = {
 				const cells = row.querySelectorAll(".olremaozhuCell");
 				cells.forEach((cell, x) => {
 					// 玩家当前位置
-					if (cell === dialog.playerPositon) {
+					if (cell === dialog.playerPosition) {
 						rowStr += "p";
 					}
 					// 尚未触发的事件格
@@ -344,19 +798,66 @@ const skills = {
 		},
 	},
 	olrejinlan: {
+		getCoordinate(player) {
+			const dialog = ui[`olremaozhuMap_${player.playerid}`];
+			const cell = dialog?.playerPosition;
+			if (!dialog || !cell) {
+				return null;
+			}
+			const absX = Number(cell.dataset.x);
+			const absY = Number(cell.dataset.y);
+			const height = dialog.querySelectorAll(".olremaozhuRow").length;
+			const newX = absX + 1;
+			const newY = height - absY;
+			return `${newX},${newY}`;
+		},
+		canJinlan(card, player) {
+			const dialog = ui[`olremaozhuMap_${player.playerid}`];
+			if (!dialog) {
+				return false;
+			}
+			const suit = get.suit(card);
+			const pos = lib.skill.olrejinlan.getCoordinate(player);
+			const map = dialog?.querySelector(".olremaozhuTitle")?.innerHTML;
+			const canUse = (lib.skill.olremaozhu.bestLine[map] || []).some(route => {
+				return route.some(step => {
+					if (step.start !== pos) {
+						return false;
+					}
+					if (step.suit !== suit) {
+						return false;
+					}
+					if (step.filter && !step.filter(dialog)) {
+						return false;
+					}
+					return true;
+				});
+			});
+			return canUse;
+		},
+		mod: {
+			aiOrder(player, card, num) {
+				if (typeof card == "object") {
+					if (lib.skill.olrejinlan.canJinlan(card, player) && player === _status.currentPhase) {
+						return num + 10;
+					}
+				}
+			},
+		},
+		locked: false,
 		audio: 2,
 		trigger: { player: "useCard" },
 		filter(event, player) {
-			if (_status.currentPhase !== player) return false;
+			if (player !== _status.currentPhase) return false;
 			const dialog = ui[`olremaozhuMap_${player.playerid}`];
 			const suit = get.suit(event.card);
-			if (!lib.suit.includes(suit) || !dialog) {
+			if (!lib.suit.includes(suit) || !dialog?.playerPosition) {
 				return false;
 			}
 			// 黑桃东、红心西、梅花南、方块北
 			const list = { spade: [1, 0], heart: [-1, 0], club: [0, 1], diamond: [0, -1] }[suit];
 			// 定位
-			const cell = dialog.querySelector(`[data-x='${Number(dialog.playerPositon.dataset.x) + list[0]}'][data-y='${Number(dialog.playerPositon.dataset.y) + list[1]}']`);
+			const cell = dialog.querySelector(`[data-x='${Number(dialog.playerPosition.dataset.x) + list[0]}'][data-y='${Number(dialog.playerPosition.dataset.y) + list[1]}']`);
 			return cell && cell.style.visibility !== "hidden";
 		},
 		prompt2(event, player) {
@@ -364,6 +865,9 @@ const skills = {
 			const dialog = ui[`olremaozhuMap_${player.playerid}`];
 			const map = dialog?.querySelector(".olremaozhuTitle")?.innerHTML || "滚木";
 			return `向${{ spade: "东", heart: "西", club: "南", diamond: "北" }[suit]}探索${map}的所有地图`;
+		},
+		check(event, player) {
+			return lib.skill.olrejinlan.canJinlan(event.card, player);
 		},
 		async content(event, trigger, player) {
 			const suit = get.suit(trigger.card);
@@ -374,10 +878,10 @@ const skills = {
 			}
 			function moveCell(playerid, targetCellX, targetCellY) {
 				const dialog = ui[`olremaozhuMap_${playerid}`];
-				if (!dialog?.playerPositon) {
+				if (!dialog?.playerPosition) {
 					return;
 				}
-				const old = dialog.playerPositon;
+				const old = dialog.playerPosition;
 				const targetCell = dialog.querySelector(`[data-x='${targetCellX}'][data-y='${targetCellY}']`);
 				if (!targetCell) {
 					return;
@@ -399,14 +903,14 @@ const skills = {
 				targetCell.setBackground("ol_peixiu", "character");
 				lib.skill.olremaozhu.createArrow(targetCell);
 				// 更新当前位置记录
-				dialog.playerPositon = targetCell;
+				dialog.playerPosition = targetCell;
 				const map = dialog.querySelector(".olremaozhuTitle").innerHTML;
 				const city = lib.skill.olremaozhu.updateCityString(dialog);
 				lib.skill.olremaozhu.updateReconnect(playerid, map, city);
 			}
 			let effect = [];
 			while (true) {
-				const oldCell = dialog.playerPositon;
+				const oldCell = dialog.playerPosition;
 				if (!oldCell) {
 					break;
 				}
@@ -437,7 +941,7 @@ const skills = {
 						if (!dialog) {
 							return;
 						}
-						const oldCell = dialog.playerPositon;
+						const oldCell = dialog.playerPosition;
 						const list2 = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }[eventName];
 						const cell = dialog.querySelector(`[data-x='${Number(oldCell.dataset.x) + list2[0]}'][data-y='${Number(oldCell.dataset.y) + list2[1]}']`);
 						if (cell && cell.style.visibility !== "hidden") {
@@ -457,7 +961,17 @@ const skills = {
 				await event.trigger("maozhuSuccess");
 			}
 		},
-		ai: { combo: "olremaozhu" },
+		ai: {
+			combo: "olremaozhu",
+			effect: {
+				player_use(card, player, target) {
+					if (typeof card !== "object" || !lib.skill.olrejinlan.canJinlan(card, player) || player !== _status.currentPhase) {
+						return;
+					}
+					return [1, 0.8];
+				},
+			},
+		},
 		subSkill: {
 			map: {
 				charlotte: true,
@@ -483,11 +997,16 @@ const skills = {
 				},
 			},
 		},
-		get derivation() {
-			return [...get.info("olremaozhu").mapSkill].flatMap(([key, value]) => [key, ...value]);
-		},
 	},
 	olcaifeng: {
+		onChooseToUse(event) {
+			if (!game.online && !event.olcaifeng) {
+				event.set(
+					"olcaifeng",
+					["cardPile", "discardPile"].flatMap(pos => Array.from(ui[pos].childNodes))
+				);
+			}
+		},
 		audio: 2,
 		enable: "phaseUse",
 		filter(event, player) {
@@ -506,10 +1025,18 @@ const skills = {
 		position: "he",
 		check(card) {
 			const player = get.player();
-			if (ui.selected.cards.length > 1) {
+			const list = get.event().olcaifeng || [];
+			if (lib.skill.olrejinlan.canJinlan(card, player) && player.getUseValue(card) > 0) {
 				return 0;
 			}
-			return 6 - get.value(card, player);
+			const suits = ui.selected.cards.map(card => get.suit(card, player)).toUniqued();
+			if (suits.length >= 3) {
+				return 0;
+			}
+			if (ui.selected.cards.length > list.filter(card => !suits.includes(get.suit(card))).length) {
+				return 0;
+			}
+			return 10 - get.useful(card);
 		},
 		allowChooseAll: true,
 		async content(event, trigger, player) {
@@ -556,11 +1083,11 @@ const skills = {
 		audio: 2,
 		trigger: { player: "changeSkillsAfter" },
 		filter(event, player) {
-			return event.addSkill.includes("pxbingzhou") && player.hasUseTarget({ name: "judou", isCard: true });
+			return event.addSkill.includes("pxbingzhou") && player.hasUseTarget({ name: "juedou", isCard: true });
 		},
 		direct: true,
 		async content(event, trigger, player) {
-			await await player.chooseUseTarget(get.prompt2(event.name), { name: "judou", isCard: true }).set("logSkill", event.name);
+			await player.chooseUseTarget(get.prompt2(event.name), { name: "juedou", isCard: true }).set("logSkill", event.name);
 		},
 	},
 	// 雁门
@@ -574,11 +1101,11 @@ const skills = {
 		locked: false,
 		async content(event, trigger, player) {
 			const cards = [];
-			const card = get.cardPile2(card => get.subtypes(card, player).includes("equip4"));
+			const card = get.cardPile2(card => get.subtypes(card).includes("equip4"));
 			if (card) {
 				cards.push(card);
 			}
-			const card2 = get.cardPile2(card => get.subtypes(card, player).includes("equip1"));
+			const card2 = get.cardPile2(card => get.subtypes(card).includes("equip1"));
 			if (card2) {
 				cards.push(card2);
 			}
@@ -825,7 +1352,7 @@ const skills = {
 						return false;
 					}
 					const number = get.number(card);
-					return number >= 2 && number <= 9;
+					return typeof number == "number" && number >= 2 && number <= 9;
 				})
 			);
 		},
@@ -918,21 +1445,23 @@ const skills = {
 		audio: 2,
 		trigger: { player: "changeSkillsAfter" },
 		filter(event, player) {
-			return event.addSkill.includes("pxnanyang") && player.hasCards("he") && game.hasPlayer(current => current != player);
+			return event.addSkill.includes("pxnanyang") && player.hasCards("he", card => get.type2(card) == "trick") && game.hasPlayer(current => current != player);
 		},
 		async cost(event, trigger, player) {
 			event.result = await player
 				.chooseCardTarget({
 					prompt: get.prompt2(event.skill),
 					position: "he",
-					filterCard: lib.filter.cardRecastable,
+					filterCard(card, player) {
+						return get.type2(card) == "trick" && lib.filter.cardRecastable(card, player);
+					},
 					filterTarget: lib.filter.notMe,
 					ai1(card) {
 						return 6 - get.value(card);
 					},
 					ai2(target) {
 						const player = get.player();
-						return get.recoverEffect(player, player, player) + get.effect(target, player, player);
+						return get.recoverEffect(player, player, player) + get.recoverEffect(target, player, player);
 					},
 				})
 				.forResult();
@@ -1012,7 +1541,6 @@ const skills = {
 			await target.chooseToGive({
 				target: player,
 				position: "he",
-				selectCard: 2,
 				forced: true,
 			});
 		},
@@ -1229,7 +1757,7 @@ const skills = {
 				},
 				mod: {
 					cardUsable(card, player) {
-						if ([card].concat(card.cards || []).every(cardx => get.itemtype(cardx) === "card" && cardx.hasGaintag("pxbaxi_effect"))) {
+						if ([card].concat(card.cards || []).some(cardx => get.itemtype(cardx) === "card" && cardx.hasGaintag("pxbaxi_effect"))) {
 							return Infinity;
 						}
 					},
@@ -1327,7 +1855,6 @@ const skills = {
 			event.result = await player
 				.chooseTarget({
 					prompt: get.prompt2(event.skill),
-					filterTarget: true,
 					ai(target) {
 						const player = get.player();
 						return -get.attitude(player, target);
@@ -1391,7 +1918,7 @@ const skills = {
 		prompt2: "失去1点体力，然后视为使用一张【杀】",
 		async content(event, trigger, player) {
 			await player.loseHp();
-			await player.draw(3, "nodelay");
+			await player.chooseUseTarget({ name: "sha", isCard: true }, true, false);
 		},
 	},
 	// 秦州
@@ -1480,7 +2007,7 @@ const skills = {
 				})
 				.forResult();
 			if (result?.links?.length) {
-				if (get.name(result.links[0], target) == "sha") {
+				if (get.name(result.links[0], target) !== "sha") {
 					await player.draw(2);
 				}
 			}
@@ -1579,7 +2106,6 @@ const skills = {
 			event.result = await player
 				.chooseTarget({
 					prompt: get.prompt2(event.skill),
-					filterTarget: true,
 					ai(target) {
 						const player = get.player();
 						return (1 + target.countCards("h")) * get.attitude(player, target);
@@ -1655,12 +2181,12 @@ const skills = {
 		audio: 2,
 		trigger: { player: "changeSkillsAfter" },
 		filter(event, player) {
-			return event.addSkill.includes("pxbeihai") && player.countCards("h") < player.getHandcardLimit();
+			return event.addSkill.includes("pxbeihai") && player.countCards("h") < player.maxHp;
 		},
 		forced: true,
 		locked: false,
 		async content(event, trigger, player) {
-			await player.drawTo(player.getHandcardLimit());
+			await player.drawTo(player.maxHp);
 		},
 	},
 	// 司州
@@ -1679,7 +2205,7 @@ const skills = {
 					},
 					ai(target) {
 						const player = get.player();
-						return get.effect(target, { name: "shuoshou_copy", position: "h" }, player, player);
+						return get.effect(target, { name: "shunshou_copy", position: "h" }, player, player);
 					},
 				})
 				.forResult();
@@ -1755,16 +2281,18 @@ const skills = {
 		audio: 2,
 		trigger: { player: "changeSkillsAfter" },
 		filter(event, player) {
-			return event.addSkill.includes("pxhongnong") && player.hasCards("he");
+			return event.addSkill.includes("pxhongnong") && player.hasCards("he", card => get.type(card) == "equip");
 		},
 		async cost(event, trigger, player) {
 			event.result = await player
 				.chooseCard({
 					prompt: get.prompt2(event.skill),
 					selectCard: [1, Infinity],
-					filterCard: lib.filter.cardRecastable,
+					filterCard(card, player) {
+						return get.type(card) == "equip" && lib.filter.cardRecastable(card, player);
+					},
 					ai(card) {
-						return 7 - get.value(card);
+						return 8 - get.value(card);
 					},
 				})
 				.forResult();
@@ -1823,7 +2351,6 @@ const skills = {
 					return player != _status.currentPhase;
 				},
 				forced: true,
-				popup: false,
 				async content(event, trigger, player) {
 					await player.draw();
 				},
@@ -1892,7 +2419,6 @@ const skills = {
 			event.result = await player
 				.chooseTarget({
 					prompt: get.prompt2(event.skill),
-					filterTarget: true,
 					ai(target) {
 						const player = get.player();
 						return get.attitude(player, target);
@@ -1955,7 +2481,29 @@ const skills = {
 		},
 		forced: true,
 		locked: false,
-		async content(event, trigger, player) {},
+		async content(event, trigger, player) {
+			const card = game.createCard("chiwenyupei", "diamond", 4);
+			await player.gain({ cards: [card], animate: "gain2" });
+		},
+	},
+	// 螭纹玉佩
+	chiwenyupei: {
+		equipSkill: true,
+		trigger: { player: ["phaseUseEnd", "phaseDrawBegin2"] },
+		filter(event, player) {
+			if (event.name == "phaseUse") {
+				return player.isDamaged();
+			}
+			return player.isHealthy() && !event.numFixed;
+		},
+		forced: true,
+		async content(event, trigger, player) {
+			if (trigger.name == "phaseUse") {
+				await player.recover();
+			} else {
+				trigger.num += 2;
+			}
+		},
 	},
 	// 鄄城
 	pxjuancheng: {
@@ -2061,7 +2609,6 @@ const skills = {
 			event.result = await player
 				.chooseTarget({
 					prompt: get.prompt2(event.skill),
-					filterTarget: true,
 					ai(target) {
 						const player = get.player();
 						return get.attitude(player, target);
@@ -2310,16 +2857,20 @@ const skills = {
 		},
 		prompt2(event, player) {
 			let str = "摸两张牌";
-			const num = player.getHandcardLimit() - player.countCards("h") - 2;
+			const num = player.countCards("h") + 2 - player.getHandcardLimit();
 			if (num > 0) {
 				str += `，然后弃置${get.cnNumber(num)}张牌`;
 			}
 			str += "。";
 			return str;
 		},
+		check(event, player) {
+			const num = player.countCards("h") + 2 - player.getHandcardLimit();
+			return num <= 0;
+		},
 		async content(event, trigger, player) {
 			await player.draw({ num: 2 });
-			const num = player.getHandcardLimit() - player.countCards("h");
+			const num = player.countCards("h") - player.getHandcardLimit();
 			const disnum = num > 0 ? Math.min(num, player.countDiscardableCards(player, "h")) : 0;
 			if (disnum > 0) {
 				await player.chooseToDiscard({
@@ -2373,7 +2924,7 @@ const skills = {
 				.getCards("h")
 				.map(card => get.type2(card))
 				.toUniqued();
-			const card = get.cardPile2(cardx => !types.inlcudes(get.type2(cardx)));
+			const card = get.cardPile2(cardx => !types.includes(get.type2(cardx)));
 			if (card) {
 				await player.gain({ cards: [card], animate: "gain2" });
 			}
@@ -2385,15 +2936,15 @@ const skills = {
 		trigger: { target: "useCardToTargeted" },
 		filter(event, player) {
 			if (get.name(event.card, false) == "sha") {
-				return game.hasGlobalHistory("useCard", evt => evt.card?.name == "sha" && evt.targets?.includes(player) && evt != event);
+				return game.hasGlobalHistory("useCard", evt => get.type(evt.card, null, false) == "trick" && get.is.damageCard(evt.card) && evt.targets?.includes(player));
 			} else if (get.type(event.card, null, false) == "trick" && get.is.damageCard(event.card)) {
-				return game.hasGlobalHistory("useCard", evt => get.type(evt.card, null, false) == "trick" && get.is.damageCard(evt.card) && evt.targets?.includes(player) && evt != event);
+				return game.hasGlobalHistory("useCard", evt => evt.card.name == "sha" && evt.targets?.includes(player));
 			}
 		},
 		forced: true,
 		locked: false,
 		async content(event, trigger, player) {
-			trigger.getParent().exclude.add(player);
+			trigger.getParent().excluded.add(player);
 		},
 	},
 	// 幽州
@@ -2423,7 +2974,7 @@ const skills = {
 			return `获得${get.translation(event.reason.cards.filterInD())}`;
 		},
 		async content(event, trigger, player) {
-			const card = trigger.reason.cards.filterInD();
+			const cards = trigger.reason.cards.filterInD();
 			await player.gain({ cards, animate: "gain2" });
 		},
 	},
@@ -2439,7 +2990,7 @@ const skills = {
 		async content(event, trigger, player) {
 			const cards = [];
 			while (cards.length < 2) {
-				const card = get.cardPile2(card => get.name(card) == "sha");
+				const card = get.cardPile2(cardx => get.name(cardx) == "sha" && !cards.includes(cardx));
 				if (card) {
 					cards.push(card);
 				} else {
@@ -2567,18 +3118,20 @@ const skills = {
 			const num2 = target.getAttackRange();
 			if (num2 < num) {
 				target.addSkill(event.name + "_effect");
-				target.addMark(event.name + "_effect", num, false);
+				target.addMark(event.name + "_effect", num - num2, false);
 			}
 		},
 		subSkill: {
 			effect: {
 				charlotte: true,
 				onremove: true,
+				intro: { content: "攻击范围+#" },
 				mod: {
 					attackRange(player, num) {
 						return num + player.countMark("pxxuchang_effect");
 					},
 				},
+				markimage: "image/card/attackRange.png",
 			},
 		},
 	},
@@ -2637,7 +3190,6 @@ const skills = {
 				.chooseTarget({
 					prompt: get.prompt(event.skill),
 					prompt2: `令一名角色摸${get.cnNumber(num)}张牌`,
-					filterTarget: true,
 					ai(target) {
 						const player = get.player();
 						return get.effect(target, { name: "draw" }, player, player);
@@ -33487,7 +34039,7 @@ const skills = {
 	},
 	chouce: {
 		audio: 2,
-		audioname2: { sxrm_caocao: "chouce_sxrm_caocao" },
+		audioname2: { sxrm_caocao: "chouce_sxrm_caocao", tw_sxrm_caocao: "chouce_sxrm_caocao" },
 		trigger: { player: "damageEnd" },
 		getIndex: event => event.num,
 		filter(event) {
@@ -37149,7 +37701,7 @@ const skills = {
 	},
 	benyu: {
 		audio: 2,
-		audioname2: { sxrm_caocao: "benyu_sxrm_caocao" },
+		audioname2: { sxrm_caocao: "benyu_sxrm_caocao", tw_sxrm_caocao: "benyu_sxrm_caocao" },
 		trigger: { player: "damageEnd" },
 		filter(event, player) {
 			if (!event.source) {
@@ -40334,7 +40886,7 @@ const skills = {
 	jilei: {
 		trigger: { player: "damageEnd" },
 		audio: 2,
-		audioname2: { sxrm_caocao: "jilei_sxrm_caocao" },
+		audioname2: { sxrm_caocao: "jilei_sxrm_caocao", tw_sxrm_caocao: "jilei_sxrm_caocao" },
 		filter(event) {
 			return event.source && event.source.isIn();
 		},
@@ -46990,6 +47542,123 @@ const skills = {
 							return [1, 1.5 * shas];
 						}
 					}
+				},
+			},
+		},
+	},
+	//ol段煨 子右：R1+□🙌🏻😡↓→+□□□□😡🤜🏻power up！
+	oltaohuai: {
+		audio: 3,
+		zhuanhuanji: true,
+		trigger: { player: "useCard" },
+		filter(event, player) {
+			return player.hasHistory("lose", evt => {
+				if ((evt.relatedEvent || evt.getParent()) !== event) return false;
+				return evt.hs.some(card => typeof get.number(card, player) === "number");
+			});
+		},
+		async cost(event, trigger, player) {
+			if (
+				(() => {
+					const hs = player.getCards("h", card => typeof get.number(card, player) === "number");
+					if (!hs.length) return true;
+					const evt = player.getHistory("lose", evt => (evt.relatedEvent || evt.getParent()) === trigger)[0];
+					const evths = evt.hs.filter(card => typeof get.number(card, player) === "number");
+					const numbers = [...hs, ...evths]
+						.unique()
+						.map(card => get.number(card, player))
+						.sort((a, b) => a - b);
+					const [max, min] = [numbers.at(-1), numbers[0]];
+					return evths.some(card => {
+						const number = get.number(card, player);
+						return number === (player.storage[event.skill] ? min : max);
+					});
+				})()
+			)
+				event.result = { bool: true };
+			else {
+				event.result = await player
+					.chooseToDiscard({
+						prompt: `${get.translation(event.skill)}：是否弃置一张牌？`,
+						position: "he",
+						ai(card) {
+							const player = get.player();
+							if (!player.isPhaseUsing() || player.hasValueTarget(card, true, true)) return -1;
+							const number = get.number(card);
+							if (get.position(card) !== "h" || typeof number !== "number") return -1;
+							const hs = player.getCards("h", card => typeof get.number(card, player) === "number");
+							const numbers = hs.map(card => get.number(card, player)).sort((a, b) => a - b);
+							const [max, min] = [numbers.at(-1), numbers[0]];
+							if (number !== (player.storage.oltaohuai ? min : max)) return -1;
+							const hs2 = player.getCards("h", card2 => card2 !== card).sort((a, b) => get.number(a) - get.number(b));
+							if (!hs2.length) return -1;
+							return player.hasValueTarget(player.storage.oltaohuai ? hs2[0] : hs2.at(-1), true, true) ? 10 : -1;
+						},
+						chooseonly: true,
+					})
+					.forResult();
+			}
+		},
+		locked: true,
+		async content(event, trigger, player) {
+			if (event.cards?.length) await player.discard(event.cards);
+			else {
+				player.changeZhuanhuanji(event.name);
+				await player.draw();
+			}
+		},
+		mark: true,
+		marktext: "☯",
+		intro: {
+			content(storage) {
+				return `使用手牌中点数最${storage ? "小" : "大"}的牌时摸一张牌，否则你可以弃置一张牌`;
+			},
+		},
+		init(player, skill) {
+			player.addSkill(`${skill}_record`);
+		},
+		onremove(player, skill) {
+			player.removeSkill(`${skill}_record`);
+		},
+		subSkill: {
+			record: {
+				charlotte: true,
+				init(player, skill) {
+					const hs = player.getCards("h", card => typeof get.number(card, player) === "number");
+					const numbers = hs.map(card => get.number(card, player)).sort((a, b) => a - b);
+					const [max, min] = [numbers.at(-1), numbers[0]];
+					const hs2 = hs.filter(card => get.number(card, player) === (player.storage.oltaohuai ? min : max));
+					const hs3 = [...hs].removeArray(hs2);
+					player.addGaintag(hs2, skill);
+					player.removeGaintag(skill, hs3);
+				},
+				onremove(player, skill) {
+					player.removeGaintag(skill);
+				},
+				trigger: {
+					player: ["loseEnd", "changeZhuanhuanjiBegin", "enterGame"],
+					global: ["phaseBefore", "loseAsyncEnd", "gainEnd", "equipEnd", "addJudgeEnd", "addToExpansionEnd"],
+				},
+				filter(event, player, name) {
+					if (name === "changeZhuanhuanjiBegin") {
+						if (event.skill !== "oltaohuai") return false;
+					} else if (!["enterGame", "phaseBefore"].includes(name)) {
+						let gain = 0,
+							lose = 0;
+						if (event.getg) gain = event.getg(player).length;
+						if (event.getl) lose = event.getl(player).hs.length;
+						if (gain === lose) return false;
+					}
+					const hs = player.getCards("h", card => typeof get.number(card, player) === "number");
+					if (!hs.length) return false;
+					const numbers = hs.map(card => get.number(card, player)).sort((a, b) => a - b);
+					const [max, min] = [numbers.at(-1), numbers[0]];
+					const hs2 = hs.filter(card => get.number(card, player) === (player.storage.oltaohuai ? min : max));
+					return hs.some(card => hs2.includes(card) === !card.hasGaintag("oltaohuai_record"));
+				},
+				silent: true,
+				async content(event, trigger, player) {
+					lib.skill[event.name].init(player, event.name);
 				},
 			},
 		},

@@ -3241,19 +3241,26 @@ const skills = {
 		trigger: {
 			global: ["loseAsyncAfter", "loseAfter"],
 		},
-		filter(event, player) {
-			if (player.getStorage("sbqingjian_round").includes(event.player)) {
-				return false;
-			}
-			return event.type == "discard" && event.getl?.(event.player)?.cards2?.length == 1;
+		getIndex(event, player) {
+			return game
+				.filterPlayer(current => {
+					if (player.getStorage("sbqingjian_round").includes(current)) {
+						return false;
+					}
+					return event.type == "discard" && event.getl?.(current)?.cards2?.length == 1;
+				})
+				.sortBySeat();
 		},
-		logTarget: "player",
+		logTarget(event, player, name, index) {
+			return index;
+		},
 		async content(event, trigger, player) {
+			const target = event.indexedData;
 			player.addTempSkill(event.name + "_round", "roundStart");
-			player.markAuto(event.name + "_round", [trigger.player]);
-			const cards = trigger.getl(trigger.player).cards2;
+			player.markAuto(event.name + "_round", [target]);
+			const cards = trigger.getl(target).cards2;
 			if (cards?.length) {
-				await trigger.player.gain({
+				await target.gain({
 					cards: cards,
 					animate: "gain2",
 				});
@@ -4977,6 +4984,12 @@ const skills = {
 				];
 				event.controls = [ui.create.control(controls.concat(["清除选择", "stayleft"]))];
 			};
+			const closeFunc = () => {
+				const event = get.event();
+				if (event?.controls) {
+					event.controls[0].close();
+				}
+			};
 			if (event.isMine()) {
 				func();
 			} else if (event.isOnline()) {
@@ -5096,6 +5109,11 @@ const skills = {
 				storage[2] = names;
 			} else {
 				storage[2] = [];
+				if (event.isMine()) {
+					closeFunc();
+				} else if (event.isOnline()) {
+					event.player.send(closeFunc);
+				}
 			}
 			player.markSkill("sbkanpo");
 		},

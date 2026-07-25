@@ -914,11 +914,31 @@ const skills = {
 			player: ["phaseZhunbeiBegin", "recoverEnd", "loseHpEnd"],
 		},
 		filter(event, player) {
-			return _status.currentPhase?.hasCards("he");
+			const current = get.info("rekongsheng").getFakeCurrent();
+			return current?.isIn() && current.hasCards("he");
 		},
-		logTarget: () => _status.currentPhase,
+		getFakeCurrent() {
+			let current = _status.currentPhase;
+			if (!current) {
+				const history = _status.globalHistory;
+				for (let i = history.length - 1; i >= 0; i--) {
+					for (const current2 of game.filterPlayer2()) {
+						const action = current2.actionHistory[i];
+						if (action.isMe && !action.isSkipped) {
+							current = current2;
+						}
+					}
+					if (current) break;
+					if (history[i].isRound) {
+						break;
+					}
+				}
+			}
+			return current;
+		},
+		logTarget: () => get.info("rekongsheng").getFakeCurrent(),
 		async cost(event, trigger, player) {
-			const target = _status.currentPhase;
+			const target = get.info("rekongsheng").getFakeCurrent();
 			if (target == player) {
 				event.result = await player
 					.chooseCard({
@@ -993,6 +1013,27 @@ const skills = {
 					}
 					await target.gain({ cards: target.getExpansions("rekongsheng"), animate: "gain2" });
 				});
+		},
+		group: "rekongsheng_remove",
+		subSkill: {
+			remove: {
+				forceDie: true,
+				direct: true,
+				trigger: { player: "die" },
+				async content(event, trigger, player) {
+					let logged = 0;
+					for (const current of game.filterPlayer()) {
+						const cards = current.getExpansions("rekongsheng");
+						if (cards.length) {
+							if (logged === 0) {
+								player.logSkill("rekongsheng");
+								logged = 1;
+							}
+							await current.gain(cards, "gain2");
+						}
+					}
+				},
+			},
 		},
 	},
 	//界严颜
@@ -25394,13 +25435,28 @@ const skills = {
 						return target != player && target != _status.event.getTrigger().player;
 					})
 					.set("ai", function (target) {
-						var player = _status.event.player;
-						var card = _status.event.getParent().card;
-						if (target.hasSkillTag("nogain") || !player.needsToDiscard() || (get.tag(card, "damage") && player.hasValueTarget(card, null, false) && get.effect(_status.event.getTrigger().player, card, null, false) > 0)) {
+						const event = get.event();
+						const { player, giveCheck } = event;
+						const card = event.getParent().card;
+						if (target.hasSkillTag("nogain") || !player.needsToDiscard() || giveCheck === false) {
 							return 0;
 						}
+						if (typeof giveCheck === "number") {
+							if (target.getUseValue(card) < giveCheck) {
+								return 0;
+							}
+						}
 						return get.attitude(player, target) / (1 + target.countCards("h"));
-					});
+					})
+					.set(
+						"giveCheck",
+						(function () {
+							if (!player.needsToDiscard() || player.hasValueTarget(card, null, false)) {
+								return false;
+							}
+							return player.getUseValue(card);
+						})()
+					);
 			} else {
 				event.finish();
 			}
@@ -32526,6 +32582,8 @@ const skills = {
 	mbfenxin: {
 		mode: ["identity", "doudizhu"],
 		audio: "fenxin",
+		skillAnimation: true,
+		animationColor: "wood",
 		trigger: {
 			source: "dieBegin",
 		},
