@@ -81,10 +81,14 @@ const skills = {
 				return ui.create.dialog("灭吴", [list, "vcard"]);
 			},
 			check(button) {
-				if (_status.event.getParent().type != "phase") {
+				const player = get.player();
+				let evt = _status.event.getParent();
+				if (evt.type != "phase") {
+					if (evt.sourcex) {
+						return get.effect(evt.sourcex, { name: button.link[2] }, player);
+					}
 					return 1;
 				}
-				const player = get.player();
 				if (["wugu", "zhulu_card", "yiyi", "lulitongxin", "lianjunshengyan", "diaohulishan"].includes(button.link[2])) {
 					return 0;
 				}
