@@ -10634,12 +10634,12 @@ const skills = {
 							})
 							.set("du", get.name(card) == "du")
 							.forResult();
+						highlightRemove();
 						if (result?.bool && result.targets?.length) {
 							const {
 								targets: [target],
 							} = result;
 							player.line(target, "green");
-							highlightRemove();
 							await target.gain(cards, "gain2");
 						}
 					} else {
@@ -10652,12 +10652,12 @@ const skills = {
 								return get.effect(target, { name: "guohe" }, player, player);
 							})
 							.forResult();
+						highlightRemove();
 						if (result?.bool && result.targets?.length) {
 							const {
 								targets: [target],
 							} = result;
 							player.line(target, "green");
-							highlightRemove();
 							await player.discardPlayerCard(target, "hej", true);
 						}
 					}

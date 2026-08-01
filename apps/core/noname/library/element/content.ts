@@ -13515,6 +13515,7 @@ export const Content: Record<string, ContentFuncByAll | ContentFuncsByAll> = {
 				if (ui.confirm) {
 					ui.confirm.close();
 				}
+				game.resume();
 				_status.imchoosing = false;
 				setTimeout(() => {
 					ui.arena.classList.remove("choose-to-move");
@@ -13522,6 +13523,7 @@ export const Content: Record<string, ContentFuncByAll | ContentFuncsByAll> = {
 				resolve(result);
 			};
 			//开搞
+			game.pause();
 			game.countChoose();
 			event.choosing = true;
 			result = await promise;
