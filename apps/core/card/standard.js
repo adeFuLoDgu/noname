@@ -3253,6 +3253,9 @@ export default {
 			},
 			async effect(event, trigger, player, result) {
 				if (result.bool === false) {
+					game.broadcastAll(player => {
+						if (window.decadeUI) lib.animate.skill["lebu"].call(player, "lebu");
+					}, player);
 					player.skip("phaseUse");
 				}
 			},
@@ -3337,6 +3340,9 @@ export default {
 			},
 			async effect(event, trigger, player, result) {
 				if (result.bool === false) {
+					game.broadcastAll(player => {
+						if (window.decadeUI) lib.animate.skill["shandian"].call(player, "shandian");
+					}, player);
 					player.damage(3, "thunder", "nosource");
 				} else {
 					player.addJudgeNext(event.card);

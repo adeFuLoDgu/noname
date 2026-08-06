@@ -236,6 +236,11 @@ export default {
 			fullskin: true,
 			manualConfirm: true,
 			global: "qixingbaodao",
+			async onEquip(event, trigger, player) {
+				game.broadcastAll(player => {
+					if (window.decadeUI) lib.animate.skill["qixingbaodao"].call(player, "qixingbaodao");
+				}, player);
+			},
 			ai: {
 				order: 9,
 				value(card, player) {
@@ -275,6 +280,11 @@ export default {
 			distance: { attackFrom: 1 },
 			selectTarget: -1,
 			manualConfirm: true,
+			async onEquip(event, trigger, player) {
+				game.broadcastAll(player => {
+					if (window.decadeUI) lib.animate.skill["duanjian"].call(player, "duanjian");
+				}, player);
+			},
 			ai: {
 				order: 9,
 				equipValue(card, player) {

@@ -534,6 +534,9 @@ export default {
 					if (get.is.changban()) {
 						player.addTempSkill("bingliang_changban");
 					} else {
+						game.broadcastAll(player => {
+							if (window.decadeUI) lib.animate.skill["bingliang"].call(player, "bingliang");
+						}, player);
 						player.skip("phaseDraw");
 					}
 				}

@@ -392,6 +392,11 @@ export default {
 			customSwap() {
 				return true;
 			},
+			async onEquip(event, trigger, player) {
+				game.broadcastAll(player => {
+					if (window.decadeUI) lib.animate.skill["numa"].call(player, "numa");
+				}, player);
+			},
 			ai: {
 				order: 9,
 				value(card, player) {
@@ -514,6 +519,11 @@ export default {
 			selectTarget: 1,
 			toself: false,
 			distance: { attackFrom: 1 },
+			async onEquip(event, trigger, player) {
+				game.broadcastAll(player => {
+					if (window.decadeUI) lib.animate.skill["zheji"].call(player, "zheji");
+				}, player);
+			},
 			ai: {
 				order: 5,
 				equipValue(card, player) {
@@ -608,6 +618,9 @@ export default {
 			async onEquip(event, trigger, player) {
 				const { card } = event;
 				if (player.sex === "male" && player.hasCards("he", cardx => card.cards && !card.cards.includes(cardx))) {
+					game.broadcastAll(player => {
+						if (window.decadeUI) lib.animate.skill["nvzhuang"].call(player, "nvzhuang");
+					}, player);
 					player
 						.chooseToDiscard(true, cardx => !_status.event.card?.cards.includes(cardx), "he")
 						.set("card", card)
@@ -631,6 +644,9 @@ export default {
 						return;
 					}
 					player.popup("nvzhuang");
+					game.broadcastAll(player => {
+						if (window.decadeUI) lib.animate.skill["nvzhuang"].call(player, "nvzhuang");
+					}, player);
 					player.chooseToDiscard(true, "he");
 				});
 			},

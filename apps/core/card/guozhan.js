@@ -582,8 +582,16 @@ export default {
 				return true;
 			},
 			loseDelay: false,
+			async onEquip(event, trigger, player) {
+				game.broadcastAll(player => {
+					if (window.decadeUI) lib.animate.skill["taipingyaoshu"].call(player, "taipingyaoshu");
+				}, player);
+			},
 			async onLose(event, trigger, player) {
 				player.addTempSkill("taipingyaoshu_lose");
+				game.broadcastAll(player => {
+					if (window.decadeUI) lib.animate.skill["taipingyaoshu_lose"].call(player, "taipingyaoshu_lose");
+				}, player);
 			},
 		},
 		jilinqianyi: {
@@ -1468,6 +1476,11 @@ export default {
 			subtype: "equip1",
 			global: "g_wuliu_skill",
 			distance: { attackFrom: -1 },
+			async onEquip(event, trigger, player) {
+				game.broadcastAll(player => {
+					if (window.decadeUI) lib.animate.skill["wuliu"].call(player, "wuliu");
+				}, player);
+			},
 			ai: {
 				equipValue(card, player) {
 					if (player.identity === "unknown" || player.identity === "ye") {
