@@ -11,7 +11,7 @@ const html = (strings, ...values) => String.raw({ raw: strings }, ...values);
 
 /** @type { importCharacterConfig["skill"] } */
 const skills = {
-	//PE神钟会------by 清风
+	//PE神钟会
 	pelinjie: {
 		audio: "dclinjie",
 		marktext: "凛",
@@ -1782,7 +1782,6 @@ const skills = {
 		},
 		subSkill: {
 			show: {
-				audio: "jxlianpo",
 				trigger: { global: "roundStart" },
 				filter(event, player) {
 					var list = lib.config.mode_config.identity.identity.lastItem.slice();
@@ -1929,6 +1928,8 @@ const skills = {
 		},
 	},
 	jxzhaoluan: {
+		audio: 4,
+		logAudio: () => 2,
 		trigger: { global: "dieBegin" },
 		filter(event, player) {
 			return event.getParent().name == "dying" && event.player.isIn();
@@ -1971,7 +1972,7 @@ const skills = {
 		},
 		subSkill: {
 			effect: {
-				audio: "jxzhaoluan",
+				audio: ["jxzhaoluan3.mp3", "jxzhaoluan4.mp3"],
 				enable: "phaseUse",
 				filter(event, player) {
 					return player.getStorage("jxzhaoluan_effect").some(i => i.isIn());

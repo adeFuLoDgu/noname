@@ -11,7 +11,7 @@ const html = (strings, ...values) => String.raw({ raw: strings }, ...values);
 
 /** @type { importCharacterConfig["skill"] } */
 const skills = {
-	//张星彩------ by 清风
+	//张星彩
 	ymhengren: {
 		audio: 2,
 		zhuanhuanji: true,
@@ -524,7 +524,7 @@ const skills = {
 			},
 		},
 	},
-	//梦貂蝉------by 清风
+	//梦貂蝉
 	ymdiyu: {
 		audio: 2,
 		trigger: { global: "roundStart" },
@@ -761,7 +761,7 @@ const skills = {
 			},
 		},
 	},
-	//线下奶龙------by 清风
+	//线下奶龙
 	ymfriendyance: {
 		audio: ["friendyance1.mp3", "friendyance2.mp3", "friendyance3.mp3"],
 		logAudio: () => ["friendyance1.mp3"],

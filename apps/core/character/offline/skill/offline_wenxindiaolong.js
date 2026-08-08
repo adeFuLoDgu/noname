@@ -11,7 +11,7 @@ const html = (strings, ...values) => String.raw({ raw: strings }, ...values);
 
 /** @type { importCharacterConfig["skill"] } */
 const skills = {
-	//曹丕------by 清风
+	//曹丕
 	wxdlyishi: {
 		audio: 2,
 		derivation: "wxdlfangzhu",

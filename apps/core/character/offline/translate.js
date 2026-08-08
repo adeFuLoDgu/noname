@@ -1,6 +1,14 @@
 import { lib, game, ui, get, ai, _status } from "noname";
 
 const translates = {
+	ps_shen_caocao: "★神曹操",
+	ps_shen_caocao_prefix: "★|神",
+	psguixin: "归心",
+	psguixin_info: "每轮开始时或当你受到伤害后，你可以获得所有其他角色各一张牌。",
+	psshenzun: "神尊",
+	psshenzun_info: "当你造成伤害时，若受伤角色的势力与你不同，你可以弃置一张牌令此伤害+1且不计入次数。",
+	psfeiying: "飞影",
+	psfeiying_info: "锁定技，你使用牌无距离限制。",
 	wxdl_caopi: "文心雕龙曹丕",
 	wxdl_caopi_prefix: "文心雕龙",
 	wxdlyishi: "遗世",
@@ -141,7 +149,7 @@ const translates = {
 	peliezhan: "烈瞻",
 	peliezhan_info: "你可以将一张女将牌当无距离和次数限制的基本牌或普通锦囊牌使用，然后摸两张牌。",
 	petijun: "替君",
-	petijun_info: "限定技，出牌阶段，你可以获得一名男性角色装备区里的所有牌，你与其回复所有体力;当你杀其以外的角色后，此技能视为未发动。",
+	petijun_info: "限定技，出牌阶段，你可以获得一名男性角色装备区里的所有牌，你与其回复所有体力；当你杀死其以外的角色后，此技能视为未发动。",
 	pe_yangyuhuan: "杨玉环",
 	peyichuan: "驿传",
 	peyichuan_info: "出牌阶段限一次，你可以声明一种牌类型，所有其他角色同时选择是否交给你任意张此类型的牌，不执行的角色不能响应一号位使用牌直到游戏结束。",

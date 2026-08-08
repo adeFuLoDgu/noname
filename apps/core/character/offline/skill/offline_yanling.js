@@ -13,6 +13,7 @@ const html = (strings, ...values) => String.raw({ raw: strings }, ...values);
 const skills = {
 	//雁翎徐晃
 	ylyg_duanliang: {
+		audio: "duanliang",
 		enable: "chooseToUse",
 		filterCard(card) {
 			return get.type2(card) != "trick" && get.color(card) == "black";
@@ -51,6 +52,7 @@ const skills = {
 		},
 	},
 	ylyg_zier: {
+		audio: "jiezi",
 		trigger: {
 			global: "phaseBegin",
 		},
@@ -158,6 +160,7 @@ const skills = {
 	},
 	//雁翎祝融
 	ylyg_lieren: {
+		audio: "lieren",
 		trigger: {
 			player: "useCardToPlayered",
 		},
@@ -225,6 +228,7 @@ const skills = {
 		},
 	},
 	ylyg_juxiang: {
+		audio: "juxiang",
 		trigger: {
 			global: "useCard",
 		},

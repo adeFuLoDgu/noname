@@ -680,22 +680,23 @@ export class Game {
 	 */
 	addTempTag(id, translation) {
 		game.addVideo("addTempTag", null, [id, translation]);
-		game.broadcastAll(
+		// 重连恢复翻译
+		_status.postReconnect.addTempTag ??= [
+			list => {
+				for (const args of list) {
+					// @ts-expect-error ignore
+					game.addTempTag(...args);
+				}
+			},
+			[],
+		];
+		_status.postReconnect.addTempTag[1].push([id, translation]);
+		// 翻译
+		lib.translate[id] = translation;
+		game.broadcast(
 			// @ts-expect-error ignore
 			(id, translation) => {
-				if (!lib.translate[id]) {
-					lib.translate[id] = translation;
-					_status.postReconnect.addTempTag ??= [
-						list => {
-							for (const args of list) {
-								// @ts-expect-error ignore
-								game.addTempTag(...args);
-							}
-						},
-						[],
-					];
-					_status.postReconnect.addTempTag[1].push([id, translation]);
-				}
+				lib.translate[id] = translation;
 			},
 			id,
 			translation
@@ -2463,9 +2464,9 @@ export class Game {
 			args.length === 1 && get.objtype(args[0]) === "object"
 				? args[0]
 				: {
-					path: args.filter(arg => typeof arg === "string" || typeof arg === "number").join("/"),
-					onError: args.find(arg => typeof arg === "function"),
-				};
+						path: args.filter(arg => typeof arg === "string" || typeof arg === "number").join("/"),
+						onError: args.find(arg => typeof arg === "function"),
+					};
 
 		const {
 			path = "",
@@ -5086,7 +5087,7 @@ ${e instanceof Error ? e.stack : String(e)}`);
 			}
 		}
 		if (!callback) {
-			callback = function () { };
+			callback = function () {};
 		}
 		//try{
 		//	if(noinput){
@@ -6558,7 +6559,8 @@ ${e instanceof Error ? e.stack : String(e)}`);
 			tr,
 			td,
 			dialog,
-			hsMap = new Map([]);
+			hsMap = new Map([]),
+			poptipData = new Map([]);
 		for (const target of [...game.players, ...game.dead]) {
 			hsMap.set(target, target.getCards("h"));
 		}
@@ -6589,32 +6591,24 @@ ${e instanceof Error ? e.stack : String(e)}`);
 			} else if (result2 == false) {
 				dialog.content.firstChild.innerHTML = "战斗失败";
 			}
+			const poptipData = arguments[2];
+			if (poptipData instanceof Map) {
+				const players = game.players.concat(game.dead, game.additionaldead || []);
+				for (const target of players) {
+					if (!poptipData.has(target.playerid)) continue;
+					const [id, hs] = poptipData.get(target.playerid);
+					lib.poptip.add({
+						id,
+						name: `<img style="width:15px; vertical-align: middle;" src="${lib.assetURL}image/card/handcard.png">`,
+						dialog(dialog) {
+							dialog.add(`${get.translation(target)}的手牌`);
+							dialog[hs.length ? "addSmall" : "addText"](hs.length ? hs : "（没有手牌）");
+						},
+					});
+				}
+			}
 			ui.update();
 			dialog.add(ui.create.div(".placeholder"));
-			for (let i = 0; i < game.players.length; i++) {
-				let hs = game.players[i].getCards("h");
-				if (hs.length) {
-					dialog.add('<div class="text center">' + get.translation(game.players[i]) + "</div>");
-					dialog.addSmall(hs);
-				}
-				let muniu = game.players[i].getVEquip("muniu");
-				if (muniu && muniu.storages && muniu.storages.length) {
-					dialog.add('<div class="text center">' + get.translation(game.players[i]) + '的' + get.translation('muniu') + '</div>');
-					dialog.addSmall(muniu.storages);
-				}
-			}
-			for (let j = 0; j < game.dead.length; j++) {
-				let hs = game.dead[j].getCards("h");
-				if (hs.length) {
-					dialog.add('<div class="text center">' + get.translation(game.dead[j]) + "</div>");
-					dialog.addSmall(hs);
-				}
-				let muniu = game.dead[j].getVEquip("muniu");
-				if (muniu && muniu.storages && muniu.storages.length) {
-					dialog.add('<div class="text center">' + get.translation(game.dead[j]) + '的' + get.translation('muniu') + '</div>');
-					dialog.addSmall(muniu.storages);
-				}
-			}
 			dialog.add(ui.create.div(".placeholder.slim"));
 			if (lib.config.background_audio) {
 				if (result2 === true) {
@@ -6821,11 +6815,9 @@ ${e instanceof Error ? e.stack : String(e)}`);
 			td = document.createElement("td");
 			td.innerHTML = "杀敌";
 			tr.appendChild(td);
-			/*
 			td = document.createElement("td");
 			td.innerHTML = "手牌";
 			tr.appendChild(td);
-			*/
 			table.appendChild(tr);
 			for (i = 0; i < game.players.length; i++) {
 				tr = document.createElement("tr");
@@ -6877,11 +6869,13 @@ ${e instanceof Error ? e.stack : String(e)}`);
 				}
 				td.innerHTML = num;
 				tr.appendChild(td);
-				/*
 				td = document.createElement("td");
 				let target = game.players[i];
 				let muniu = target.getVEquip("muniu");
-				td.innerHTML = get.poptip({
+				const poptipId = get.id();
+				poptipData.set(target.playerid, [poptipId, hsMap.get(target) ?? []]);
+				game.broadcastAll(item => lib.poptip.add(item), {
+					id: poptipId,
 					name: `<img style="width:15px; vertical-align: middle;" src="${lib.assetURL}image/card/handcard.png">`,
 					dialog(dialog) {
 						let hs = hsMap.get(target) ?? [];
@@ -6894,8 +6888,8 @@ ${e instanceof Error ? e.stack : String(e)}`);
 						return dialog;
 					},
 				});
+				td.innerHTML = get.poptip(poptipId);
 				tr.appendChild(td);
-				*/
 				table.appendChild(tr);
 			}
 			dialog.add(ui.create.div(".placeholder"));
@@ -6922,11 +6916,9 @@ ${e instanceof Error ? e.stack : String(e)}`);
 				td = document.createElement("td");
 				td.innerHTML = "杀敌";
 				tr.appendChild(td);
-				/*
 				td = document.createElement("td");
 				td.innerHTML = "手牌";
 				tr.appendChild(td);
-				*/
 				table.appendChild(tr);
 			}
 			for (i = 0; i < game.dead.length; i++) {
@@ -6979,11 +6971,13 @@ ${e instanceof Error ? e.stack : String(e)}`);
 				}
 				td.innerHTML = num;
 				tr.appendChild(td);
-				/*
 				td = document.createElement("td");
 				let target = game.dead[i];
 				let muniu = target.getVEquip("muniu");
-				td.innerHTML = get.poptip({
+				const poptipId = get.id();
+				poptipData.set(target.playerid, [poptipId, hsMap.get(target) ?? []]);
+				game.broadcastAll(item => lib.poptip.add(item), {
+					id: poptipId,
 					name: `<img style="width:15px; vertical-align: middle;" src="${lib.assetURL}image/card/handcard.png">`,
 					dialog(dialog) {
 						let hs = hsMap.get(target) ?? [];
@@ -6996,8 +6990,8 @@ ${e instanceof Error ? e.stack : String(e)}`);
 						return dialog;
 					},
 				});
+				td.innerHTML = get.poptip(poptipId);
 				tr.appendChild(td);
-				*/
 				table.appendChild(tr);
 			}
 			dialog.add(ui.create.div(".placeholder"));
@@ -7047,7 +7041,6 @@ ${e instanceof Error ? e.stack : String(e)}`);
 				}
 				td.innerHTML = num;
 				tr.appendChild(td);
-				/*
 				td = document.createElement("td");
 				num = 0;
 				for (j = 0; j < game.additionaldead[i].stat.length; j++) {
@@ -7060,7 +7053,10 @@ ${e instanceof Error ? e.stack : String(e)}`);
 				td = document.createElement("td");
 				let target = game.additionaldead[i];
 				let muniu = target.getVEquip("muniu");
-				td.innerHTML = get.poptip({
+				const poptipId = get.id();
+				poptipData.set(target.playerid, [poptipId, hsMap.get(target) ?? []]);
+				game.broadcastAll(item => lib.poptip.add(item), {
+					id: poptipId,
 					name: `<img style="width:15px; vertical-align: middle;" src="${lib.assetURL}image/card/handcard.png">`,
 					dialog(dialog) {
 						let hs = hsMap.get(target) ?? [];
@@ -7073,7 +7069,8 @@ ${e instanceof Error ? e.stack : String(e)}`);
 						return dialog;
 					},
 				});
-				*/
+				td.innerHTML = get.poptip(poptipId);
+				tr.appendChild(td);
 				table.appendChild(tr);
 			}
 			dialog.add(ui.create.div(".placeholder"));
@@ -7082,44 +7079,14 @@ ${e instanceof Error ? e.stack : String(e)}`);
 		// }
 		dialog.add(ui.create.div(".placeholder"));
 
-		let clients = game.players.concat(game.dead);
+		let clients = game.players.concat(game.dead, game.additionaldead || []);
 		for (let i = 0; i < clients.length; i++) {
 			if (clients[i].isOnline2()) {
-				clients[i].send(game.over, dialog.content.innerHTML, game.checkOnlineResult(clients[i]));
+				clients[i].send(game.over, dialog.content.innerHTML, game.checkOnlineResult(clients[i]), poptipData);
 			}
 		}
 
 		dialog.add(ui.create.div(".placeholder"));
-		for (let i = 0; i < game.players.length; i++) {
-			if (!_status.connectMode && game.players[i].isUnderControl(true) && game.layout != "long2") {
-				continue;
-			}
-			let hs = game.players[i].getCards("h");
-			if (hs.length) {
-				dialog.add('<div class="text center">' + get.translation(game.players[i]) + "</div>");
-				dialog.addSmall(hs);
-			}
-			let muniu = game.players[i].getVEquip("muniu");
-			if (muniu && muniu.storages && muniu.storages.length) {
-				dialog.add('<div class="text center">' + get.translation(game.players[i]) + '的' + get.translation('muniu') + '</div>');
-				dialog.addSmall(muniu.storages);
-			}
-		}
-		for (let i = 0; i < game.dead.length; i++) {
-			if (!_status.connectMode && game.dead[i].isUnderControl(true) && game.layout != "long2") {
-				continue;
-			}
-			let hs = game.dead[i].getCards("h");
-			if (hs.length) {
-				dialog.add('<div class="text center">' + get.translation(game.dead[i]) + "</div>");
-				dialog.addSmall(hs);
-			}
-			let muniu = game.dead[i].getVEquip("muniu");
-			if (muniu && muniu.storages && muniu.storages.length) {
-				dialog.add('<div class="text center">' + get.translation(game.dead[i]) + '的' + get.translation('muniu') + '</div>');
-				dialog.addSmall(muniu.storages);
-			}
-		}
 		dialog.add(ui.create.div(".placeholder.slim"));
 		game.addVideo("over", null, dialog.content.innerHTML);
 		let vinum = parseInt(lib.config.video);
@@ -9535,59 +9502,59 @@ ${e instanceof Error ? e.stack : String(e)}`);
 		return new Promise(
 			query
 				? (resolve, reject) => {
-					lib.status.reload++;
-					const idbRequest = lib.db.transaction([storeName], "readwrite").objectStore(storeName).get(query);
-					idbRequest.onerror = event => {
-						if (typeof onError == "function") {
-							onError(event);
+						lib.status.reload++;
+						const idbRequest = lib.db.transaction([storeName], "readwrite").objectStore(storeName).get(query);
+						idbRequest.onerror = event => {
+							if (typeof onError == "function") {
+								onError(event);
+								game.reload2();
+								resolve();
+							} else {
+								game.reload2();
+								reject(event);
+							}
+						};
+						idbRequest.onsuccess = event => {
+							const result = event.target.result;
+							if (typeof onSuccess == "function") {
+								_status.dburgent = true;
+								onSuccess(result);
+								delete _status.dburgent;
+							}
 							game.reload2();
-							resolve();
-						} else {
-							game.reload2();
-							reject(event);
-						}
-					};
-					idbRequest.onsuccess = event => {
-						const result = event.target.result;
-						if (typeof onSuccess == "function") {
-							_status.dburgent = true;
-							onSuccess(result);
-							delete _status.dburgent;
-						}
-						game.reload2();
-						resolve(result);
-					};
-				}
+							resolve(result);
+						};
+					}
 				: (resolve, reject) => {
-					lib.status.reload++;
-					const idbRequest = lib.db.transaction([storeName], "readwrite").objectStore(storeName).openCursor(),
-						object = {};
-					idbRequest.onerror = event => {
-						if (typeof onError == "function") {
-							onError(event);
+						lib.status.reload++;
+						const idbRequest = lib.db.transaction([storeName], "readwrite").objectStore(storeName).openCursor(),
+							object = {};
+						idbRequest.onerror = event => {
+							if (typeof onError == "function") {
+								onError(event);
+								game.reload2();
+								resolve();
+							} else {
+								game.reload2();
+								reject(event);
+							}
+						};
+						idbRequest.onsuccess = event => {
+							const result = event.target.result;
+							if (result) {
+								object[result.key] = result.value;
+								result.continue();
+								return;
+							}
+							if (typeof onSuccess == "function") {
+								_status.dburgent = true;
+								onSuccess(object);
+								delete _status.dburgent;
+							}
 							game.reload2();
-							resolve();
-						} else {
-							game.reload2();
-							reject(event);
-						}
-					};
-					idbRequest.onsuccess = event => {
-						const result = event.target.result;
-						if (result) {
-							object[result.key] = result.value;
-							result.continue();
-							return;
-						}
-						if (typeof onSuccess == "function") {
-							_status.dburgent = true;
-							onSuccess(object);
-							delete _status.dburgent;
-						}
-						game.reload2();
-						resolve(object);
-					};
-				}
+							resolve(object);
+						};
+					}
 		);
 	}
 	/**
@@ -9632,47 +9599,47 @@ ${e instanceof Error ? e.stack : String(e)}`);
 		}
 		return query
 			? new Promise((resolve, reject) => {
-				lib.status.reload++;
-				const record = lib.db.transaction([storeName], "readwrite").objectStore(storeName).delete(query);
-				record.onerror = event => {
-					if (typeof onError == "function") {
-						onError(event);
+					lib.status.reload++;
+					const record = lib.db.transaction([storeName], "readwrite").objectStore(storeName).delete(query);
+					record.onerror = event => {
+						if (typeof onError == "function") {
+							onError(event);
+							game.reload2();
+							resolve();
+						} else {
+							game.reload2();
+							reject(event);
+						}
+					};
+					record.onsuccess = event => {
+						if (typeof onSuccess == "function") {
+							onSuccess(event);
+						}
 						game.reload2();
-						resolve();
-					} else {
-						game.reload2();
-						reject(event);
-					}
-				};
-				record.onsuccess = event => {
-					if (typeof onSuccess == "function") {
-						onSuccess(event);
-					}
-					game.reload2();
-					resolve(event);
-				};
-			})
+						resolve(event);
+					};
+				})
 			: game.getDB(storeName).then(object => {
-				const keys = Object.keys(object);
-				lib.status.reload += keys.length;
-				const store = lib.db.transaction([storeName], "readwrite").objectStore(storeName);
-				return Promise.allSettled(
-					keys.map(
-						key =>
-							new Promise((resolve, reject) => {
-								const request = store.delete(key);
-								request.onerror = event => {
-									game.reload2();
-									reject(event);
-								};
-								request.onsuccess = event => {
-									game.reload2();
-									resolve(event);
-								};
-							})
-					)
-				);
-			});
+					const keys = Object.keys(object);
+					lib.status.reload += keys.length;
+					const store = lib.db.transaction([storeName], "readwrite").objectStore(storeName);
+					return Promise.allSettled(
+						keys.map(
+							key =>
+								new Promise((resolve, reject) => {
+									const request = store.delete(key);
+									request.onerror = event => {
+										game.reload2();
+										reject(event);
+									};
+									request.onsuccess = event => {
+										game.reload2();
+										resolve(event);
+									};
+								})
+						)
+					);
+				});
 	}
 	/**
 	 * @param { string } key

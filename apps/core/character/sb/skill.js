@@ -2,7 +2,7 @@ import { lib, game, ui, get, ai, _status } from "noname";
 
 /** @type { importCharacterConfig["skill"] } */
 const skills = {
-	//谋陈泰------by 清风
+	//谋陈泰
 	sbdengxian: {
 		audio: 2,
 		enable: "chooseToUse",
@@ -1824,6 +1824,9 @@ const skills = {
 			global: ["loseAfter", "equipAfter", "addJudgeAfter", "gainAfter", "loseAsyncAfter", "addToExpansionAfter"],
 		},
 		chargeSkill: 3,
+		init(player) {
+			player.addCharge(1, false);
+		},
 		getIndex(event, player) {
 			if (!player.countCharge()) {
 				return [];
@@ -1890,7 +1893,6 @@ const skills = {
 				await target.draw(2);
 			}
 		},
-		group: "sbhongyuan_init",
 		subSkill: {
 			init: {
 				audio: "sbhongyuan",
@@ -2571,7 +2573,9 @@ const skills = {
 			return player.countCharge();
 		},
 		chargeSkill: 4,
-		group: "sbyicong_init",
+		init(player) {
+			player.addCharge(2, false);
+		},
 		async cost(event, trigger, player) {
 			const len = player.countCharge();
 			const numbers = Array.from({ length: len }, (_, i) => get.cnNumber(i + 1, true));
@@ -4835,6 +4839,9 @@ const skills = {
 	sbhuoji: {
 		audio: 3,
 		dutySkill: true,
+		onremove(player, skill) {
+			player.removeSkill("sbhuoji_count");
+		},
 		derivation: ["sbguanxing", "sbkongcheng"],
 		group: ["sbhuoji_fire", "sbhuoji_achieve", "sbhuoji_fail", "sbhuoji_mark"],
 		subSkill: {
@@ -4928,6 +4935,7 @@ const skills = {
 			},
 			count: {
 				charlotte: true,
+				onremove: true,
 				intro: { content: "本局游戏已造成过#点火属性伤害" },
 			},
 		},
@@ -8222,6 +8230,9 @@ const skills = {
 		audio: 2,
 		enable: ["chooseToUse", "chooseToRespond"],
 		chargeSkill: 3,
+		init(player) {
+			player.addCharge(1, false);
+		},
 		filter(event, player) {
 			if (event.type == "wuxie" || !player.countCharge()) {
 				return false;
@@ -8381,15 +8392,11 @@ const skills = {
 			charge: {
 				audio: "sblongdan",
 				trigger: {
-					global: ["phaseBefore", "phaseEnd"],
-					player: "enterGame",
+					global: "phaseEnd",
 				},
 				forced: true,
-				filter(event, player, name) {
-					if (!player.countCharge(true)) {
-						return false;
-					}
-					return name != "phaseBefore" || game.phaseNumber == 0;
+				filter(event, player) {
+					return player.countCharge(true);
 				},
 				content() {
 					player.addCharge();
@@ -10702,7 +10709,7 @@ const skills = {
 			const cards = [];
 			const bool = get.info("sbxiaoji").hasAchievedDutySkill(player);
 			const targets = game.filterPlayer(current => {
-				return current == player || player.getStorage("sbjieyin").includes(current);
+				return current == player || (bool && player.getStorage("sbjieyin").includes(current));
 			});
 			return targets.reduce((num, current) => {
 				const evt = event.getl?.(current);

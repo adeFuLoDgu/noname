@@ -11,7 +11,7 @@ const html = (strings, ...values) => String.raw({ raw: strings }, ...values);
 
 /** @type { importCharacterConfig["skill"] } */
 const skills = {
-	//神魏延------by 清风
+	//神魏延
 	psjimou: {
 		audio: 2,
 		limited: true,
@@ -415,7 +415,7 @@ const skills = {
 			},
 		},
 	},
-	//魔魏延------by 清风
+	//魔魏延
 	psnimou: {
 		audio: 2,
 		limited: true,

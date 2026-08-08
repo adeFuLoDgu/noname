@@ -11,7 +11,7 @@ const html = (strings, ...values) => String.raw({ raw: strings }, ...values);
 
 /** @type { importCharacterConfig["skill"] } */
 const skills = {
-	//神魔孙权（魔不如神这一块）------by 清风
+	//神魔孙权（魔不如神这一块）
 	smsibian: {
 		audio: 2,
 		forced: true,
