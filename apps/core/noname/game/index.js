@@ -6560,9 +6560,14 @@ ${e instanceof Error ? e.stack : String(e)}`);
 			td,
 			dialog,
 			hsMap = new Map([]),
+			muniuMap = new Map([]),
 			poptipData = new Map([]);
 		for (const target of [...game.players, ...game.dead]) {
+			let muniu = target.getVEquip("muniu");
 			hsMap.set(target, target.getCards("h"));
+			if (muniu && muniu.storages && muniu.storages.length) {
+        muniuMap.set(target, muniu.storages);
+      }
 		}
 		_status.over = true;
 		ui.control.show();
@@ -6596,13 +6601,17 @@ ${e instanceof Error ? e.stack : String(e)}`);
 				const players = game.players.concat(game.dead, game.additionaldead || []);
 				for (const target of players) {
 					if (!poptipData.has(target.playerid)) continue;
-					const [id, hs] = poptipData.get(target.playerid);
+					const [id, hs, muniu] = poptipData.get(target.playerid);
 					lib.poptip.add({
 						id,
 						name: `<img style="width:15px; vertical-align: middle;" src="${lib.assetURL}image/card/handcard.png">`,
 						dialog(dialog) {
 							dialog.add(`${get.translation(target)}的手牌`);
 							dialog[hs.length ? "addSmall" : "addText"](hs.length ? hs : "（没有手牌）");
+							if (muniu && muniu.length > 0) {
+								dialog.add(`${get.translation(target)}的${get.translation("muniu")}`);
+								dialog.addSmall(muniu);
+							}
 						},
 					});
 				}
@@ -6871,19 +6880,19 @@ ${e instanceof Error ? e.stack : String(e)}`);
 				tr.appendChild(td);
 				td = document.createElement("td");
 				let target = game.players[i];
-				let muniu = target.getVEquip("muniu");
 				const poptipId = get.id();
-				poptipData.set(target.playerid, [poptipId, hsMap.get(target) ?? []]);
+				poptipData.set(target.playerid, [poptipId, hsMap.get(target) ?? [], muniuMap.get(target) ?? []]);
 				game.broadcastAll(item => lib.poptip.add(item), {
 					id: poptipId,
 					name: `<img style="width:15px; vertical-align: middle;" src="${lib.assetURL}image/card/handcard.png">`,
 					dialog(dialog) {
 						let hs = hsMap.get(target) ?? [];
+						let muniu = muniuMap.get(target) ?? [];
 						dialog.add(`${get.translation(target)}的手牌`);
 						dialog[hs.length > 0 ? "addSmall" : "addText"](hs.length > 0 ? hs : "（没有手牌）");
-						if (muniu && muniu.storages && muniu.storages.length) {
+						if (muniu && muniu.length > 0) {
 							dialog.add(`${get.translation(target)}的${get.translation("muniu")}`);
-							dialog.addSmall(muniu.storages);
+							dialog.addSmall(muniu);
 						}
 						return dialog;
 					},
@@ -6973,19 +6982,19 @@ ${e instanceof Error ? e.stack : String(e)}`);
 				tr.appendChild(td);
 				td = document.createElement("td");
 				let target = game.dead[i];
-				let muniu = target.getVEquip("muniu");
 				const poptipId = get.id();
-				poptipData.set(target.playerid, [poptipId, hsMap.get(target) ?? []]);
+				poptipData.set(target.playerid, [poptipId, hsMap.get(target) ?? [], muniuMap.get(target) ?? []]);
 				game.broadcastAll(item => lib.poptip.add(item), {
 					id: poptipId,
 					name: `<img style="width:15px; vertical-align: middle;" src="${lib.assetURL}image/card/handcard.png">`,
 					dialog(dialog) {
 						let hs = hsMap.get(target) ?? [];
+						let muniu = muniuMap.get(target) ?? [];
 						dialog.add(`${get.translation(target)}的手牌`);
 						dialog[hs.length > 0 ? "addSmall" : "addText"](hs.length > 0 ? hs : "（没有手牌）");
-						if (muniu && muniu.storages && muniu.storages.length) {
+						if (muniu && muniu.length > 0) {
 							dialog.add(`${get.translation(target)}的${get.translation("muniu")}`);
-							dialog.addSmall(muniu.storages);
+							dialog.addSmall(muniu);
 						}
 						return dialog;
 					},
@@ -7052,19 +7061,19 @@ ${e instanceof Error ? e.stack : String(e)}`);
 				tr.appendChild(td);
 				td = document.createElement("td");
 				let target = game.additionaldead[i];
-				let muniu = target.getVEquip("muniu");
 				const poptipId = get.id();
-				poptipData.set(target.playerid, [poptipId, hsMap.get(target) ?? []]);
+				poptipData.set(target.playerid, [poptipId, hsMap.get(target) ?? [], muniuMap.get(target) ?? []]);
 				game.broadcastAll(item => lib.poptip.add(item), {
 					id: poptipId,
 					name: `<img style="width:15px; vertical-align: middle;" src="${lib.assetURL}image/card/handcard.png">`,
 					dialog(dialog) {
 						let hs = hsMap.get(target) ?? [];
+						let muniu = muniuMap.get(target) ?? [];
 						dialog.add(`${get.translation(target)}的手牌`);
 						dialog[hs.length > 0 ? "addSmall" : "addText"](hs.length > 0 ? hs : "（没有手牌）");
-						if (muniu && muniu.storages && muniu.storages.length) {
+						if (muniu && muniu.length > 0) {
 							dialog.add(`${get.translation(target)}的${get.translation("muniu")}`);
-							dialog.addSmall(muniu.storages);
+							dialog.addSmall(muniu);
 						}
 						return dialog;
 					},
