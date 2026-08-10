@@ -3072,6 +3072,9 @@ export default {
 				await player.draw(targets.length);
 			}
 		},
+		ai: {
+			threaten: 10,
+		},
 	},
 	gz_limu: {
 		audio: "xinfu_limu",
@@ -3108,6 +3111,7 @@ export default {
 			});
 		},
 		ai: {
+			threaten: 10,
 			result: {
 				target(player, target) {
 					let res = lib.card.lebu.ai.result.target(player, target);
@@ -3185,6 +3189,7 @@ export default {
 			}
 		},
 		ai: {
+			threaten: 10,
 			order: 5,
 			result: {
 				target(player, target) {
@@ -3331,6 +3336,9 @@ export default {
 			map.set(group, num);
 			player.setStorage(skill, map, true);
 		},
+		ai: {
+			threaten: 10,
+		},
 		group: "gz_wuchang_draw",
 		subSkill: {
 			draw: {
@@ -3464,6 +3472,9 @@ export default {
 				}
 			},
 		},
+		ai: {
+			threaten: 10,
+		},
 		group: "gz_liyu_wushuang",
 		subSkill: {
 			wushuang: {
@@ -3519,6 +3530,9 @@ export default {
 			await player.draw();
 		},
 		locked: false,
+		ai: {
+			threaten: 10,
+		},
 		mod: {
 			selectTarget(card, player, range) {
 				if (range[1] == -1 || !get.is.damageCard(card)) {
@@ -4320,6 +4334,7 @@ export default {
 			}
 		},
 		ai: {
+			threaten: 3,
 			directHit_ai: true,
 			skillTagFilter(player, tag, arg) {
 				if (tag !== "directHit_ai" || !arg || !arg.card || !arg.target || (arg.card.name != "sha" && arg.card.name != "juedou")) {
@@ -4407,6 +4422,9 @@ export default {
 		},
 		selectCard: -1,
 		filterCard: () => false,
+		ai: {
+			threaten: 3,
+		},
 	},
 	gz_chongjian: {
 		viceSkill: true,
@@ -4528,6 +4546,7 @@ export default {
 			},
 		},
 		ai: {
+			threaten: 3,
 			respondSha: true,
 			skillTagFilter(player, tag, arg) {
 				return player.hasCard({ type: "equip" }, "hes");

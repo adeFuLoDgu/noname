@@ -4014,6 +4014,7 @@ export default {
 		},
 		ai: {
 			order: 9,
+			threaten: 3,
 			result: {
 				target(player, target) {
 					return [-1, 1, 2][get.sgn(get.attitude(player, target)) + 1] / target.countCards("h");

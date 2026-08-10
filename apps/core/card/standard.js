@@ -3393,7 +3393,7 @@ export default {
 							if (target.identity === "ye") {
 								return 1;
 							}
-							if (game.hasPlayer(current => current.identity === "unknown")) {
+							if (game.hasPlayer(current => current.identity === "unknown" || current.isRest())) {
 								return -1;
 							}
 							if (get.population(target.identity) === 1) {

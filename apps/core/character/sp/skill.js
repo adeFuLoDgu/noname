@@ -44478,6 +44478,9 @@ const skills = {
 			if (event.num < 1) {
 				event.finish();
 			} else {
+				if (!list?.length) {
+					return;
+				}
 				var target = list.randomGet();
 				var cards = target.getCards("h").randomGets(event.num);
 				player.line(target);

@@ -2928,6 +2928,7 @@ export default {
 			}
 		},
 		ai: {
+			threaten: 7,
 			order: 1,
 			result: {
 				target(player, target) {
@@ -10508,6 +10509,9 @@ export default {
 		},
 		content() {
 			player.addTempSkills("gzfankui", { player: "phaseBegin" });
+		},
+		ai: {
+			threaten: 3,
 		},
 		group: ["gzsuzhi_damage", "gzsuzhi_draw", "gzsuzhi_gain"],
 		preHidden: ["gzsuzhi_damage", "gzsuzhi_draw", "gzsuzhi_gain"],
