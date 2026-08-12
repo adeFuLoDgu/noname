@@ -565,6 +565,9 @@ export default {
 				while (target && !player.isFriendOf(target)) {
 					target = target.getNext();
 				}
+				if (!target) {
+					target = player;
+				}
 			}
 		},
 	},
