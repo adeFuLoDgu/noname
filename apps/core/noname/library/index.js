@@ -6611,15 +6611,16 @@ export class Library {
 			connect: {
 				connect_guozhan_mode: {
 					name: "游戏模式",
-					init: "normal",
+					init: "combined",
 					item: {
 						normal: "势备",
 						yingbian: "应变",
 						old: "怀旧",
+						combined: "所有",
 					},
 					frequent: true,
 					restart: true,
-					intro: "<li>势备：默认模式，使用线下《君临天下·势备篇》的牌堆进行游戏。<br><li>应变：使用OL的应变国战牌堆进行游戏。<br><li>怀旧：使用传统国战的牌堆进行游戏。",
+					intro: "<li>势备：默认模式，使用线下《君临天下·势备篇》的牌堆进行游戏。<br><li>应变：使用OL的应变国战牌堆进行游戏。<br><li>怀旧：使用传统国战的牌堆进行游戏。<br><li>所有：使用应变牌堆为主，加上其他缺少的国战牌堆的牌进行游戏。",
 				},
 				connect_player_number: {
 					name: "游戏人数",
@@ -6697,16 +6698,17 @@ export class Library {
 				},
 				guozhan_mode: {
 					name: "游戏模式",
-					init: "normal",
+					init: "combined",
 					item: {
 						normal: "势备",
 						yingbian: "应变",
 						old: "怀旧",
+						combined: "所有",
 						free: "自由",
 					},
 					frequent: true,
 					restart: true,
-					intro: "<li>势备：默认模式，使用线下《君临天下·势备篇》的牌堆进行游戏。<br><li>应变：使用OL的应变国战牌堆进行游戏。<br><li>怀旧：使用传统国战的牌堆进行游戏。<br><li>自由：使用玩家的自定义牌堆进行游戏。",
+					intro: "<li>势备：默认模式，使用线下《君临天下·势备篇》的牌堆进行游戏。<br><li>应变：使用OL的应变国战牌堆进行游戏。<br><li>怀旧：使用传统国战的牌堆进行游戏。<br><li>所有：使用应变牌堆为主，加上其他缺少的国战牌堆的牌进行游戏。<br><li>自由：使用玩家的自定义牌堆进行游戏。",
 				},
 				player_number: {
 					name: "游戏人数",

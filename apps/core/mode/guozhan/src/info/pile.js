@@ -462,8 +462,8 @@ export const yingbian = [
 	["heart", 5, "liulongcanjia"],
 	["spade", 6, "feilongduofeng"],
 	["spade", 6, "jilinqianyi"],
-	["club", 12, "gz_wenheluanwu"],
-	["heart", 1, "gz_guguoanbang"],
-	["spade", 12, "gz_haolingtianxia"],
-	["diamond", 1, "gz_kefuzhongyuan"],
+	//["club", 12, "gz_wenheluanwu"],
+	//["heart", 1, "gz_guguoanbang"],
+	//["spade", 12, "gz_haolingtianxia"],
+	//["diamond", 1, "gz_kefuzhongyuan"],
 ];
