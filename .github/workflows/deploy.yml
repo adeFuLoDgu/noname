@@ -112,6 +112,12 @@ jobs:
         env:
           IS_CLOUDFLARE_PAGES: 'true'
 
+      - name: Create Cloudflare Pages 404
+        run: |
+          if [ ! -f ./dist/404.html ]; then
+            echo '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>404 Not Found</title></head><body><h1>404 Not Found</h1><p>The requested page could not be found.</p><a href="/">Go Home</a></body></html>' > ./dist/404.html
+          fi
+
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v4
         with:
