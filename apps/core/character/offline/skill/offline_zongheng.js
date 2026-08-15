@@ -1,5 +1,13 @@
 import { lib, game, ui, get, ai, _status } from "noname";
-import html from "dedent";
+// 以下註釋掉, 不然網頁部屬不能import
+//import html from "dedent";
+// 改用同個庫中同結果寫法, 見
+// \noname\apps\core\noname\ui\create\menu\new.js
+// \noname\apps\core\noname\ui\create\menu\nonameConfig.js
+/**
+ * 使字符串有html的代码提示
+ */
+const html = (strings, ...values) => String.raw({ raw: strings }, ...values);
 
 /** @type { importCharacterConfig["skill"] } */
 const skills = {
