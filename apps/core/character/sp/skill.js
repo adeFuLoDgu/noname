@@ -3764,9 +3764,7 @@ const skills = {
 	},
 	olchengen: {
 		audio: 2,
-		trigger: {
-			global: ["phaseEnd"],
-		},
+		trigger: { global: "phaseEnd" },
 		filter(event, player) {
 			const current = _status.currentPhase;
 			return current?.countCards("h") <= player.countCards("h") && game.hasPlayer(target => player.canCompare(target));
@@ -3779,7 +3777,7 @@ const skills = {
 						return player.canCompare(target);
 					},
 					ai(target) {
-						return -get.attitude(_status.event.player, target) / target.countCards("h");
+						return -get.attitude(get.player(), target) / target.countCards("h");
 					},
 				})
 				.forResult();
@@ -3799,7 +3797,7 @@ const skills = {
 						.chooseCardButton({
 							cards: cards.filterInD("d"),
 							prompt: "承恩：请选择要使用的拼点牌",
-							filterButton(button) {
+							filter(button) {
 								const card = button.link;
 								const player = get.player();
 								return player.hasUseTarget(card, void 0, false) || (get.info(card).notarget && lib.filter.cardEnabled(card, player));
@@ -44343,8 +44341,9 @@ const skills = {
 	xinfu_lingren: {
 		audio: 2,
 		trigger: { player: "useCardToPlayered" },
+		usable: 1,
 		filter(event, player) {
-			if (!player.isPhaseUsing() || player.hasSkill("xinfu_lingren_used") || !event.isFirstTarget) {
+			if (!player.isPhaseUsing() || !event.isFirstTarget) {
 				return false;
 			}
 			return event.card.name === "sha" && (get.type(event.card) === "trick" || get.tag(event.card, "damage"));
@@ -44362,7 +44361,6 @@ const skills = {
 				.forResult();
 		},
 		async content(event, trigger, player) {
-			player.addTempSkill("xinfu_lingren_used", { player: "phaseUseAfter" });
 			const {
 				targets: [target],
 			} = event;
@@ -44452,7 +44450,6 @@ const skills = {
 			}
 		},
 		ai: { threaten: 2.4 },
-		subSkill: { used: { charlotte: true } },
 	},
 	lingren_jianxiong: { audio: 1 },
 	lingren_xingshang: { audio: 1 },

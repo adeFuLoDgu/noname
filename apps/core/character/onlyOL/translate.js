@@ -1,6 +1,12 @@
 import { lib, game, ui, get, ai, _status } from "noname";
 
 const translates = {
+	ol_sb_zhurong: "OL谋祝融",
+	ol_sb_zhurong_prefix: "OL谋",
+	olsbrenche: "刃掣",
+	olsbrenche_info: "出牌阶段限X次，你可弃置X张牌并令至多X名其他角色各弃置一张牌（X为本回合弃牌堆中【杀】的数量且至少为1）。每有角色因此弃置牌不为【杀】，你便摸一张牌。",
+	olsbyalian: "牙镰",
+	olsbyalian_info: "每阶段结束时，若你此阶段不因使用失去过【杀】，你可以视为对任意名手牌数小于等于X的角色使用一张火【杀】（X为本回合弃牌堆中【杀】的数量且至少为1）。",
 	ol_liufeng: "OL界刘封",
 	ol_liufeng_prefix: "OL界",
 	olxiansi: "陷嗣",
@@ -106,7 +112,7 @@ const translates = {
 	ol_re_xinxianying: "OL界辛宪英",
 	ol_re_xinxianying_prefix: "OL界",
 	olcaishi: "才识",
-	olcaishi_info: "当你每轮首次使用一种类型的牌后，本轮你的手牌上限+1，若你的手牌上限不为全场最大，你可以令一名角色回复一点体力，然后本回合此技能失效。",
+	olcaishi_info: "当你每轮首次使用一种类型的牌后，本轮你的手牌上限+1，若你的手牌上限不为全场最大，你可以令一名角色回复1点体力，然后本回合此技能失效。",
 	olzhongjian: "忠鉴",
 	olzhongjian_info: "出牌阶段限一次，你可展示一名其他角色X张手牌（X为其体力值），然后你展示一张手牌。若展示其的牌包含与你展示牌：颜色相同的牌，你摸一张牌或弃置其一张牌；牌名相同的牌，本阶段此技能改为限两次。",
 	ol_sb_chengyu: "OL谋程昱",

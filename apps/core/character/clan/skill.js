@@ -1050,6 +1050,11 @@ const skills = {
 					return Infinity;
 				}
 			},
+			targetInRange(card, player, target) {
+				if (card.storage?.clanfenjian) {
+					return true;
+				}
+			}
 		},
 		group: ["clanfenjian_effect"],
 		subSkill: {

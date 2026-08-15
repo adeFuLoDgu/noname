@@ -1,4 +1,27 @@
 const characters = {
+	tw_jushou: {
+		sex: "male",
+		group: "qun",
+		hp: 2,
+		maxHp: 3,
+		hujia: 3,
+		skills: ["twjianying", "dcshibei"],
+		dieAudios: ["xin_jushou"],
+	},
+	tw_baosanniang: {
+		sex: "female",
+		group: "shu",
+		hp: 3,
+		skills: ["twshuyong", "twxushen", "twzhennan"],
+		dieAudios: ["baosanniang"],
+	},
+	tw_sb_yl_luzhi: {
+		sex: "male",
+		group: "qun",
+		hp: 3,
+		skills: ["twsbmingren", "twsbzhenliang"],
+		dieAudios: ["sb_yl_luzhi"],
+	},
 	huan_sunce: {
 		sex: "male",
 		group: "wu",
@@ -20,6 +43,7 @@ const characters = {
 		hp: 3,
 		skills: ["twjieyuan", "twfenxin", "twfucheng"],
 		names: "吕|null",
+		dieAudios: ["lingju"],
 	},
 	tw_sb_xiahoudun: {
 		sex: "male",

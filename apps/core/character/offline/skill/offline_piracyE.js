@@ -21,9 +21,12 @@ const skills = {
 		},
 		filter(event, player) {
 			const target = game.findPlayer(current => current.getSeatNum() == 1);
-			if (_status.currentPhase !== target) {
+			if (!target?.isIn()) {
 				return false;
 			}
+			//if (_status.currentPhase !== target) {
+				//return false;
+			//}
 			if (event.name == "phase") {
 				const cards = event.player
 					.getHistory("useCard")
@@ -434,6 +437,9 @@ const skills = {
 		forced: true,
 		trigger: { source: "damageSource" },
 		logTarget: "player",
+		filter(event, player) {
+			return event.num > 0;
+		},
 		async content(event, trigger, player) {
 			const target = event.targets[0];
 			player.addSkill(event.name + "_dam");
@@ -508,7 +514,7 @@ const skills = {
 			player.when({ global: ["phaseAfter", "phaseBefore"] }).step(async (event, trigger, player) => {
 				player.removeSkill(event.name);
 				if (event.triggername == "phaseAfter") {
-					player.insertPhase();
+					player.insertPhase("peshashen");
 				}
 			});
 		},
@@ -528,7 +534,7 @@ const skills = {
 			_status.characterlist.randomSort();
 			const list = _status.characterlist.filter(character => get.character(character, 0) === "female");
 			if (!list.length) {
-				player.popup("没喽");
+				player.popup("没有符合条件的武将牌");
 				return;
 			}
 			const name = list.randomGet();
@@ -550,7 +556,7 @@ const skills = {
 					.forResult();
 				if (result?.bool && result.links?.length) {
 					const skill = result.links[0];
-					await player.addSkills(skill);
+					await player.addAdditionalSkills(event.name, skill);
 					lib.card["huashen_card_" + name].skills.push(skill);
 				}
 			}
@@ -1133,7 +1139,7 @@ const skills = {
 			event.result = await player
 				.chooseTarget({
 					prompt: get.prompt(event.skill),
-					prompt2: "选择一名其他角色令其回复一点体力",
+					prompt2: "选择一名其他角色令其回复1点体力",
 					filterTarget(card, player, target) {
 						return target !== player && target.isDamaged();
 					},
@@ -1157,13 +1163,13 @@ const skills = {
 		trigger: { source: "damageSource" },
 		filter(event, player) {
 			const target = event.player;
-			if (player == target) {
+			if (player == target || !target?.isIn()) {
 				return false;
 			}
 			if (!target.getStorage("pepozhen_used").includes("选项一") && !player.getStorage("pepozhen_use").includes(target)) {
 				return true;
 			}
-			if (!target.getStorage("pepozhen_used").includes("选项二") && target.countGainableCards(player, "hej")) {
+			if (!target.getStorage("pepozhen_used").includes("选项二") && target.hasGainableCards(player, "hej")) {
 				return true;
 			}
 			if (!target.getStorage("pepozhen_used").includes("选项三")) {
@@ -1181,7 +1187,7 @@ const skills = {
 			} else {
 				choiceList[0] = `<span style="opacity:0.5">` + choiceList[0] + "</span>";
 			}
-			if (!target.getStorage("pepozhen_used").includes("选项二") && target.countGainableCards(player, "hej")) {
+			if (!target.getStorage("pepozhen_used").includes("选项二") && target.hasGainableCards(player, "hej")) {
 				list.push("选项二");
 			} else {
 				choiceList[1] = `<span style="opacity:0.5">` + choiceList[1] + "</span>";
@@ -1421,7 +1427,10 @@ const skills = {
 				},
 			},
 		},
-		subSkill: { backup: {} },
+		subSkill: {
+			backup: {},
+			used: { charlotte: true, onremove: true },
+		},
 	},
 	pezhenguan: {
 		audio: 2,
