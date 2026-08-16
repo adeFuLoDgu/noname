@@ -16451,6 +16451,13 @@ export default {
 						background-image: url(${lib.assetURL}image/card/gz_aozhantao.png) !important;
 					}
 				`);
+				if (window.decadeUI) {
+					lib.init.sheet(`
+						.card[data-card-name = "tao"] {
+							background-image: url("${lib.assetURL}extension/${window.decadeUI.extensionName}/image/card/tao_aozhan.webp") !important;
+						}
+					`);
+				}
 			});
 			game.addGlobalSkill("aozhan");
 		},

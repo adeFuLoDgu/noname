@@ -42,18 +42,10 @@ export const start = async (event, trigger, player) => {
 		return;
 	}
 
-	function createCombinedPile(yingbian, normal, old) {
-		const yingbianNames = new Set(yingbian.map(card => card[2]));
-		const normalExtra = normal.filter(card => {
-			return !yingbianNames.has(card[2]);
-		});
-		const normalExtraNames = new Set(normalExtra.map(card => card[2]));
-		const oldExtra = old.filter(card => {
-			return !yingbianNames.has(card[2]) && !normalExtraNames.has(card[2]);
-		});
-		return [...yingbian, ...normalExtra, ...oldExtra];
-	}
-	const CombinedPile = createCombinedPile(lib.guozhanPile_yingbian.slice(0), lib.guozhanPile.slice(0), lib.guozhanPile_old.slice(0));
+	const YingbianNames = new Set(lib.guozhanPile_yingbian.slice(0).map(card => card[2]));
+	const YingbianExtra = lib.guozhanPile.slice(0).filter(card => {
+		return !YingbianNames.has(card[2]);
+	});
 
 	// 如果没有录像信息，则根据是否在联机模式进行不同的处理
 	if (_status.connectMode) {
@@ -66,7 +58,7 @@ export const start = async (event, trigger, player) => {
 		_status.mode = mode;
 
 		// 如果当前模式不在可选列表中，则默认为normal
-		if (!["normal", "yingbian", "old", "combined"].includes(mode)) {
+		if (!["normal", "yingbian", "old"].includes(mode)) {
 			_status.mode = mode = "normal";
 		}
 
@@ -84,11 +76,9 @@ export const start = async (event, trigger, player) => {
 			case "yingbian":
 				// @ts-expect-error 祖宗之法就是这么写的
 				lib.card.list = lib.guozhanPile_yingbian.slice(0);
-				delete lib.translate.shuiyanqijunx_info_guozhan;
-				break;
-			case "combined":
-				// @ts-expect-error 祖宗之法就是这么写的
-				lib.card.list = CombinedPile;
+				if (lib.configOL.yingbian_pile_extra) {
+					lib.card.list = [...lib.guozhanPile_yingbian.slice(0), ...YingbianExtra];
+				}
 				delete lib.translate.shuiyanqijunx_info_guozhan;
 				break;
 			default:
@@ -155,7 +145,7 @@ export const start = async (event, trigger, player) => {
 		_status.mode = mode;
 
 		// 如果当前模式不在可选列表中，则默认为normal
-		if (!["normal", "yingbian", "old", "combined", "free"].includes(mode)) {
+		if (!["normal", "yingbian", "old", "free"].includes(mode)) {
 			_status.mode = mode = "normal";
 		}
 
@@ -168,26 +158,9 @@ export const start = async (event, trigger, player) => {
 			case "yingbian": {
 				// @ts-expect-error 祖宗之法就是这么写的
 				lib.card.list = lib.guozhanPile_yingbian.slice(0);
-				delete lib.translate.shuiyanqijunx_info_guozhan;
-				// @ts-expect-error 祖宗之法就是这么写的
-				const pack = lib.yingbian_guozhan;
-				for (const i in pack) {
-					lib.character[i] = pack[i];
-					// @ts-expect-error 祖宗之法就是这么写的
-					lib.characterPack.mode_guozhan[i] = pack[i];
-					if (!lib.translate["#" + i + ":die"] && !lib.character[i].dieAudios?.length) {
-						let list = lib.character?.[i.slice(3)]?.dieAudios;
-						lib.character[i].dieAudios = list?.length ? list : [i.slice(3)];
-					}
-					if (!lib.translate[i]) {
-						lib.translate[i] = lib.translate[i.slice(3)];
-					}
+				if (get.config("yingbian_pile_extra")) {
+					lib.card.list = [...lib.guozhanPile_yingbian.slice(0), ...YingbianExtra];
 				}
-				break;
-			}
-			case "combined": {
-				// @ts-expect-error 祖宗之法就是这么写的
-				lib.card.list = CombinedPile;
 				delete lib.translate.shuiyanqijunx_info_guozhan;
 				// @ts-expect-error 祖宗之法就是这么写的
 				const pack = lib.yingbian_guozhan;
