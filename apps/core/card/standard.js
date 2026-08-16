@@ -3207,7 +3207,7 @@ export default {
 					triggerEvent.untrigger("currentOnly");
 					triggerEvent.cancelled = true;
 				} else {
-					await triggerEvent.neutralize();
+					triggerEvent.neutralize();
 					if (event.getParent().guowuxie === true) {
 						triggerEvent.getParent().excluded.addArray(game.filterPlayer(current => current.isFriendOf(triggerEvent.target)));
 					}

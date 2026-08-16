@@ -28042,6 +28042,8 @@ const skills = {
 	twyingjia: {
 		audio: 2,
 		trigger: { global: "phaseEnd" },
+		skillAnimation: true,
+		animationColor: "wood",
 		filter(event, player) {
 			if (
 				!player.countCards("h", card => {
