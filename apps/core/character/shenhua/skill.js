@@ -4259,7 +4259,7 @@ const skills = {
 				locked: false,
 				mod: {
 					globalFrom(from, to, distance) {
-						if (from.getExpansions('tuntian')) {
+						if (from.getExpansions("tuntian")) {
 							let num = distance - from.getExpansions("tuntian").length;
 							if (_status.event.skill == "jixi_backup" || _status.event.skill == "gz_jixi_backup") {
 								num++;

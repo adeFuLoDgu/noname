@@ -2072,6 +2072,9 @@ export default {
 			return 6 - get.value(card);
 		},
 		ai2(target) {
+			if (!target) {
+				return;
+			}
 			const player = get.player();
 			return get.effect(target, { name: "tiesuo" }, player, player);
 		},
