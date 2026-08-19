@@ -164,7 +164,7 @@ const skills = {
 			return player.countVCards("e") > 3 && !event.numFixed;
 		},
 		forced: true,
-		content() {
+		async content(event, trigger, player) {
 			trigger.num += player.countVCards("e");
 		},
 	},
@@ -177,8 +177,8 @@ const skills = {
 		},
 		forced: true,
 		logTarget: "target",
-		content() {
-			player.draw();
+		async content(event, trigger, player) {
+			await player.draw();
 		},
 		group: "yyfuqi_fuqi",
 		subSkill: { fuqi: { audio: "fuqi", inherit: "fuqi" } },
@@ -193,7 +193,7 @@ const skills = {
 			return get.attitude(player, event.target) < 0 || event.targets.some(i => get.attitude(player, i) < 0);
 		},
 		logTarget: "target",
-		content() {
+		async content(event, trigger, player) {
 			const skill = "yyqizhen_effect";
 			player.addTempSkill(skill);
 			if (!player.storage[skill]) {
@@ -250,9 +250,9 @@ const skills = {
 		},
 		skillAnimation: true,
 		animationColor: "metal",
-		content() {
+		async content(event, trigger, player) {
 			player.awakenSkill(event.name);
-			target.addSkills("yicong");
+			await event.target.addSkills("yicong");
 		},
 		ai: {
 			order: 1,
@@ -267,7 +267,7 @@ const skills = {
 			return event.card.name == "juedou";
 		},
 		forced: true,
-		content() {
+		async content(event, trigger, player) {
 			trigger.nowuxie = true;
 		},
 		mod: {
@@ -306,16 +306,16 @@ const skills = {
 	yyxuanshi: {
 		enable: "phaseUse",
 		filter(event, player) {
-			return player.countCards("h") && player.countCards("h", { color: "red" }) === player.countCards("h", { color: "black" });
+			return player.hasCards("h") && player.countCards("h", { color: "red" }) === player.countCards("h", { color: "black" });
 		},
 		filterTarget(card, player, target) {
-			return target !== player && target.countCards("hej");
+			return target !== player && target.hasCards("hej");
 		},
 		usable: 2,
 		delay: false,
-		content() {
-			player.showHandcards(get.translation(player) + "对" + get.translation(target) + "发动了【旋势】");
-			player.gainPlayerCard(target, "hej", true);
+		async content(event, trigger, player) {
+			await player.showHandcards(get.translation(player) + "对" + get.translation(target) + "发动了【旋势】");
+			await player.gainPlayerCard(event.target, "hej", true);
 		},
 		ai: {
 			order: 20,
@@ -388,8 +388,8 @@ const skills = {
 		},
 		forced: true,
 		logTarget: "player",
-		content() {
-			player.draw();
+		async content(event, trigger, player) {
+			await player.draw();
 		},
 	},
 	yyqishe: {
@@ -408,7 +408,7 @@ const skills = {
 				event.result = await player.chooseBool("是否发动【齐射】，从弃牌堆中获得一张【万箭齐发】？").set("frequentSkill", event.skill).forResult();
 			}
 		},
-		content() {
+		async content(event, trigger, player) {
 			const card = trigger.name === "phaseJieshu" ? get.discardPile("wanjian") : game.createCard2("wanjian", "heart", 1);
 			if (card) {
 				player.gain(card, "gain2");
@@ -473,7 +473,7 @@ const skills = {
 					return get.recoverEffect(player, player, player) > 0;
 				},
 				prompt: "回复1点体力",
-				content() {
+				async content(event, trigger, player) {
 					player.changeZhuanhuanji("yyyanggu");
 					player.recover();
 				},
@@ -506,7 +506,7 @@ const skills = {
 		logTarget: (event, player, name, target) => target,
 		prompt2: (event, player, name, target) => "对" + get.translation(target) + "造成1点伤害",
 		check: (event, player, name, target) => get.damageEffect(target, player, player) > 0,
-		content() {
+		async content(event, trigger, player) {
 			event.targets[0].damage();
 		},
 	},
@@ -590,7 +590,7 @@ const skills = {
 				trigger: { player: "useCard" },
 				forced: true,
 				popup: false,
-				content() {
+				async content(event, trigger, player) {
 					const num = player.countMark(event.name);
 					player.removeSkill(event.name);
 					if (lib.skill.dcshixian.filterx(trigger)) {

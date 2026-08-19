@@ -18,12 +18,12 @@ const skills = {
 		forced: true,
 		preHidden: true,
 		filter(event, player) {
-			if (get.type(event.card) != "equip") {
+			if (get.type(event.card) !== "equip") {
 				return false;
 			}
 			return player.countMark("pkwuku") < 3;
 		},
-		content() {
+		async content(event, trigger, player) {
 			player.addMark("pkwuku", 1);
 		},
 		marktext: "库",
@@ -45,7 +45,7 @@ const skills = {
 		filter(event, player) {
 			return player.countMark("pkwuku") > 2;
 		},
-		content() {
+		async content(event, trigger, player) {
 			player.awakenSkill(event.name);
 			player.gainMaxHp();
 			player.recover();
@@ -83,7 +83,7 @@ const skills = {
 			check(button) {
 				const player = get.player();
 				let evt = _status.event.getParent();
-				if (evt.type != "phase") {
+				if (evt.type !== "phase") {
 					if (evt.sourcex) {
 						return get.effect(evt.sourcex, { name: button.link[2] }, player);
 					}
@@ -108,7 +108,7 @@ const skills = {
 					async precontent(event, trigger, player) {
 						player
 							.when({ player: ["useCardAfter", "respondAfter"] })
-							.filter(evt => evt.getParent() == event.getParent())
+							.filter(evt => evt.getParent() === event.getParent())
 							.step(async (event, trigger, player) => {
 								player.removeSkill(event.name);
 								await player.draw();
@@ -120,7 +120,7 @@ const skills = {
 				};
 			},
 			prompt(links, player) {
-				return "视为使用" + (get.translation(links[0][3]) || "") + get.translation(links[0][2]) + "并摸一张牌";
+				return `视为使用${get.translation(links[0][3]) || ""}${get.translation(links[0][2])}并摸一张牌`;
 			},
 		},
 		hiddenCard(player, name) {
