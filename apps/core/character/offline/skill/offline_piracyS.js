@@ -361,7 +361,7 @@ const skills = {
 			player.addTempSkill("psqichu_used");
 			const parentEvent = event.getParent(2);
 			const cards = get.cards(2, true);
-			const hasAozhan = player.hasSkill("aozhan");
+			const hasAozhan = _status._aozhan;
 			const buttonResult = await player
 				.chooseButton([`七出：选择要${parentEvent.name === "chooseToUse" ? "使用" : "打出"}的牌`, cards])
 				.set("filterButton", button => _status.event.cards.includes(button.link))
@@ -414,7 +414,7 @@ const skills = {
 			}
 			const selectedCard = buttonResult.links[0];
 			let name = selectedCard.name;
-			const aozhan = player.hasSkill("aozhan") && name === "tao";
+			const aozhan = _status._aozhan && name === "tao";
 			if (aozhan) {
 				name = parentEvent.filterCard(
 					{

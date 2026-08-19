@@ -43205,7 +43205,7 @@ const skills = {
 				.set(
 					"cards",
 					cardsx.filter(card => {
-						if (player.hasSkill("aozhan") && card.name == "tao") {
+						if (_status._aozhan && card.name == "tao") {
 							return (
 								evt.filterCard(
 									{
@@ -43272,7 +43272,7 @@ const skills = {
 			}
 			if (card) {
 				let name = card.name,
-					aozhan = player.hasSkill("aozhan") && name == "tao";
+					aozhan = _status._aozhan && name == "tao";
 				if (aozhan) {
 					name = evt.filterCard(
 						{

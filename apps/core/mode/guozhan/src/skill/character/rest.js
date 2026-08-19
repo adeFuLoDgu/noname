@@ -1402,7 +1402,7 @@ export default {
 		trigger: { player: "phaseZhunbeiBegin" },
 		content() {
 			"step 0";
-			var cards = get.cards(3);
+			var cards = get.cards(3, true);
 			event.cards = cards;
 			player.showCards(cards, get.translation(player) + "发动了【陈见】");
 			"step 1";

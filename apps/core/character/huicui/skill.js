@@ -15677,7 +15677,7 @@ const skills = {
 			return "亮出牌堆顶的" + get.cnNumber(3 + player.countMark("chenjian")) + "张牌，然后执行以下一至两项：⒈弃置一张牌，然后令一名角色获得与你弃置牌花色相同的牌。⒉使用其中剩余的一张牌。若你执行了所有选项，则你获得一枚“陈见”并重铸所有手牌";
 		},
 		async content(event, trigger, player) {
-			const cards = get.cards(3 + player.countMark("chenjian"));
+			const cards = get.cards(3 + player.countMark("chenjian"), true);
 			event.cards = cards;
 			await player.showCards(cards, get.translation(player) + "发动了【陈见】");
 
