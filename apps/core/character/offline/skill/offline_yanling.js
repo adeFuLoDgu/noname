@@ -858,10 +858,10 @@ const skills = {
 					const acceptor = [];
 					game.broadcastAll(
 						(card, player) => {
+							_status.guhuoNode = card.copy("thrown");
 							if (window.decadeUI) {
 								_status.guhuoNode.style.background = "var(--cardback-url)";
 							} else {
-								_status.guhuoNode = card.copy("thrown");
 								if (lib.config.cardback_style !== "default") {
 									_status.guhuoNode.style.transitionProperty = "none";
 									ui.refresh(_status.guhuoNode);
@@ -880,8 +880,8 @@ const skills = {
 									}
 									_status.guhuoNode.style.transform = "perspective(600px) rotateY(180deg) translateX(0)";
 								}
-								player.$throwordered2(_status.guhuoNode);
 							}
+							player.$throwordered2(_status.guhuoNode);
 						},
 						trigger.cards[0],
 						player
