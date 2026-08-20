@@ -1416,6 +1416,10 @@ export default {
 			}
 			if (
 				event.cards.some(i => {
+					if (_status._aozhan && i.name == "tao") {
+						let aozhan_sha = get.autoViewAs({ name: "sha", cards: [i] });
+						return player.hasUseTarget(aozhan_sha);
+					}
 					return player.hasUseTarget(i);
 				})
 			) {
@@ -1433,6 +1437,10 @@ export default {
 							cards = _status.event.getParent().cards;
 						if (
 							cards.some(i => {
+								if (_status._aozhan && i.name == "tao") {
+									let aozhan_sha = get.autoViewAs({ name: "sha", cards: [i] });
+									return player.getUseValue(aozhan_sha) > 0;
+								}
 								return player.getUseValue(i) > 0;
 							})
 						) {
@@ -1505,10 +1513,18 @@ export default {
 			event.finish();
 			"step 6";
 			var cards2 = cards.filter(function (i) {
+				if (_status._aozhan && i.name == "tao") {
+					let aozhan_sha = get.autoViewAs({ name: "sha", cards: [i] });
+					return player.hasUseTarget(aozhan_sha);
+				}
 				return player.hasUseTarget(i);
 			});
 			if (cards2.length) {
 				player.chooseButton(["陈见：" + (event.goon ? "是否" : "请") + "使用其中一张牌" + (event.goon ? "？" : ""), cards2], !event.goon).set("ai", function (button) {
+					if (_status._aozhan && button.link.name == "tao") {
+						let aozhan_sha = get.autoViewAs({ name: "sha", cards: [button.link] });
+						return player.getUseValue(aozhan_sha);
+					}
 					return player.getUseValue(button.link);
 				});
 			} else {
@@ -1516,7 +1532,12 @@ export default {
 			}
 			"step 7";
 			if (result.bool) {
-				player.chooseUseTarget(true, result.links[0], false);
+				if (_status._aozhan && result.links[0].name == "tao") {
+					let aozhan_sha = get.autoViewAs({ name: "sha" });
+					player.chooseUseTarget(true, aozhan_sha, false).set("cards", result.links);
+				} else {
+					player.chooseUseTarget(true, result.links[0], false);
+				}
 			}
 		},
 	},

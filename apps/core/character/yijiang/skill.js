@@ -5575,8 +5575,7 @@ const skills = {
 				target(player, target) {
 					if (get.attitude(player, target) > 0 && target.countCards("h") > 2 && target.hp > 2) {
 						return 2 + Math.sqrt(target.countCards("he"));
-					}
-					else if (get.attitude(player, target) < 0) {
+					} else if (get.attitude(player, target) < 0) {
 						return -Math.sqrt(target.countCards("he"));
 					}
 					return 0;

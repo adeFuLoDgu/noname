@@ -44852,8 +44852,7 @@ const skills = {
 							if (ui.selected.targets.length == 0) {
 								if (get.attitude(player, target) < 0) {
 									return -999;
-								}
-								else if (get.attitude(player, target) > 0) {
+								} else if (get.attitude(player, target) > 0) {
 									return target.countCards("h") > 2 ? -3 : 999;
 								}
 								return -3;

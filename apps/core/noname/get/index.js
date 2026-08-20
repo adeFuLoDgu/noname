@@ -3427,7 +3427,7 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 	 * @returns { string | undefined }
 	 */
 	name(card, player) {
-		if (get.itemtype(player) == "player" || (player !== false && get.position(card) == "h")) {
+		if (get.itemtype(player) == "player" || (player !== false && get.position(card) == "h") || (player !== false && _status._aozhan && card.name === "tao" && typeof card.hasGaintag === "function" && card.hasGaintag("muniu"))) {
 			var owner = player || get.owner(card);
 			if (owner) {
 				return game.checkMod(card, owner, card.name, "cardname", owner);
