@@ -426,6 +426,7 @@ export default {
 					.chooseControl(list)
 					.set("prompt", get.prompt("wuxinghelingshan_skill"))
 					.set("prompt2", `将${get.translation(trigger.card)}转换为以下属性之一`)
+					.set("ai", () => "cancel2")
 					.forResult();
 				if (result.control !== "cancel2") {
 					player.logSkill("wuxinghelingshan_skill");

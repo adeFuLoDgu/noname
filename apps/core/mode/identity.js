@@ -4279,7 +4279,7 @@ export default {
 				}
 			}
 			switch (identity) {
-				case "zhu":
+				case "zhu": {
 					switch (identity2) {
 						case "zhu":
 							return 10;
@@ -4302,7 +4302,7 @@ export default {
 							return 6;
 						case "mingzhong":
 							return 6;
-						case "nei":
+						case "nei": {
 							if (game.players.length === 2) {
 								return -10;
 							}
@@ -4341,7 +4341,8 @@ export default {
 								return 0;
 							}
 							return Math.min(3, get.population("fan"));
-						case "fan":
+						}
+						case "fan": {
 							if (get.population("fan") === 1 && get.population("nei") === 1 && game.players.length === 3) {
 								const nei = game.players.find(current => current.identity === "nei");
 								if (nei && nei.hp > 1 && nei.hp > to.hp && nei.countCards("he") > to.countCards("he")) {
@@ -4350,7 +4351,8 @@ export default {
 								return -3;
 							}
 							return -4;
-						case "commoner":
+						}
+						case "commoner": {
 							if (to.identity === "zhong") {
 								return 0;
 							}
@@ -4383,8 +4385,10 @@ export default {
 								return 0;
 							}
 							return Math.min(0, Math.max(-3, situation));
+						}
 					}
 					break;
+				}
 				case "zhong":
 				case "mingzhong":
 					switch (identity2) {
@@ -4429,7 +4433,7 @@ export default {
 							return Math.min(0, Math.max(-3, situation));
 					}
 					break;
-				case "nei":
+				case "nei": {
 					if (identity2 === "zhu" && game.players.length === 2) {
 						return -10;
 					}
@@ -4583,6 +4587,7 @@ export default {
 							return -6;
 					}
 					break;
+				}
 				case "fan":
 					switch (identity2) {
 						case "zhu":
