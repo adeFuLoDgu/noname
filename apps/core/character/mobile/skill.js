@@ -13786,6 +13786,7 @@ const skills = {
 		},
 		forced: true,
 		locked: false,
+		async content(event, trigger, player) {},
 		ai: {
 			combo: "mbqianlong",
 		},
@@ -21428,7 +21429,7 @@ const skills = {
 		multitarget: true,
 		multiline: true,
 		async content(event, trigger, player) {
-			targets[0].swapEquip(targets[1]);
+			event.targets[0].swapEquip(event.targets[1]);
 		},
 		ai: {
 			order: 10,
@@ -23316,7 +23317,7 @@ const skills = {
 		},
 		filterCard: lib.filter.cardDiscardable,
 		async content(event, trigger, player) {
-			player.draw(get.color(cards) == "none" ? 2 : 1);
+			player.draw(get.color(event.cards) == "none" ? 2 : 1);
 		},
 		ai: {
 			order: 1,
@@ -25945,8 +25946,8 @@ const skills = {
 				function (target1, target2) {
 					game.swapSeat(target1, target2);
 				},
-				targets[0],
-				targets[1]
+				event.targets[0],
+				event.targets[1]
 			);
 		},
 		ai: {
@@ -26195,7 +26196,7 @@ const skills = {
 		async content(event, trigger, player) {
 			const skill = event.name + "_effect";
 			player.addTempSkill(skill, { player: "phaseBeginStart" });
-			player.markAuto(skill, target);
+			player.markAuto(skill, event.target);
 		},
 		ai: {
 			order: 1,
@@ -29884,18 +29885,18 @@ const skills = {
 				.filterPlayer(function (current) {
 					return current != player;
 				})
-				.randomGets(cards.length);
+				.randomGets(event.cards.length);
 			var map = [];
 			for (var i = 0; i < targets.length; i++) {
 				var target = targets[i];
 				target.addSkill("reqianxin2");
-				target.storage.reqianxin2.push([cards[i], player]);
-				map.push([target, cards[i]]);
+				target.storage.reqianxin2.push([event.cards[i], player]);
+				map.push([target, event.cards[i]]);
 			}
 			game.loseAsync({
 				gain_list: map,
 				player: player,
-				cards: cards,
+				cards: event.cards,
 				giver: player,
 				animate: "giveAuto",
 			}).setContent("gaincardMultiple");
@@ -31783,7 +31784,7 @@ const skills = {
 					position: "hes",
 					popname: true,
 					precontent(event, trigger, player) {
-						player.addMark("yizan_use", 1, false);
+						event.player.addMark("yizan_use", 1, false);
 					},
 				};
 			},

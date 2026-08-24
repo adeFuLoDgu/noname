@@ -1721,7 +1721,7 @@ const skills = {
 							return 0;
 						})
 						.forResult();
-					if (!result) {
+					if (!result || !result.targets) {
 						return;
 					}
 
