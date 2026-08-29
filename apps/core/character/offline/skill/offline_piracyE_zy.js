@@ -641,8 +641,8 @@ const skills = {
 				});
 				return;
 			}
-			const result2 = await target.give(result.cards, player).forResult();
-			if (result2.bool && result2.cards && result2.cards.length && target.isIn() && player.isIn() && get.suit(result2.cards[0], target) === "spade" && target.canUse("sha", player, false)) {
+			const result2 = await target.give(result.cards, player);
+			if (result2?.cards && result2.cards.length && target.isIn() && player.isIn() && get.suit(result2.cards[0], target) === "spade" && target.canUse("sha", player, false)) {
 				await target.useCard({
 					card: get.autoViewAs({ name: "sha", isCard: true }),
 					targets: [player],

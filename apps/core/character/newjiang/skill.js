@@ -177,7 +177,7 @@ const skills = {
 						return false;
 					}
 					const card = get.autoViewAs({ name, nature, storage: { dczhifeng: true } }, "unsure");
-					return event.filterCard(card, player, event);
+					return event && typeof event.filterCard == "function" && event.filterCard(card, player, event);
 				}).length > 0
 			);
 		},
@@ -189,7 +189,7 @@ const skills = {
 						return false;
 					}
 					const card = get.autoViewAs({ name, nature, storage: { dczhifeng: true } }, "unsure");
-					return event.filterCard(card, player, event);
+					return event && typeof event.filterCard == "function" && event.filterCard(card, player, event);
 				});
 				const dialog = ui.create.dialog("猘锋", [vcards, "vcard"]);
 				dialog.direct = true;

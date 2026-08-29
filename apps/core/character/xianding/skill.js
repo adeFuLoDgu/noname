@@ -4387,12 +4387,12 @@ const skills = {
 				charlotte: true,
 				mod: {
 					cardname(card, player) {
-						if (card.hasGaintag("eternal_dcsbshedao_global")) {
+						if (get.itemtype(card) == "card" && card.hasGaintag("eternal_dcsbshedao_global")) {
 							return "sha";
 						}
 					},
 					cardnature(card, player) {
-						if (card.hasGaintag("eternal_dcsbshedao_global")) {
+						if (get.itemtype(card) == "card" && card.hasGaintag("eternal_dcsbshedao_global")) {
 							return "thunder";
 						}
 					},

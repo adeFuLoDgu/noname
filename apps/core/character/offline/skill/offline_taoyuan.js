@@ -1766,7 +1766,7 @@ const skills = {
 			viewAs: {
 				mod: {
 					cardname(card, player) {
-						if (card.hasGaintag("tyxibei")) {
+						if (get.itemtype(card) == "card" && card.hasGaintag("tyxibei")) {
 							return "lx_huoshaolianying";
 						}
 					},

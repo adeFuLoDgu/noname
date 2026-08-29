@@ -436,6 +436,9 @@ export default {
 				},
 				result: {
 					target: (player, target) => {
+						if (!target) {
+							return 0;
+						}
 						for (var i = 0; i < game.players.length; i++) {
 							if (get.attitude(player, game.players[i]) <= 0 && game.players[i].hasSkill("dclaoyan")) return 0;
 						}

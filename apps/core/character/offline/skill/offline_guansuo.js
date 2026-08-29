@@ -1399,7 +1399,7 @@ const skills = {
 				if (player.getStorage("dragduyi_used").includes(name)) {
 					return false;
 				}
-				return event.filterCard && event.filterCard(get.autoViewAs({ name: name }, "unsure"), player, event);
+				return event && typeof event.filterCard == "function" && event.filterCard(get.autoViewAs({ name: name }, "unsure"), player, event);
 			});
 		},
 		chooseButton: {
