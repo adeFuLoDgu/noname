@@ -4028,7 +4028,7 @@ else if (entry[1] !== void 0) stringifying[key] = JSON.stringify(entry[1]);*/
 	}
 	skillInfoTranslation(name, player, noHTML = true) {
 		let str = (() => {
-			if (player && lib.dynamicTranslate[name]) {
+			if (player && lib.dynamicTranslate[name] && typeof lib.dynamicTranslate[name] === "function") {
 				return lib.dynamicTranslate[name](player, name);
 			}
 			const str = lib.translate[name + "_info"];

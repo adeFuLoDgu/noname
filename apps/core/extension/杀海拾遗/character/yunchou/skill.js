@@ -59,7 +59,7 @@ const skills = {
 		ai: {
 			effect: {
 				player_use(card, player, target) {
-					if (!get.tag(card, "damage") || player === target || target.hp > 1 || target === game.zhu) {
+					if (!get.tag(card, "damage") || !target || player === target || target.hp > 1 || target === game.zhu) {
 						return;
 					}
 					if (get.mode() === "identity") {
@@ -81,7 +81,7 @@ const skills = {
 					}
 				},
 				player(card, player, target) {
-					if (!get.tag(card, "damage") || player === target || target.hp > 1 || target === game.zhu) {
+					if (!get.tag(card, "damage") || !target || player === target || target.hp > 1 || target === game.zhu) {
 						return;
 					}
 					if (get.mode() === "identity") {
