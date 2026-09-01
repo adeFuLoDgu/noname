@@ -152,7 +152,7 @@ async function buildSelf(target: string | string[], importMap: Record<string, st
 
 					// 去掉 hash
 					entryFileNames: (chunkInfo) => {
-						if (chunkInfo.name.includes("node_modules")) {
+						if (process.env.IS_CLOUDFLARE_PAGES && chunkInfo.name.includes("node_modules")) {
 							return chunkInfo.name.replace(/node_modules/g, "external") + ".js"; // rename node_modules folder
 						}
 						return "[name].js"; // 入口文件
