@@ -5908,7 +5908,7 @@ const skills = {
 				return;
 			}
 			result = await player.chooseToDiscard("白衣：请弃置" + get.cnNumber(num) + "张牌", "he", true, num).forResult();
-			if (!result?.bool || !result.cards?.length) {
+			if (!result || !result?.bool || !result.cards?.length) {
 				return;
 			}
 			let goon = true;

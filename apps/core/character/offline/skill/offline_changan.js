@@ -229,7 +229,7 @@ const skills = {
 						return get.attitude(player, target) * (Math.random() - 0.5);
 					})
 					.forResult();
-				if (!result.bool) {
+				if (!result?.bool) {
 					return;
 				}
 				target = result.targets[0];

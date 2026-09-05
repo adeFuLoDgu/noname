@@ -2592,7 +2592,7 @@ const skills = {
 							return Math.random();
 						})
 						.forResult();
-					if (!result.bool) {
+					if (!result?.bool) {
 						return;
 					}
 					if (Array.isArray(result.links[0])) {
@@ -3279,7 +3279,7 @@ const skills = {
 					const card = { name: "sha", isCard: true };
 					if (player.hasUseTarget(card)) {
 						const result = await player.chooseUseTarget(card, false).forResult();
-						if (!result.bool) {
+						if (!result?.bool) {
 							break;
 						}
 					} else {

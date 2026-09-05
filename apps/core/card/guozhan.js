@@ -182,7 +182,7 @@ export default {
 					});
 				}
 				const result = await next.forResult();
-				if (!result.bool) {
+				if (!result?.bool) {
 					target.draw(target[judge] === "shu" ? 2 : 1);
 				}
 			},

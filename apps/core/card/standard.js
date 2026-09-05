@@ -3082,7 +3082,7 @@ export default {
 						.set("respondTo", [player, event.card])
 						.forResult();
 				}
-				if (!result.bool) {
+				if (!result?.bool) {
 					const cards = target.getGainableCards(player, "e", card => get.subtypes(card)?.includes("equip1"));
 					if (cards.length) {
 						await player.gain(cards, target, "give", "bySelf");

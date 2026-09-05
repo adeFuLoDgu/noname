@@ -432,7 +432,7 @@ const skills = {
 				})
 				.set("cards", cards)
 				.forResult();
-			if (!result?.bool || !result.targets?.length) return;
+			if (!result || !result?.bool || !result.targets?.length) return;
 			const target = result.targets[0];
 			player.storage[event.name] = target;
 			player.addTip(event.name, [event.name, target].map(get.translation).join(" "));
@@ -1790,7 +1790,7 @@ const skills = {
 							bool: true,
 							targets: pre_targets,
 						};
-			if (!result?.bool || !result.targets?.length) {
+			if (!result || !result.bool || !result.targets?.length) {
 				return;
 			}
 			player.addTempSkill(skill);
@@ -1821,7 +1821,7 @@ const skills = {
 								return get.damageEffect(target, player, player);
 							})
 							.forResult();
-			if (!result?.bool || !result.targets?.length) {
+			if (!result || !result?.bool || !result.targets?.length) {
 				return;
 			}
 			const target = result.targets[0];
@@ -2616,7 +2616,7 @@ const skills = {
 					);
 				})
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			const link = result.links[0],
@@ -6948,7 +6948,7 @@ const skills = {
 				)
 				.forResult();
 
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 
@@ -7112,7 +7112,7 @@ const skills = {
 					})
 					.forResult();
 
-				if (!result.bool) {
+				if (!result?.bool) {
 					break;
 				}
 
@@ -7299,7 +7299,7 @@ const skills = {
 					return 0;
 				})
 				.forResult();
-			if (!result.bool || !result.targets?.length) {
+			if (!result || !result?.bool || !result.targets?.length) {
 				return;
 			}
 			[target] = result.targets;
@@ -7463,7 +7463,7 @@ const skills = {
 							.set("ai", get.unuseful)
 							.set("prompt", num > 0 ? "是否交给" + get.translation(player) + "任意张牌" + (cards.length ? "并获得" + get.translation(cards) : "") + "？" : "交给" + get.translation(player) + "至少" + get.cnNumber(num) + "张牌")
 							.forResult();
-			if (!result?.bool || !result.cards?.length || !cards.length) {
+			if (!result || !result?.bool || !result.cards?.length || !cards.length) {
 				return;
 			}
 			await game.delayx();
@@ -8029,7 +8029,7 @@ const skills = {
 						.set("choice", choice)
 						.forResult();
 
-					if (!result.bool) {
+					if (!result?.bool) {
 						return;
 					}
 

@@ -413,7 +413,7 @@ export default {
 					})
 					.set("goon", target.countCards("h", card => get.value(card, target, "raw") < 8) > 1)
 					.forResult();
-				if (!result.bool) {
+				if (!result?.bool) {
 					await target.chooseToDiscard({
 						selectCard: 2,
 						position: "he",

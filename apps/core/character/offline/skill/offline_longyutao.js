@@ -60,7 +60,7 @@ const skills = {
 					return 1;
 				})
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			await player.showCards(result.cards, `${get.translation(player)}发动了【超绝】`);

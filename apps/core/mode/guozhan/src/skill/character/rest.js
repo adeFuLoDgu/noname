@@ -363,7 +363,7 @@ export default {
 							return Math.random();
 						})
 						.forResult();
-					if (!result?.bool || !result.links?.length) {
+					if (!result || !result?.bool || !result.links?.length) {
 						return;
 					}
 					if (result.links.includes("yinyang")) {
@@ -5147,7 +5147,7 @@ export default {
 			const target = event.targets[0];
 			const result = await player.gainPlayerCard(target, "e", true).forResult();
 
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 
@@ -5250,7 +5250,7 @@ export default {
 			const target = event.targets[0];
 			const result = await player.gainPlayerCard(target, "e", true).forResult();
 
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 
@@ -10002,7 +10002,7 @@ export default {
 				})
 				.set("goon", target.canUse("sha", player, false) && get.effect(player, { name: "sha" }, target, target) > 0);
 			"step 1";
-			if (!result.bool) {
+			if (!result?.bool) {
 				player.gainPlayerCard(target, "he", true);
 				event.finish();
 			} else {
@@ -13700,7 +13700,7 @@ export default {
 				};
 			}
 			"step 1";
-			if (!result.bool) {
+			if (!result?.bool) {
 				event.finish();
 			} else {
 				var list = ["主将", "副将"];
@@ -19399,7 +19399,7 @@ export default {
 				event.finish();
 			}
 			"step 2";
-			if (!result.bool) {
+			if (!result?.bool) {
 				trigger.player.damage();
 			}
 		},

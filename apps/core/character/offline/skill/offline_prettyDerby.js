@@ -760,7 +760,7 @@ const skills = {
 					},
 				})
 				.forResult();
-			if (!result?.bool || !result.links?.length) {
+			if (!result || !result?.bool || !result.links?.length) {
 				return;
 			}
 			player.tempBanSkill(event.name);
@@ -1001,7 +1001,7 @@ const skills = {
 					},
 				})
 				.forResult();
-			if (!result?.bool || !result.links?.length) {
+			if (!result || !result?.bool || !result.links?.length) {
 				return;
 			}
 			event.result = {

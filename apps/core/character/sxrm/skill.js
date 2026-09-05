@@ -4407,7 +4407,7 @@ const skills = {
 						return get.damageEffect(target, get.player());
 					})
 					.forResult();
-				if (!result.bool) {
+				if (!result?.bool) {
 					return;
 				}
 				const result2 = await player.chooseToCompare(result.targets[0]).forResult();
@@ -4550,7 +4550,7 @@ const skills = {
 					return 10 - Math.abs(7 - get.number(card));
 				})
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			let cards = result.cards.slice(0, 1);
@@ -4688,7 +4688,7 @@ const skills = {
 						return get.effect(target, { name: "guohe_copy2" }, player, player);
 					})
 					.forResult();
-				if (!result.bool) {
+				if (!result?.bool) {
 					break;
 				}
 				forced = true;

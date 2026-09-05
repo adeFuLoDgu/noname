@@ -316,7 +316,7 @@ export default {
 					result = { bool: true, links: cards.slice(0) };
 				}
 
-				if (!result.bool) {
+				if (!result?.bool) {
 					break;
 				}
 
@@ -339,7 +339,7 @@ export default {
 					.set("enemy", get.value(toGive[0], player, "raw") < 0)
 					.forResult();
 
-				if (!result.bool) {
+				if (!result?.bool) {
 					break;
 				}
 
@@ -589,7 +589,7 @@ export default {
 						return 1 - get.attitude(get.player(), target);
 					})
 					.forResult();
-				if (!result.bool) {
+				if (!result?.bool) {
 					return;
 				}
 				result.targets?.sortBySeat();
@@ -835,7 +835,7 @@ export default {
 				.set("ai", target => get.damageEffect(target, _status.event?.source, player))
 				.set("source", target)
 				.forResult();
-			if (!result.bool || !result.targets || !result.targets.length) {
+			if (!result || !result.bool || !result.targets || !result.targets.length) {
 				return;
 			}
 			target.line(result.targets[0], "green");

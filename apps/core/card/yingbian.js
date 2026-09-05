@@ -185,7 +185,7 @@ export default {
 					return;
 				}
 				const result = await player.choosePlayerCard(target, "h", true).forResult();
-				if (!result.bool) {
+				if (!result?.bool) {
 					return;
 				}
 				await target.showCards(result.cards);

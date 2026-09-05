@@ -13,7 +13,7 @@ const cards = {
 			const result = await player
 				.chooseUseTarget(card, event.cards, `蓄谋:是否使用${get.translation(card)}？`, `请选择要使用的目标。若不使用此牌，则判定区内的所有"蓄谋"牌都将被置入弃牌堆。`)
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				const cards = player.getCards("j", card => (card.viewAs || card.name) == "xumou_jsrg");
 				if (cards.length > 0) {
 					await player.loseToDiscardpile(cards);

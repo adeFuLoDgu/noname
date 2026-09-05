@@ -265,7 +265,7 @@ const skills = {
 							.chooseTarget([1, 2], "获得至多两名角色各一张手牌", (card, player, target) => target !== player && target.countGainableCards(player, "h"))
 							.set("ai", target => get.effect(target, { name: "shunshou_copy2" }, get.player(), get.player()))
 							.forResult();
-						if (!result?.bool || !result.targets?.length) {
+						if (!result || !result?.bool || !result.targets?.length) {
 							return;
 						}
 						result.targets.sortBySeat();

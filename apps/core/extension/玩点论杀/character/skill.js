@@ -245,7 +245,7 @@ const skills = {
 				})
 				.set("bool", bool);
 			"step 1";
-			if (!result.bool) {
+			if (!result?.bool) {
 				trigger.cancel();
 			}
 		},
@@ -578,7 +578,7 @@ const skills = {
 				event.finish();
 			}
 			"step 1";
-			if (!result.bool) {
+			if (!result?.bool) {
 				player.loseHp();
 			}
 			event.goto(0);

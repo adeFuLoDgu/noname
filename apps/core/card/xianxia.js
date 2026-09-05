@@ -387,7 +387,7 @@ export default {
 							return eff;
 						})
 						.forResult();
-					if (!result.bool) {
+					if (!result?.bool) {
 						return;
 					}
 					const owner = get.owner(result.links[0]);

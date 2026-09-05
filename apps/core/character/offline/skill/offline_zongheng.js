@@ -70,7 +70,7 @@ const skills = {
 				})
 				.set("target", player)
 				.forResult();
-			if (!result?.bool || !result.cards?.length) {
+			if (!result || !result?.bool || !result.cards?.length) {
 				await player.useSkill({ skill: `${event.name}_leiji`, targets: [target] });
 			}
 		},
@@ -153,7 +153,7 @@ const skills = {
 				.set("numbers", numbers)
 				.set("suits", suits)
 				.forResult();
-			if (!result?.bool || !result.links?.length) {
+			if (!result || !result?.bool || !result.links?.length) {
 				return;
 			}
 			const suit = suits[result.links.map(link => suitx.indexOf(link)).filter(i => i !== -1)[0]];

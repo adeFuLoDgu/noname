@@ -755,7 +755,7 @@ export default {
 			const target = event.targets[0];
 			const result = await player.gainPlayerCard(target, "e", true).forResult();
 
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 

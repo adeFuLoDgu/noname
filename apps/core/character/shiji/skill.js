@@ -1264,7 +1264,7 @@ const skills = {
 					game.filterPlayer().reduce((num, i) => Math.max(num, i.countCards("h")), 0)
 				)
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			const target = result.targets[0];
@@ -1308,7 +1308,7 @@ const skills = {
 			const { target } = event;
 			while (true) {
 				let result = await target.draw().forResult();
-				if (!result.bool || !Array.isArray(result.cards) || result.cards.length !== 1 || get.itemtype(result.cards[0]) !== "card") {
+				if (!result || !result.bool || !Array.isArray(result.cards) || result.cards.length !== 1 || get.itemtype(result.cards[0]) !== "card") {
 					return;
 				}
 
@@ -1327,7 +1327,7 @@ const skills = {
 				}
 
 				result = await player.chooseBool("是否继续发动【慧识】？").forResult();
-				if (!result.bool) {
+				if (!result?.bool) {
 					return;
 				}
 			}
@@ -2664,7 +2664,7 @@ const skills = {
 				.set("source", player)
 				.forResult();
 
-			if (!result?.bool || !result.links?.length) {
+			if (!result || !result.bool || !result.links?.length) {
 				player.logSkill("tingwei", null, null, null, [get.rand(3, 4)]);
 				await target.link(true);
 				return;
@@ -3149,7 +3149,7 @@ const skills = {
 					},
 				})
 				.forResult();
-			if (!result?.bool || !result.targets?.length) {
+			if (!result || !result?.bool || !result.targets?.length) {
 				return;
 			}
 			const target = result.targets[0];
@@ -3207,7 +3207,7 @@ const skills = {
 					forced: true,
 				})
 				.forResult();
-			if (!result?.bool || !result.cards?.length) {
+			if (!result || !result?.bool || !result.cards?.length) {
 				return;
 			}
 			await target.recast(result.cards);
@@ -3443,7 +3443,7 @@ const skills = {
 					},
 				})
 				.forResult();
-			if (!result.bool || !result.links?.length) {
+			if (!result || !result.bool || !result.links?.length) {
 				return;
 			}
 			const name = result.links[0][2];
@@ -3584,7 +3584,7 @@ const skills = {
 							return Math.max(2 * get.effect(target, { name: "draw" }, target, player), get.recoverEffect(target, target, player));
 						})
 						.forResult();
-					if (!result.bool) {
+					if (!result?.bool) {
 						return;
 					}
 					const target = result.targets[0];
@@ -3771,7 +3771,7 @@ const skills = {
 						},
 					})
 					.forResult();
-				if (!result?.bool || !result.links?.length) {
+				if (!result || !result.bool || !result.links?.length) {
 					return;
 				}
 				card = result.links[0];
@@ -3790,7 +3790,7 @@ const skills = {
 				})
 				.set("card", card)
 				.forResult();
-			if (!result?.bool || !result.targets?.length) {
+			if (!result || !result.bool || !result.targets?.length) {
 				return;
 			}
 			const target2 = result.targets[0];
@@ -3887,7 +3887,7 @@ const skills = {
 							})
 							.set("target", target)
 							.forResult();
-			if (!result?.bool || !result.links?.length) {
+			if (!result || !result.bool || !result.links?.length) {
 				return;
 			}
 			const card = result.links[0];
@@ -4028,7 +4028,7 @@ const skills = {
 					},
 				})
 				.forResult();
-			if (!result.bool || !result.links?.length) {
+			if (!result || !result.bool || !result.links?.length) {
 				return;
 			}
 			await player.gain({
@@ -4271,7 +4271,7 @@ const skills = {
 				}
 			}
 			const result = await next.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				await player.draw();
 			}
 			await player.showHandcards();
@@ -5228,7 +5228,7 @@ const skills = {
 							})
 							.set("source", target)
 							.forResult();
-						if (!result?.bool || !result.targets?.length) {
+						if (!result || !result.bool || !result.targets?.length) {
 							useSha = false;
 						} else {
 							const target2 = result.targets[0];
@@ -5556,7 +5556,7 @@ const skills = {
 			trigger.targets.remove(trigger.target);
 			trigger.getParent()?.triggeredTargets1.remove(trigger.target);
 			trigger.untrigger();
-			if (!result.bool) {
+			if (!result?.bool) {
 				trigger.targets.push(player);
 			}
 		},
@@ -5580,7 +5580,7 @@ const skills = {
 					},
 				})
 				.forResult();
-			if (!result.bool || !result.targets?.length) {
+			if (!result || !result.bool || !result.targets?.length) {
 				return;
 			}
 			const target = result.targets[0];
@@ -6256,7 +6256,7 @@ const skills = {
 					return event.name == "damage" ? event.player : event.target;
 				},
 				filter(event, player, name) {
-					if (!event.card?.name === "sha" || !event.card.storage?.dbchongjian) {
+					if (!event.card?.name === "sha" || !event.card?.storage?.dbchongjian) {
 						return false;
 					}
 					return event.player.hasGainableCards(player, "e") || name == "useCardToPlayer";
@@ -6339,7 +6339,7 @@ const skills = {
 							},
 						})
 						.forResult();
-					if (!result.bool || !result.links?.length) {
+					if (!result || !result.bool || !result.links?.length) {
 						return;
 					}
 					player.logSkill("xingqi");
@@ -6489,7 +6489,7 @@ const skills = {
 					},
 				})
 				.forResult();
-			if (!result.bool || !result.links?.length) {
+			if (!result || !result.bool || !result.links?.length) {
 				return;
 			}
 			const name = result.links[0][2];
@@ -6769,7 +6769,7 @@ const skills = {
 				})
 				.set("color", get.attitude(trigger.source, player) > 0 ? "red" : "black")
 				.forResult();
-			if (!result.bool || !result.cards?.length) {
+			if (!result || !result?.bool || !result.cards?.length) {
 				return;
 			}
 			const card = result.cards[0];
@@ -7064,7 +7064,7 @@ const skills = {
 					},
 				})
 				.forResult();
-			if (!result?.bool | !result.targets?.length) {
+			if (!result || !result?.bool | !result.targets?.length) {
 				player.removeGaintag("mingfa");
 				return;
 			}
@@ -7124,7 +7124,7 @@ const skills = {
 							},
 						})
 						.forResult();
-					if (!result.bool || !result.cards?.length) {
+					if (!result || !result?.bool || !result.cards?.length) {
 						return;
 					}
 					const card = result.cards[0];
@@ -7235,7 +7235,7 @@ const skills = {
 						forced: true,
 					})
 					.forResult();
-				if (!result.bool || !result.cards?.length) {
+				if (!result || !result?.bool || !result.cards?.length) {
 					return;
 				}
 				cards = result.cards;
@@ -7448,7 +7448,7 @@ const skills = {
 						allowChooseAll: true,
 					})
 					.forResult();
-				if (!result?.bool || !result.cards?.length) {
+				if (!result || !result?.bool || !result.cards?.length) {
 					await game.delayx();
 					return;
 				}
@@ -7646,7 +7646,7 @@ const skills = {
 					forced: true,
 				})
 				.forResult();
-			if (!result.bool || !result.links?.length) {
+			if (!result || !result.bool || !result.links?.length) {
 				return;
 			}
 			const cards = result.links;
@@ -7980,7 +7980,7 @@ const skills = {
 					},
 				})
 				.forResult();
-			if (!result.bool || !result.links?.length) {
+			if (!result || !result.bool || !result.links?.length) {
 				return;
 			}
 			const name = result.links[0][2];
@@ -8979,7 +8979,7 @@ const skills = {
 								forced: true,
 							})
 							.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			const cards = result.links;
@@ -9626,7 +9626,7 @@ const skills = {
 					},
 				})
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			trigger.targets.length = 0;
@@ -10001,7 +10001,7 @@ const skills = {
 					)
 				)
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			const target = result.targets[0];
@@ -10553,7 +10553,7 @@ const skills = {
 					},
 				})
 				.forResult();
-			if (!result.bool || !result.cards?.length) {
+			if (!result || !result?.bool || !result.cards?.length) {
 				await target.loseHp();
 				return;
 			}

@@ -1277,7 +1277,7 @@ const skills = {
 				.set("att", att)
 				.forResult();
 
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 

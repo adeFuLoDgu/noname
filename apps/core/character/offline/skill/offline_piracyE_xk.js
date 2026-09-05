@@ -46,7 +46,7 @@ const skills = {
 					return player.getUseValue({ name: name });
 				})
 				.forResult();
-			if (!result?.bool || !result?.links?.length) {
+			if (!result || !result?.bool || !result?.links?.length) {
 				return;
 			}
 			const card = { name: result.links[0][2], storage: { xkxijun: true } };

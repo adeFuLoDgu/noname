@@ -99,7 +99,7 @@ export default {
 					return;
 				}
 				const result = await player.choosePlayerCard(target, "h", true).forResult();
-				if (!result.bool) {
+				if (!result?.bool) {
 					return;
 				}
 				event.show_card = result.cards[0];
@@ -753,7 +753,7 @@ export default {
 							},
 						})
 						.forResult();
-					if (!result.bool) {
+					if (!result?.bool) {
 						if (!given) {
 							if (_status.connectMode) {
 								game.broadcastAll(() => {

@@ -9766,7 +9766,7 @@ export const Content: Record<string, ContentFuncByAll | ContentFuncsByAll> = {
 
 		let result = await next.forResult();
 		event.result = result;
-		if (!result.bool) {
+		if (!result?.bool) {
 			return;
 		}
 

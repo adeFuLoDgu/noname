@@ -415,7 +415,7 @@ export default {
 				return get.value(button.link, _status.event.player);
 			});
 			const result = await next.forResult();
-			if (!result.bool || !result.links?.length) {
+			if (!result || !result.bool || !result.links?.length) {
 				return;
 			}
 			time = 1000 - (get.utc() - time);
@@ -1248,7 +1248,7 @@ export default {
 					return -get.attitude(player, target) * target.hp;
 				})
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			const target = result.targets[0];

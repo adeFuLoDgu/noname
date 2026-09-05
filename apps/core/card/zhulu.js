@@ -227,7 +227,7 @@ export default {
 						return 6 - get.value(card);
 					})
 					.forResult();
-				if (!result.bool || !result.cards) {
+				if (!result || !result.bool || !result.cards) {
 					return;
 				}
 				const equips = result.cards.some(card => get.type(card) === "equip");

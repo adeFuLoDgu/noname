@@ -1375,7 +1375,7 @@ export const carryOutJunling = async (event, _trigger, player) => {
 				})
 				.forResult();
 
-			if (!result.bool || !result.cards?.length) {
+			if (!result || !result.bool || !result.cards?.length) {
 				return;
 			}
 

@@ -1565,7 +1565,7 @@ export default {
 					.set("effect", get.effect(target, { name: "losehp" }, target, target))
 					.set("addCount", false)
 					.forResult();
-				if (!result.bool) {
+				if (!result?.bool) {
 					await target.loseHp();
 				}
 			},

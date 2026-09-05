@@ -182,7 +182,7 @@ const skills = {
 								return [cards];
 							})
 							.forResult();
-						if (!result.bool) {
+						if (!result?.bool) {
 							return;
 						}
 						cards = result.moved[0];
@@ -480,7 +480,7 @@ const skills = {
 				})
 				.set("att", get.attitude(target, player))
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				const gains = [];
 				while (gains.length < 2) {
 					const card = get.cardPile(i => get.type(i) === "trick" && !gains.includes(i), false, "random");

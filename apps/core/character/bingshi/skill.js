@@ -662,7 +662,7 @@ const skills = {
 								.forResult()
 						: { bool: false };
 				}
-				if (!result?.bool || !result.cards?.length) {
+				if (!result || !result?.bool || !result.cards?.length) {
 					//购卡的新巧思-2-3-4-5-6
 					if (trigger.notLink()) {
 						trigger.num++;
@@ -6361,7 +6361,7 @@ const skills = {
 						return Math.random();
 					})
 					.forResult();
-				if (!result?.bool || !result.links?.length) {
+				if (!result || !result?.bool || !result.links?.length) {
 					return;
 				}
 				switch (result.links[0]) {
