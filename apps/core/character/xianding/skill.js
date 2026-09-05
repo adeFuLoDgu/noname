@@ -7771,7 +7771,7 @@ const skills = {
 				.set("targets", trigger.targets)
 				.forResult();
 
-			if (!result.bool || !result.targets?.length) {
+			if (!result?.bool || !result.targets?.length) {
 				return;
 			}
 			if (!event.isMine() && !event.isOnline()) {
@@ -23248,7 +23248,7 @@ const skills = {
 					} else {
 						result = { bool: false };
 					}
-					if (!result.bool) {
+					if (!result?.bool) {
 						game.broadcastAll(() => ui.clear());
 						await player.gain(cards, "gain2");
 						break;
@@ -30439,7 +30439,7 @@ const skills = {
 					game.stopCountChoose();
 				});
 			}
-			if (!result.bool) {
+			if (!result?.bool) {
 				return event.finish();
 			}
 			const targets = result.targets.slice().sortBySeat();
@@ -30612,7 +30612,7 @@ const skills = {
 					.set("createDialog", [`###硝引：剩余的黑色牌###<div class="text center">请选择至多${get.cnNumber(blackOnes.length)}名座次连续的其他角色，然后将以下这些牌置于这些角色的武将牌上。</div>`, blackOnes])
 					.forResult();
 			}
-			if (!result.bool) {
+			if (!result?.bool) {
 				event.finish();
 				return;
 			}
@@ -33708,7 +33708,7 @@ const skills = {
 					}
 				})
 				.forResult();
-			if (!result.bool || !result.moved[0].length) {
+			if (!result?.bool || !result.moved[0].length) {
 				player.addTempSkill("guanxing_fail");
 			}
 		},
@@ -34971,7 +34971,7 @@ const skills = {
 			cards = cards.filter(card => player.hasUseTarget(card, false));
 			player.chooseButton(["设学：是否将一张牌当作其中一张牌使用？", [cards, "vcard"]]);
 			("step 1");
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			var card = result.links[0];
@@ -35051,7 +35051,7 @@ const skills = {
 							return get.event().player.getUseValue(button.link, false);
 						})
 						.forResult();
-					if (!result.bool) {
+					if (!result?.bool) {
 						return;
 					}
 					const card = result.links[0];
@@ -35190,7 +35190,7 @@ const skills = {
 					}) < target.hp
 				);
 			("step 1");
-			if (!result.bool) {
+			if (!result?.bool) {
 				player.addTempSkill("dcwencan_paoxiao");
 				player.markAuto("dcwencan_paoxiao", [target]);
 			}
@@ -41270,7 +41270,7 @@ const skills = {
 									choice: -att,
 								})
 								.forResult();
-							if (!result.bool) return;
+							if (!result?.bool) return;
 							const cards = target.getCards("he", card => lib.filter.cardDiscardable(card, player, "dccili")).randomGets(Math.min(record[1], 5));
 							await target.discard(cards);
 						} else {
@@ -41280,7 +41280,7 @@ const skills = {
 									choice: att,
 								})
 								.forResult();
-							if (!result.bool) return;
+							if (!result?.bool) return;
 							await target.draw(Math.min(record[1], 5));
 						}
 					}
@@ -46821,7 +46821,7 @@ const skills = {
 						})
 						.set("count", count)
 						.forResult();
-					if (!result.bool) {
+					if (!result?.bool) {
 						break;
 					}
 				}

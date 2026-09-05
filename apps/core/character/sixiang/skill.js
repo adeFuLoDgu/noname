@@ -390,7 +390,7 @@ const skills = {
 					}
 				})
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				await target.recover();
 			}
 		},
@@ -4878,7 +4878,7 @@ const skills = {
 					return 5 - get.value(card);
 				})
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			if (get.suit(result.cards[0]) == "diamond") {
@@ -5746,7 +5746,7 @@ const skills = {
 		async content(event, trigger, player) {
 			const target = event.targets[0];
 			const result = await player.chooseToCompare(target).forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				player.addTempSkill(event.name + "_effect");
 				await player.addAdditionalSkills(event.name + "_effect", "new_rewusheng");
 			}
@@ -5856,7 +5856,7 @@ const skills = {
 						next.set("prompt2", "若你不使用，则结束此流程");
 					}
 					const result = await next.forResult();
-					if (!result.bool && !keep) {
+					if (!result?.bool && !keep) {
 						stop = true;
 						break;
 					}
@@ -6574,7 +6574,7 @@ const skills = {
 		forced: true,
 		async content(event, trigger, player) {
 			const result = await player.chooseUseTarget("执义：视为使用【杀】，或摸一张牌", { name: "sha" }, false).forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				await player.draw();
 			}
 		},

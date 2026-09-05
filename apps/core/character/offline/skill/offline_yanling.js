@@ -234,7 +234,7 @@ const skills = {
 					},
 				})
 				.forResult();
-			if (!result.bool || !result.links?.length) {
+			if (!result?.bool || !result.links?.length) {
 				return;
 			}
 			const card = result.links[0];

@@ -82,7 +82,7 @@ const skills = {
 				.set("logSkill", ["vtbguisha", trigger.player])
 				.set("go", go)
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			if (trigger.addCount !== false) {
@@ -179,7 +179,7 @@ const skills = {
 				.set("logSkill", "vtbshanwu")
 				.set("goon", effect < 0)
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			game.log(player, "取消了", trigger.card, "的所有目标");
@@ -243,7 +243,7 @@ const skills = {
 					ai: target => get.recoverEffect(target, player, player) / 2 + get.attitude(player, target),
 				})
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			const targets = result.targets.slice().sortBySeat();

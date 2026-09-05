@@ -167,7 +167,7 @@ const skills = {
 						return 6 - get.value(card);
 					})
 					.forResult();
-				if (!result.bool) {
+				if (!result?.bool) {
 					await target.loseHp();
 				}
 			}
@@ -690,7 +690,7 @@ const skills = {
 						.set("forceDie", true)
 						.set("num", num)
 						.forResult();
-					if (!result.bool) {
+					if (!result?.bool) {
 						return;
 					}
 					const target = result.targets[0];
@@ -852,7 +852,7 @@ const skills = {
 				.set("card", trigger.card)
 				.set("targets", trigger.targets)
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			if (!event.isMine() && !event.isOnline()) {
@@ -947,7 +947,7 @@ const skills = {
 						const card = player.getExpansions("tybianta")[0];
 						if (player.hasUseTarget(card)) {
 							const result = await player.chooseUseTarget(card).forResult();
-							if (!result.bool) {
+							if (!result?.bool) {
 								break;
 							}
 						} else {
@@ -1722,7 +1722,7 @@ const skills = {
 					return 0;
 				})
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			game.broadcastAll(cards => {

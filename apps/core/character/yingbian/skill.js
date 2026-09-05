@@ -469,7 +469,7 @@ const skills = {
 					forced: true,
 				})
 				.forResult();
-			if (!result.bool || !result.cards?.length) {
+			if (!result?.bool || !result.cards?.length) {
 				return;
 			}
 			await player.addToExpansion({
@@ -569,7 +569,7 @@ const skills = {
 							},
 						})
 						.forResult();
-					if (!result.bool || !result.targets?.length) {
+					if (!result?.bool || !result.targets?.length) {
 						return;
 					}
 					const [target] = result.targets;
@@ -612,7 +612,7 @@ const skills = {
 					forced: true,
 				})
 				.forResult();
-			if (!result.bool || !result.cards?.length) {
+			if (!result?.bool || !result.cards?.length) {
 				return;
 			}
 			const card = result.cards[0];
@@ -1095,7 +1095,7 @@ const skills = {
 					},
 				})
 				.forResult();
-			if (!result.bool || !result.targets?.length) {
+			if (!result?.bool || !result.targets?.length) {
 				return;
 			}
 			const target = result.targets[0];
@@ -1134,7 +1134,7 @@ const skills = {
 							},
 						})
 						.forResult();
-					if (!result.bool || !result.targets?.length) {
+					if (!result?.bool || !result.targets?.length) {
 						return;
 					}
 					const target = result.targets[0];
@@ -2426,7 +2426,7 @@ const skills = {
 					forced: true,
 				})
 				.forResult();
-			if (!result.bool || !result.links?.length) {
+			if (!result?.bool || !result.links?.length) {
 				return;
 			}
 			const [bottomCard] = result.links;
@@ -2487,7 +2487,7 @@ const skills = {
 					},
 				})
 				.forResult();
-			if (!result.bool || !result.targets?.length) {
+			if (!result?.bool || !result.targets?.length) {
 				await player.recover();
 				return;
 			}
@@ -2540,7 +2540,7 @@ const skills = {
 					},
 				})
 				.forResult();
-			if (!result.bool || !result.targets?.length) {
+			if (!result?.bool || !result.targets?.length) {
 				await player.draw();
 				return;
 			}
@@ -2654,7 +2654,7 @@ const skills = {
 					},
 				})
 				.forResult();
-			if (!result.bool || !result.links?.length) {
+			if (!result?.bool || !result.links?.length) {
 				return;
 			}
 			const name = result.links[0][2];
@@ -2703,7 +2703,7 @@ const skills = {
 							return 0;
 						})
 						.forResult();
-					if (!result.bool) {
+					if (!result?.bool) {
 						return;
 					}
 					const name = lib.skill.chexuan.derivation?.randomGet();
@@ -2902,7 +2902,7 @@ const skills = {
 								forced: true,
 							})
 							.forResult();
-			if (!result.bool || !result.cards?.length) {
+			if (!result?.bool || !result.cards?.length) {
 				return;
 			}
 			await player.addToExpansion({
@@ -2989,7 +2989,7 @@ const skills = {
 				})
 				.set("target", target)
 				.forResult();
-			if (!result.bool || !result.targets?.length) {
+			if (!result?.bool || !result.targets?.length) {
 				return;
 			}
 			const card = get.autoViewAs({ name: "sha", isCard: true });
@@ -3093,7 +3093,7 @@ const skills = {
 				.setHiddenSkill(event.name);
 			next.logSkill = ["ciwei", trigger.player];
 			const result = await next.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			trigger.targets.length = 0;
@@ -3885,7 +3885,7 @@ const skills = {
 				})
 				.set("preTarget", target)
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				await source.damage({ source: player });
 			}
 		},
@@ -4076,7 +4076,7 @@ const skills = {
 						},
 					})
 					.forResult();
-				if (!result.bool || !result.targets?.length) {
+				if (!result?.bool || !result.targets?.length) {
 					player.logSkill("zhaoran2");
 					await player.draw();
 					continue;
@@ -4326,7 +4326,7 @@ const skills = {
 					},
 				})
 				.forResult();
-			if (!result.bool || !result.cards?.length) {
+			if (!result?.bool || !result.cards?.length) {
 				await grantBonus();
 				return;
 			}

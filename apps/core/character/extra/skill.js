@@ -375,7 +375,7 @@ const skills = {
 					.chooseTarget(true, "选择一名装备区或判定区有牌的角色", (card, player, target) => target.countCards("ej") > 0)
 					.set("ai", target => lib.skill.changandajian_destroy.getEffect(_status.event.player, target))
 					.forResult();
-				if (!result.bool) {
+				if (!result?.bool) {
 					return;
 				}
 
@@ -383,7 +383,7 @@ const skills = {
 				const target = result.targets[0];
 				player.line(target, "green");
 				result = await player.choosePlayerCard(target, true, "ej").forResult();
-				if (!result.bool) {
+				if (!result?.bool) {
 					return;
 				}
 
@@ -1010,7 +1010,7 @@ const skills = {
 						.set("forceDie", true)
 						.set("num", num)
 						.forResult();
-					if (!result.bool) {
+					if (!result?.bool) {
 						return;
 					}
 
@@ -1023,7 +1023,7 @@ const skills = {
 						.judge(card => (["tao", "taoyuan"].includes(card.name) ? 10 : -10))
 						.set("judge2", result => !result.bool)
 						.forResult();
-					if (!result.bool) {
+					if (!result?.bool) {
 						await target.die();
 					}
 				},
@@ -3783,7 +3783,7 @@ const skills = {
 			next.set("ai", processAI);
 
 			const result = await next.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 

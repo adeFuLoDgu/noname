@@ -89,7 +89,7 @@ const skills = {
 				});
 			}
 			const result = await next.forResult();
-			if (!result.bool || !result.cards?.length) {
+			if (!result?.bool || !result.cards?.length) {
 				return;
 			}
 			player.storage.xinfu_yanyu = get.type(result.cards[0], "trick");
@@ -290,7 +290,7 @@ const skills = {
 					ai: target => (check ? get.attitude(player, target) : 0),
 				})
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			player.storage.suiren = true;
@@ -338,7 +338,7 @@ const skills = {
 						ai: button => get.value(button.link),
 					})
 					.forResult();
-				if (!result.bool) {
+				if (!result?.bool) {
 					continue;
 				}
 				await player.gain({ cards: [result.links[0]], animate: "gain2" }).set("type", "xinmanjuan");
@@ -399,7 +399,7 @@ const skills = {
 				.set("dialog", [get.prompt(event.name), "hidden", cards])
 				.set("logSkill", event.name)
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			await player.gain({ cards, animate: "gain2", log: true });
@@ -619,7 +619,7 @@ const skills = {
 						})
 						.set("logSkill", "anxian")
 						.forResult();
-					if (!result.bool) {
+					if (!result?.bool) {
 						return;
 					}
 					const drawEvent = trigger.player.draw();
@@ -664,7 +664,7 @@ const skills = {
 					ai: target => -get.attitude(_status.event.player, target) / Math.sqrt(1 + target.hp),
 				})
 				.forResult();
-			if (!result.bool || !result.targets?.length) {
+			if (!result?.bool || !result.targets?.length) {
 				return;
 			}
 			const target = result.targets[0];
@@ -788,7 +788,7 @@ const skills = {
 					forced: true,
 				})
 				.forResult();
-			if (!result.bool || !result.links?.length) {
+			if (!result?.bool || !result.links?.length) {
 				return;
 			}
 			await player.addToExpansion({
@@ -1000,7 +1000,7 @@ const skills = {
 					ai: () => -1,
 				})
 				.forResult();
-			if (!result.bool || player.countCards("h") <= 2) {
+			if (!result?.bool || player.countCards("h") <= 2) {
 				return;
 			}
 			game.broadcastAll(player => {
@@ -1028,7 +1028,7 @@ const skills = {
 		async content(event, trigger, player) {
 			const { target } = event;
 			const result = await player.chooseToCompare(target).forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			target.addTempSkill("tanhu2");

@@ -5055,7 +5055,7 @@ const skills = {
 				})
 				.set("filterOk", moved => moved[1].length)
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				if (trigger.name === "phaseZhunbei") {
 					player.addTempSkill("sbguanxing_on");
 				}
@@ -5895,7 +5895,7 @@ const skills = {
 					},
 				})
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			const target = result.targets[0];
@@ -6021,7 +6021,7 @@ const skills = {
 						.set("targets", trigger.targets)
 						.set("card", trigger.card)
 						.forResult();
-					if (!result.bool) {
+					if (!result?.bool) {
 						return;
 					}
 					if (!event.isMine() && !event.isOnline()) {
@@ -6298,7 +6298,7 @@ const skills = {
 					position: "he",
 				})
 				.forResult();
-			if (!result.bool || !result.cards?.length) {
+			if (!result?.bool || !result.cards?.length) {
 				return;
 			}
 			await trigger.player.give(result.cards, player);
@@ -8340,7 +8340,7 @@ const skills = {
 							},
 						})
 						.forResult();
-					if (!result.bool || !result.targets?.length) {
+					if (!result?.bool || !result.targets?.length) {
 						return;
 					}
 					player.addTempSkill("sbxieji_reward", "sbxieji_effectAfter");
@@ -8392,7 +8392,7 @@ const skills = {
 					return 1 + Math.random();
 				})
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			if (result.player !== "db_def1") {
@@ -8538,7 +8538,7 @@ const skills = {
 						},
 					})
 					.forResult();
-				if (!result.bool) {
+				if (!result?.bool) {
 					await target.damage();
 					continue;
 				}
@@ -8580,7 +8580,7 @@ const skills = {
 					allowChooseAll: true,
 				})
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			await player.give(result.cards, result.targets[0]);
@@ -8620,7 +8620,7 @@ const skills = {
 					return 1 + Math.random();
 				})
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			if (result.player === "db_def1") {
@@ -8911,7 +8911,7 @@ const skills = {
 					})
 					.set("goon", get.attitude(target, player) > 0)
 					.forResult();
-				if (!result.bool) {
+				if (!result?.bool) {
 					continue;
 				}
 				const card = result.cards[0];
@@ -9097,7 +9097,7 @@ const skills = {
 				})
 				.set("eff", get.damageEffect(player, trigger.source, player, trigger.nature))
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			const target = result.targets[0];
@@ -9370,7 +9370,7 @@ const skills = {
 							ai: target => get.effect(target, { name: "draw" }, player, player),
 						})
 						.forResult();
-					if (!result.bool) {
+					if (!result?.bool) {
 						return;
 					}
 					const target = result.targets[0];

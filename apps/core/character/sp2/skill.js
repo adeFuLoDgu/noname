@@ -9822,7 +9822,7 @@ const skills = {
 				return get.number(card) == 6;
 			}).ai = card => 8 - get.value(card);
 			"step 5";
-			if (!result.bool) {
+			if (!result?.bool) {
 				target.chooseCard("he", true, "交给" + get.translation(player) + "一张牌");
 			} else {
 				event.finish();
@@ -10173,7 +10173,7 @@ const skills = {
 				})
 				.set("cardType", event.cardType);
 			"step 2";
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			var target = result.targets[0];
@@ -12400,7 +12400,7 @@ const skills = {
 				return get.attitude(_status.event.player, target);
 			});
 			"step 1";
-			if (!result.bool) {
+			if (!result?.bool) {
 				event.finish();
 				return;
 			}
@@ -13193,7 +13193,7 @@ const skills = {
 				player.send(func, event.videoId);
 			}
 			"step 2";
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			var numx = 0;
@@ -13226,7 +13226,7 @@ const skills = {
 				player.send(func, event.videoId);
 			}
 			"step 3";
-			if (!result.bool) {
+			if (!result?.bool) {
 				event.cards = [];
 			} else {
 				event.cards = result.links;
@@ -13421,7 +13421,7 @@ const skills = {
 					})()
 				);
 			"step 1";
-			if (!result.bool) {
+			if (!result?.bool) {
 				event.finish();
 			} else {
 				player.addTempSkill("xiying_gain");
@@ -13443,7 +13443,7 @@ const skills = {
 				});
 			}
 			"step 3";
-			if (target.isIn() && !result.bool) {
+			if (target.isIn() && !result?.bool) {
 				target.addTempSkill("xiying2");
 			}
 			if (targets.length) {
@@ -15234,7 +15234,7 @@ const skills = {
 			"step 0";
 			player.chooseToCompare(target).set("small", get.attitude(player, target) > 0);
 			"step 1";
-			if (!result.bool) {
+			if (!result?.bool) {
 				player.draw(2, "nodelay");
 				target.draw(2);
 				player.tempBanSkill("songshu", "phaseUseAfter");
@@ -15358,7 +15358,7 @@ const skills = {
 			};
 			"step 1";
 			delete _status.lslixun;
-			if (!result.bool) {
+			if (!result?.bool) {
 				player.chooseToDiscard([1, player.countMark("lslixun")], "h").ai = lib.skill.qiangxi.check;
 			} else {
 				event.finish();

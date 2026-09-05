@@ -288,7 +288,7 @@ const cards = {
 					},
 				})
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			const target = result.targets[0];

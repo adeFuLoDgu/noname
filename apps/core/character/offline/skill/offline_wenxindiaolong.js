@@ -602,7 +602,7 @@ const skills = {
 					return [list[0][1].slice().remove(card), [card], []];
 				})
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			if (result.moved[1].length) {

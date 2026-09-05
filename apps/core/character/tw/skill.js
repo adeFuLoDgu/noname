@@ -3366,7 +3366,7 @@ const skills = {
 			event.result.card = { name: "tao", isCard: true };
 			delete event.result.cards;
 			const result = await next.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				player.addSkill("twfushu_damage");
 				player.addMark("twfushu_damage", 1, false);
 				const evt = event.getParent();
@@ -7035,7 +7035,7 @@ const skills = {
 						return 7 - get.value(card);
 					})
 					.forResult();
-				if (!result.bool) {
+				if (!result?.bool) {
 					await target.loseHp();
 				} else {
 					num++;
@@ -7840,7 +7840,7 @@ const skills = {
 					await player.useCard(card, target, false);
 				}
 			}
-			if (!result.bool) {
+			if (!result?.bool) {
 				const card1 = result.player,
 					card2 = result.target;
 				await player.gain([card1, card2].filterInD("d"), "gain2");
@@ -11275,7 +11275,7 @@ const skills = {
 				});
 			}
 			"step 1";
-			if (!result.bool) {
+			if (!result?.bool) {
 				trigger.num++;
 			}
 		},
@@ -11581,7 +11581,7 @@ const skills = {
 				])
 				.set("choice", lib.skill.twxinghan.check(null, player))
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				event.finish();
 				return;
 			}
@@ -12661,7 +12661,7 @@ const skills = {
 					return true;
 				})
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			const { links } = result;
@@ -18115,7 +18115,7 @@ const skills = {
 				event.finish();
 			}
 			"step 2";
-			if (!result.bool && target.isIn()) {
+			if (!result?.bool && target.isIn()) {
 				target.draw();
 			}
 			event.goto(1);
@@ -19722,7 +19722,7 @@ const skills = {
 						.set("sourcex", target2)
 						.set("addCount", false);
 					"step 4";
-					if (!result.bool) {
+					if (!result?.bool) {
 						player.addTempSkill("twyaohu_effect");
 					}
 				},
@@ -21433,7 +21433,7 @@ const skills = {
 				return 5 + Math.max(0, 5 - player.maxHp) - get.value(card);
 			});
 			"step 1";
-			if (!result.bool) {
+			if (!result?.bool) {
 				player.loseMaxHp();
 			}
 		},
@@ -26136,7 +26136,7 @@ const skills = {
 					return 8 - get.value(card);
 				});
 			"step 1";
-			if (!result.bool) {
+			if (!result?.bool) {
 				trigger.player.damage();
 			}
 		},
@@ -26167,7 +26167,7 @@ const skills = {
 					return 8 - get.value(card);
 				});
 			"step 1";
-			if (!result.bool) {
+			if (!result?.bool) {
 				trigger.player.damage();
 			} else {
 				trigger.player.give(result.cards, player);
@@ -26927,7 +26927,7 @@ const skills = {
 						return 0;
 					});
 					"step 1";
-					if (!result.bool) {
+					if (!result?.bool) {
 						trigger.directHit.add(trigger.target);
 					}
 				},
@@ -29191,7 +29191,7 @@ const skills = {
 			});
 			"step 2";
 			target.removeSkill("twrangyi2");
-			if (!result.bool) {
+			if (!result?.bool) {
 				target.damage("nocard");
 			}
 		},

@@ -314,7 +314,7 @@ const skills = {
 					allowChooseAll: true,
 				})
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			const {

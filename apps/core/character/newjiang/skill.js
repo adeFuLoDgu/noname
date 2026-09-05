@@ -1851,7 +1851,7 @@ const skills = {
 					return Math.random();
 				})
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			const type = result.links[0][2].slice(8),
@@ -3768,7 +3768,7 @@ const skills = {
 					cards.removeArray(result.links);
 				}
 				await game.cardsGotoPile(cards.reverse(), "insert");
-				if (!result.bool || result.links.length < num) {
+				if (!result?.bool || result.links.length < num) {
 					await player.addAdditionalSkills(event.name, get.info(event.name)?.derivation);
 				}
 			} else {
@@ -5253,7 +5253,7 @@ const skills = {
 					},
 				})
 				.forResult();
-			if (!result.bool || !result.targets?.length) {
+			if (!result?.bool || !result.targets?.length) {
 				return;
 			}
 			const target = result.targets[0];
@@ -6064,7 +6064,7 @@ const skills = {
 							},
 						})
 						.forResult();
-					if (!result.bool) {
+					if (!result?.bool) {
 						return;
 					}
 					await player.swapHandcards(target, cards, target.getCards("h"));
@@ -6128,7 +6128,7 @@ const skills = {
 					},
 				})
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			const oldList = lib.skill.lkbushi.getBushi(player);
@@ -6526,7 +6526,7 @@ const skills = {
 					},
 				})
 				.forResult();
-			if (!result.bool || !result.targets?.length) {
+			if (!result?.bool || !result.targets?.length) {
 				return;
 			}
 			const target = result.targets[0];
@@ -7081,7 +7081,7 @@ const skills = {
 							.set("targetprompt", ["伤害来源", "受伤角色"])
 							.set("aiTargets", lib.skill.mbhuiyao.getUnrealDamageTargets(player, [players, [...players, player]], true))
 							.forResult();
-			if (!result.bool || !result.targets?.length) {
+			if (!result?.bool || !result.targets?.length) {
 				return;
 			}
 			const targets = result.targets;

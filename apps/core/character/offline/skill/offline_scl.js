@@ -507,7 +507,7 @@ const skills = {
 					.chooseButton(["评才：选择你要擦拭的宝物", [lib.skill.scls_pingcai.derivation.map(name => ["", "", name]), "vcard"]])
 					.set("ai", button => lib.skill.scls_pingcai.takaramonoValue(button.link[2], get.event().player))
 					.forResult();
-				if (!result.bool) {
+				if (!result?.bool) {
 					return;
 				}
 				name = result.links[0][2];

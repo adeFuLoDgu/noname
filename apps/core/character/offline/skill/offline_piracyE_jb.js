@@ -936,7 +936,7 @@ const skills = {
 				.set("targetx", target)
 				.set("forceDie", true)
 				.forResult();
-			if (!result.bool || !result?.targets?.length) {
+			if (!result?.bool || !result?.targets?.length) {
 				return;
 			}
 			const targetx = result.targets[0];

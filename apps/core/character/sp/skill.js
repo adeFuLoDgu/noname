@@ -11722,7 +11722,7 @@ const skills = {
 							return [cards];
 						})
 						.forResult();
-					if (!result.bool) {
+					if (!result?.bool) {
 						return;
 					}
 					cards = result.moved[0];
@@ -11759,7 +11759,7 @@ const skills = {
 							return [cards];
 						})
 						.forResult();
-					if (!result.bool) {
+					if (!result?.bool) {
 						return;
 					}
 					cards = result.moved[0];
@@ -11818,7 +11818,7 @@ const skills = {
 				})
 				.set("target", player)
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			await target.draw();
@@ -18633,7 +18633,7 @@ const skills = {
 							return false;
 						})
 						.forResult();
-					if (!result.bool) {
+					if (!result?.bool) {
 						trigger.getParent().all_excluded = true;
 						trigger.untrigger();
 					}
@@ -27197,7 +27197,7 @@ const skills = {
 				next.set("forced", true);
 			}
 			"step 1";
-			if (!result.bool) {
+			if (!result?.bool) {
 				player.loseHp();
 			}
 			"step 2";
@@ -29877,7 +29877,7 @@ const skills = {
 				event.finish();
 			}
 			"step 2";
-			if (!result.bool) {
+			if (!result?.bool) {
 				event.finish();
 				return;
 			}
@@ -31754,7 +31754,7 @@ const skills = {
 				.set("addCount", false);
 			"step 2";
 			var cards = targets[0].getEquips(1);
-			if (!result.bool && cards.length) {
+			if (!result?.bool && cards.length) {
 				event.cards = cards;
 				player.chooseTarget(true, "将" + get.translation(cards) + "交给一名其他角色").set("ai", function (target) {
 					var card = _status.event.getParent().cards;
@@ -34764,7 +34764,7 @@ const skills = {
 			"step 0";
 			player.chooseToCompare(target);
 			"step 1";
-			if (!result.bool) {
+			if (!result?.bool) {
 				event.finish();
 			}
 			event.num = result.num1;
@@ -36377,7 +36377,7 @@ const skills = {
 				return 8 - get.value(card);
 			};
 			"step 1";
-			if (!result.bool) {
+			if (!result?.bool) {
 				player.loseHp();
 			}
 		},
@@ -36424,7 +36424,7 @@ const skills = {
 					return 6 - get.value(card);
 				})
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				await player.draw(2);
 			}
 		},
@@ -37323,7 +37323,7 @@ const skills = {
 				event.goto(3);
 			}
 			"step 2";
-			if (!result.bool) {
+			if (!result?.bool) {
 				player.draw();
 			}
 			"step 3";
@@ -37341,7 +37341,7 @@ const skills = {
 				event.finish();
 			}
 			"step 4";
-			if (!result.bool) {
+			if (!result?.bool) {
 				player.draw();
 			}
 		},
@@ -37494,7 +37494,7 @@ const skills = {
 				event.goto(3);
 			}
 			"step 2";
-			if (!result.bool) {
+			if (!result?.bool) {
 				player.draw();
 			}
 			"step 3";
@@ -37512,7 +37512,7 @@ const skills = {
 				event.finish();
 			}
 			"step 4";
-			if (!result.bool) {
+			if (!result?.bool) {
 				player.draw();
 			}
 		},
@@ -39826,7 +39826,7 @@ const skills = {
 				num += evt.qirang_num;
 			}
 			const result = await player.chooseToGuanxing(Math.min(5, num)).set("prompt", "观星：点击或拖动将牌移动到牌堆顶或牌堆底").forResult();
-			if ((!result.bool || !result.moved[0].length) && event.triggername == "phaseZhunbeiBegin") {
+			if ((!result?.bool || !result.moved[0].length) && event.triggername == "phaseZhunbeiBegin") {
 				player.addTempSkill("guanxing_fail");
 			}
 		},
@@ -45875,7 +45875,7 @@ const skills = {
 				return -1;
 			});
 			"step 2";
-			if (!result.bool) {
+			if (!result?.bool) {
 				event.finish();
 			} else {
 				player.showCards(result.cards);

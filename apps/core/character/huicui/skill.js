@@ -3192,7 +3192,7 @@ const skills = {
 						player.countCards("h", card => card.hasGaintag("dcxidi_tag"))
 					);
 					const result = player.chooseToGuanxing(num).set("prompt", "羲笛：点击或拖动将牌移动到牌堆顶或牌堆底").forResult();
-					if (!result.bool || !result.moved[0].length) {
+					if (!result?.bool || !result.moved[0].length) {
 						player.addTempSkill("guanxing_fail");
 					}
 				},
@@ -4450,7 +4450,7 @@ const skills = {
 					return get.damageEffect(target, player, player);
 				})
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			const target = result.targets[0];
@@ -6083,7 +6083,7 @@ const skills = {
 					return (-Math.sqrt(-delta) * att) / 2;
 				})
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			const target = result.targets[0];
@@ -6400,7 +6400,7 @@ const skills = {
 					game.stopCountChoose();
 				});
 			}
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			const target = result.targets[0];
@@ -7722,7 +7722,7 @@ const skills = {
 				result = await player.gainPlayerCard("e", target, true).forResult();
 			}
 			// step 2
-			if (!result.bool || target == player || !result.cards || !result.cards.some(i => get.owner(i) == player)) {
+			if (!result?.bool || target == player || !result.cards || !result.cards.some(i => get.owner(i) == player)) {
 				await player.draw();
 			}
 		},
@@ -7780,7 +7780,7 @@ const skills = {
 					.set("ai", () => 1)
 					.forResult();
 			}
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			if (sign <= 0 && !event.isMine() && !event.isOnline()) {
@@ -8645,7 +8645,7 @@ const skills = {
 					.chooseBool(`集众：令${get.translation(player)}获得你三张牌，或点击“取消”获得“信众”标记`)
 					.set("ai", () => false)
 					.forResult();
-				if (!result.bool) {
+				if (!result?.bool) {
 					target.addMark("dcjizhong", 1);
 					return;
 				}
@@ -8976,7 +8976,7 @@ const skills = {
 			} else {
 				return;
 			}
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			const toGive = result.links.slice(0);
@@ -9207,7 +9207,7 @@ const skills = {
 			next.set("prompt2", prompt2);
 			next.set("goon", get.effect(trigger.player, { name: "sha" }, player, player) > 0);
 			const result = await next.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			if (num >= 0) {
@@ -9986,7 +9986,7 @@ const skills = {
 						.set("logSkill", "dcyinlu_zhangqi")
 						.set("goon", get.effect(player, { name: "losehp" }, player) < 0)
 						.forResult();
-					if (!result.bool) {
+					if (!result?.bool) {
 						player.logSkill("dcyinlu_zhangqi");
 						await player.loseHp();
 					}
@@ -10268,7 +10268,7 @@ const skills = {
 				.set("ai", target => get.effect(target, get.event().card, get.player(), get.player()))
 				.set("card", trigger.card)
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			if (!event.isMine() && !event.isOnline()) {
@@ -10343,7 +10343,7 @@ const skills = {
 				.set("targets", trigger.targets)
 				.set("card", trigger.card)
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			if (!event.isMine() && !event.isOnline()) {
@@ -11162,7 +11162,7 @@ const skills = {
 					return 0;
 				})
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			const target = result.targets[0];
@@ -11242,7 +11242,7 @@ const skills = {
 				})
 				.set("selectButton", [1, 3])
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			player.logSkill("dcjuying");
@@ -12566,7 +12566,7 @@ const skills = {
 			} else {
 				result = await player.chooseCard("he", true, "交给" + get.translation(target) + "一张牌").forResult();
 			}
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 
@@ -12843,7 +12843,7 @@ const skills = {
 					return 1 - get.attitude(currentPlayer, target);
 				})
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 
@@ -13127,7 +13127,7 @@ const skills = {
 						})
 						.set("goon", player.hp > Math.max(1, 4 - num) || get.effect(player, { name: "losehp" }, player, player) > 0)
 						.forResult();
-					if (!result.bool) {
+					if (!result?.bool) {
 						player.loseHp();
 					}
 				},
@@ -15594,7 +15594,7 @@ const skills = {
 				.set("bool", get.attitude(player, target) < 0)
 				.forResult();
 			// step 2
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			const target2 = _status.currentPhase;
@@ -15732,7 +15732,7 @@ const skills = {
 							})
 							.set("prompt", "陈见：" + (goon ? "是否" : "请") + "弃置一张牌，然后令一名角色获得" + get.translation(event.cards) + "中花色与之相同的牌" + (goon ? "？" : ""))
 							.forResult();
-						if (!result.bool) {
+						if (!result?.bool) {
 							return;
 						}
 
@@ -15789,7 +15789,7 @@ const skills = {
 							return player.getUseValue(button.link);
 						})
 						.forResult();
-					if (!result.bool) {
+					if (!result?.bool) {
 						return;
 					}
 
@@ -17723,7 +17723,7 @@ const skills = {
 						})
 						.forResult();
 					// step 1
-					if (!result.bool) {
+					if (!result?.bool) {
 						return;
 					}
 
@@ -17900,7 +17900,7 @@ const skills = {
 						.set("card", trigger.card)
 						.set("targets", trigger.targets)
 						.forResult();
-					if (!result.bool) {
+					if (!result?.bool) {
 						return;
 					}
 					if (!event.isMine() && !event.isOnline()) {
@@ -18532,7 +18532,7 @@ const skills = {
 					return 6 - get.value(card);
 				})
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				await player.draw(2);
 			}
 		},

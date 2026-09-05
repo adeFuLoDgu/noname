@@ -621,7 +621,7 @@ const skills = {
 										return get.order(button.link);
 									})
 									.forResult();
-								if (!result.bool) {
+								if (!result?.bool) {
 									break;
 								}
 								card = result.links[0];
@@ -1984,7 +1984,7 @@ const skills = {
 								return get.order(button.link);
 							})
 							.forResult();
-						if (!result.bool) {
+						if (!result?.bool) {
 							continue;
 						}
 						[card] = result.links;
@@ -2167,7 +2167,7 @@ const skills = {
 				};
 				result = await next.forResult();
 			}
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			const target = result.targets[0];
@@ -2581,7 +2581,7 @@ const skills = {
 				})
 				.set("prompt", "是否令" + get.translation(player) + "摸一张牌？")
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			await player.draw();
@@ -2776,7 +2776,7 @@ const skills = {
 						return [cards];
 					})
 					.forResult();
-				if (!result.bool) {
+				if (!result?.bool) {
 					return;
 				}
 				cards = result.moved[0];
@@ -3358,7 +3358,7 @@ const skills = {
 					next.set("closeDialog", false);
 					next.set("dialogdisplay", true);
 					const result = await next.forResult();
-					if (!result.bool) {
+					if (!result?.bool) {
 						return;
 					}
 					card = result.links[0];
@@ -4169,7 +4169,7 @@ const skills = {
 						return 1 - get.attitude(_status.event.player, target);
 					})
 					.forResult();
-				if (!result.bool) {
+				if (!result?.bool) {
 					return;
 				}
 				result.targets.sortBySeat();
@@ -4217,7 +4217,7 @@ const skills = {
 				return void (await judge);
 			}
 			const result = await judge.forResult();
-			if (!result.bool || get.position(result.card) != "d") {
+			if (!result?.bool || get.position(result.card) != "d") {
 				//game.cardsDiscard(card);
 				return;
 			}
@@ -6708,7 +6708,7 @@ const skills = {
 				})
 				.set("source", target)
 				.forResult();
-			if (!result.bool || !result.targets || !result.targets.length) {
+			if (!result?.bool || !result.targets || !result.targets.length) {
 				return;
 			}
 			target.line(result.targets[0], "green");
@@ -7411,7 +7411,7 @@ const skills = {
 					return type == "trick" || type == "equip";
 				}, "是否使用一张锦囊牌或装备牌？")
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			const type = get.type(result.card || result.cards[0]);

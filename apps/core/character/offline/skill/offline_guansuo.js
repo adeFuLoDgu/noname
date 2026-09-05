@@ -148,7 +148,7 @@ const skills = {
 				return;
 			}
 			const result = await player.chooseBool(`是否令${get.translation(target)}移动至你的上家或下家`).forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			const result2 = await target

@@ -2440,7 +2440,7 @@ const skills = {
 				})
 				.set("goon", player.countCards("hs", ["shan", "caochuan"]) || player.getHp() >= 3)
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			const { targets } = result,
@@ -3345,7 +3345,7 @@ const skills = {
 							.set("logSkill", "jsrgjingju")
 							.forResult();
 
-						if (!result.bool) {
+						if (!result?.bool) {
 							const parent = event.getParent();
 							if (parent != null) {
 								parent.jsrgjingju = true;
@@ -6201,7 +6201,7 @@ const skills = {
 				game.broadcastAll(target => {
 					target.storage.jsrgyangming_lose++;
 				}, target);
-				if (!result.bool) {
+				if (!result?.bool) {
 					return;
 				}
 			}
@@ -6983,7 +6983,7 @@ const skills = {
 				next.set("source", player);
 				const result = await next.forResult();
 				delete player.storage.jsrgbashiing;
-				if (!result.bool) {
+				if (!result?.bool) {
 					continue;
 				}
 				const name = result.card.name;
@@ -8068,7 +8068,7 @@ const skills = {
 				result = { bool: true, links: weapons };
 			}
 
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			const links = result.links;
@@ -8187,7 +8187,7 @@ const skills = {
 					.set("ai", () => Math.random() + 1)
 					.forResult();
 			}
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			event.list = list;
@@ -12773,7 +12773,7 @@ const skills = {
 					return Math.random() - 0.5;
 				})
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			await target.showCards(result.cards);

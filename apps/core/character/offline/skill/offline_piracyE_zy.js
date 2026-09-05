@@ -84,7 +84,7 @@ const skills = {
 					cards: target.getCards("h"),
 				})
 				.forResult();
-			if (!result.bool || !result.links?.length) {
+			if (!result?.bool || !result.links?.length) {
 				return;
 			}
 			await target.discard(result.links[0]);
@@ -298,7 +298,7 @@ const skills = {
 					const next = player.chooseToDiscard("he", get.prompt("zyshilu"), `弃置至多${get.cnNumber(num)}张牌并摸等量的牌`, [1, num], "allowChooseAll");
 					next.logSkill = "zyshilu_zhiheng";
 					const result = await next.forResult();
-					if (!result.bool || !result.cards?.length) {
+					if (!result?.bool || !result.cards?.length) {
 						return;
 					}
 					await player.draw(result.cards.length);
@@ -473,7 +473,7 @@ const skills = {
 							},
 						})
 						.forResult();
-					if (!result.bool) {
+					if (!result?.bool) {
 						return;
 					}
 					player.logSkill("zyxiongnve");
@@ -625,7 +625,7 @@ const skills = {
 				})
 				.set("goon", target.canUse("sha", player, false) && get.effect(player, { name: "sha" }, target, target) > 0)
 				.forResult();
-			if (!result.bool || !result.cards?.length) {
+			if (!result?.bool || !result.cards?.length) {
 				await player.gainPlayerCard({
 					target,
 					position: "he",

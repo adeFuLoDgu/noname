@@ -1335,7 +1335,7 @@ const skills = {
 		async content(event, trigger, player) {
 			const num = player.hasSkill("yizhi") && player.hasSkill("guanxing") ? 5 : Math.min(5, game.countPlayer());
 			const result = await player.chooseToGuanxing(num).set("prompt", "观星：点击或拖动将牌移动到牌堆顶或牌堆底").forResult();
-			if (!result.bool || !result.moved[0].length) {
+			if (!result?.bool || !result.moved[0].length) {
 				player.addTempSkill("guanxing_fail");
 			}
 		},

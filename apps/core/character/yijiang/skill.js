@@ -665,7 +665,7 @@ const skills = {
 				})
 				.forResult();
 
-			if (!result.bool || player.maxHp <= player.hp) {
+			if (!result?.bool || player.maxHp <= player.hp) {
 				return;
 			}
 
@@ -1736,7 +1736,7 @@ const skills = {
 					},
 				})
 				.forResult();
-			if (!result.bool || !result.targets?.length) {
+			if (!result?.bool || !result.targets?.length) {
 				return;
 			}
 
@@ -2196,7 +2196,7 @@ const skills = {
 				})
 				.forResult();
 
-			if (!result.bool || !result.cards?.length) {
+			if (!result?.bool || !result.cards?.length) {
 				return;
 			}
 
@@ -2223,7 +2223,7 @@ const skills = {
 					},
 				})
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				await target.draw(num3);
 			}
 		},
@@ -2262,7 +2262,7 @@ const skills = {
 					allowChooseAll: true,
 				})
 				.forResult();
-			if (!result.bool || !result.cards?.length) {
+			if (!result?.bool || !result.cards?.length) {
 				return;
 			}
 
@@ -2289,7 +2289,7 @@ const skills = {
 					},
 				})
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				await target.draw(num2);
 			}
 		},
@@ -3504,7 +3504,7 @@ const skills = {
 				} else {
 					result = { links: cards.slice(0), bool: true };
 				}
-				if (!result.bool) {
+				if (!result?.bool) {
 					return;
 				}
 
@@ -3852,7 +3852,7 @@ const skills = {
 					.set("chessForceAll", true)
 					.forResult();
 
-				if (!result.bool || !result.targets.length) {
+				if (!result?.bool || !result.targets.length) {
 					return;
 				}
 
@@ -4671,7 +4671,7 @@ const skills = {
 				.set("cardType", type)
 				.set("att", get.attitude(target, player) > 0)
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				player.tempBanSkill("taoluan");
 				await player.loseHp();
 				return;
@@ -6607,7 +6607,7 @@ const skills = {
 					forced: true,
 				})
 				.forResult();
-			if (!result.bool || !result.links?.length) {
+			if (!result?.bool || !result.links?.length) {
 				return;
 			}
 			player.logSkill("chunlao", target);
@@ -7647,7 +7647,7 @@ const skills = {
 					},
 				})
 				.forResult();
-			if (!result.bool || !result.targets?.length) {
+			if (!result?.bool || !result.targets?.length) {
 				return;
 			}
 			const targets = result.targets;
@@ -7910,7 +7910,7 @@ const skills = {
 						forced: true,
 					})
 					.forResult();
-				if (!result.bool || !result?.cards.length) {
+				if (!result?.bool || !result?.cards.length) {
 					continue;
 				}
 
@@ -9978,7 +9978,7 @@ const skills = {
 				.set("types", types)
 				.set("dialog", ["弃置一张与" + get.translation(player) + "弃置的牌类别均不同的牌，或将武将牌翻面", "hidden", cards])
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				await target.turnOver();
 				await target.draw(cards.length);
 			}
@@ -10085,7 +10085,7 @@ const skills = {
 						})
 						.set("target", target)
 						.forResult();
-					shouldDraw = !result.bool;
+					shouldDraw = !result?.bool;
 				}
 				if (shouldDraw) {
 					await target.draw();
@@ -10167,7 +10167,7 @@ const skills = {
 					},
 				})
 				.forResult();
-			if (!result.bool || !result.cards?.length || !game.hasPlayer(current => current != player && get.distance(player, current) <= 1)) {
+			if (!result?.bool || !result.cards?.length || !game.hasPlayer(current => current != player && get.distance(player, current) <= 1)) {
 				return;
 			}
 			const color = get.color(result.cards[0], result.cards[0].original === "h" ? player : false);
@@ -10728,7 +10728,7 @@ const skills = {
 					.set("card", trigger.card)
 					.forResult();
 
-				if (!result.bool || !result.targets?.length) {
+				if (!result?.bool || !result.targets?.length) {
 					return;
 				}
 
@@ -10757,7 +10757,7 @@ const skills = {
 					.set("targets", trigger.targets)
 					.forResult();
 
-				if (!result.bool || !result.targets?.length) {
+				if (!result?.bool || !result.targets?.length) {
 					return;
 				}
 
@@ -11670,7 +11670,7 @@ const skills = {
 					},
 				})
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				await player.recover({
 					num,
 					source: target,
@@ -12000,7 +12000,7 @@ const skills = {
 					},
 				})
 				.forResult();
-			if (!result.bool || !result.targets?.length) {
+			if (!result?.bool || !result.targets?.length) {
 				return;
 			}
 			player.line(result.targets, "green");
@@ -12376,7 +12376,7 @@ const skills = {
 							},
 						})
 						.forResult();
-					noSha = !result.bool;
+					noSha = !result?.bool;
 				}
 			}
 
@@ -12683,7 +12683,7 @@ const skills = {
 					.set("res", aiCheck)
 					.forResult();
 
-				if (!result.bool || !result.cards?.length || !result.targets?.length) {
+				if (!result?.bool || !result.cards?.length || !result.targets?.length) {
 					break;
 				}
 
@@ -13731,7 +13731,7 @@ const skills = {
 					},
 				})
 				.forResult();
-			if (!result.bool || !result.targets?.length) {
+			if (!result?.bool || !result.targets?.length) {
 				return;
 			}
 
@@ -14087,7 +14087,7 @@ const skills = {
 				})
 				.forResult();
 
-			if (!result.bool || !result.cards?.length) {
+			if (!result?.bool || !result.cards?.length) {
 				return;
 			}
 
@@ -14636,7 +14636,7 @@ const skills = {
 			} else {
 				result = { bool: false };
 			}
-			if (!result.bool) {
+			if (!result?.bool) {
 				await player.recover({ source: targets?.[0] });
 			}
 		},
@@ -14688,7 +14688,7 @@ const skills = {
 					})
 					.forResult();
 
-				if (!result.bool || !result.cards?.length) {
+				if (!result?.bool || !result.cards?.length) {
 					return;
 				}
 
@@ -14770,7 +14770,7 @@ const skills = {
 					})
 					.set("list", targets)
 					.forResult();
-				if (!result.bool || !result.targets.length) {
+				if (!result?.bool || !result.targets.length) {
 					return;
 				}
 				target = result.targets[0];
@@ -14781,7 +14781,7 @@ const skills = {
 				links = target.getExpansions("xiansi").slice(0);
 			} else {
 				const result = await player.chooseCardButton("移去两张“逆”", 2, target.getExpansions("xiansi"), true).forResult();
-				if (!result.bool) {
+				if (!result?.bool) {
 					return;
 				}
 				links = result.links;
@@ -15211,7 +15211,7 @@ const skills = {
 				})
 				.forResult();
 
-			if (!result.bool || !result.links?.length) {
+			if (!result?.bool || !result.links?.length) {
 				event.result = { bool: false };
 				return;
 			}
@@ -15242,7 +15242,7 @@ const skills = {
 				.set("card", cards[0])
 				.forResult();
 
-			if (!result.bool || !result.targets?.length) {
+			if (!result?.bool || !result.targets?.length) {
 				event.result = { bool: false };
 				return;
 			}

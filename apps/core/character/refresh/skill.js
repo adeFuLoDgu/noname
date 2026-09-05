@@ -5143,7 +5143,7 @@ const skills = {
 						.forResult();
 
 					// step 2
-					if (!result.bool) {
+					if (!result?.bool) {
 						return;
 					}
 					var target = result.targets[0];
@@ -5784,7 +5784,7 @@ const skills = {
 					return get.attitude(_status.event.player, target) * (target.isDamaged() ? 2 : 1);
 				})
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 
@@ -7151,7 +7151,7 @@ const skills = {
 							return 7 - get.value(card);
 						})
 						.forResult();
-					if (!result.bool) {
+					if (!result?.bool) {
 						target.draw(cardNum);
 					}
 				}
@@ -7196,7 +7196,7 @@ const skills = {
 				.set("sourcex", player)
 				.forResult();
 			if (
-				!result.bool ||
+				!result?.bool ||
 				!player.hasHistory("damage", evt => {
 					return evt.getParent().type == "card" && evt.getParent(4) == event;
 				})
@@ -9339,7 +9339,7 @@ const skills = {
 				.set("cardsx", cards)
 				.forResult();
 			// step 1
-			if (!result.bool) {
+			if (!result?.bool) {
 				await target.turnOver();
 				await target.draw(cards.length);
 			} else {
@@ -13304,7 +13304,7 @@ const skills = {
 							.forResult();
 
 						// step 1
-						if (!result.bool) {
+						if (!result?.bool) {
 							await target.loseHp();
 						}
 
@@ -15060,7 +15060,7 @@ const skills = {
 				.chooseToGuanxing(game.countPlayer() < 4 ? 3 : 5)
 				.set("prompt", "观星：点击或拖动将牌移动到牌堆顶或牌堆底")
 				.forResult();
-			if ((!result.bool || !result.moved[0].length) && event.triggername == "phaseZhunbeiBegin") {
+			if ((!result?.bool || !result.moved[0].length) && event.triggername == "phaseZhunbeiBegin") {
 				player.addTempSkill(["reguanxing_on", "guanxing_fail"]);
 			}
 		},
@@ -16416,7 +16416,7 @@ const skills = {
 
 			// step 1
 			if (event.disbool) {
-				if (!result.bool) {
+				if (!result?.bool) {
 					game.log(player, "展示了", event.card);
 					ui.cardPile.insertBefore(event.card, ui.cardPile.firstChild);
 				} else {
@@ -16822,7 +16822,7 @@ const skills = {
 				.set("num", num)
 				.set("suit", suit)
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				trigger.getParent().directHit.add(trigger.target);
 				if (typeof trigger.getParent().baseDamage !== "number") {
 					trigger.getParent().baseDamage = 1;
@@ -17532,7 +17532,7 @@ const skills = {
 			}
 
 			// step 1
-			if (!result.bool) {
+			if (!result?.bool) {
 				//game.cardsDiscard(card);
 				return;
 			}

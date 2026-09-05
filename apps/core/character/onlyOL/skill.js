@@ -884,7 +884,7 @@ const skills = {
 							})
 							.set("list", targets)
 							.forResult();
-						if (!result.bool || !result.targets.length) {
+						if (!result?.bool || !result.targets.length) {
 							return;
 						}
 						target = result.targets[0];
@@ -894,7 +894,7 @@ const skills = {
 						links = target.getExpansions("olxiansi").slice(0);
 					} else {
 						const result = await player.chooseCardButton("移去两张“逆”", 2, target.getExpansions("olxiansi"), true).forResult();
-						if (!result.bool) {
+						if (!result?.bool) {
 							return;
 						}
 						links = result.links;
@@ -2153,7 +2153,7 @@ const skills = {
 							return get.damageEffect(target, player, player, "thunder") * (target.hp == 1 ? 2 : 1);
 						})
 						.forResult();
-					if (!result.bool) {
+					if (!result?.bool) {
 						return;
 					}
 					const target = result.targets[0];
@@ -13806,7 +13806,7 @@ const skills = {
 								return 24 - 5 * cards.length - 2 * Math.min(4, player.getHp()) - get.value(card);
 							})
 							.forResult();
-						if (!result.bool) {
+						if (!result?.bool) {
 							await player.loseHp();
 						}
 					}

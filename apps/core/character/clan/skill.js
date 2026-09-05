@@ -2616,7 +2616,7 @@ const skills = {
 					);
 				})
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			const link = result.links[0],
@@ -6948,7 +6948,7 @@ const skills = {
 				)
 				.forResult();
 
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 
@@ -7112,7 +7112,7 @@ const skills = {
 					})
 					.forResult();
 
-				if (!result.bool) {
+				if (!result?.bool) {
 					break;
 				}
 
@@ -7299,7 +7299,7 @@ const skills = {
 					return 0;
 				})
 				.forResult();
-			if (!result.bool || !result.targets?.length) {
+			if (!result?.bool || !result.targets?.length) {
 				return;
 			}
 			[target] = result.targets;
@@ -8029,7 +8029,7 @@ const skills = {
 						.set("choice", choice)
 						.forResult();
 
-					if (!result.bool) {
+					if (!result?.bool) {
 						return;
 					}
 

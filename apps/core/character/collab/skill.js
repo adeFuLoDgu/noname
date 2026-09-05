@@ -7122,7 +7122,7 @@ const skills = {
 				})
 				.set("sourcex", target)
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				await drawer.loseHp();
 			}
 		},
@@ -10403,7 +10403,7 @@ const skills = {
 				})
 				.set("sourcex", targets[1])
 				.forResult();
-			if (!result.bool && targets[0].countCards("h")) {
+			if (!result?.bool && targets[0].countCards("h")) {
 				await targets[1].gainPlayerCard(targets[0], "visible", "h", true);
 			}
 		},

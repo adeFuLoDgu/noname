@@ -269,7 +269,7 @@ const skills = {
 				.set("addCount", false)
 				.set("logSkill", "pshuntu")
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				player.storage.counttrigger.pshuntu--;
 			}
 		},
@@ -644,7 +644,7 @@ const skills = {
 						})
 						.set("suit", suit)
 						.forResult();
-					if (!result.bool) {
+					if (!result?.bool) {
 						return;
 					}
 					player.logSkill("psshiyin");
@@ -819,7 +819,7 @@ const skills = {
 				return;
 			}
 			const targets = [player, target];
-			if (!result.bool) {
+			if (!result?.bool) {
 				targets.reverse();
 			}
 			const suits = [result.player, result.target].map(card => get.suit(card, false));
@@ -1179,7 +1179,7 @@ const skills = {
 					judge: card => (["basic", "trick"].includes(get.type(card)) ? 3 : -1),
 				})
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			player.addTempSkill("pshuxiao_use");
@@ -1229,7 +1229,7 @@ const skills = {
 		preHidden: true,
 		async content(event, trigger, player) {
 			const result = await player.chooseToGuanxing(5).set("prompt", "观星：点击或拖动将牌移动到牌堆顶或牌堆底").forResult();
-			if (!result.bool || !result.moved[0].length) {
+			if (!result?.bool || !result.moved[0].length) {
 				player.addTempSkill("guanxing_fail");
 			}
 		},
@@ -1645,7 +1645,7 @@ const skills = {
 				.set("logSkill", "psbaoquan")
 				.set("goon", get.damageEffect(player, trigger.source, player) < -5)
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			trigger.cancel();

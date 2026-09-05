@@ -477,7 +477,7 @@ const skills = {
 					})
 					.set("goon", get.attitude(target, player) > 3)
 					.forResult();
-				if (!result.bool) {
+				if (!result?.bool) {
 					continue;
 				}
 				target.line(player);
@@ -599,7 +599,7 @@ const skills = {
 					ai: get.buttonValue,
 				})
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			const card = result.links[0];
@@ -715,7 +715,7 @@ const skills = {
 					forced: true,
 				})
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			await target.give(result.cards, recipient);
@@ -895,7 +895,7 @@ const skills = {
 					filterTarget: lib.filter.notMe,
 				})
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			const target = result.targets[0];
@@ -970,7 +970,7 @@ const skills = {
 					forced: true,
 				})
 				.forResult();
-			if (!result.bool || result.cards?.length !== 2) {
+			if (!result?.bool || result.cards?.length !== 2) {
 				return;
 			}
 			const firstCard = result.cards[0];

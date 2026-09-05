@@ -1925,7 +1925,7 @@ const skills = {
 							.forResult();
 					}
 
-					if (!result.bool) {
+					if (!result?.bool) {
 						return;
 					}
 
@@ -2992,7 +2992,7 @@ const skills = {
 					return 0.1 - att / target.countCards("h");
 				})
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 
@@ -3635,7 +3635,7 @@ const skills = {
 				.set("tie", extra > ui.cardPile.childNodes.length + ui.discardPile.childNodes.length)
 				.set("logSkill", "pshengwu")
 				.forResult();
-			if (!result.bool || !result.cards?.length) {
+			if (!result?.bool || !result.cards?.length) {
 				return;
 			}
 			const currentExtra = game
@@ -3721,7 +3721,7 @@ const skills = {
 					forced: true,
 				})
 				.forResult();
-			if (!result.bool || !result.cards || !result.cards.length) {
+			if (!result?.bool || !result.cards || !result.cards.length) {
 				return;
 			}
 			const card = result.cards[0];
