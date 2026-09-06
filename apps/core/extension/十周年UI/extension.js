@@ -3222,17 +3222,6 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 							this._messages[message] = [];
 						}
 					};
-					lib.element.Dialog = class extends lib.element.Dialog {
-						constructor() {
-							const dialog = super(...arguments);
-							dialog.bar1.remove();
-							delete dialog.bar1;
-							dialog.bar2.remove();
-							delete dialog.bar2;
-							Object.setPrototypeOf(dialog,lib.element.Dialog.prototype);
-							return dialog;
-						}
-					};
 					Mixin.replace(
 						'lib.element.Dialog.prototype.add | lib.element.dialog.add',
 						/(?=\s*this\s*\.\s*buttons\s*=\s*this\s*\.\s*buttons\s*\.\s*concat\s*\(\s*ui\s*\.\s*create\s*\.\s*buttons\s*\(\s*item\s*\[\s*0\s*\]\s*,\s*item\[\s*1\s*\]\s*,\s*buttons\s*,\s*noclick\s*\)\s*\)\s*;)/,

@@ -58,8 +58,10 @@ export class Dialog extends HTMLDivElement {
 		dialog.paginationMaxCount = new Map();
 		dialog.contentContainer = ui.create.div(".content-container", dialog);
 		dialog.content = ui.create.div(".content", dialog.contentContainer);
-		dialog.bar1 = ui.create.div(".bar.top", dialog);
-		dialog.bar2 = ui.create.div(".bar.bottom", dialog);
+		if (!window.decadeUI) {
+			dialog.bar1 = ui.create.div(".bar.top", dialog);
+			dialog.bar2 = ui.create.div(".bar.bottom", dialog);
+		}
 		dialog.buttons = [];
 		Array.from(args).forEach(argument => {
 			if (typeof argument == "boolean") {
