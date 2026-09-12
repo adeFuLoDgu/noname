@@ -2664,8 +2664,8 @@ const skills = {
 				.set("source", player)
 				.forResult();
 
-			if (!result || !result.bool || !result.links?.length) {
-				player.logSkill("tingwei", null, null, null, [get.rand(3, 4)]);
+			if (!result || !result?.bool || !result.links?.length) {
+				player.logSkill("tingwei", [target], null, null, [get.rand(3, 4)]);
 				await target.link(true);
 				return;
 			}
@@ -2775,6 +2775,7 @@ const skills = {
 			await target.damage({ num: target.maxHp });
 			player.setStorage("yuli", [], true);
 		},
+		ai: { combo: "tingwei" },
 	},
 	//手杀神姜维
 	mbtiantao: {
@@ -6256,7 +6257,7 @@ const skills = {
 					return event.name == "damage" ? event.player : event.target;
 				},
 				filter(event, player, name) {
-					if (!event.card?.name === "sha" || !event.card?.storage?.dbchongjian) {
+					if (!event.card || event.card.name !== "sha" || !event.card.storage?.dbchongjian) {
 						return false;
 					}
 					return event.player.hasGainableCards(player, "e") || name == "useCardToPlayer";
@@ -7064,7 +7065,7 @@ const skills = {
 					},
 				})
 				.forResult();
-			if (!result || !result?.bool | !result.targets?.length) {
+			if (!result || !result?.bool || !result.targets?.length) {
 				player.removeGaintag("mingfa");
 				return;
 			}
@@ -7303,7 +7304,7 @@ const skills = {
 						if (
 							!game.hasPlayer(current => {
 								const evt = event.getl?.(current);
-								return evt?.cards?.filterInD("od").some(card => (player.storage.yizhu ?? []).includes(card));
+								return evt?.cards?.filterInD("od")?.length;
 							})
 						) {
 							return false;
@@ -7314,7 +7315,7 @@ const skills = {
 							return false;
 						}
 					}
-					return true;
+					return event.cards.filterInD("od").some(card => (player.storage.yizhu ?? []).includes(card));
 				},
 				async content(event, trigger, player) {
 					const cards = trigger.cards.filterInD("od").slice();

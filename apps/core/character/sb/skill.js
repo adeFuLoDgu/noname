@@ -3114,7 +3114,7 @@ const skills = {
 				filter(event, player) {
 					return event.getParent(evt => evt.name === "useCard" && evt.card === event.card).jiu;
 				},
-				async content(event, trigger) {
+				async content(event, trigger, player) {
 					trigger.num = 1;
 				},
 				ai: {
@@ -5053,7 +5053,6 @@ const skills = {
 						return [cards, top];
 					},
 				})
-				.set("filterOk", moved => moved[1].length)
 				.forResult();
 			if (!result?.bool) {
 				if (trigger.name === "phaseZhunbei") {

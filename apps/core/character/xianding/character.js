@@ -78,7 +78,7 @@ const characters = {
 	dc_sb_wangping: {
 		sex: "male",
 		group: "shu",
-		hp: 4,
+		hp: 5,
 		skills: ["dcsbyouyi", "dcsbfangong"],
 	},
 	dc_sb_masu: {
@@ -90,7 +90,7 @@ const characters = {
 	dc_sb_zhugeliang: {
 		sex: "male",
 		group: "shu",
-		hp: 3,
+		hp: 4,
 		skills: ["dcsbjingmou", "dcsbguyi"],
 		names: "诸葛|亮",
 		clans: ["琅琊诸葛氏"],
@@ -106,7 +106,7 @@ const characters = {
 	dc_shen_zhangliao: {
 		sex: "male",
 		group: "shen",
-		hp: 4,
+		hp: 5,
 		skills: ["dccuxi", "dcduorui", "dczhiti"],
 		groupInGuozhan: "wei",
 		dieAudios: ["shen_zhangliao"],
@@ -208,7 +208,7 @@ const characters = {
 	shen_zhangjiao: {
 		sex: "male",
 		group: "shen",
-		hp: 3,
+		hp: 4,
 		skills: ["yizhao", "sijun", "sanshou", "tianjie"],
 		groupInGuozhan: "qun",
 	},
