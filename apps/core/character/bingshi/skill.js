@@ -6187,8 +6187,8 @@ const skills = {
 					} else {
 						const cards = player.getCards("s", card => card.hasGaintag("mbjianji"));
 						game.deleteFakeCards(cards);
-						if (!trigger.result[trigger.list.indexOf(player)].skill) {
-							if (trigger.result[trigger.list.indexOf(player)].cards[0]._cardid === card.cardid) {
+						if (!trigger.result[trigger.list.indexOf(player)]?.skill) {
+							if (trigger.result[trigger.list.indexOf(player)]?.cards[0]._cardid === card.cardid) {
 								trigger.result[trigger.list.indexOf(player)].cards = [card];
 							}
 						}

@@ -101,7 +101,7 @@ export default {
 							await player.draw();
 						});
 					},
-					precontent() {
+					async content(event, trigger, player) {
 						player.addTempSkill("gz_miewu_used");
 						player.removeMark("gz_wuku", 1);
 					},
@@ -2853,7 +2853,7 @@ export default {
 						isCard: true,
 					},
 					log: false,
-					precontent() {
+					async content(event, trigger, player) {
 						player.logSkill("gz_bingxin");
 						player.draw();
 						var name = event.result.card.name;
@@ -3035,7 +3035,7 @@ export default {
 		},
 		filterCard: () => false,
 		selectCard: -1,
-		precontent() {
+		async content(event, trigger, player) {
 			event.result.targets.add(player);
 		},
 		ai: {
@@ -4259,7 +4259,7 @@ export default {
 						name: links[0][2],
 						nature: links[0][3],
 					},
-					precontent() {
+					async content(event, trigger, player) {
 						var name = event.result.card.name;
 						player.addTempSkill("fakezhuosheng_count");
 						player.markAuto("fakezhuosheng_count", [name]);

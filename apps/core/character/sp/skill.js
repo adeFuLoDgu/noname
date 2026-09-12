@@ -5348,7 +5348,7 @@ const skills = {
 		check(card) {
 			return 7 - get.value(card);
 		},
-		precontent() {
+		async content(event, trigger, player) {
 			event.result._apply_args = {
 				oncard: (card, player) => {
 					const evt = get.event();
@@ -5944,7 +5944,7 @@ const skills = {
 						return 6 - get.value(card);
 					},
 					log: false,
-					precontent() {
+					async content(event, trigger, player) {
 						const skill = "olxiewei",
 							cards = event.result.cards;
 						player.logSkill(skill);
@@ -7474,7 +7474,7 @@ const skills = {
 		},
 		log: false,
 		allowChooseAll: true,
-		precontent() {
+		async content(event, trigger, player) {
 			player.logSkill("spolzhujiu");
 			if (event.result.cards?.some(i => get.suit(i) !== "club")) {
 				player.tempBanSkill("spolzhujiu");
@@ -10167,7 +10167,7 @@ const skills = {
 					},
 					position: "hes",
 					allowChooseAll: true,
-					precontent() {
+					async content(event, trigger, player) {
 						event.getParent().addCount = false;
 						player.addTempSkill("spolxixiang_effect");
 						player.addTempSkill("spolxixiang_used", "phaseUseAfter");
@@ -12295,7 +12295,7 @@ const skills = {
 						name: links[0][2],
 						storage: { olkouchao: links[0][4] + 1 },
 					},
-					precontent() {
+					async content(event, trigger, player) {
 						if (!player.storage.olkouchao_used) {
 							player.when({ global: "roundStart" }).step(async () => delete player.storage.olkouchao_used);
 						}
@@ -13657,7 +13657,7 @@ const skills = {
 					},
 					position: "he",
 					ignoreMod: true,
-					precontent() {
+					async content(event, trigger, player) {
 						const cards = event.result.cards.slice();
 						player.addToExpansion(cards, player, "give").gaintag.add("olxuanzhu");
 						const viewAs = {
@@ -16530,7 +16530,7 @@ const skills = {
 								isCard: true,
 							},
 							log: false,
-							precontent() {
+							async content(event, trigger, player) {
 								var cards = lib.skill.olfushi_wusheng_backup.cards.slice();
 								var controls = lib.skill.olfushi_wusheng_backup.controls.slice();
 								player.logSkill("olfushi");
@@ -20554,7 +20554,7 @@ const skills = {
 			}
 			return "转换技。你可以将一张黑色牌当做【火攻】使用。若此牌造成了伤害，则你获得此阶段内所有被展示过的牌。";
 		},
-		precontent() {
+		async content(event, trigger, player) {
 			player.changeZhuanhuanji("olmiuyan");
 			var card = event.result.card;
 			if (!card.storage) {
@@ -24428,7 +24428,7 @@ const skills = {
 					selectCard: -1,
 					filterCard: () => false,
 					log: false,
-					precontent() {
+					async content(event, trigger, player) {
 						player.addTempSkill("liangyuan_used", "roundStart");
 						player.markAuto("liangyuan_used", event.result.card.name);
 						player.logSkill("liangyuan");
@@ -25031,7 +25031,7 @@ const skills = {
 						name: links[0][2],
 						nature: links[0][3],
 					},
-					precontent() {
+					async content(event, trigger, player) {
 						var name = event.result.card.name;
 						player.addTempSkill("yilie_count", "roundStart");
 						player.markAuto("yilie_count", [name]);
@@ -30308,7 +30308,7 @@ const skills = {
 						return Math.min(0.01, 6 - get.value(card));
 					},
 					log: false,
-					precontent() {
+					async content(event, trigger, player) {
 						player.logSkill("jinzhi");
 						player.addTempSkill("jinzhi_used", "roundStart");
 						player.addMark("jinzhi_used", 1, false);
@@ -33608,7 +33608,7 @@ const skills = {
 						isCard: true,
 					},
 					popname: true,
-					precontent() {
+					async content(event, trigger, player) {
 						player.logSkill("weijing");
 						player.addTempSkill("weijing_used", "roundStart");
 					},
@@ -34586,7 +34586,7 @@ const skills = {
 					filterCard(card) {
 						return card.name == "sha" || get.type(card) == "equip";
 					},
-					precontent() {
+					async content(event, trigger, player) {
 						player.addTempSkill("jingong2");
 					},
 				};
@@ -43390,7 +43390,7 @@ const skills = {
 		},
 		subSkill: {
 			backup: {
-				precontent() {
+				async content(event, trigger, player) {
 					var name = event.result.card.name,
 						cards = event.result.card.cards.slice(0);
 					event.result.cards = cards;
@@ -45618,7 +45618,7 @@ const skills = {
 					return 15 - get.value(card);
 				},
 				log: false,
-				precontent() {
+				async content(event, trigger, player) {
 					player.logSkill("zhenyi_club");
 					player.clearMark("xinfu_falu_club");
 				},

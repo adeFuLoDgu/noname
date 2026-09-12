@@ -20613,7 +20613,7 @@ const skills = {
 						isCard: true,
 					},
 					log: false,
-					precontent() {
+					async content(event, trigger, player) {
 						player.logSkill("dcjiusi");
 						player.turnOver();
 					},
@@ -21475,7 +21475,7 @@ const skills = {
 			}
 			return _status.currentPhase != player && (player.hasHistory("useCard") || player.hasHistory("respond"));
 		},
-		precontent() {
+		async content(event, trigger, player) {
 			player.addTempSkill("dckegou_used", "phaseUseAfter");
 		},
 		filterTarget(card, player, target) {
@@ -22961,7 +22961,7 @@ const skills = {
 		check(card, player) {
 			return 0 + lib.skill.oljiuchi?.check?.(card, player);
 		},
-		precontent() {
+		async content(event, trigger, player) {
 			event.getParent().addCount = false;
 		},
 		position: "hes",
@@ -30669,7 +30669,7 @@ const skills = {
 		check(card) {
 			return 6 - get.value(card);
 		},
-		precontent() {
+		async content(event, trigger, player) {
 			event.getParent().addCount = false;
 			player
 				.when("useCardToPlayer")
@@ -31515,7 +31515,7 @@ const skills = {
 						return 6.5 - get.value(card);
 					},
 					log: false,
-					precontent() {
+					async content(event, trigger, player) {
 						player.logSkill("dcposuo");
 						player.addTempSkill("dcposuo_suits", "phaseUseAfter");
 						player.markAuto("dcposuo_suits", [get.suit(event.result.cards[0])]);
@@ -37447,7 +37447,7 @@ const skills = {
 						storage: { dcfengying: true },
 					},
 					log: false,
-					precontent() {
+					async content(event, trigger, player) {
 						player.logSkill("dcfengying");
 						player.addTempSkill("dcfengying_used");
 						player.markAuto("dcfengying_used", [event.result.card.name]);
