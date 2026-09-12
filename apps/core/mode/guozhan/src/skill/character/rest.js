@@ -1023,7 +1023,7 @@ export default {
 						return 6 - get.value(card);
 					},
 					viewAs: { name: links[0][2] },
-					precontent() {
+					async content(event, trigger, player) {
 						player.addTempSkill("gzguishu_used");
 						player.storage.gzguishu_used = ["yuanjiao", "zhibi"].indexOf(event.result.card.name) + 1;
 					},
@@ -3620,7 +3620,7 @@ export default {
 							position: "hs",
 							popname: true,
 							log: false,
-							precontent() {
+							async content(event, trigger, player) {
 								player.logSkill("fakechengshang_effect");
 								const cardx = event.result.card;
 								const removes = player.getStorage("fakechengshang_effect").filter(card => {
@@ -4404,7 +4404,7 @@ export default {
 							position: "h",
 							popname: true,
 							log: false,
-							precontent() {
+							async content(event, trigger, player) {
 								player.logSkill("fakemibei_effect");
 								player.tempBanSkill("fakemibei_effect", null, false);
 							},
@@ -7626,7 +7626,7 @@ export default {
 			}, "h");
 		},
 		filterCard(card) {
-			return typeof card.hasTag == "function" && !card.hasTag("lianheng") && !card.hasGaintag("_lianheng");
+			return typeof card.hasTag == "function" && !card.hasTag("lianheng") && typeof card.hasGaintag == "function" && !card.hasGaintag("_lianheng");
 		},
 		position: "h",
 		discard: false,
@@ -16678,14 +16678,14 @@ export default {
 		prompt: "将至多三张可合纵的牌交给一名与你势力不同的角色，或未确定势力的角色，若你交给与你势力不同的角色，则你摸等量的牌",
 		filter(event, player) {
 			return player.hasCard(function (card) {
-				return typeof card.hasTag == "function" && (card.hasTag("lianheng") || card.hasGaintag("_lianheng"));
+				return (typeof card.hasTag == "function" && card.hasTag("lianheng")) || (typeof card.hasGaintag == "function" && card.hasGaintag("_lianheng"));
 			}, "h");
 		},
 		filterCard(card) {
 			if (get.itemtype(card) != "card") {
 				return false;
 			}
-			return typeof card.hasTag == "function" && (card.hasTag("lianheng") || card.hasGaintag("_lianheng"));
+			return (typeof card.hasTag == "function" && card.hasTag("lianheng")) || (typeof card.hasGaintag == "function" && card.hasGaintag("_lianheng"));
 		},
 		filterTarget(card, player, target) {
 			if (target == player) {
@@ -17983,7 +17983,7 @@ export default {
 					selectCard: -1,
 					viewAs: { name: "sha", cards: links },
 					cards: links,
-					precontent() {
+					async content(event, trigger, player) {
 						var cards = lib.skill.hongfa_use_backup.cards;
 						event.result.cards = cards;
 						player.logSkill("hongfa_use", result.targets);

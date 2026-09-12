@@ -11,7 +11,7 @@ const skills = {
 			return (name === "sha" || name === "shan") && (player.getStat("skill").jsrgqiluan || 0) < 2 && player.countCards("he") > 0;
 		},
 		filter(event, player) {
-			return (event.filterCard({ name: "sha", isCard: true }, player, event) || event.filterCard({ name: "shan", isCard: true }, player, event)) && player.hasCard(card => lib.filter.cardDiscardable(card, player, "jsrgqiluan"));
+			return event && typeof event.filterCard == "function" && (event.filterCard({ name: "sha", isCard: true }, player, event) || event.filterCard({ name: "shan", isCard: true }, player, event)) && player.hasCard(card => lib.filter.cardDiscardable(card, player, "jsrgqiluan"));
 		},
 		chooseButton: {
 			dialog(event, player) {

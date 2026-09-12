@@ -2622,15 +2622,7 @@ const skills = {
 		async content(event, trigger, player) {
 			const skill = event.name;
 			player.addMark(skill, 1, false);
-			// 上游寫法: player.when({ global: ["roundStart"] }).then(() => player.clearMark("mbzhengpeng", false));
-			// 在編譯後後報錯, 因為編譯後的:
-			// player.clearMark("mbzhengpeng", false)
-			// 會被改成
-			// player2.clearMark("mbzhengpeng", false)
-			// 系統找不到player2因此報錯
-			// 以下已經修正
-			player.when({ global: ["roundStart"] })
-			.then(async (event, trigger, player) => {
+			player.when({ global: ["roundStart"] }).then(async (event, trigger, player) => {
 				player.clearMark("mbzhengpeng", false);
 			});
 			await player.loseHp(player.countMark(skill) - 1);

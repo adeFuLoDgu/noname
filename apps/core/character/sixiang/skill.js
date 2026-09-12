@@ -460,7 +460,7 @@ const skills = {
 				},
 				selectCard: [1, Infinity],
 				position: "h",
-				precontent(event, trigger, player) {
+				async precontent(event, trigger, player) {
 					player
 						.when("useCard")
 						.filter(evt => evt.getParent() == event.getParent())
