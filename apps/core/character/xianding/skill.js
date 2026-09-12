@@ -1,6 +1,5 @@
 // @ts-nocheck
 import { lib, game, ui, get, ai, _status } from "noname";
-import cards from "../sp2/card.js";
 import { CacheContext } from "../../noname/library/cache/cacheContext.js";
 
 /** @type { importCharacterConfig["skill"] } */

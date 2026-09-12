@@ -952,8 +952,11 @@ async function loadConfig() {
 	if (get.coreInfo()[0] === "firefox") {
 		lib.config.ui_zoom = "100%";
 	}
-	lib.config.identity_banned = [...Character_bannedList];
-	lib.config.connect_identity_banned = [...Character_bannedList];
+	for (let mode in lib.mode) {
+		if (mode === "guozhan") continue;
+		lib.config[`${mode}_banned`] = [...Character_bannedList];
+		lib.config[`connect_${mode}_banned`] = [...Character_bannedList];
+	}
 	lib.config.guozhan_banned = [...Guozhan_Character_bannedList];
 	lib.config.connect_guozhan_banned = [...Guozhan_Character_bannedList];
 	Character_bannedList = null;

@@ -17,6 +17,9 @@ const cards = {
 		},
 		loseDelay: false,
 		cardPrompt(card, player) {
+			if (!card || !player) {
+				return lib.translate["chixueren_info"];
+			}
 			let str = lib.translate[card.name + "_info"];
 			const vcard = card[card.cardSymbol];
 			if (vcard) {
