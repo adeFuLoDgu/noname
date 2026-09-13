@@ -323,7 +323,7 @@ const skills = {
 				})
 				.set("goon", player.countCards("hs", card => get.tag(card, "damage") && player.hasValueTarget(card)) > 1)
 				.forResult();
-			if (!characterResult.bool) {
+			if (!characterResult?.bool) {
 				return;
 			}
 			player.logSkill("zyxiongnve");
@@ -787,7 +787,7 @@ const skills = {
 					},
 				})
 				.forResult();
-			if (!cardResult.bool || !cardResult.cards?.length) {
+			if (!cardResult || !cardResult.bool || !cardResult.cards?.length) {
 				return;
 			}
 			const card = cardResult.cards[0];
@@ -814,7 +814,7 @@ const skills = {
 				})
 				.set("du", card.name === "du")
 				.forResult();
-			if (!targetResult.bool || !targetResult.targets?.length) {
+			if (!targetResult || !targetResult.bool || !targetResult.targets?.length) {
 				return;
 			}
 			const target2 = targetResult.targets[0];

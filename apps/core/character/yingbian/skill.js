@@ -585,7 +585,7 @@ const skills = {
 							forced: true,
 						})
 						.forResult();
-					if (!result2.bool || !result2.links?.length) {
+					if (!result2 || !result2.bool || !result2.links?.length) {
 						return;
 					}
 					await player.give(result2.links, target, true);

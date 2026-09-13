@@ -270,12 +270,12 @@ const skills = {
 				.set("goon", goon)
 				.set("logSkill", ["psqizuo", targetx])
 				.forResult();
-			if (!discardResult.bool) {
+			if (!discardResult?.bool) {
 				return;
 			}
 			event.color = get.color(discardResult.cards[0], player);
 			const judgeResult = await player.judge(card => (get.color(card) === _status.event.getParent("psqizuo").color ? 1 : 0)).forResult();
-			if (!judgeResult.bool) {
+			if (!judgeResult?.bool) {
 				return;
 			}
 			const controlResult = await player
@@ -315,7 +315,7 @@ const skills = {
 				.set("value", get.value(trigger.cards, player))
 				.set("color", get.color(trigger.card))
 				.forResult();
-			if (!discardResult.bool) {
+			if (!discardResult?.bool) {
 				return;
 			}
 			const cards = trigger.cards.filterInD("odj");
@@ -507,7 +507,7 @@ const skills = {
 					return result;
 				})
 				.forResult();
-			if (!buttonResult.bool || !buttonResult.links?.length) {
+			if (!buttonResult || !buttonResult.bool || !buttonResult.links?.length) {
 				parentEvent.goto(0);
 				return;
 			}

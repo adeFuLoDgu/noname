@@ -4708,7 +4708,7 @@ const skills = {
 						return get.buttonValue(button);
 					})
 					.forResult();
-				if (!result2.bool) {
+				if (!result2?.bool) {
 					break;
 				}
 				const cards = result2.links;

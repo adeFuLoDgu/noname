@@ -3387,7 +3387,7 @@ const skills = {
 					return get.effect(target2, { name: "sha", nature: "fire", isCard: true }, target, player);
 				})
 				.forResult();
-			if (!result2.bool || !result2.targets?.length) {
+			if (!result2 || !result2.bool || !result2.targets?.length) {
 				return;
 			}
 			const source = result2.targets[0];
@@ -7091,7 +7091,7 @@ const skills = {
 			}
 			next.fixedResult[player.playerid] = event.card;
 			const result2 = await next.forResult();
-			if (!result2.bool) {
+			if (!result2?.bool) {
 				player.addTempSkill("mingfa_block");
 				return;
 			}

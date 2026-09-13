@@ -342,7 +342,7 @@ const skills = {
 						return -get.effect(player, { name: button.link[2] }, player, player);
 					})
 					.forResult();
-				if (!result2.bool) {
+				if (!result2?.bool) {
 					return;
 				}
 				player.markAuto("draglianying_effect", result2.links[0][2]);

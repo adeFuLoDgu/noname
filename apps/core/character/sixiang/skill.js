@@ -1650,7 +1650,7 @@ const skills = {
 					} else {
 						resultx = { bool: false };
 					}
-					if (!resultx.bool) {
+					if (!resultx?.bool) {
 						await target.modedDiscard(card);
 					}
 				}

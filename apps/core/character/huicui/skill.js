@@ -13688,13 +13688,13 @@ const skills = {
 				.set("goon", goon)
 				.setHiddenSkill(event.name)
 				.forResult();
-			if (!compareTargetResult.bool) {
+			if (!compareTargetResult?.bool) {
 				return;
 			}
 			const target = compareTargetResult.targets[0];
 			player.logSkill("dcshuangren", target);
 			const compareResult = await player.chooseToCompare(target).forResult();
-			if (!compareResult.bool) {
+			if (!compareResult?.bool) {
 				player.addTempSkill("dcshuangren_debuff", "phaseUseAfter");
 				return;
 			}
@@ -14408,7 +14408,7 @@ const skills = {
 					return effx;
 				})
 				.forResult();
-			if (!targetResult.bool) {
+			if (!targetResult?.bool) {
 				return;
 			}
 			const target = targetResult.targets[0];
@@ -15161,7 +15161,7 @@ const skills = {
 		},
 		async content(event, trigger, player) {
 			const cardResult = player == trigger.player ? await player.chooseCard("h", true, "请展示一张手牌").forResult() : await player.choosePlayerCard(trigger.player, true, "h").forResult();
-			if (!cardResult.bool) return;
+			if (!cardResult?.bool) return;
 			const card = cardResult.cards[0];
 			var str = get.translation(player);
 			if (player != trigger.player) {
@@ -15186,7 +15186,7 @@ const skills = {
 					return att;
 				})
 				.forResult();
-			if (!targetResult.bool) return;
+			if (!targetResult?.bool) return;
 			const target = targetResult.targets[0];
 			player.line(target, "green");
 			target.gain(card, trigger.player, "give").giver = player;
@@ -17190,7 +17190,7 @@ const skills = {
 					return 0;
 				})
 				.forResult();
-			if (!targetResult.bool) return;
+			if (!targetResult?.bool) return;
 			const target = targetResult.targets[0];
 			player.logSkill("zhenge", target);
 			target.addSkill("zhenge_effect");

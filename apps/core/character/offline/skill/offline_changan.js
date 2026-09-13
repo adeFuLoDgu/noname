@@ -600,12 +600,12 @@ const skills = {
 								return -get.attitude(player, target);
 							})
 							.forResult();
-						if (!result2.bool) {
+						if (!result2?.bool) {
 							break;
 						}
 						const target = result2.targets[0];
 						const result3 = await player.chooseCardButton(`选择获得至多${get.cnNumber(num)}张“威”`, [1, num], target.getExpansions("caweijue_tag"), true).forResult();
-						if (!result3.bool) {
+						if (!result3?.bool) {
 							break;
 						}
 						const cards = result3.links;

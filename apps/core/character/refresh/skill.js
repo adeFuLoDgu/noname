@@ -7131,7 +7131,7 @@ const skills = {
 					return -get.attitude(player, target) * (target.countDiscardableCards(player, "e") + 1);
 				})
 				.forResult();
-			if (!chooseResult.bool) return;
+			if (!chooseResult?.bool) return;
 			const target = chooseResult.targets[0];
 			const num = Math.min(Math.max(target.countCards("h") - target.hp, 1), target.countDiscardableCards(player, "he"));
 			player.logSkill("decadezhenjun", target);
@@ -7614,7 +7614,7 @@ const skills = {
 					return get.effect(target, _status.event.card, player, player);
 				})
 				.forResult();
-			if (!targetResult.bool) {
+			if (!targetResult?.bool) {
 				return;
 			}
 			if (!event.isMine() && !_status.connectMode) {

@@ -249,7 +249,7 @@ const skills = {
 					ai: () => -1,
 				})
 				.forResult();
-			if (!cardResult.bool || !cardResult.cards?.length) {
+			if (!cardResult || !cardResult.bool || !cardResult.cards?.length) {
 				return;
 			}
 			await player.respond({
@@ -333,7 +333,7 @@ const skills = {
 					},
 				})
 				.forResult();
-			if (!cardResult.bool) {
+			if (!cardResult?.bool) {
 				return;
 			}
 			player.logSkill("sphantong");

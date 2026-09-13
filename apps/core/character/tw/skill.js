@@ -2612,7 +2612,7 @@ const skills = {
 			isCard: true,
 			storage: { twguanhuo: true },
 		},
-		async content(event, trigger, player) {
+		async precontent(event, trigger, player) {
 			player.addTempSkill("twguanhuo_effect");
 		},
 		filterCard: () => false,
@@ -3159,7 +3159,7 @@ const skills = {
 							.chooseBool("缓图：是否执行另一项？", list[index])
 							.set("choice", get.attitude(player, target) > 0)
 							.forResult();
-						if (!result2.bool) {
+						if (!result2?.bool) {
 							return;
 						}
 						await funcs[index]?.();
@@ -6304,7 +6304,7 @@ const skills = {
 			return player.countCards("hes", card => get.subtypes(card).some(i => player.hasDisabledSlot(i)));
 		},
 		position: "hes",
-		async content(event, trigger, player) {
+		async precontent(event, trigger, player) {
 			event.getParent().addCount = false;
 		},
 		prompt: "将一张与你已废除的装备栏对应副类别的装备牌当【杀】使用或打出",
@@ -9284,7 +9284,7 @@ const skills = {
 					position: "hes",
 					viewAs: { name: links[0][2] },
 					log: false,
-					async content(event, trigger, player) {
+					async precontent(event, trigger, player) {
 						player.logSkill("twcairu");
 						if (!player.storage.twcairu_used) {
 							player.storage.twcairu_used = [];
@@ -9732,7 +9732,7 @@ const skills = {
 					position: "hs",
 					viewAs: { name: links[0][2] },
 					log: false,
-					async content(event, trigger, player) {
+					async precontent(event, trigger, player) {
 						player.logSkill("twylyanshi");
 						player.awakenSkill("twylyanshi");
 						if (player.storage.twduwang_ylyanshi) {
@@ -15727,7 +15727,7 @@ const skills = {
 					viewAs: { name: links[0].name, isCard: true, cards: [links[0]] },
 					popname: true,
 					log: false,
-					async content(event, trigger, player) {
+					async precontent(event, trigger, player) {
 						player.logSkill("twmouli");
 						player.addTempSkill("twmouli_used");
 						var name = event.result.card.name;
@@ -17027,7 +17027,7 @@ const skills = {
 		position: "hs",
 		log: false,
 		group: ["twluanlve_directHit"],
-		async content(event, trigger, player) {
+		async precontent(event, trigger, player) {
 			player.logSkill("twluanlve");
 			player.addMark("twluanlve", 1, false);
 		},
@@ -22720,7 +22720,7 @@ const skills = {
 		selectCard() {
 			return _status.event.skill == "twjiange" ? 1 : Infinity;
 		},
-		async content(event, trigger, player) {
+		async precontent(event, trigger, player) {
 			if (player != _status.currentPhase) {
 				player
 					.when({ player: ["useCard", "respond"] })
@@ -24593,7 +24593,7 @@ const skills = {
 					filterCard: () => false,
 					selectCard: -1,
 					log: false,
-					async content(event, trigger, player) {
+					async precontent(event, trigger, player) {
 						player.logSkill("twyingji");
 						player.draw("nodelay");
 					},
@@ -24639,7 +24639,7 @@ const skills = {
 		selectCard: [0, 1],
 		check: () => 1,
 		log: false,
-		async content(event, trigger, player) {
+		async precontent(event, trigger, player) {
 			player.logSkill("twyingji");
 			player.draw("nodelay");
 		},

@@ -129,7 +129,7 @@ const skills = {
 						ai: button => (button.link.name === "du" ? 10 : get.value(button.link)),
 					})
 					.forResult();
-				if (!cardResult.bool) {
+				if (!cardResult?.bool) {
 					break;
 				}
 				player.storage.xinfu_yanyu2++;
@@ -713,7 +713,7 @@ const skills = {
 					target,
 				})
 				.forResult();
-			if (!equipmentResult.bool) {
+			if (!equipmentResult?.bool) {
 				return;
 			}
 			const expansionEvent = target.addToExpansion({

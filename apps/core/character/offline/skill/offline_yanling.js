@@ -82,7 +82,7 @@ const skills = {
 					current,
 				})
 				.forResult();
-			if (!choose.bool || !choose.targets?.length) {
+			if (!choose || !choose.bool || !choose.targets?.length) {
 				return;
 			}
 			const target = choose.targets[0];

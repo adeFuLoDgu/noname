@@ -3711,7 +3711,7 @@ const skills = {
 					return _status.event.cardFilter.includes(button.link);
 				});
 				const result2 = await next.forResult();
-				if (!result2.bool || !result2.links?.length) {
+				if (!result2 || !result2.bool || !result2.links?.length) {
 					continue;
 				}
 				await current.gain(result2.links, "gain2");

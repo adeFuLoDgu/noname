@@ -704,7 +704,7 @@ const skills = {
 							judge2: result => result.bool === false,
 						})
 						.forResult();
-					if (!judgeResult.bool) {
+					if (!judgeResult?.bool) {
 						await target.die();
 					}
 				},
@@ -1664,7 +1664,7 @@ const skills = {
 					.chooseBool(`是否获得${get.translation(card)}并视为对自己使用一张【铁索连环】？`)
 					.set("choice", bool)
 					.forResult();
-				if (!result2.bool) {
+				if (!result2?.bool) {
 					return;
 				}
 				await winner.gain(card, "gain2");

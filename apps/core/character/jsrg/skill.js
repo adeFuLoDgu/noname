@@ -10361,7 +10361,7 @@ const skills = {
 				})
 				.set("targetprompt", "移动目标")
 				.forResult();
-			if (!result2.bool || !result2.targets?.length) {
+			if (!result2 || !result2.bool || !result2.targets?.length) {
 				return;
 			}
 			const targetx = result2.targets[0];

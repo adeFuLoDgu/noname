@@ -270,7 +270,7 @@ const skills = {
 						.set("cards", event.cards)
 						.forResult();
 				}
-				if (!resultx.bool) {
+				if (!resultx?.bool) {
 					await target.loseHp();
 				}
 			}

@@ -1023,7 +1023,7 @@ export default {
 						return 6 - get.value(card);
 					},
 					viewAs: { name: links[0][2] },
-					async content(event, trigger, player) {
+					async precontent(event, trigger, player) {
 						player.addTempSkill("gzguishu_used");
 						player.storage.gzguishu_used = ["yuanjiao", "zhibi"].indexOf(event.result.card.name) + 1;
 					},
@@ -3620,7 +3620,7 @@ export default {
 							position: "hs",
 							popname: true,
 							log: false,
-							async content(event, trigger, player) {
+							async precontent(event, trigger, player) {
 								player.logSkill("fakechengshang_effect");
 								const cardx = event.result.card;
 								const removes = player.getStorage("fakechengshang_effect").filter(card => {
@@ -4404,7 +4404,7 @@ export default {
 							position: "h",
 							popname: true,
 							log: false,
-							async content(event, trigger, player) {
+							async precontent(event, trigger, player) {
 								player.logSkill("fakemibei_effect");
 								player.tempBanSkill("fakemibei_effect", null, false);
 							},
@@ -17983,10 +17983,10 @@ export default {
 					selectCard: -1,
 					viewAs: { name: "sha", cards: links },
 					cards: links,
-					async content(event, trigger, player) {
+					async precontent(event, trigger, player) {
 						var cards = lib.skill.hongfa_use_backup.cards;
 						event.result.cards = cards;
-						player.logSkill("hongfa_use", result.targets);
+						player.logSkill("hongfa_use", event.result.targets);
 					},
 				};
 			},

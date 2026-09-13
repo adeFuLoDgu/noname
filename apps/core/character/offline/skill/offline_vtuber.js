@@ -383,7 +383,7 @@ const skills = {
 					judge2: lib.card.lebu.judge2,
 				})
 				.forResult();
-			if (!judgeResult.bool) {
+			if (!judgeResult?.bool) {
 				trigger.player.skip("phaseUse");
 			}
 		},

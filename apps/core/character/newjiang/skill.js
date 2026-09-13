@@ -2369,7 +2369,7 @@ const skills = {
 						.chooseBool(`是否继续与${get.translation(trigger.source)}拼点？（已赢${num}次）`)
 						.set("choice", Math.random() > 0.7)
 						.forResult();
-					if (!result2.bool) {
+					if (!result2?.bool) {
 						return;
 					}
 				} else {
@@ -5717,7 +5717,7 @@ const skills = {
 				.set("list1", list1)
 				.set("list2", list2)
 				.forResult();
-			if (!targetResult.bool || !targetResult.targets?.length) {
+			if (!targetResult || !targetResult.bool || !targetResult.targets?.length) {
 				return;
 			}
 			const target = targetResult.targets[0];
@@ -5775,7 +5775,7 @@ const skills = {
 				})
 				.set("list", list1)
 				.forResult();
-			if (!buttonResult.bool || !buttonResult.links?.length) {
+			if (!buttonResult || !buttonResult.bool || !buttonResult.links?.length) {
 				return;
 			}
 			const names = buttonResult.links.map(i => i[2]);

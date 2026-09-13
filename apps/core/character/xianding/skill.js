@@ -12156,7 +12156,7 @@ const skills = {
 				.set("cardx", card1)
 				.set("target", target)
 				.forResult();
-			if (!result2.bool || !result2.cards?.length) {
+			if (!result2 || !result2.bool || !result2.cards?.length) {
 				return;
 			}
 			const card2 = result2.cards[0];
@@ -21592,7 +21592,7 @@ const skills = {
 						.set("ai", () => get.attitude(get.player(), get.event().target) < 0)
 						.set("target", target)
 						.forResult();
-					if (!result2.bool) {
+					if (!result2?.bool) {
 						break;
 					}
 				}
@@ -28794,7 +28794,7 @@ const skills = {
 					return 0;
 				})
 				.set("judge2", result => result.bool)
-				.set("callback", event => {
+				.set("callback", async event => {
 					const evtx = event.getParent();
 					const evt = event.getParent(evtx.eventName).getTrigger();
 					if (!evt.source?.isIn() || !evt.card || typeof get.info("dczhantao").getNumber(evt.card) !== "number") {
@@ -30016,7 +30016,7 @@ const skills = {
 							.set("prompt2", `当前进度:${3 - num}/3`)
 							.forResult();
 					}
-					if (!result2.bool) {
+					if (!result2?.bool) {
 						if (storage) {
 							target.popup("杯具");
 							await target.loseHp(num + 1);
@@ -31246,7 +31246,7 @@ const skills = {
 						})
 						.set("targets", targets)
 						.forResult();
-					if (!result.bool) {
+					if (!result?.bool) {
 						return;
 					}
 					const target = result.targets[0];
@@ -31425,7 +31425,7 @@ const skills = {
 					ai: () => (game.hasPlayer(current => get.attitude(player, current) < 0) ? 1 : 0),
 				})
 				.forResult();
-			if (!buttonResult.bool) {
+			if (!buttonResult?.bool) {
 				return;
 			}
 
@@ -31447,7 +31447,7 @@ const skills = {
 					},
 				})
 				.forResult();
-			if (!targetResult.bool) {
+			if (!targetResult?.bool) {
 				return;
 			}
 
@@ -31628,7 +31628,7 @@ const skills = {
 							},
 						})
 						.forResult();
-					if (!result.bool) {
+					if (!result?.bool) {
 						break;
 					}
 					const recoverTarget = result.targets[0];
@@ -31654,7 +31654,7 @@ const skills = {
 							ai: target => get.damageEffect(target, player, player),
 						})
 						.forResult();
-					if (!result.bool) {
+					if (!result?.bool) {
 						break;
 					}
 					damageTarget = result.targets[0];
@@ -31679,7 +31679,7 @@ const skills = {
 						ai: () => shouldContinue,
 					})
 					.forResult();
-				if (!result.bool) {
+				if (!result?.bool) {
 					break;
 				}
 				frequent = true;
@@ -32311,7 +32311,7 @@ const skills = {
 						},
 					})
 					.forResult();
-				if (!result.bool) {
+				if (!result?.bool) {
 					target.addSkill("dcchangqu_add");
 					target.addMark("dcchangqu_add", num, false);
 					await target.link(true);
@@ -32467,7 +32467,7 @@ const skills = {
 			});
 			nextButton.set("tochoose", get.attitude(player, trigger.player) > 0 && trigger.player.hasCard(card => get.value(card) < 7, "hes"));
 			const result = await nextButton.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			const card = {
@@ -32557,7 +32557,7 @@ const skills = {
 						},
 					})
 					.forResult();
-				if (!cardResult.bool) {
+				if (!cardResult?.bool) {
 					break;
 				}
 				const card = cardResult.cards[0];
@@ -32889,7 +32889,7 @@ const skills = {
 			});
 			next.set("logSkill", "dcchanjuan");
 			const result = await next.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			if (!player.storage.dcchanjuan[trigger.card.name]) {
@@ -33699,7 +33699,7 @@ const skills = {
 			});
 			next.set("targets", trigger.targets);
 			const result = await next.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			const target = result.targets[0];
@@ -33720,7 +33720,7 @@ const skills = {
 					ai: target => get.attitude(_status.event.player, target),
 				})
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			const targets = result.targets;
@@ -34574,7 +34574,7 @@ const skills = {
 							ai: target => get.recoverEffect(target, player, player),
 						})
 						.forResult();
-					if (!result.bool) {
+					if (!result?.bool) {
 						return;
 					}
 					const target = result.targets[0];
@@ -35322,7 +35322,7 @@ const skills = {
 					},
 				})
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 
@@ -35414,7 +35414,7 @@ const skills = {
 						})
 						.forResult();
 				}
-				if (!choiceResult.bool) {
+				if (!choiceResult?.bool) {
 					await player.loseHp();
 					if (player.isDead() || !player.isIn()) {
 						break;
@@ -36137,7 +36137,7 @@ const skills = {
 						ai: target => get.effect(target, { name: "shunshou_copy2" }, player, player),
 					})
 					.forResult();
-				if (!result.bool) {
+				if (!result?.bool) {
 					return;
 				}
 				const targets = result.targets.sortBySeat();
@@ -37094,7 +37094,7 @@ const skills = {
 						})
 						.set("animate", false)
 						.forResult();
-					if (!result.bool) {
+					if (!result?.bool) {
 						return;
 					}
 					const target = result.targets[0];
@@ -37119,7 +37119,7 @@ const skills = {
 							ai: target => -get.attitude(player, target),
 						})
 						.forResult();
-					if (!result.bool) {
+					if (!result?.bool) {
 						return;
 					}
 					const target = result.targets[0];
@@ -38060,7 +38060,7 @@ const skills = {
 								ai: target => get.damageEffect(target, player, player),
 							})
 							.forResult();
-						if (!result.bool) {
+						if (!result?.bool) {
 							break;
 						}
 						const damageTarget = result.targets[0];
@@ -38079,7 +38079,7 @@ const skills = {
 								ai: target => get.recoverEffect(target, player, player),
 							})
 							.forResult();
-						if (!result.bool) {
+						if (!result?.bool) {
 							break;
 						}
 						const recoverTarget = result.targets[0];
@@ -38103,7 +38103,7 @@ const skills = {
 								ai: target => get.effect(target, { name: "guohe" }, player, player),
 							})
 							.forResult();
-						if (!result.bool) {
+						if (!result?.bool) {
 							break;
 						}
 						const discardTarget = result.targets[0];
@@ -38137,7 +38137,7 @@ const skills = {
 								},
 							})
 							.forResult();
-						if (!result.bool) {
+						if (!result?.bool) {
 							break;
 						}
 						const drawTarget = result.targets[0];
@@ -38759,7 +38759,7 @@ const skills = {
 					ai: target => get.attitude(_status.event.player, target),
 				})
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			const target = result.targets[0];
@@ -39120,7 +39120,7 @@ const skills = {
 				result = await next;
 				game.resume();
 			}
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			const minName = result.min.slice(0, result.min.indexOf("["));
@@ -39448,7 +39448,7 @@ const skills = {
 		},
 		async content(event, trigger, player) {
 			const result = await player.moveCard({ forced: true }).forResult();
-			if (!result.bool || !player.canMoveCard()) {
+			if (!result?.bool || !player.canMoveCard()) {
 				return;
 			}
 			const players = game.filterPlayer();
@@ -40984,7 +40984,7 @@ const skills = {
 				})
 				.forResult();
 			const suit = get.suit(trigger.card);
-			if (!result.bool || !lib.suit.includes(suit) || player.countCards("h") <= 1) {
+			if (!result?.bool || !lib.suit.includes(suit) || player.countCards("h") <= 1) {
 				return;
 			}
 			if (!result.cards.some(card => get.suit(card, target) === suit)) {
@@ -41120,7 +41120,7 @@ const skills = {
 						})
 						.set("forceDie", true)
 						.forResult();
-					if (!result.bool) {
+					if (!result?.bool) {
 						return;
 					}
 					const target = result.targets[0];
@@ -42013,7 +42013,7 @@ const skills = {
 							},
 						})
 						.forResult();
-					if (!result.bool) {
+					if (!result?.bool) {
 						return;
 					}
 					await player.gain({
@@ -42694,7 +42694,7 @@ const skills = {
 				if (nameLength < 3) {
 					return;
 				}
-				if (!result.bool || get.mode() === "guozhan") {
+				if (!result?.bool || get.mode() === "guozhan") {
 					shouldChooseJudge = false;
 				}
 			}
@@ -43392,7 +43392,7 @@ const skills = {
 			player.changeZhuanhuanji("bazhan");
 			const result = await moveEvent.forResult();
 			let cards = event.cards;
-			if (result.bool && result.cards && result.cards.length) {
+			if (result && result.bool && result.cards && result.cards.length) {
 				cards = result.cards;
 			}
 			if (!cards || !target || !target.hasCards("h", card => cards.includes(card)) || !cards.some(card => get.suit(card, target) === "heart" || get.name(card, target) === "jiu")) {
@@ -43573,7 +43573,7 @@ const skills = {
 						},
 					})
 					.forResult();
-				if (!result.bool) {
+				if (!result?.bool) {
 					break;
 				}
 				player.logSkill("jiaoying", result.targets);
@@ -44127,7 +44127,7 @@ const skills = {
 				})
 				.set("forceDie", true)
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			const target = result.targets[0];
@@ -45319,7 +45319,7 @@ const skills = {
 					},
 				})
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			const target = result.targets[0];
@@ -45363,7 +45363,7 @@ const skills = {
 					} else {
 						result = { bool: Boolean(list.length), targets: list };
 					}
-					if (!result.bool) {
+					if (!result?.bool) {
 						return;
 					}
 					const target = result.targets[0];

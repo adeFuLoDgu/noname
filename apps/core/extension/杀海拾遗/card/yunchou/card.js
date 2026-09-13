@@ -260,7 +260,7 @@ const card = {
 				player.link();
 			}
 		},
-		onLose() {
+		async onLose(event, trigger, player) {
 			if (player.isLinked()) {
 				player.link();
 			}

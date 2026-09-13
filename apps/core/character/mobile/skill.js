@@ -13924,7 +13924,7 @@ const skills = {
 					return 1 - att / 2 + Math.sqrt(target.countCards("h"));
 				})
 				.forResult();
-			if (!result2.bool) {
+			if (!result2?.bool) {
 				return;
 			}
 			const target = result2.targets[0];
@@ -17079,7 +17079,7 @@ const skills = {
 							return ui.selected.targets.length + 1;
 						})
 						.forResult();
-					if (!result2.bool) {
+					if (!result2?.bool) {
 						return;
 					}
 					var targets = result2.targets.sortBySeat();
@@ -17106,7 +17106,7 @@ const skills = {
 						return get.attitude(_status.event.player, target);
 					})
 					.forResult();
-				if (!result2.bool) {
+				if (!result2?.bool) {
 					return;
 				}
 				var targets = result2.targets.sortBySeat();
@@ -17179,7 +17179,7 @@ const skills = {
 				.chooseBool(get.prompt("xinlijun"), "将" + get.translation(trigger.cards) + "交给" + get.translation(player))
 				.set("choice", get.attitude(trigger.player, player) > 0)
 				.forResult();
-			if (!bool.bool) {
+			if (!bool?.bool) {
 				return;
 			}
 			player.logSkill("xinlijun", trigger.player);
@@ -22589,7 +22589,7 @@ const skills = {
 					return get.damageEffect(target, player, player);
 				})
 				.forResult();
-			if (!chooseResult.bool) {
+			if (!chooseResult?.bool) {
 				return;
 			}
 			const target = chooseResult.targets[0];
@@ -22951,7 +22951,7 @@ const skills = {
 				})
 				.set("animate", false)
 				.forResult();
-			if (!result1.bool) {
+			if (!result1?.bool) {
 				return;
 			}
 			const target = result1.targets[0];
@@ -23110,7 +23110,7 @@ const skills = {
 					return Math.max(target.countGainableCards(player, "he") ? get.effect(target, { name: "shunshou_copy2" }, player, player) : 0, get.effect(target, trigger.card, player, player));
 				})
 				.forResult();
-			if (!result1.bool) {
+			if (!result1?.bool) {
 				return;
 			}
 			player.addTempSkill("xinzenhui2", "phaseUseAfter");
@@ -23900,7 +23900,7 @@ const skills = {
 					},
 				})
 				.forResult();
-			if (!result1.bool) {
+			if (!result1?.bool) {
 				return;
 			}
 			const target = result1.targets[0];
@@ -23947,7 +23947,7 @@ const skills = {
 				});
 				result2 = await next.forResult();
 			}
-			if (!result2.bool) {
+			if (!result2?.bool) {
 				await player.draw(3);
 			} else {
 				const cards = target.getCards("he");
@@ -25238,7 +25238,7 @@ const skills = {
 					},
 				})
 				.forResult();
-			if (!result1.bool) {
+			if (!result1?.bool) {
 				return;
 			}
 			const target = result1.targets[0];
@@ -27369,7 +27369,7 @@ const skills = {
 					return 0;
 				})
 				.forResult();
-			if (!result1.bool || !game.hasPlayer(current => current != player)) {
+			if (!result1?.bool || !game.hasPlayer(current => current != player)) {
 				return;
 			}
 			const card = result1.links[0];
@@ -27691,7 +27691,7 @@ const skills = {
 					return eff;
 				})
 				.forResult();
-			if (!result2.bool) {
+			if (!result2?.bool) {
 				return;
 			}
 			const target = result2.targets[0];
@@ -27780,7 +27780,7 @@ const skills = {
 					return get.effect(target, { name: "shunshou" }, player, player);
 				})
 				.forResult();
-			if (!result1.bool) {
+			if (!result1?.bool) {
 				return;
 			}
 			const target = result1.targets[0];
@@ -27937,7 +27937,7 @@ const skills = {
 					},
 				})
 				.forResult();
-			if (!result1.bool) {
+			if (!result1?.bool) {
 				return;
 			}
 			const target = result1.targets[0];

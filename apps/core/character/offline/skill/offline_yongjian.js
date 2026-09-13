@@ -54,7 +54,7 @@ const skills = {
 					.chooseBool({ prompt: "是否再次发动【洛神】？" })
 					.set("frequentSkill", "yjluoshen")
 					.forResult();
-				if (!continueResult.bool) {
+				if (!continueResult?.bool) {
 					if (event.cards.length) {
 						await player.gain({ cards: event.cards, animate: "gain2" });
 					}
@@ -417,7 +417,7 @@ const skills = {
 				.set("targetRequired", true)
 				.set("sourcex", secondTarget)
 				.forResult();
-			if (!useResult.bool && firstTarget.countDiscardableCards(player, "he")) {
+			if (!useResult?.bool && firstTarget.countDiscardableCards(player, "he")) {
 				await player.discardPlayerCard({
 					target: firstTarget,
 					position: "he",
@@ -784,7 +784,7 @@ const skills = {
 					ai: get.buttonValue,
 				})
 				.forResult();
-			if (!cardResult.bool) {
+			if (!cardResult?.bool) {
 				return;
 			}
 			const card = cardResult.links[0];
@@ -795,7 +795,7 @@ const skills = {
 					ai: target => get.attitude(_status.event.player, target),
 				})
 				.forResult();
-			if (!targetResult.bool) {
+			if (!targetResult?.bool) {
 				return;
 			}
 			const target = targetResult.targets[0];

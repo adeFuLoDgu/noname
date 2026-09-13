@@ -5811,7 +5811,7 @@ export const Content: Record<string, ContentFuncByAll | ContentFuncsByAll> = {
 			}
 		},
 		async (event, trigger, player) => {
-			if (!event.result.bool || !event.result.cards || game.online) {
+			if (!event.result || !event.result.bool || !event.result.cards || game.online) {
 				event.finish();
 				return;
 			}
