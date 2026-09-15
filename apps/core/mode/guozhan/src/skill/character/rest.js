@@ -19866,7 +19866,7 @@ export default {
 					const current = _status.currentPhase;
 					const result = await player
 						.chooseBool(`酒诗：是否令${get.translation(current)}视为使用一张【酒】？`)
-						.set("ai", () => true)
+						.set("ai", () => get.attitude(get.player(), _status.currentPhase) > 0)
 						.forResult();
 					event.result = {
 						bool: result.bool,
@@ -20003,7 +20003,7 @@ export default {
 			order: 7,
 			result: {
 				target(player, target) {
-					return get.damageEffect(target, player, player);
+					return -get.damageEffect(target, player, player);
 				},
 			},
 		},

@@ -1732,7 +1732,7 @@ const skills = {
 						.sortBySeat(_status.currentPhase);
 					game.broadcastAll(
 						function (card, player) {
-							_status.old_guhuoNode = card.copy("thrown");
+							_status.old_guhuoNode = card.copy("thrown", "infohidden");
 							if (window.decadeUI) {
 								_status.old_guhuoNode.style.background = "var(--cardback-url)";
 							} else {
