@@ -2335,6 +2335,7 @@ const skills = {
 	rezhiyu: {
 		audio: 2,
 		trigger: { player: "damageEnd" },
+		frequent: true,
 		async content(event, trigger, player) {
 			await player.draw();
 			if (!player.countCards("h")) {
@@ -9818,6 +9819,7 @@ const skills = {
 		audio: 2,
 		zhuSkill: true,
 		trigger: { global: "damageSource" },
+		frequent: true,
 		filter(event, player) {
 			if (player == event.source || !event.source || event.source.group != "qun") {
 				return false;
@@ -14447,6 +14449,7 @@ const skills = {
 		audio: "rejianxiong",
 		audioname: ["shen_caopi", "mb_caocao"],
 		audioname2: { caoying: "lingren_jianxiong" },
+		frequent: true,
 		trigger: { player: "damageEnd" },
 		async content(event, trigger, player) {
 			if (get.itemtype(trigger.cards) == "cards" && get.position(trigger.cards[0], true) == "o") {

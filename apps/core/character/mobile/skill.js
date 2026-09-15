@@ -3654,6 +3654,7 @@ const skills = {
 	//缘吕布
 	mblvezhen: {
 		audio: 2,
+		frequent: true,
 		trigger: {
 			player: "phaseUseBegin",
 		},
@@ -30713,6 +30714,7 @@ const skills = {
 	xinfu_daigong: {
 		usable: 1,
 		audio: 2,
+		frequent: true,
 		trigger: {
 			player: "damageBegin4",
 		},

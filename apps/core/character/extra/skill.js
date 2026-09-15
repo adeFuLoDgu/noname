@@ -3100,6 +3100,7 @@ const skills = {
 	shelie: {
 		audio: 2,
 		trigger: { player: "phaseDrawBegin1" },
+		frequent: true,
 		filter(event, player) {
 			return !event.numFixed;
 		},

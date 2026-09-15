@@ -25,3 +25,6 @@ README.md
 ehthumbs.db
 Thumbs.db
 desktop.ini
+
+# Skill for private use
+.agents/skills/*-selfuse
