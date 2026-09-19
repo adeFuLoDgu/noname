@@ -9,10 +9,9 @@ Click [GitHub Pages](https://adeFuLoDgu.github.io/noname) or [Cloudflare Pages](
 
 ![image](https://raw.githubusercontent.com/adeFuLoDgu/noname/master/docs/reset_illustration.jpg)
 
-* **iOS "A problem repeatedly occurred" Error:** If you encounter this error on iOS, go to **Settings > Safari > Advanced > Feature Flags** (or **Experimental Features** on older iOS versions), then disable **"GPU Process: Canvas Rendering"** and **"WebGPU"**. Additionally, lower the in-game performance settings as shown below to disable heavy effects:
+* **iOS "A problem repeatedly occurred" Error:** If you encounter this error on iOS, disable the DecadeUI extension. Additionally, lower the in-game performance settings as shown below to disable heavy effects:
 
 ![image](https://raw.githubusercontent.com/adeFuLoDgu/noname/master/docs/low_performance_settings_1.png)
-![image](https://raw.githubusercontent.com/adeFuLoDgu/noname/master/docs/low_performance_settings_2.png)
 
 ## How to Host the Server
 * For server hosting instructions, please visit the [Simple Noname Master Server repository](https://github.com/adeFuLoDgu/Simple_Noname_Master_Server).
