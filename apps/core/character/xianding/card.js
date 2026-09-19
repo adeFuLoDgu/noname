@@ -137,7 +137,7 @@ const cards = {
 			}
 		},
 		ai: { basic: { equipValue: 4 } },
-		async onLose(event, trigger, player) {
+		async onLose({ player }) {
 			if (player.storage.counttrigger?.pyzhuren_heart > 0) {
 				delete player.storage.counttrigger.pyzhuren_heart;
 			}
@@ -156,7 +156,7 @@ const cards = {
 				delete _status.pyzhuren[card.name];
 			}
 		},
-		async onLose(event, trigger, player) {
+		async onLose({ player }) {
 			if (player.storage.counttrigger?.pyzhuren_diamond > 0) {
 				delete player.storage.counttrigger.pyzhuren_diamond;
 			}
@@ -178,7 +178,7 @@ const cards = {
 		},
 		ai: { basic: { equipValue: 5 } },
 		loseDelay: false,
-		async onLose(event, trigger, player) {
+		async onLose({ player }) {
 			if (player.storage.counttrigger?.pyzhuren_club > 0) {
 				delete player.storage.counttrigger.pyzhuren_club;
 			}
