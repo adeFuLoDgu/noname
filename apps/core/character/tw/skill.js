@@ -20304,7 +20304,7 @@ const skills = {
 					prompt: "直辩：选择一项",
 					choiceList,
 					ai: event => {
-						if (event.controls.includes("背水！") && player.isDamaged() && (target.hasCards("h") || target.hasCards("e", card => player.canEquip(card) && get.value(card, target) >= 4 + player.getDamagedHp()))) {
+						if (event.controls?.includes("背水！") && player.isDamaged() && (target.hasCards("h") || target.hasCards("e", card => player.canEquip(card) && get.value(card, target) >= 4 + player.getDamagedHp()))) {
 							return 2;
 						}
 						if (player.isDamaged() && (player.hp <= 2 || (!target.hasCards("h") && !target.hasCards("e", card => player.canEquip(card) && get.value(card, target) >= 4 + player.getDamagedHp())))) {
@@ -21831,10 +21831,10 @@ const skills = {
 		},
 		filter(event, player) {
 			const names = [];
-			if (event.filterCard(get.autoViewAs({ name: "sha" }, "unsure"), player, event)) {
+			if (event && typeof event.filterCard == "function" && event.filterCard(get.autoViewAs({ name: "sha" }, "unsure"), player, event)) {
 				names.push("shan");
 			}
-			if (event.filterCard(get.autoViewAs({ name: "shan" }, "unsure"), player, event)) {
+			if (event && typeof event.filterCard == "function" && event.filterCard(get.autoViewAs({ name: "shan" }, "unsure"), player, event)) {
 				names.push("sha");
 			}
 			return (

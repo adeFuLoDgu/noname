@@ -139,7 +139,7 @@ async function buildSelf(target: string | string[], importMap: Record<string, st
 			rollupOptions: {
 				preserveEntrySignatures: "strict",
 				treeshake: false,
-				external: ["vue"],
+				...(process.env.IS_GITHUB_PAGES || process.env.IS_CLOUDFLARE_PAGES === "true" ? {} : { external: ["vue"] }),
 				input: {
 					index: "index.html",
 					noname: "noname.js",
