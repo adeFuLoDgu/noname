@@ -866,8 +866,13 @@ const skills = {
 					`,
 				]);
 				const result = await player
-					.chooseButton([`###${get.translation(event.name)}###选择获得一个技能`, [skills, "skill"]], true)
-					.set("ai", () => 1 + Math.random())
+					.chooseButton({
+						forced: true,
+						createDialog: ["戎弁：选择获得一个技能", [list2, "textbutton"]],
+						ai(button) {
+							return 1 + Math.random();
+						},
+					})
 					.forResult();
 				if (result?.bool && result.links?.length) {
 					const skill = result.links[0];

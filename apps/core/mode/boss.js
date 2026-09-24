@@ -6072,9 +6072,14 @@ export default () => {
 									name: card ? card.name : null,
 									target: target,
 									card: card,
+								}) ||
+								player.hasSkillTag("unequip_ai", false, {
+									name: card ? card.name : null,
+									target: target,
+									card: card,
 								})
 							) {
-								return 1;
+								return;
 							}
 							return lib.skill.sanshou.ai.effect.target(card, player, target);
 						},

@@ -1089,9 +1089,23 @@ const skills = {
 			if (control === "获得技能") {
 				const skills = _status.junkguixin.filter(skill => !player.hasSkill(skill, null, false, false));
 				if (skills.length) {
+					const list = skills.map(skill => [
+						skill,
+						'<div class="popup text" style="width:calc(100% - 10px);display:inline-block"><div class="skill">' +
+							(() => {
+								let str = get.translation(skill);
+								if (!lib.skill[skill]?.nobracket) {
+									str = "【" + str + "】";
+								}
+								return str;
+							})() +
+							"</div><div>" +
+							lib.translate[skill + "_info"] +
+							"</div></div>",
+					]);
 					const result = await player
 						.chooseButton({
-							createDialog: ["归心：选择获得一个主公技", [skills, "skill"]],
+							createDialog: ["归心：选择获得一个主公技", [list, "textbutton"]],
 							forced: true,
 							ai() {
 								return 1 + Math.random();
