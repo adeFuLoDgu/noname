@@ -83,7 +83,7 @@ window.noname_character_replace = {
 	fanchou: ["fanchou", "tw_fanchou", "ns_fanchou", "ca_fanchou"],
 	fanjiangzhangda: ["fanjiangzhangda", "jsrg_fanjiangzhangda"],
 	fanyufeng: ["fanyufeng", "std_fanyufeng"],
-	fazheng: ["xin_fazheng", "ol_fazheng", "re_fazheng", "star_fazheng", "dc_sb_fazheng", "sb_fazheng", "yj_fazheng", "tw_re_fazheng", "tw_yj_fazheng", "fazheng", "jd_sb_fazheng"],
+	fazheng: ["xin_fazheng", "ol_fazheng", "re_fazheng", "star_fazheng", "dc_sb_fazheng", "sb_fazheng", "yj_fazheng", "tw_re_fazheng", "tw_yj_fazheng", "fazheng", "jd_sb_fazheng", "huan_fazheng"],
 	feiyi: ["ol_feiyi", "feiyi", "tw_feiyi", "std_feiyi", "dc_feiyi"],
 	fengfangnv: ["fengfangnv", "re_fengfangnv"],
 	fuhuanghou: ["fuhuanghou", "ol_fuhuanghou", "re_fuhuanghou", "xin_fuhuanghou", "tw_fuhuanghou", "tw_sxrm_fuhuanghou", "std_fuhuanghou", "sp_fuhuanghou", "old_fuhuanghou", "sxrm_fuhuanghou"],
@@ -478,4 +478,5 @@ window.noname_character_replace = {
 	shen_huangzhong: ["ol_shen_huangzhong", "shen_huangzhong"],
 	huanshujun: ["huanshujun", "dc_huanhuaijin"],
 	shen_sunce: ["shen_sunce", "sm_shenmo_sunce"],
+	shen_diaochan: ["shen_diaochan", "ps_shen_diaochan"],
 };

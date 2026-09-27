@@ -316,12 +316,17 @@ export class GetGuozhan extends Get {
 		}
 
 		var att = get.realAttitude(from, to, difficulty, tid);
-		const boss_skills = ["gz_gongao"];
+		let FilterBossSkill = function (player, boss_skill_set) {
+			return player.getSkills(true).includes(boss_skill_set[0]) && player.identity === boss_skill_set[1];
+		}
+		const boss_skills_set = [
+			["gz_gongao", "ye"],
+		];
 		let boss_skills_enemy = game.countPlayer(function (current) {
-			return boss_skills.some(skill => current.hasSkill(skill) && !current.isFriendOf(from) && from !== current);
+			return boss_skills_set.some(skill_set => FilterBossSkill(current, skill_set) && !current.isFriendOf(from) && from !== current && current.ai.shown >= 1);
 		}, true);
 		if (boss_skills_enemy > 0) {
-			if (to.hasSkill("gz_gongao")) {
+			if (FilterBossSkill(to, ["gz_gongao", "ye"])) {
 				return -10;
 			}
 			if (att > 0) {
