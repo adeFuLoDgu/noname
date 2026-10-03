@@ -22256,6 +22256,7 @@ const skills = {
 		derivation: ["shhlianhua1", "shhlianhua2"],
 		trigger: { target: "useCardToTarget" },
 		forced: true,
+		locked: false,
 		filter(event, player) {
 			return event.card.name == "sha";
 		},
