@@ -2769,6 +2769,9 @@ export default {
 		yifu_skill_info: "你的“义子”于准备阶段须交给你一张牌。",
 	},
 	list: [
+		[lib.suit.randomGet(), get.rand(1, 13), "mb_luojingxiashi"],
+		[lib.suit.randomGet(), get.rand(1, 13), "mb_jinshangtianhua"],
+
 		["heart", 9, "mb_qingnangshu"],
 		["spade", 13, "mb_chuanguoyuxi"],
 

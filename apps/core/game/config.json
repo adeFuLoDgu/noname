@@ -192,7 +192,7 @@
 	],
 	"moderned_modes": ["guozhan"],
 	"connect_characters": ["diy", "ddd", "key"],
-	"connect_cards": ["huanlekapai", "guozhan"],
+	"connect_cards": ["huanlekapai", "guozhan", "jiubian"],
 	"plays": [],
 	"extensions": ["3D精选", "杀海拾遗", "欢乐卡牌", "玩点论杀", "英雄杀", "十周年UI", "MVP扩展", "挑战卡牌", "补应变卡"],
 	"extension_3D精选_enable": false,

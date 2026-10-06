@@ -141,6 +141,10 @@ export default {
 			lib.skill.gz_liudu.enterAozhan(player);
 		},
 		enterAozhan(player) {
+			game.broadcastAll(function() {
+				if (!window.decadeUI) return;
+				decadeUI.animation.playSpine("aozhan", { scale: 1.0 });
+			});
 			if (_status._aozhan) {
 				return;
 			}
@@ -202,6 +206,26 @@ export default {
 							background-image: url(${lib.assetURL}image/card/jiu.png) !important;
 						}
 					`);
+					if (window.decadeUI) {
+						lib.init.sheet(`
+							.card[data-card-name = "tao"]:not(.infohidden) {
+								background-image: url("${lib.assetURL}extension/${window.decadeUI.extensionName}/image/card/jiu.webp") !important;
+							}
+						`);
+					}
+				} else {
+					lib.init.sheet(`
+						.card[data-card-name = "tao"]>.image {
+							background-image: url(${lib.assetURL}image/card/gz_aozhantao.png) !important;
+						}
+					`);
+					if (window.decadeUI) {
+						lib.init.sheet(`
+							.card[data-card-name = "tao"]:not(.infohidden) {
+								background-image: url("${lib.assetURL}extension/${window.decadeUI.extensionName}/image/card/tao_aozhan.webp") !important;
+							}
+						`);
+					}
 				}
 			}, mode);
 			game.addGlobalSkill(mode == "jiubian" ? "aozhan_jiubian" : "aozhan");

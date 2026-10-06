@@ -4558,6 +4558,10 @@ game.import('extension', async function(lib, game, ui, get, ai, _status){
 										decadeUI.animation.cap.playSpineTo(card, 'effect_shan');
 										animation_playSpineTo_Client(card, 'effect_shan');
 										break;
+									case 'lveshan':
+										decadeUI.animation.cap.playSpineTo(card, 'effect_shan');
+										animation_playSpineTo_Client(card, 'effect_shan');
+										break;
 									case 'tao':
 										decadeUI.animation.cap.playSpineTo(card, 'effect_tao', { scale: 0.9 });
 										animation_playSpineTo_Client(card, 'effect_tao', { scale: 0.9 });

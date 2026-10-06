@@ -6691,7 +6691,7 @@ export class Library {
 					init: true,
 					frequent: true,
 					restart: true,
-					intro: "游戏模式为应变模式下，加上其他模式缺少的国战牌堆",
+					intro: "游戏模式为应变模式下，加上除九变篇国战牌堆外缺少的国战牌堆",
 				},
 				connect_player_number: {
 					name: "游戏人数",
@@ -6798,7 +6798,7 @@ export class Library {
 					init: true,
 					frequent: true,
 					restart: true,
-					intro: "游戏模式为应变模式下，加上其他模式缺少的国战牌堆",
+					intro: "游戏模式为应变模式下，加上除九变篇国战牌堆外缺少的国战牌堆",
 				},
 				player_number: {
 					name: "游戏人数",
