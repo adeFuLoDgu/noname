@@ -20719,6 +20719,37 @@ export default {
 		async content(event, trigger, player) {
 			trigger.cancel();
 		},
+		ai: {
+			nofire: true,
+			nothunder: true,
+			effect: {
+				target(card, player, target, current) {
+					if (target.hasSkillTag("unequip2")) {
+						return;
+					}
+					if (
+						player.hasSkillTag("unequip", false, {
+							name: card ? card.name : null,
+							target: target,
+							card: card,
+						}) ||
+						player.hasSkillTag("unequip_ai", false, {
+							name: card ? card.name : null,
+							target: target,
+							card: card,
+						})
+					) {
+						return;
+					}
+					if (get.tag(card, "natureDamage")) {
+						return "zeroplayertarget";
+					}
+					if (card.name === "tiesuo") {
+						return 0.01;
+					}
+				},
+			},
+		},
 	},
 	huohuanyi_damage: {
 		equipSkill: true,

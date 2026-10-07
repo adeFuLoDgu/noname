@@ -12,7 +12,25 @@ export default {
 				.chooseTarget({ prompt: "燎野：选择任意名角色", selectTarget: [0, Infinity] })
 				.set("ai", target => {
 					const player = get.player();
-					return get.attitude(player, target);
+					let enemy_num = 0;
+					let friend_num = 0;
+					for (const i of game.players) {
+						if (_status.currentPhase !== i && i.isIn()) {
+							if (i.isFriendOf(player)) {
+								friend_num++;
+							} else {
+								enemy_num++;
+							}
+						}
+					}
+					if (enemy_num > 0) {
+						return get.attitude(player, target);
+					} else {
+						while (ui.selected.targets.length < friend_num / 2) {
+							return 1;
+						}
+					}
+					return 0;
 				})
 				.forResult();
 			const selected = result.targets || [];
@@ -138,13 +156,9 @@ export default {
 			return !_status._aozhan;
 		},
 		async content(event, trigger, player) {
-			lib.skill.gz_liudu.enterAozhan(player);
+			lib.skill._aozhan_judge.content(event, trigger, player);
 		},
 		enterAozhan(player) {
-			game.broadcastAll(function() {
-				if (!window.decadeUI) return;
-				decadeUI.animation.playSpine("aozhan", { scale: 1.0 });
-			});
 			if (_status._aozhan) {
 				return;
 			}
@@ -206,26 +220,6 @@ export default {
 							background-image: url(${lib.assetURL}image/card/jiu.png) !important;
 						}
 					`);
-					if (window.decadeUI) {
-						lib.init.sheet(`
-							.card[data-card-name = "tao"]:not(.infohidden) {
-								background-image: url("${lib.assetURL}extension/${window.decadeUI.extensionName}/image/card/jiu.webp") !important;
-							}
-						`);
-					}
-				} else {
-					lib.init.sheet(`
-						.card[data-card-name = "tao"]>.image {
-							background-image: url(${lib.assetURL}image/card/gz_aozhantao.png) !important;
-						}
-					`);
-					if (window.decadeUI) {
-						lib.init.sheet(`
-							.card[data-card-name = "tao"]:not(.infohidden) {
-								background-image: url("${lib.assetURL}extension/${window.decadeUI.extensionName}/image/card/tao_aozhan.webp") !important;
-							}
-						`);
-					}
 				}
 			}, mode);
 			game.addGlobalSkill(mode == "jiubian" ? "aozhan_jiubian" : "aozhan");

@@ -6716,7 +6716,7 @@ export class Library {
 				},
 				connect_qunlangCharacters: {
 					name: "使用群狼环鼎武将",
-					init: false,
+					init: true,
 					frequent: true,
 					restart: true,
 					intro: "开启后，部分旧国战武将将替换为群狼环鼎修订版本，并隐藏对应的九变篇独立武将。",
@@ -6829,7 +6829,7 @@ export class Library {
 				},
 				qunlangCharacters: {
 					name: "使用群狼环鼎武将",
-					init: false,
+					init: true,
 					frequent: true,
 					restart: true,
 					intro: "开启后，部分旧国战武将将替换为群狼环鼎修订版本，并隐藏对应的九变篇独立武将。",

@@ -43256,26 +43256,30 @@ const skills = {
 					"cards",
 					cardsx.filter(card => {
 						if (_status._aozhan && card.name == "tao") {
-							return (
-								evt.filterCard(
-									{
-										name: "sha",
-										isCard: true,
-										cards: [card],
-									},
-									evt.player,
-									evt
-								) ||
-								evt.filterCard(
-									{
-										name: "shan",
-										isCard: true,
-										cards: [card],
-									},
-									evt.player,
-									evt
-								)
-							);
+							if (_status._aozhanMode == "jiubian") {
+								return evt.filterCard({ name: "jiu", isCard: true, cards: [card], }, evt.player, evt);
+							} else {
+								return (
+									evt.filterCard(
+										{
+											name: "sha",
+											isCard: true,
+											cards: [card],
+										},
+										evt.player,
+										evt
+									) ||
+									evt.filterCard(
+										{
+											name: "shan",
+											isCard: true,
+											cards: [card],
+										},
+										evt.player,
+										evt
+									)
+								);
+							}
 						}
 						return evt.filterCard(card, evt.player, evt);
 					})
@@ -43324,17 +43328,21 @@ const skills = {
 				let name = card.name,
 					aozhan = _status._aozhan && name == "tao";
 				if (aozhan) {
-					name = evt.filterCard(
-						{
-							name: "sha",
-							isCard: true,
-							cards: [card],
-						},
-						evt.player,
-						evt
-					)
-						? "sha"
-						: "shan";
+					if (_status._aozhanMode == "jiubian") {
+						name = "jiu";
+					} else {
+						name = evt.filterCard(
+							{
+								name: "sha",
+								isCard: true,
+								cards: [card],
+							},
+							evt.player,
+							evt
+						)
+							? "sha"
+							: "shan";
+					}
 				}
 				if (evt.name == "chooseToUse") {
 					game.broadcastAll(
