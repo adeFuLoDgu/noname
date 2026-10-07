@@ -4608,7 +4608,7 @@ export default {
 				}
 				const current = list.shift();
 				const result = await event.send(current, event.card, player, trigger.targets, event.id, trigger.parent.id, trigger.yingbianZhuzhanAI).forResult();
-				if (!result.bool) {
+				if (!result?.bool) {
 					continue;
 				}
 				event.zhuzhanresult = current;
@@ -5579,7 +5579,7 @@ export default {
 				.set("target", trigger.player)
 				.setHiddenSkill(event.name)
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			const next = player.useCard({
@@ -5637,7 +5637,7 @@ export default {
 					},
 				})
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			const card = result.links[0];

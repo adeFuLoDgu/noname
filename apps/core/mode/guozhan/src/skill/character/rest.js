@@ -1554,7 +1554,7 @@ export default {
 						prompt: `陈见：请弃置一张牌，然后令一名角色获得${get.translation(cards)}中花色与之相同的牌${event.goon ? "？" : ""}`,
 					})
 					.forResult();
-				if (!discardResult.bool) {
+				if (!discardResult?.bool) {
 					return;
 				}
 				const suit = get.suit(discardResult.cards[0], player);
@@ -3618,7 +3618,7 @@ export default {
 				})
 				.set("players", players1)
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			player.hideCharacter(player.name1 === result.links[0] ? 0 : 1);
@@ -5549,7 +5549,7 @@ export default {
 				.set("sourcex", trigger.player)
 				.set("addCount", false)
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			if (target.hasHistory("sourceDamage", evt => evt.getParent(4).name === "gztongling")) {
@@ -5688,7 +5688,7 @@ export default {
 					ai: target => -get.attitude(_status.event.player, target) + 0.5,
 				})
 				.forResult();
-			if (!result.bool || !result.targets) {
+			if (!result || !result.bool || !result.targets) {
 				return;
 			}
 			player.line(result.targets, "green");
@@ -6059,7 +6059,7 @@ export default {
 							},
 						})
 						.forResult();
-					if (!result.bool) {
+					if (!result?.bool) {
 						return;
 					}
 					player.logSkill("gzrebushi", trigger.player);
@@ -6091,7 +6091,7 @@ export default {
 			let selectedCards = cards;
 			if (cards.length > 2) {
 				const result = await player.chooseCard({ selectCard: 2, position: "he", forced: true, prompt: "选择两张牌作为“米”" }).forResult();
-				if (!result.bool) {
+				if (!result?.bool) {
 					return;
 				}
 				selectedCards = result.cards;
@@ -6149,7 +6149,7 @@ export default {
 						})
 						.set("judging", trigger.player.judging[0])
 						.forResult();
-					if (!result.bool) {
+					if (!result?.bool) {
 						return;
 					}
 					event.forceDie = true;
@@ -6752,7 +6752,7 @@ export default {
 					},
 				})
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			const target = result.targets[0];
@@ -8147,7 +8147,7 @@ export default {
 				})
 				.setHiddenSkill("gzwushuang")
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			if (player !== game.me && !player.isOnline()) {
@@ -8277,7 +8277,7 @@ export default {
 				if (result.bool) {
 					await target.give(result.cards, player, "giveAuto");
 				}
-			} else if (!compareResult.bool && !compareResult.tie && player.hasCards("he")) {
+			} else if (compareResult && !compareResult.bool && !compareResult.tie && player.hasCards("he")) {
 				const result = await player.chooseCard({ forced: true, position: "he", prompt: `交给${get.translation(target)}一张牌` }).forResult();
 				if (result.bool) {
 					await player.give(result.cards, target, "giveAuto");
@@ -8735,7 +8735,7 @@ export default {
 						})
 						.set("logSkill", "gzshilu")
 						.forResult();
-					if (!result.bool || !result.cards?.length) {
+					if (!result || !result.bool || !result.cards?.length) {
 						return;
 					}
 					await player.draw(result.cards.length);
@@ -8958,7 +8958,7 @@ export default {
 							},
 						})
 						.forResult();
-					if (!result.bool) {
+					if (!result?.bool) {
 						return;
 					}
 					player.logSkill("gzxiongnve");
@@ -10217,7 +10217,7 @@ export default {
 					.set("target", trigger.player)
 					.setHiddenSkill(event.name)
 					.forResult();
-				if (!result.bool) {
+				if (!result?.bool) {
 					return;
 				}
 
@@ -10291,7 +10291,7 @@ export default {
 					ai: target => -get.attitude(_status.event.player, target) + 0.5,
 				})
 				.forResult();
-			if (!result.bool || !result.targets) {
+			if (!result || !result.bool || !result.targets) {
 				return;
 			}
 			player.line(result.targets, "green");
@@ -10478,7 +10478,7 @@ export default {
 					filterTarget: (_card, player, target) => target !== player && target.countCards("h") <= player.countCards("h"),
 				})
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 
@@ -10681,7 +10681,7 @@ export default {
 			});
 			await draw;
 			const result = await choice.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			const target = result.targets[0];
@@ -11023,7 +11023,7 @@ export default {
 					},
 				})
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			const target = result.targets[0];
@@ -11961,7 +11961,7 @@ export default {
 					.chooseBool({ prompt: get.prompt2("gzbushi") })
 					.set("frequentSkill", "gzbushi")
 					.forResult();
-				if (!result.bool) {
+				if (!result?.bool) {
 					return;
 				}
 			}
@@ -11983,7 +11983,7 @@ export default {
 							prompt2: "你摸一张牌，然后其摸一张牌",
 						})
 						.forResult();
-					if (!result.bool) {
+					if (!result?.bool) {
 						return;
 					}
 
@@ -12033,7 +12033,7 @@ export default {
 							filterTarget: (_card, _player, current) => current.isFriendOf(target),
 						})
 						.forResult();
-					if (!result.bool) {
+					if (!result?.bool) {
 						return;
 					}
 					chosenTarget = result.targets[0];
@@ -12069,7 +12069,7 @@ export default {
 				}
 			},
 			(event, trigger, player, result) => {
-				if (!result.bool) {
+				if (!result?.bool) {
 					event.finish();
 					return;
 				}
@@ -12222,7 +12222,7 @@ export default {
 			},
 			(event, trigger, player, result) => {
 				const map = event.result || result;
-				if (!map.bool) {
+				if (!map?.bool) {
 					return;
 				}
 				game.log(player, "将", trigger.card, "的花色属性修改为了", `#g${get.translation(map.suit + 2)}`, `#y${get.translation(map.nature)}`);
@@ -13497,7 +13497,7 @@ export default {
 					})
 					.set("list", list)
 					.forResult();
-				if (!result.bool || !result.targets.length) {
+				if (!result || !result.bool || !result.targets.length) {
 					return;
 				}
 				target = result.targets[0];
@@ -13642,7 +13642,7 @@ export default {
 			next.logSkill = "g_jianan";
 			next.skills = skills;
 			const discardResult = await next.forResult();
-			if (!discardResult.bool) {
+			if (!discardResult?.bool) {
 				return;
 			}
 			const list = ["主将", "副将"];
@@ -14880,7 +14880,7 @@ export default {
 					})
 					.setHiddenSkill("new_shushen")
 					.forResult();
-				if (!result.bool) {
+				if (!result?.bool) {
 					return;
 				}
 				const target = result.targets[0];
@@ -15065,7 +15065,7 @@ export default {
 				});
 				await hideEvent;
 				const result = await chooseEvent.forResult();
-				if (!result.bool || !result.targets?.length) {
+				if (!result || !result.bool || !result.targets?.length) {
 					return;
 				}
 				player.line(result.targets[0], "green");
@@ -17846,7 +17846,7 @@ export default {
 							createDialog: ["选择至多两张武将牌作为“化身”", [list, "character"]],
 						})
 						.forResult();
-					if (!result.bool) {
+					if (!result?.bool) {
 						return;
 					}
 					for (const name of result.links) {
@@ -17878,7 +17878,7 @@ export default {
 							createDialog: ["是否替换一张“化身”？", [list, "character"]],
 						})
 						.forResult();
-					if (!result.bool) {
+					if (!result?.bool) {
 						return;
 					}
 					player.logSkill("gzhuashen");
@@ -18108,7 +18108,7 @@ export default {
 				})
 				.set("goon", !player.hasCards("h", "sha"))
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			const card = result.links[0];
@@ -19503,7 +19503,7 @@ export default {
 				.set("nono", nono)
 				.setHiddenSkill("gzxiaoguo")
 				.forResult();
-			if (!discardResult.bool) {
+			if (!discardResult?.bool) {
 				return;
 			}
 			nono = get.damageEffect(trigger.player, player, trigger.player) >= 0;
@@ -20865,7 +20865,7 @@ export default {
 				.chooseBool({ prompt: `是否获得${get.translation(source)}装备区内的一张奇珍牌？` })
 				.set("ai", () => true)
 				.forResult();
-			if (!result.bool || !source?.isIn?.()) {
+			if (!result?.bool || !source?.isIn?.()) {
 				return;
 			}
 			const currentCards = source.getCards("e", card => isQizhen(card));
@@ -20898,7 +20898,7 @@ export default {
 				.chooseBool({ prompt: `是否获得${get.translation(player)}装备区内的一张奇珍牌？` })
 				.set("ai", () => true)
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			const currentCards = player.getCards("e", card => isQizhen(card));

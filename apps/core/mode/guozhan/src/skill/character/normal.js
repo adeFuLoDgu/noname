@@ -1436,7 +1436,7 @@ export default {
 					return 6 - get.value(card, player);
 				})
 				.forResult();
-			if (!result.bool || !result.cards?.length) {
+			if (!result || !result.bool || !result.cards?.length) {
 				return;
 			}
 			player.addTempSkill("gz_jiubian_shuangxiong_viewas", "phaseAfter");
@@ -1674,13 +1674,13 @@ export default {
 				.set("goon", goon)
 				.setHiddenSkill("gz_jiubian_shuangren")
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			const compareTarget = result.targets[0];
 			player.logSkill("gz_jiubian_shuangren", compareTarget);
 			result = await player.chooseToCompare(compareTarget).forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				player.addTempSkill("zishou2");
 				return;
 			}
@@ -1799,7 +1799,7 @@ export default {
 							return 0;
 						})
 						.forResult();
-					if (!result.bool || !result.cards?.length) {
+					if (!result || !result.bool || !result.cards?.length) {
 						return;
 					}
 					const card = result.cards[0];
@@ -2381,7 +2381,7 @@ export default {
 					.set("targetprompt", ["被移走", "移动目标"])
 					.set("prompt", "移动场上的一张装备牌")
 					.forResult();
-				if (!chooseTargetResult.bool || !chooseTargetResult.targets || chooseTargetResult.targets.length != 2) {
+				if (!chooseTargetResult || !chooseTargetResult.bool || !chooseTargetResult.targets || chooseTargetResult.targets.length != 2) {
 					break;
 				}
 				const targets = chooseTargetResult.targets;
@@ -2407,7 +2407,7 @@ export default {
 					.set("targets0", targets[0])
 					.set("targets1", targets[1])
 					.forResult();
-				if (!chooseCardResult.bool || !chooseCardResult.links || !chooseCardResult.links.length) {
+				if (!chooseCardResult || !chooseCardResult.bool || !chooseCardResult.links || !chooseCardResult.links.length) {
 					break;
 				}
 				const card = chooseCardResult.links[0];

@@ -88,7 +88,7 @@ export default {
 				.chooseBool({ prompt: get.prompt2(event.name) })
 				.set("ai", () => true)
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			player.logSkill(event.name);
@@ -383,7 +383,7 @@ export default {
 				.chooseBool({ prompt: get.prompt2(event.name) })
 				.set("ai", () => true)
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			player.logSkill(event.name);
@@ -462,7 +462,7 @@ export default {
 					return 1 + Math.max(0, -get.attitude(player, target));
 				})
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			const targets = result.targets.sortBySeat();
@@ -659,7 +659,7 @@ export default {
 						return get.effect(target, { name: "sha" }, player, player);
 					})
 					.forResult();
-				if (!result2.bool) {
+				if (!result2?.bool) {
 					return;
 				}
 				const target = result2.targets[0];
@@ -725,7 +725,7 @@ export default {
 					return -get.attitude(player, target);
 				})
 				.forResult();
-			if (!result.bool) {
+			if (!result?.bool) {
 				return;
 			}
 			const target = result.targets[0];
