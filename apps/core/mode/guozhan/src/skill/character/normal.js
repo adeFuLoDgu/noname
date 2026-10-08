@@ -2422,7 +2422,10 @@ export default {
 			order: 7,
 			result: {
 				player(player) {
-					return lib.skill.gz_jiubian_yongjin.canMove(player) ? 1 : 0;
+					if (lib.skill.gz_jiubian_yongjin.canMove(player)) {
+						return lib.skill.yongjin.ai.result.player(player);
+					}
+					return 0;
 				},
 			},
 		},
@@ -2529,7 +2532,7 @@ export default {
 		},
 		async content(event, trigger, player) {
 			for (const target of event.targets) {
-				target.when("phaseBegin").then((event, trigger, player) => {
+				target.when("phaseBegin").then(async (event, trigger, player) => {
 					player.addTempSkill("gz_jiubian_keshou_effect");
 				});
 			}

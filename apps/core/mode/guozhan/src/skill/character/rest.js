@@ -89,7 +89,7 @@ export default {
 			if (result.control !== "cancel2") {
 				event.result = {
 					bool: true,
-					cost_data: result.index,
+					cost_data: result.control,
 				};
 			}
 		},
@@ -16894,7 +16894,7 @@ export default {
 		usable: 1,
 		prompt: "将至多三张可合纵的牌交给一名与你势力不同的角色，或未确定势力的角色，若你交给与你势力不同的角色，则你摸等量的牌",
 		filter(event, player) {
-			return player.hasCard(card => (typeof card.hasTag == "function" && card.hasTag("lianheng")) || (typeof card.hasGaintag == "function" && card.hasGaintag("_lianheng"), "h"));
+			return player.hasCard(card => card.hasTag("lianheng") || card.hasGaintag("_lianheng"), "h");
 		},
 		filterCard(card) {
 			if (get.itemtype(card) !== "card") {

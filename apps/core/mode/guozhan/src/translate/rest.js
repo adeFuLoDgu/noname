@@ -636,7 +636,7 @@ export default {
 	gz_ol_qiuchou_info: "锁定技，你杀死一名角色，或同势力角色杀死你的奖惩改为变更暗置的副将。",
 	gz_re_lvbu_prefix: "界",
 	gzfengpo: "凤魄",
-	gzfengpo_info: "当你每回合首次使用【杀】或【决斗】指定唯一目标后，你可以选择一项：1.摸X张牌；2.摸一张牌（X为其♦手牌数）。",
+	gzfengpo_info: "当你每回合首次使用【杀】或【决斗】指定唯一目标后，你可以选择一项：1.摸X张牌；2.令此牌的伤害值基数+X（X为其♦手牌数）。",
 
 	guozhan_jun: "君主武将",
 	_aozhan_event_bujinzetui: "不进则退",

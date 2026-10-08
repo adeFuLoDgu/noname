@@ -722,7 +722,7 @@ export default {
 					if (target.isFriendOf(player)) {
 						return target.hp == target.maxHp ? 3 : 1;
 					}
-					return -get.attitude(player, target);
+					return -get.attitude(player, target) * 10 / target.hp;
 				})
 				.forResult();
 			if (!result?.bool) {
@@ -737,6 +737,7 @@ export default {
 			player.addSkill("gz_fengguo_effect");
 			game.log(target, "成为了", "#g【奉国】", "目标");
 		},
+		global: "gz_fengguo_ai",
 		subSkill: {
 			effect: {
 				charlotte: true,
@@ -788,6 +789,25 @@ export default {
 				},
 				async content(event, trigger, player) {
 					player.removeSkill("gz_fengguo_effect");
+				},
+			},
+			ai: {
+				ai: {
+					effect: {
+						target(card, player, target, current) {
+							for (const p of game.players) {
+								let gz_fengguo_effect_target = p.storage.gz_fengguo_effect;
+								if (gz_fengguo_effect_target) {
+									if (target === gz_fengguo_effect_target && get.tag(card, "recover")) {
+										return "zeroplayertarget";
+									}
+									if (target !== gz_fengguo_effect_target && target.isFriendOf(gz_fengguo_effect_target) && get.tag(card, "damage")) {
+										return "zeroplayertarget";
+									}
+								}
+							}
+						},
+					},
 				},
 			},
 		},
