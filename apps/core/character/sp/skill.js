@@ -44407,7 +44407,7 @@ const skills = {
 			if (!player.isPhaseUsing() || !event.isFirstTarget) {
 				return false;
 			}
-			return event.card.name === "sha" && (get.type(event.card) === "trick" || get.tag(event.card, "damage"));
+			return event.card.name === "sha" || (get.type(event.card) === "trick" && get.tag(event.card, "damage"));
 		},
 		derivation: ["new_rejianxiong", "rexingshang"],
 		async cost(event, trigger, player) {
