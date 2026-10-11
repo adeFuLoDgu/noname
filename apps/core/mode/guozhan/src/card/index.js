@@ -199,7 +199,17 @@ export default {
 			},
 			result: {
 				target(player, target) {
-					return get.attitude(player, target) > 0 ? 1 : -0.5;
+					const QizhenCards = Array.from(ui.discardPile.childNodes).filter(card => isJiubianQizhen(card));
+					const jiuzhouding = QizhenCards.filter(card => card.name === "jiuzhouding");
+					if (QizhenCards.length > 0) {
+						if (jiuzhouding.length > 0 && player.countCards("h", ["sha", "shunshou"]) > 0 && target.countCards("e", card => isJiubianQizhen(card)) < 3) {
+							return -1;
+						}
+						return 1 + player.countCards("e", card => isJiubianQizhen(card));
+					} else if (QizhenCards.length <= 0) {
+						return -0.5;
+					}
+					return 0;
 				},
 			},
 		},

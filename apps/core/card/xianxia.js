@@ -414,7 +414,7 @@ export default {
 				},
 				result: {
 					target(player, target) {
-						if (player.hp <= 1 && player.countCards("h", "tao") + player.countCards("h", "jiu") <= 0) {
+						if (player.hp <= 1 && player.countCards("h", ["tao", "jiu"]) <= 0) {
 							return 0;
 						}
 						let yidugongdu_num = player.countCards("h", "yidugongdu"), du_num = player.countCards("h", "du");

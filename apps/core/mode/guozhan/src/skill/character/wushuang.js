@@ -3572,6 +3572,23 @@ export default {
 		ai: {
 			threaten: 114514,
 		},
+		global: "gz_gongao_ai",
+		subSkill: {
+			ai: {
+				ai: {
+					effect: {
+						target(card, player, target, current) {
+							let gz_gongao_player_num = game.countPlayer(function (cur) {
+								return cur.getSkills(true).includes("gz_gongao") && cur.identity === "ye" && get.attitude(player, cur) < 0 && cur.ai.shown >= 1;
+							}, true);
+							if (gz_gongao_player_num > 0 && get.tag(card, "damage") && get.tag(card, "multitarget")) {
+								return "zeroplayertarget";
+							}
+						},
+					},
+				},
+			},
+		},
 	},
 	//辛宪英
 	gz_caishi: {

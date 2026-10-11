@@ -459,7 +459,13 @@ export default {
 				.chooseTarget({ prompt: get.prompt("gz_huluan"), prompt2: "观看一至三名角色的各一张暗置的武将牌", selectTarget: [1, 3], filterTarget: (card, player, target) => target.isUnseen(0) || target.isUnseen(1) })
 				.set("ai", target => {
 					const player = get.player();
-					return 1 + Math.max(0, -get.attitude(player, target));
+					if (ui.selected.targets <= 1) {
+						if (player === target) {
+							return 10;
+						}
+						return 1;
+					}
+					return 0;
 				})
 				.forResult();
 			if (!result?.bool) {
