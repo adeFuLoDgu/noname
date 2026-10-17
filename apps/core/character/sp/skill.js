@@ -2,6 +2,1455 @@ import { lib, game, ui, get, ai, _status } from "noname";
 
 /** @type { importCharacterConfig["skill"] } */
 const skills = {
+	// OL孙寒华 by WeiqiaoCode
+	ol_cailian_skill: {
+		charlotte: true,
+		forced: true,
+		trigger: {
+			source: "damageBegin1",
+			global: "recoverBegin",
+		},
+		filter(event, player) {
+			if (event.name === "damage") {
+				return !player.getRoundHistory("sourceDamage", evt => evt.num > 0).length;
+			}
+			return event.source === player && event.num > 0 && game.getRoundHistory("everything", evt => evt.name === "recover" && evt.source === player && evt.num > 0)[0] === event;
+		},
+		async content(event, trigger, player) {
+			trigger.num++;
+		},
+		mod: {
+			ignoredHandcard(card, player) {
+				const cailian = player.getCards("e", cardx => cardx.name === "ol_cailian")[0];
+				if (!cailian) return;
+				const suit = get.suit(cailian, player);
+				if (lib.suit.includes(suit) && get.suit(card, player) === suit) return true;
+			},
+			cardDiscardable(card, player, name) {
+				if (name !== "phaseDiscard") return;
+				const cailian = player.getCards("e", cardx => cardx.name === "ol_cailian")[0];
+				if (!cailian) return;
+				const suit = get.suit(cailian, player);
+				if (lib.suit.includes(suit) && get.suit(card, player) === suit) return false;
+			},
+		},
+	},
+	olhuaguang: {
+		trigger: {
+			global: "roundStart",
+			player: "phaseZhunbeiBegin",
+		},
+		direct: true,
+		group: "olhuaguang_destroy",
+		filter(event, player) {
+			return player.hasCard(card => card.name === "ol_cailian", "he") || lib.skill.olhuaguang.getSlots(player).length > 0;
+		},
+		getSlots(player, card) {
+			const slots = get.is.mountCombined() ? ["equip1", "equip2", "equip3_4", "equip5"] : ["equip1", "equip2", "equip3", "equip4", "equip5"];
+			const current = card ? get.subtypes(card, false)[0] : null;
+			return slots.filter(slot => slot !== current && player.hasEquipableSlot(slot));
+		},
+		async content(event, trigger, player) {
+			let cailian = player.getCards("he", card => card.name === "ol_cailian")[0];
+			const slots = lib.skill.olhuaguang.getSlots(player, cailian);
+			const choices = [
+				["equip", "将【彩莲】置入一个装备栏"],
+				["suit", "修改【彩莲】的花色"],
+			];
+			const result = await player
+				.chooseButton([get.prompt(event.name), [choices, "textbutton"]])
+				.set("filterButton", button => {
+					if (button.link === "equip") return get.event().slots.length > 0;
+					return !!get.event().cailian;
+				})
+				.set("slots", slots)
+				.set("cailian", cailian)
+				.set("ai", button => (button.link === "equip" ? 2 : 1))
+				.forResult();
+			if (!result.bool) return;
+			player.logSkill(event.name);
+			if (result.links[0] === "suit") {
+				const suits = lib.suit.filter(suit => suit !== get.suit(cailian, false));
+				const suitResult = await player
+					.chooseControl(suits)
+					.set("prompt", "华光：修改【彩莲】的花色")
+					.set("ai", () => _status.event.controls.randomGet())
+					.forResult();
+				game.broadcastAll(
+					(card, suit) => {
+						card.suit = suit;
+						card.$init([suit, card.number, card.name, card.nature]);
+					},
+					cailian,
+					suitResult.control
+				);
+				player.popup(get.translation(suitResult.control));
+				game.log(player, "将", cailian, "的花色修改为", `#y${get.translation(suitResult.control)}`);
+				return;
+			}
+			if (!cailian) {
+				cailian = game.createCard2("ol_cailian", "none", null);
+				player.$gain2(cailian, false);
+				await game.delayx();
+			}
+			const availableSlots = lib.skill.olhuaguang.getSlots(player, cailian);
+			const slotResult = await player
+				.chooseControl(availableSlots)
+				.set("prompt", "华光：选择置入【彩莲】的装备栏")
+				.set("ai", () => _status.event.controls.randomGet())
+				.forResult();
+			const moving = get.position(cailian) === "e";
+			if (moving) {
+				cailian._ol_cailian_moving = true;
+				await player.lose(cailian, ui.special).set("type", "equip").set("getlx", false);
+			}
+			const vcard = get.autoViewAs(cailian);
+			vcard.subtypes = [slotResult.control];
+			await player.equip(vcard);
+			delete cailian._ol_cailian_moving;
+			if (get.owner(cailian) !== player || get.position(cailian) !== "e") {
+				cailian.fix();
+				cailian.remove();
+				cailian.destroyed = true;
+				game.log(cailian, "被销毁了");
+			}
+		},
+		subSkill: {
+			destroy: {
+				charlotte: true,
+				forced: true,
+				silent: true,
+				popup: false,
+				trigger: {
+					player: "loseAfter",
+					global: "loseAsyncAfter",
+				},
+				filter(event, player) {
+					const lose = event.getl(player);
+					if (!lose?.cards2?.some(card => card.name === "ol_cailian" && !card.destroyed && !card._ol_cailian_moving)) return false;
+					const parent = lose.getParent();
+					return !(parent?.name === "equip" && parent.player === player);
+				},
+				async content(event, trigger, player) {
+					const lose = trigger.getl(player);
+					for (const card of lose.cards2.filter(card => card.name === "ol_cailian" && !card.destroyed)) {
+						card.fix();
+						card.remove();
+						card.destroyed = true;
+						game.log(card, "被销毁了");
+					}
+				},
+			},
+		},
+	},
+	olxuanbai: {
+		forced: true,
+		popup: false,
+		derivation: ["oldangmo", "oljihui", "olxiaju"],
+		trigger: {
+			player: ["enterGame", "equipAfter", "loseAfter"],
+			global: ["phaseBefore", "loseAsyncAfter"],
+		},
+		getForm(player) {
+			const cailian = player.getCards("e", card => card.name === "ol_cailian")[0];
+			if (!cailian) return null;
+			const subtype = get.subtypes(cailian, false)[0];
+			return {
+				equip1: "oldangmo",
+				equip2: "oljihui",
+				equip5: "olxiaju",
+			}[subtype];
+		},
+		filter(event, player) {
+			if (event.name === "phase" && game.phaseNumber !== 0) return false;
+			if (event.name === "loseAsync" && !event.getl(player)) return false;
+			const form = lib.skill.olxuanbai.getForm(player);
+			const forms = ["oldangmo", "oljihui", "olxiaju"];
+			return forms.some(skill => player.hasSkill(skill, null, null, false) !== (skill === form));
+		},
+		async content(event, trigger, player) {
+			const form = lib.skill.olxuanbai.getForm(player);
+			const forms = ["oldangmo", "oljihui", "olxiaju"];
+			const remove = forms.filter(skill => skill !== form && player.hasSkill(skill, null, null, false));
+			const add = form && !player.hasSkill(form, null, null, false) ? [form] : [];
+			if (add.length || remove.length) await player.changeSkills(add, remove);
+			if (form === "olxiaju" && player.storage.olxiaju) player.markSkill("olxiaju");
+		},
+	},
+	oldangmo: {
+		charlotte: true,
+		forced: true,
+		trigger: { player: "useCard2" },
+		filter(event, player) {
+			return event.targets?.length === 1 && get.tag(event.card, "damage");
+		},
+		async content(event, trigger, player) {
+			const targets = game.filterPlayer(target => !trigger.targets.includes(target) && lib.filter.targetEnabled2(trigger.card, player, target) && lib.filter.targetInRange(trigger.card, player, target));
+			const canAdd = targets.length > 0;
+			let doubleEffect = trigger.targets.reduce((sum, target) => sum + get.effect(target, trigger.card, player, player), 0);
+			// norepeat 仅用于 AI 保守估值，不限制玩家重复结算。后续结算的收益可能因耗牌等因素降低。
+			if (doubleEffect > 0 && get.tag(trigger.card, "norepeat")) doubleEffect *= 0.5;
+			const addEffect = targets.reduce((best, target) => Math.max(best, get.effect(target, trigger.card, player, player)), -Infinity);
+			const choices = [
+				["double", "此牌额外结算一次"],
+				["add", "此牌的目标数+1"],
+			];
+			const result = await player
+				.chooseButton({ createDialog: ["荡魔：请选择一项", [choices, "textbutton"]], forced: true })
+				.set("filterButton", button => button.link !== "add" || get.event().canAdd)
+				.set("canAdd", canAdd)
+				.set("choiceScores", { double: doubleEffect, add: addEffect })
+				.set("ai", button => get.event().choiceScores[button.link])
+				.forResult();
+			if (result.links[0] === "double") {
+				trigger.effectCount++;
+				game.log(trigger.card, "额外结算一次");
+				return;
+			}
+			const targetResult = await player
+				.chooseTarget({
+					prompt: "荡魔：为此牌增加一个目标",
+					forced: true,
+					filterTarget: (card, player, target) => {
+						const evt = get.event().getTrigger();
+						return !evt.targets.includes(target) && lib.filter.targetEnabled2(evt.card, player, target) && lib.filter.targetInRange(evt.card, player, target);
+					},
+				})
+				.set("ai", target => get.effect(target, get.event().getTrigger().card, get.player(), get.player()))
+				.forResult();
+			if (targetResult.bool) {
+				trigger.targets.add(targetResult.targets[0]);
+				player.line(targetResult.targets[0]);
+				game.log(targetResult.targets[0], "成为了", trigger.card, "的额外目标");
+			}
+		},
+	},
+	oljihui: {
+		charlotte: true,
+		forced: true,
+		trigger: { global: "recoverAfter" },
+		filter(event) {
+			return game.getGlobalHistory("everything", evt => evt.name === "recover")[0] === event;
+		},
+		async content(event, trigger, player) {
+			await player.draw();
+		},
+		group: "oljihui_tao",
+		subSkill: {
+			tao: {
+				charlotte: true,
+				forced: true,
+				round: 1,
+				trigger: {
+					player: "loseAfter",
+					global: ["equipAfter", "addJudgeAfter", "gainAfter", "loseAsyncAfter", "addToExpansionAfter"],
+				},
+				filter(event, player) {
+					const lose = event.getl(player);
+					return lose?.cards2?.length > player.getHp();
+				},
+				async content(event, trigger, player) {
+					const tao = get.cardPile2(card => card.name === "tao");
+					if (tao) await player.gain(tao, "gain2");
+				},
+			},
+		},
+	},
+	olxiaju: {
+		charlotte: true,
+		forced: true,
+		trigger: {
+			player: "loseAfter",
+			global: ["equipAfter", "addJudgeAfter", "gainAfter", "loseAsyncAfter", "addToExpansionAfter"],
+		},
+		filter(event, player) {
+			const lose = event.getl(player);
+			if (!lose?.cards2?.length) return false;
+			const firstLose = player.getHistory("lose", evt => evt.cards2?.length)[0];
+			return firstLose === event || firstLose?.getParent() === event;
+		},
+		async content(event, trigger, player) {
+			const owned = player
+				.getCards("hej")
+				.map(card => get.suit(card, player))
+				.filter(suit => lib.suit.includes(suit))
+				.toUniqued();
+			const missing = lib.suit.filter(suit => !owned.includes(suit));
+			const charged = !!player.storage.olxiaju;
+			const count = charged ? 2 : 1;
+			const cards = [];
+			for (let i = 0; i < count; i++) {
+				const card = get.cardPile2(cardx => missing.includes(get.suit(cardx, false)) && !cards.includes(cardx));
+				if (card) cards.push(card);
+			}
+			if (cards.length) {
+				if (charged) {
+					delete player.storage.olxiaju;
+					player.unmarkSkill("olxiaju");
+				}
+				await player.gain(cards, "gain2");
+			}
+			const suits = player
+				.getCards("hej")
+				.map(card => get.suit(card, player))
+				.filter(suit => lib.suit.includes(suit))
+				.toUniqued();
+			if (cards.length && missing.length && lib.suit.every(suit => suits.includes(suit))) {
+				player.storage.olxiaju = true;
+				player.markSkill("olxiaju");
+			}
+		},
+		intro: {
+			content: "下次发动〖霞举〗时获得两张牌",
+		},
+	},
+	//OL许劭
+	olshilun: {
+		audio: 2,
+		enable: "phaseUse",
+		usable: 1,
+		async content(event, trigger, player) {
+			const SIZE = 6;
+			const TITLE_MIN = 2;
+			const TITLE_MAX = 6;
+			const TITLE_COUNT_MIN = 3;
+			const TITLE_COUNT_MAX = 4;
+			const CHAR_LIMIT = 24;
+			const TIME_LIMIT = 45;
+
+			function plainTitle(title) {
+				let str = title == null ? "" : String(title);
+				if (str.includes("<") || str.includes(">")) str = get.plainText(str);
+				return str.replace(/#[a-zA-Z0-9]/g, "").trim();
+			}
+
+			function checkSkill(name, type) {
+				const info = lib.skill[name];
+				if (!info || info.charlotte || info.silent || info.juexingji || info.hiddenSkill || info.dutySkill) return false;
+				if (info.zhuSkill) {
+					const owner = _status.event && _status.event.player ? _status.event.player : game.me;
+					if (!owner || typeof owner.isZhu2 !== "function" || !owner.isZhu2()) return false;
+				}
+				if (type === "phaseUse") {
+					let enables = info.enable;
+					if (!enables) return false;
+					if (!Array.isArray(enables)) enables = [enables];
+					return enables.includes("phaseUse");
+				}
+				let triggers = info.trigger && info.trigger.player;
+				if (!triggers) return false;
+				if (!Array.isArray(triggers)) triggers = [triggers];
+				return triggers.includes(type);
+			}
+
+			function initTitles() {
+				if (_status.characterTitleInited) return;
+				_status.characterTitleInited = {};
+				game.initCharacterList();
+				const allList = _status.characterlist.slice();
+				for (const target of game.filterPlayer2()) {
+					for (const name of get.nameList(target)) {
+						if (name && lib.character[name] && !name.startsWith("gz_shibing") && !name.startsWith("gz_jun_")) allList.add(name);
+					}
+				}
+				for (const name of allList) {
+					if (!lib.characterTitle[name]) continue;
+					const skills2 = lib.character[name] && lib.character[name].skills;
+					if (!skills2 || !skills2.length) continue;
+					const skills = [];
+					for (const skill2 of skills2) {
+						const list = [skill2];
+						game.expandSkills(list);
+						if (list.some(skill => ["phaseUse", "phaseJieshuBegin", "damageEnd"].some(type => checkSkill(skill, type)))) {
+							skills.add(skill2);
+						}
+					}
+					if (skills.length) _status.characterTitleInited[lib.characterTitle[name]] = skills;
+				}
+			}
+
+			function getTitlePool() {
+				const pool = [];
+				for (const title of Object.keys(_status.characterTitleInited || {})) {
+					const chars = Array.from(plainTitle(title));
+					if (chars.length < TITLE_MIN || chars.length > TITLE_MAX) continue;
+					if (!chars.every(char => /[\u4e00-\u9fff]/.test(char))) continue;
+					pool.push({ title: title, plain: chars.join(""), chars: chars });
+				}
+				return pool;
+			}
+
+			function findPath(cells, length, prefer) {
+				const dirs = prefer
+					? [prefer, [prefer[0] ? 0 : 1, prefer[1] ? 0 : 1]]
+					: [
+							[1, 0],
+							[0, 1],
+						].randomSort();
+				const starts = [];
+				for (let i = 0; i < SIZE * SIZE; i++) {
+					if (!cells[i]) starts.push(i);
+				}
+				if (starts.length < length) return null;
+				starts.randomSort();
+				for (const dir of dirs) {
+					for (const start of starts) {
+						const x = start % SIZE;
+						const y = Math.floor(start / SIZE);
+						const path = [start];
+						let nx = x;
+						let ny = y;
+						for (let step = 1; step < length; step++) {
+							nx += dir[0];
+							ny += dir[1];
+							if (nx >= SIZE || ny >= SIZE) break;
+							const index = ny * SIZE + nx;
+							if (cells[index]) break;
+							path.push(index);
+						}
+						if (path.length === length) return path;
+					}
+				}
+				return null;
+			}
+
+			function tryCreateBoard(pool, charPool) {
+				const total = SIZE * SIZE;
+				const want = TITLE_COUNT_MIN + get.rand(0, TITLE_COUNT_MAX - TITLE_COUNT_MIN);
+				const dirs = [];
+				for (let i = 0; i < want; i++) {
+					dirs.push(i % 2 === 0 ? [1, 0] : [0, 1]);
+				}
+				dirs.randomSort();
+				const cells = new Array(total).fill(null);
+				const titles = [];
+				let budget = CHAR_LIMIT;
+				for (const item of pool.randomSort()) {
+					if (titles.length >= want) break;
+					if (item.chars.length > budget) continue;
+					const path = findPath(cells, item.chars.length, dirs[titles.length]);
+					if (!path) continue;
+					path.forEach((cell, index) => {
+						cells[cell] = { char: item.chars[index] };
+					});
+					titles.push({ title: item.title, plain: item.plain, cells: path.slice(), skills: _status.characterTitleInited[item.title] });
+					budget -= item.chars.length;
+				}
+				if (titles.length < TITLE_COUNT_MIN) return null;
+				//整盘只有一种走向时重新生成
+				if (titles.length > 1) {
+					const horizontal = titles[0].cells.every(cell => Math.floor(cell / SIZE) === Math.floor(titles[0].cells[0] / SIZE));
+					if (titles.every(item => item.cells.every(cell => Math.floor(cell / SIZE) === Math.floor(item.cells[0] / SIZE)) === horizontal)) return null;
+				}
+				const chars = [];
+				for (let i = 0; i < total; i++) chars[i] = cells[i] ? cells[i].char : charPool.randomGet();
+				return { size: SIZE, chars: chars, titles: titles, timeLimit: TIME_LIMIT };
+			}
+
+			function createBoard() {
+				initTitles();
+				const pool = getTitlePool();
+				if (!pool.length) return null;
+				const charPool = Array.from(new Set(pool.flatMap(item => item.chars)));
+				if (!charPool.length) return null;
+				for (let i = 0; i < 30; i++) {
+					const data = tryCreateBoard(pool, charPool);
+					if (data) return data;
+				}
+				return null;
+			}
+			function board(action, gid, a, b, c) {
+				const dialog = ui["olshilunDialog_" + gid];
+				const state = dialog && dialog.olshilun;
+
+				const paint = function (target) {
+					const data = target.data;
+					for (let i = 0; i < target.cells.length; i++) {
+						const cell = target.cells[i];
+						const isSelected = target.selected.includes(i);
+						const isUsed = !!target.used[i];
+						const isHidden = !!target.hidden[i];
+						const isGlow = target.glow.includes(i);
+						let background = "linear-gradient(160deg, rgba(178,152,216,0.9), rgba(126,96,172,0.9))";
+						let color = "#ffffff";
+						let border = "1px solid rgba(255,255,255,0.55)";
+						let shadow = "none";
+						let text = data.chars[i];
+						if (isUsed) {
+							background = "rgba(58,42,84,0.92)";
+							color = "rgba(232,212,255,0.6)";
+							border = "1px solid rgba(150,110,210,0.85)";
+						} else if (isSelected) {
+							background = "linear-gradient(160deg, rgba(255,242,170,0.98), rgba(244,190,62,0.98))";
+							color = "#4a2c00";
+							border = "1px solid rgba(255,255,255,0.95)";
+							shadow = "0 0 10px 2px rgba(255,224,120,0.95)";
+						}
+						if (isGlow && !isUsed) {
+							border = "1px solid rgba(255,226,138,0.95)";
+							shadow = "0 0 12px 3px rgba(255,220,110,0.95)";
+						}
+						if (isHidden && !isUsed) {
+							text = "?";
+							color = "rgba(226,208,255,0.4)";
+						}
+						cell.innerHTML = text;
+						cell.style.background = background;
+						cell.style.color = color;
+						cell.style.border = border;
+						cell.style.boxShadow = shadow;
+					}
+				};
+
+				const write = function (target, titles) {
+					for (const title of titles) {
+						const head = ui.create.div("", target.panel);
+						head.style.position = "relative";
+						head.innerHTML = "【" + title.plain + "】";
+						head.style.color = "#ffe9a8";
+						head.style.fontSize = "13px";
+						const line = ui.create.div("", target.panel);
+						line.style.position = "relative";
+						line.innerHTML = title.skills.map(name => get.translation(name)).join("　");
+						line.style.color = "#e6dcff";
+						line.style.fontSize = "12px";
+						line.style.lineHeight = "1.25";
+						line.style.wordBreak = "break-all";
+					}
+				};
+
+				const say = function (target, text) {
+					if (target && target.status) target.status.innerHTML = text;
+				};
+
+				const sayOwner = function (target, text) {
+					const me = game.me;
+					if (target && me && me.playerid && target.ownerid && me.playerid !== target.ownerid) {
+						say(target, "请等待" + ((target.data && target.data.ownerName) || "") + "连线完成评鉴");
+						return;
+					}
+					say(target, text);
+				};
+
+				const keepGlow = function (target, entry) {
+					if (entry.timer) clearTimeout(entry.timer);
+					entry.timer = setTimeout(function () {
+						const later = ui["olshilunDialog_" + gid] && ui["olshilunDialog_" + gid].olshilun;
+						if (!later || !later.glows) return;
+						later.glows = later.glows.filter(item => item !== entry);
+						later.glow = later.glows.flatMap(item => item.cells);
+						paint(later);
+					}, 6000);
+				};
+
+				const light = function (index) {
+					const current = ui["olshilunDialog_" + gid] && ui["olshilunDialog_" + gid].olshilun;
+					if (!current || current.found.includes(index)) return;
+					const title = current.data.titles[index];
+					if (!title) return;
+					if (!current.glows) current.glows = [];
+					if (current.glows.some(entry => entry.index === index)) return;
+					const entry = { index: index, cells: title.cells.slice(), timer: null };
+					current.glows.push(entry);
+					current.glow = current.glows.flatMap(item => item.cells);
+					paint(current);
+					keepGlow(current, entry);
+				};
+
+				const dark = function (index) {
+					const current = ui["olshilunDialog_" + gid] && ui["olshilunDialog_" + gid].olshilun;
+					if (!current) return;
+					current.hidden[index] = true;
+					paint(current);
+				};
+
+				if (action === "create") {
+					if (dialog) return;
+					const data = a;
+					const ownerid = b;
+					const size = data.size || 6;
+					const node = ui.create.div(".olshilunDialog.popped", ui.window);
+					node.videoId = gid;
+					node.style.position = "absolute";
+					node.style.transition = "none";
+					node.style.left = "50%";
+					node.style.top = "50%";
+					node.style.transform = "translate(-50%, -50%)";
+					node.style.width = "fit-content";
+					node.style.height = "fit-content";
+					node.style.display = "flex";
+					node.style.flexDirection = "column";
+					node.style.alignItems = "center";
+					node.style.gap = "6px";
+					node.style.padding = "8px 14px 10px";
+					node.style.background = "linear-gradient(160deg, rgba(72,54,104,0.95), rgba(28,20,44,0.95))";
+					node.style.border = "1px solid rgba(220,198,255,0.7)";
+					node.style.borderRadius = "8px";
+					node.style.boxShadow = "0 0 20px rgba(120,80,190,0.65)";
+					node.style.zIndex = "30";
+					const heading = ui.create.div("", node);
+					heading.style.position = "relative";
+					heading.innerHTML = "评鉴";
+					heading.style.color = "#f2e6ff";
+					heading.style.fontSize = "20px";
+					heading.style.fontWeight = "bold";
+					heading.style.letterSpacing = "2px";
+					heading.style.textShadow = "0 0 6px rgba(150,90,220,0.95)";
+					heading.style.cursor = "move";
+					heading.style.userSelect = "none";
+					heading.addEventListener("mousedown", function (event) {
+						if (_status.dragged || _status.justdragged) return;
+						const zoom = game.documentZoom || 1;
+						const rect = node.getBoundingClientRect();
+						const startX = event.clientX;
+						const startY = event.clientY;
+						const startLeft = rect.left / zoom;
+						const startTop = rect.top / zoom;
+						const move = function (ev) {
+							node.style.transform = "";
+							node.style.left = startLeft + (ev.clientX - startX) / zoom + "px";
+							node.style.top = startTop + (ev.clientY - startY) / zoom + "px";
+						};
+						const up = function () {
+							document.removeEventListener("mousemove", move);
+							document.removeEventListener("mouseup", up);
+						};
+						document.addEventListener("mousemove", move);
+						document.addEventListener("mouseup", up);
+						event.preventDefault();
+					});
+					const main = ui.create.div("", node);
+					main.style.position = "relative";
+					main.style.display = "flex";
+					main.style.gap = "8px";
+					main.style.alignItems = "flex-start";
+					const field = ui.create.div("", main);
+					field.style.position = "relative";
+					field.style.display = "flex";
+					field.style.flexDirection = "column";
+					field.style.gap = "3px";
+					field.style.padding = "6px";
+					field.style.background = "rgba(18,10,32,0.7)";
+					field.style.borderRadius = "6px";
+					const cells = [];
+					for (let y = 0; y < size; y++) {
+						const row = ui.create.div("", field);
+						row.style.position = "relative";
+						row.style.display = "flex";
+						row.style.gap = "3px";
+						for (let x = 0; x < size; x++) {
+							const index = y * size + x;
+							const cell = ui.create.div("", row);
+							cell.style.position = "relative";
+							cell.dataset.index = index;
+							cell.innerHTML = data.chars[index];
+							cell.style.width = "42px";
+							cell.style.height = "42px";
+							cell.style.display = "flex";
+							cell.style.alignItems = "center";
+							cell.style.justifyContent = "center";
+							cell.style.textAlign = "center";
+							cell.style.lineHeight = "1";
+							cell.style.fontSize = "24px";
+							cell.style.borderRadius = "4px";
+							cell.style.border = "1px solid rgba(255,255,255,0.55)";
+							cell.style.boxSizing = "border-box";
+							cell.style.userSelect = "none";
+							cells[index] = cell;
+						}
+					}
+					const sidebar = ui.create.div("", main);
+					sidebar.style.position = "relative";
+					sidebar.style.width = "136px";
+					sidebar.style.height = size * 45 + "px";
+					sidebar.style.padding = "6px";
+					sidebar.style.background = "rgba(18,10,32,0.7)";
+					sidebar.style.borderRadius = "6px";
+					sidebar.style.display = "flex";
+					sidebar.style.flexDirection = "column";
+					sidebar.style.gap = "4px";
+					sidebar.style.boxSizing = "border-box";
+					sidebar.style.overflow = "hidden";
+					const sidebarTitle = ui.create.div("", sidebar);
+					sidebarTitle.style.position = "relative";
+					sidebarTitle.innerHTML = "获取技能";
+					sidebarTitle.style.color = "#fff";
+					sidebarTitle.style.fontSize = "14px";
+					sidebarTitle.style.textAlign = "center";
+					sidebarTitle.style.padding = "2px 0";
+					sidebarTitle.style.borderRadius = "4px";
+					sidebarTitle.style.background = "linear-gradient(90deg, rgba(160,100,230,0.95), rgba(88,46,158,0.95))";
+					const sidebarList = ui.create.div("", sidebar);
+					sidebarList.style.position = "relative";
+					sidebarList.style.flex = "1";
+					sidebarList.style.overflow = "auto";
+					sidebarList.style.display = "flex";
+					sidebarList.style.flexDirection = "column";
+					sidebarList.style.gap = "4px";
+					const status = ui.create.div("", node);
+					status.style.position = "relative";
+					status.innerHTML = "请连线完成评鉴";
+					status.style.color = "#ffeccc";
+					status.style.fontSize = "14px";
+					status.style.minHeight = "20px";
+					status.style.maxWidth = size * 45 + "px";
+					status.style.textAlign = "center";
+					status.style.textShadow = "0 0 4px #000";
+					const bar = ui.create.div("", node);
+					bar.style.position = "relative";
+					bar.style.width = size * 45 + "px";
+					bar.style.height = "10px";
+					bar.style.borderRadius = "5px";
+					bar.style.border = "1px solid rgba(255,255,255,0.45)";
+					bar.style.background = "rgba(0,0,0,0.65)";
+					bar.style.overflow = "hidden";
+					bar.style.boxSizing = "border-box";
+					const barInner = ui.create.div("", bar);
+					barInner.style.position = "relative";
+					barInner.style.width = "100%";
+					barInner.style.height = "100%";
+					barInner.style.background = "linear-gradient(90deg, #ff7b6b, #b81f1f)";
+					barInner.style.transition = "width 0.2s linear";
+					node.olshilun = {
+						gid: gid,
+						data: data,
+						ownerid: ownerid,
+						size: size,
+						cells: cells,
+						panel: sidebarList,
+						status: status,
+						bar: barInner,
+						selected: [],
+						found: [],
+						used: {},
+						hidden: {},
+						glow: [],
+						glows: [],
+						clock: null,
+						autoTimer: null,
+						result: null,
+						finish: null,
+					};
+					paint(node.olshilun);
+					sayOwner(node.olshilun, "请连线完成评鉴");
+					ui["olshilunDialog_" + gid] = node;
+					const me = game.me;
+					if (me && me.playerid && me.playerid !== ownerid && (!me.isIn || me.isIn()) && !ui["olshilunHelper_" + gid]) {
+						const helper = ui.create.div("", node);
+						helper.style.position = "absolute";
+						helper.style.left = "100%";
+						helper.style.top = "50%";
+						helper.style.transform = "translateY(-50%)";
+						helper.style.marginLeft = "8px";
+						helper.style.display = "flex";
+						helper.style.flexDirection = "column";
+						helper.style.gap = "12px";
+						helper.style.zIndex = "31";
+						ui["olshilunHelper_" + gid] = helper;
+						const helperButtons = [];
+						let helperUsed = false;
+						const lockHelper = function () {
+							helperUsed = true;
+							for (const button of helperButtons) {
+								button.dataset.olshilunDisabled = "1";
+								button.style.opacity = "0.4";
+								button.style.boxShadow = "none";
+							}
+						};
+						const pickTitle = function () {
+							const current = ui["olshilunDialog_" + gid] && ui["olshilunDialog_" + gid].olshilun;
+							const list = [];
+							for (let i = 0; i < data.titles.length; i++) {
+								if (!current || !current.found.includes(i)) list.push(i);
+							}
+							return list.randomGet();
+						};
+						const pickCell = function () {
+							const current = ui["olshilunDialog_" + gid] && ui["olshilunDialog_" + gid].olshilun;
+							const list = [];
+							for (let i = 0; i < data.chars.length; i++) {
+								if (current && (current.used[i] || current.hidden[i])) continue;
+								list.push(i);
+							}
+							return list.randomGet();
+						};
+						const addButton = function (text, color, key, action) {
+							const button = ui.create.div("", helper);
+							button.style.position = "relative";
+							button.innerHTML = text;
+							button.style.width = "54px";
+							button.style.height = "54px";
+							button.style.borderRadius = "50%";
+							button.style.display = "flex";
+							button.style.alignItems = "center";
+							button.style.justifyContent = "center";
+							button.style.fontSize = "16px";
+							button.style.fontWeight = "bold";
+							button.style.color = "#fff";
+							button.style.cursor = "pointer";
+							button.style.userSelect = "none";
+							button.style.textShadow = "0 0 4px #000";
+							button.style.background = "radial-gradient(circle at 35% 30%, " + color + ", rgba(24,12,40,0.92))";
+							button.style.boxShadow = "0 0 14px 3px " + color;
+							button.addEventListener(lib.config.touchscreen ? "touchend" : "click", function () {
+								if (helperUsed || _status.dragged || _status.justdragged) return;
+								if (action === "glow" ? pickTitle() == null : pickCell() == null) return;
+								if (game.online) {
+									game.requestSkillData("olshilun_sync", key, 5000, gid);
+								} else {
+									lib.skill.olshilun.helperAction(game.me, gid, action);
+								}
+								lockHelper();
+							});
+							helperButtons.push(button);
+						};
+						addButton("协助", "rgba(255,214,106,0.95)", "assist", "glow");
+						addButton("妨碍", "rgba(255,122,122,0.95)", "hinder", "hide");
+					}
+					return;
+				}
+				if (action === "close") {
+					if (state && state.clock) clearInterval(state.clock);
+					if (state && state.autoTimer) clearInterval(state.autoTimer);
+					if (dialog) dialog.remove();
+					delete ui["olshilunDialog_" + gid];
+					const helper = ui["olshilunHelper_" + gid];
+					if (helper) helper.remove();
+					delete ui["olshilunHelper_" + gid];
+					return;
+				}
+
+				if (!state) return;
+				if (action === "select") {
+					state.selected = (a || []).slice();
+					if (state.glows) {
+						for (const entry of state.glows) {
+							if (entry.cells.some(cell => state.selected.includes(cell))) keepGlow(state, entry);
+						}
+					}
+					paint(state);
+					sayOwner(state, "请连线完成评鉴");
+					return;
+				}
+				if (action === "found") {
+					const title = state.data.titles[a];
+					if (!title || state.found.includes(a)) return;
+					state.found.push(a);
+					for (const cell of title.cells) state.used[cell] = true;
+					state.selected = [];
+					if (state.glows) {
+						for (const entry of state.glows) {
+							if (entry.index === a && entry.timer) clearTimeout(entry.timer);
+						}
+						state.glows = state.glows.filter(entry => entry.index !== a);
+					}
+					state.glow = state.glows ? state.glows.flatMap(entry => entry.cells) : [];
+					paint(state);
+					write(state, [title]);
+					sayOwner(state, "完成称号：" + title.plain);
+					return;
+				}
+				if (action === "glow") {
+					light(a);
+					return;
+				}
+				if (action === "hide") {
+					dark(a);
+					return;
+				}
+				if (action === "finish") {
+					if (state.clock) {
+						clearInterval(state.clock);
+						state.clock = null;
+					}
+					say(state, b || "");
+					if (state.bar) state.bar.style.width = "0%";
+					return;
+				}
+			}
+			function play(player, gid, data, board, auto) {
+				if (!ui["olshilunDialog_" + gid]) board("create", gid, data, player.playerid);
+				const dialog = ui["olshilunDialog_" + gid];
+				const state = dialog && dialog.olshilun;
+				if (!state) {
+					game.resume();
+					return;
+				}
+				const currentEvent = _status.event;
+				const total = (data.timeLimit || 45) * 1000;
+				const send = function (action, ...args) {
+					if (game.online) board(action, gid, ...args);
+					else game.broadcastAll(board, action, gid, ...args);
+				};
+				let finished = false;
+				const clean = function (text) {
+					return String(text == null ? "" : text).replace(/#[a-zA-Z0-9]/g, "");
+				};
+				const finish = function () {
+					if (finished) return;
+					finished = true;
+					if (state.clock) {
+						clearInterval(state.clock);
+						state.clock = null;
+					}
+					if (state.autoTimer) {
+						clearInterval(state.autoTimer);
+						state.autoTimer = null;
+					}
+					const list = state.found.map(index => data.titles[index].title);
+					const result = { bool: list.length > 0, list: list };
+					state.result = result;
+					const text = list.length ? "评鉴完成：获得 " + list.map(name => "『" + clean(name) + "』").join("") : "评鉴失败";
+					if (game.online && currentEvent) currentEvent._result = result;
+					send("finish", result, text);
+					game.resume();
+					_status.imchoosing = false;
+				};
+				state.finish = finish;
+				const adjacent = function (a, b) {
+					const size = state.size;
+					return Math.abs((a % size) - (b % size)) + Math.abs(Math.floor(a / size) - Math.floor(b / size)) === 1;
+				};
+				const straight = function (a, b) {
+					const size = state.size;
+					return a % size === b % size || Math.floor(a / size) === Math.floor(b / size);
+				};
+				const doFound = function (index) {
+					const title = data.titles[index];
+					if (!title || state.found.includes(index)) return;
+					send("found", index);
+					if (game.online) game.requestSkillData("olshilun_sync", "found", 5000, gid, index);
+					if (!game.online) {
+						game.log(player, "完成称号", "#g" + title.plain);
+						if (player && typeof player.popup === "function") player.popup(title.plain, "fire");
+					}
+					if (state.found.length >= data.titles.length) finish();
+				};
+				const select = function (index) {
+					if (finished || state.used[index]) return;
+					const list = state.selected;
+					const pos = list.indexOf(index);
+					if (pos >= 0) {
+						if (pos === list.length - 1) list.pop();
+						else list.length = pos + 1;
+					} else if (!list.length || (adjacent(list[list.length - 1], index) && straight(list[0], index))) {
+						list.push(index);
+					} else {
+						list.length = 0;
+						list.push(index);
+					}
+					const text = list.map(cell => data.chars[cell]).join("");
+					send("select", list.slice());
+					if (!text) return;
+					const reverse = text.split("").reverse().join("");
+					for (let i = 0; i < data.titles.length; i++) {
+						if (state.found.includes(i)) continue;
+						if (data.titles[i].plain === text || data.titles[i].plain === reverse) {
+							doFound(i);
+							return;
+						}
+					}
+				};
+				let autoMode = false;
+				const autoState = { order: [], index: 0, step: 0, wait: 0 };
+				const deadline = Date.now() + total;
+				const isAuto = function () {
+					return !!auto || (player === game.me && !!_status.auto);
+				};
+				const stopClock = function () {
+					if (!state.clock) return;
+					clearInterval(state.clock);
+					state.clock = null;
+				};
+				const startAuto = function () {
+					if (finished || autoMode) return;
+					autoMode = true;
+					stopClock();
+					autoState.order = data.titles.map((title, index) => index).randomSort();
+					autoState.index = 0;
+					autoState.step = 0;
+					autoState.wait = 0;
+					for (const cell of state.cells) cell.style.cursor = "default";
+					if (controls) controls.style.display = "none";
+					state.clock = setInterval(function () {
+						if (finished || !autoMode) return;
+						if (!ui["olshilunDialog_" + gid]) {
+							finish();
+							return;
+						}
+						if (autoState.wait > 0) {
+							autoState.wait--;
+							return;
+						}
+						if (autoState.index >= autoState.order.length) {
+							finish();
+							return;
+						}
+						const title = data.titles[autoState.order[autoState.index]];
+						state.selected = title.cells.slice(0, ++autoState.step);
+						send("select", state.selected.slice());
+						if (autoState.step >= title.cells.length) {
+							doFound(autoState.order[autoState.index]);
+							autoState.index++;
+							autoState.step = 0;
+							autoState.wait = get.rand(2, 5);
+						}
+					}, 260);
+				};
+				const startCountdown = function () {
+					stopClock();
+					for (const cell of state.cells) cell.style.cursor = "pointer";
+					if (controls) controls.style.display = "flex";
+					state.clock = setInterval(function () {
+						if (finished) {
+							clearInterval(state.clock);
+							state.clock = null;
+							return;
+						}
+						const left = Math.max(0, deadline - Date.now());
+						if (state.bar) state.bar.style.width = ((left / total) * 100).toFixed(1) + "%";
+						if (left <= 0) finish();
+					}, 200);
+				};
+				const startManual = function () {
+					if (finished || !autoMode) return;
+					autoMode = false;
+					startCountdown();
+				};
+				for (let i = 0; i < state.cells.length; i++) {
+					const cell = state.cells[i];
+					cell.addEventListener(lib.config.touchscreen ? "touchend" : "click", function () {
+						if (autoMode || _status.dragged || _status.justdragged) return;
+						select(Number(this.dataset.index));
+					});
+				}
+				const controls = ui.create.div("", dialog);
+				controls.style.position = "relative";
+				controls.style.display = "flex";
+				controls.style.gap = "12px";
+				const makeButton = function (text, handler) {
+					const button = ui.create.div("", controls);
+					button.style.position = "relative";
+					button.innerHTML = text;
+					button.style.padding = "3px 16px";
+					button.style.borderRadius = "4px";
+					button.style.fontSize = "14px";
+					button.style.color = "#fff";
+					button.style.cursor = "pointer";
+					button.style.userSelect = "none";
+					button.style.background = "linear-gradient(180deg, rgba(160,116,222,0.95), rgba(88,46,158,0.95))";
+					button.style.border = "1px solid rgba(255,255,255,0.5)";
+					button.addEventListener(lib.config.touchscreen ? "touchend" : "click", function () {
+						if (_status.dragged || _status.justdragged) return;
+						handler();
+					});
+				};
+				makeButton("重选", function () {
+					if (autoMode || finished) return;
+					state.selected = [];
+					send("select", []);
+				});
+				makeButton("结束", function () {
+					if (autoMode || finished) return;
+					finish();
+				});
+				if (isAuto()) startAuto();
+				else startCountdown();
+				state.autoTimer = setInterval(function () {
+					if (finished) {
+						clearInterval(state.autoTimer);
+						state.autoTimer = null;
+						return;
+					}
+					if (isAuto()) startAuto();
+					else startManual();
+				}, 250);
+				game.pause();
+			}
+			const gid = lib.status.videoId++;
+			const data = createBoard();
+			if (!data) {
+				event.result = { bool: false, list: [] };
+				return;
+			}
+			data.ownerName = get.translation(player);
+			game.broadcastAll(board, "create", gid, data, player.playerid);
+			const currentNode = ui["olshilunDialog_" + gid];
+			if (currentNode && currentNode.olshilun) currentNode.olshilun.board = board;
+			lib.skill.olshilun.aiHelperActions(
+				player,
+				gid,
+				game.filterPlayer2(current => current !== player && current.isIn())
+			);
+			if (event.isMine()) {
+				play(player, gid, data, board, false);
+			} else if (event.isOnline()) {
+				event.player.send(play, event.player, gid, data, board, false);
+				event.player.wait();
+				game.pause();
+			} else {
+				play(player, gid, data, board, true);
+			}
+			await game.pause();
+			const state = ui["olshilunDialog_" + gid] && ui["olshilunDialog_" + gid].olshilun;
+			let result = event.result;
+			if (!result || typeof result !== "object" || !Array.isArray(result.list)) {
+				result = (state && state.result) || event._result;
+			}
+			if (!result || typeof result !== "object" || !Array.isArray(result.list)) result = { bool: false, list: [] };
+			event.result = result;
+			const text = result.bool && result.list.length ? "评鉴完成：获得 " + result.list.map(name => "『" + plainTitle(name) + "』").join("") : "评鉴失败";
+			await game.delay(0.6);
+			game.broadcastAll(board, "finish", gid, result, text);
+			await game.delay(1.4);
+			game.broadcastAll(board, "close", gid);
+			if (result?.bool && result.list?.length) {
+				let addSkill = [];
+				for (const title of result.list) addSkill.addArray(_status.characterTitleInited[title]);
+				player.refreshSkill(addSkill);
+				player.addSkill(`${event.name}_use`);
+				await player.addAdditionalSkills(event.name, addSkill, true);
+			}
+		},
+		aiHelperActions(player, gid, targets) {
+			const list = [];
+			for (const target of targets) {
+				if (target === game.me || target.isOnline()) continue;
+				const attitude = get.attitude(target, player);
+				if (!attitude) continue;
+				list.push({ player: target, action: attitude > 0 ? "glow" : "hide" });
+			}
+			list.randomSort();
+			let delay = 700 + get.rand(0, 500);
+			for (const item of list) {
+				setTimeout(() => lib.skill.olshilun.helperAction(item.player, gid, item.action), delay);
+				delay += 700 + get.rand(0, 900);
+			}
+		},
+		helperAction(player, gid, action) {
+			const dialog = ui["olshilunDialog_" + gid];
+			const state = dialog && dialog.olshilun;
+			const board = state && state.board;
+			if (!state || typeof board !== "function") return;
+			const list = [];
+			if (action === "glow") {
+				for (let i = 0; i < state.data.titles.length; i++) {
+					//已完成或正在协助的称号不再重复选中
+					if (state.found.includes(i)) continue;
+					if (state.actorFound && state.actorFound.includes(i)) continue;
+					if (state.glows && state.glows.some(entry => entry.index === i)) continue;
+					list.push(i);
+				}
+			} else {
+				for (let i = 0; i < state.data.chars.length; i++) {
+					//已经被妨碍过、已经用掉的字不再重复选中
+					if (state.used[i] || state.hidden[i]) continue;
+					if (state.actorUsed && state.actorUsed[i]) continue;
+					list.push(i);
+				}
+			}
+			const index = list.randomGet();
+			if (index == null) return;
+			game.log(player, "选择了", action === "glow" ? "#g协助" : "#g妨碍", "评鉴");
+			game.broadcastAll(board, action, gid, index);
+		},
+		ai: {
+			order: 10,
+			result: { player: 1 },
+		},
+		init(player, skill) {
+			game.addGlobalSkill(`${skill}_sync`);
+		},
+		onremove: true,
+		subSkill: {
+			sync: {
+				charlotte: true,
+				sync: {
+					found(player, gid, index) {
+						const dialog = ui["olshilunDialog_" + gid];
+						const state = dialog && dialog.olshilun;
+						const title = state && state.data && state.data.titles[index];
+						if (!title) return;
+						state.actorFound ??= [];
+						state.actorUsed ??= {};
+						if (!state.actorFound.includes(index)) state.actorFound.push(index);
+						for (const cell of title.cells) state.actorUsed[cell] = true;
+					},
+					assist(player, gid) {
+						lib.skill.olshilun.helperAction(player, gid, "glow");
+					},
+					hinder(player, gid) {
+						lib.skill.olshilun.helperAction(player, gid, "hide");
+					},
+				},
+				trigger: { player: ["changeSkillsBegin", "useSkill", "logSkillBegin", "phaseUseEnd", "damageEnd", "phaseJieshuBegin"] },
+				filter(event, player) {
+					if (event.name === "changeSkills") return event.removeSkill?.some(skill => player.additionalSkills.olshilun?.includes(skill));
+					if (event.name === "phaseUse" || event.name === "damage" || event.name === "phaseJieshu") {
+						if (!player.storage.olshilun_use) return false;
+						return Object.keys(player.storage.olshilun_use).some(skill => player.storage.olshilun_use[skill] === event);
+					}
+					const info = get.info(event.skill);
+					if (!info || info.charlotte) return false;
+					const skill = get.sourceSkillFor(event);
+					return player.additionalSkills.olshilun?.includes(skill);
+				},
+				silent: true,
+				async content(event, trigger, player) {
+					if (trigger.name === "changeSkills") {
+						trigger._olshilun_remove = true;
+						for (const skill of trigger.removeSkill) {
+							if (player.storage.olshilun_use?.[skill]) {
+								delete player.storage.olshilun_use[skill];
+								game.broadcast((player, storage) => (player.storage = storage), player, player.storage);
+							}
+						}
+					} else if (trigger.name === "phaseUse" || trigger.name === "damage" || trigger.name === "phaseJieshu") {
+						const skills = Object.keys(player.storage.olshilun_use).filter(skill => player.storage.olshilun_use[skill] === trigger);
+						for (const skill of skills) {
+							if (player.storage.olshilun_use?.[skill]) {
+								delete player.storage.olshilun_use[skill];
+								game.broadcast((player, storage) => (player.storage = storage), player, player.storage);
+							}
+						}
+					} else await player.removeAdditionalSkills("olshilun", get.sourceSkillFor(trigger));
+				},
+			},
+			use: {
+				charlotte: true,
+				init(player, skill) {
+					player.storage[skill] ??= { event: [] };
+					player.addSkillBlocker(skill);
+				},
+				skillBlocker(skill, player) {
+					return player.additionalSkills.olshilun?.includes(skill) && !player.storage.olshilun_use?.[skill];
+				},
+				onChooseToUse(event) {
+					if (event.type === "phase" && !game.online && !event._olshilun_init) {
+						event._olshilun_init = true;
+						const player = event.player;
+						if (Array.isArray(player.additionalSkills.olshilun)) {
+							let skills = player.additionalSkills.olshilun.slice();
+							game.expandSkills(skills);
+							for (const name of skills) {
+								const info = lib.skill[name];
+								if (info?.onChooseToUse) info.onChooseToUse(event);
+							}
+						}
+					}
+				},
+				enable: "phaseUse",
+				trigger: { player: ["phaseJieshuBegin", "damageEnd"] },
+				filter(event, player, name) {
+					if (!Array.isArray(player.additionalSkills.olshilun)) return false;
+					if (event.name === "chooseToUse") {
+						if (player.storage.olshilun_use?.event.includes(event.getParent())) return false;
+						return player.additionalSkills.olshilun.some(skillx => {
+							let skills = [skillx];
+							game.expandSkills(skills);
+							return skills.some(skill => {
+								const info = lib.skill[skill];
+								if (!info?.enable || info.charlotte || info.silent || info.juexingji || info.hiddenSkill || info.dutySkill || (info.zhuSkill && !player.isZhu2())) return false;
+								if (info.enable === "phaseUse" || (Array.isArray(info.enable) && info.enable.includes("phaseUse"))) {
+									if (info.filter) {
+										try {
+											const bool = info.filter(event, player);
+											if (!bool) return false;
+										} catch (e) {
+											return false;
+										}
+									} else if (info.viewAs && typeof info.viewAs !== "function") {
+										try {
+											if (event.filterCard && !event.filterCard(info.viewAs, player, event)) return false;
+											if (info.viewAsFilter && info.viewAsFilter(player) === false) return false;
+										} catch (e) {
+											return false;
+										}
+									}
+									return true;
+								}
+							});
+						});
+					}
+					if (player.storage.olshilun_use?.event.includes(event)) return false;
+					return player.additionalSkills.olshilun.some(skillx => {
+						let skills = [skillx];
+						game.expandSkills(skills);
+						return skills.some(skill => {
+							const info = lib.skill[skill];
+							if (!info?.trigger?.player || info.silent || info.juexingji || info.hiddenSkill || info.dutySkill || (info.zhuSkill && !player.isZhu2())) return false;
+							if (info.trigger.player === name || (Array.isArray(info.trigger.player) && info.trigger.player.includes(name))) {
+								if (info.filter) {
+									try {
+										const bool = info.filter(event, player, name);
+										if (!bool) return false;
+									} catch (e) {
+										return false;
+									}
+								}
+								return true;
+							}
+						});
+					});
+				},
+				prompt(event, player) {
+					event = event || get.event();
+					player = player || event.player;
+					return event.name === "chooseToUse" ? "选择一个“评鉴”技能发动" : get.prompt("olshilun");
+				},
+				prompt2: () => "选择一个“评鉴”技能发动",
+				popup: false,
+				delay: 0,
+				async content(event, trigger, player) {
+					let skills;
+					let evt = event.getParent(2);
+					if (!trigger) {
+						player.storage[event.name].event.push(evt.getParent());
+						game.broadcast((player, storage) => (player.storage = storage), player, player.storage);
+						skills = player.additionalSkills.olshilun.filter(skillx => {
+							let skills = [skillx];
+							game.expandSkills(skills);
+							return skills.some(skill => {
+								const info = lib.skill[skill];
+								if (!info?.enable || info.charlotte || info.silent || info.juexingji || info.hiddenSkill || info.dutySkill || (info.zhuSkill && !player.isZhu2())) return false;
+								if (info.enable === "phaseUse" || (Array.isArray(info.enable) && info.enable.includes("phaseUse"))) {
+									if (info.filter) {
+										try {
+											const bool = info.filter(evt, player);
+											if (!bool) return false;
+										} catch (e) {
+											return false;
+										}
+									} else if (info.viewAs && typeof info.viewAs !== "function") {
+										try {
+											if (evt.filterCard && !evt.filterCard(info.viewAs, player, evt)) return false;
+											if (info.viewAsFilter && info.viewAsFilter(player) === false) return false;
+										} catch (e) {
+											return false;
+										}
+									}
+									return true;
+								}
+							});
+						});
+					} else {
+						let name = event.triggername;
+						player.storage[event.name].event.push(trigger);
+						game.broadcast((player, storage) => (player.storage = storage), player, player.storage);
+						skills = player.additionalSkills.olshilun.filter(skillx => {
+							let skills = [skillx];
+							game.expandSkills(skills);
+							return skills.some(skill => {
+								const info = lib.skill[skill];
+								if (!info?.trigger?.player || info.silent || info.juexingji || info.hiddenSkill || info.dutySkill || (info.zhuSkill && !player.isZhu2())) return false;
+								if (info.trigger.player === name || (Array.isArray(info.trigger.player) && info.trigger.player.includes(name))) {
+									if (info.filter) {
+										try {
+											const bool = info.filter(trigger, player, name);
+											if (!bool) return false;
+										} catch (e) {
+											return false;
+										}
+									}
+									return true;
+								}
+							});
+						});
+					}
+					const result = await player
+						.chooseButton({
+							createDialog: [
+								"世论：选择一个“评鉴”技能发动",
+								[
+									skills.map(skill => {
+										return [skill, '<div class="popup text" style="width:calc(100% - 10px);display:inline-block"><div class="skill">【' + get.translation(skill) + "】</div><div>" + lib.translate[skill + "_info"] + "</div></div>"];
+									}),
+									"textbutton",
+								],
+							],
+							forced: true,
+							ai: () => 1 + Math.random(),
+						})
+						.forResult();
+					if (result?.bool && result.links?.length) {
+						const skill = result.links[0];
+						player.addTempSkill(skill);
+						player.storage[event.name][skill] = trigger || evt.getParent();
+						game.broadcast((player, storage) => (player.storage = storage), player, player.storage);
+					}
+				},
+			},
+		},
+	},
+	olzhuoming: {
+		audio: 2,
+		trigger: {
+			source: "damageSource",
+			player: "damageEnd",
+			global: "changeSkillsAfter",
+		},
+		filter(event, player, name) {
+			if (event.name === "changeSkills") return event._olshilun_remove;
+			if (player.getHistory(name === "damageSource" ? "sourceDamage" : "damage").indexOf(event) !== 0) return false;
+			return player.additionalSkills.olshilun?.some(skill => {
+				return game.hasPlayer(target => {
+					if (target === player) return false;
+					return !target.hasSkill(skill, null, false, false);
+				});
+			});
+		},
+		async cost(event, trigger, player) {
+			if (trigger.name === "changeSkills") event.result = { bool: true };
+			else {
+				const result = await player
+					.chooseButtonTarget({
+						createDialog: [
+							`###${get.prompt(event.skill)}###<div class='text center'>令一名其他角色获得你的一个“评鉴”技能</div>`,
+							[
+								player.additionalSkills.olshilun.map(skill => {
+									return [skill, '<div class="popup text" style="width:calc(100% - 10px);display:inline-block"><div class="skill">【' + get.translation(skill) + "】</div><div>" + lib.translate[skill + "_info"] + "</div></div>"];
+								}),
+								"textbutton",
+							],
+						],
+						filterButton(button) {
+							const player = get.player();
+							return game.hasPlayer(target => {
+								if (target === player) return false;
+								return !target.hasSkill(button.link, null, false, false);
+							});
+						},
+						filterTarget(cardx, player, target) {
+							if (target === player) return false;
+							return !target.hasSkill(ui.selected.buttons[0].link, null, false, false);
+						},
+						ai1(button) {
+							return 7 - get.skillRank(button.link);
+						},
+						ai2(target) {
+							const player = get.player();
+							return get.attitude(player, target);
+						},
+					})
+					.forResult();
+				if (result?.bool && result.links?.length && result.targets?.length) {
+					event.result = { bool: true, targets: result.targets, cost_data: result.links[0] };
+				}
+			}
+		},
+		async content(event, trigger, player) {
+			if (trigger.name === "changeSkills") await player.draw();
+			else {
+				const target = event.targets[0];
+				const skill = event.cost_data;
+				await player.removeAdditionalSkills("olshilun", skill);
+				target.refreshSkill(skill);
+				target.addSkill("olshilun_use");
+				await target.addAdditionalSkills("olshilun", skill, true);
+			}
+		},
+		ai: { combo: "olshilun" },
+	},
 	//王皑（春丽来咯）
 	qinmian: {
 		audio: 2,
@@ -6957,6 +8406,7 @@ const skills = {
 	olshanjia: {
 		audio: "shanjia",
 		enable: "phaseUse",
+		manualConfirm: true,
 		prompt() {
 			return lib.translate.olshanjia_info.split("③")[1];
 		},

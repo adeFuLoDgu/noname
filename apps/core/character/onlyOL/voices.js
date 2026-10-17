@@ -1,4 +1,9 @@
 export default {
+	"#olsbguqu1": "大江洪流，皆激荡曲中。",
+    "#olsbguqu2": "琴之不调，愧天下之音。",
+    "#olsbzuifeng1": "慰平生兮吾将醉，吾将醉兮发狂吟！",
+    "#olsbzuifeng2": "这江东连天旌旗，能否为子翼佐酒？",
+    "#ol_sb_zhouyu:die": "大丈夫，或为知己死，或为平生志死！",
 	"#shenyu1": "神兵应召，万里归鞘。",
 	"#shenyu2": "赠你神兵，你可受得住？",
 	"#huaren1": "从今往后，我便是刀，刀便是我。",
@@ -46,6 +51,7 @@ export default {
 	"#oljieyong1": "杀！杀！杀！",
 	"#oljieyong2": "退！退！退！",
 	"#ol_guanping:die": "父亲……",
+	"#ol_jie_zhuran:die": "义封一生不负国家！",
 	"#olzhuohun1": "炼狱灼魂虽痛，不及丧兄之痛！",
 	"#olzhuohun2": "前方游魂，可曾见过红面长髯之人！",
 	"#olzhuohun3": "既已身堕在此，再无退路！",

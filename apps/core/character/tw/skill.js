@@ -6327,9 +6327,7 @@ const skills = {
 		locked: false,
 		viewAs: {
 			name: "sha",
-			storage: {
-				twliyuan: true,
-			},
+			storage: { twliyuan: true },
 		},
 		filter(event, player) {
 			return player.countCards("hes", card => get.subtypes(card).some(i => player.hasDisabledSlot(i)));
@@ -8737,6 +8735,7 @@ const skills = {
 	},
 	// 幻周瑜
 	twdumou: {
+		audio: 2,
 		trigger: {
 			player: ["loseAfter", "gainAfter"],
 			global: ["equipAfter", "addJudgeAfter", "gainAfter", "loseAsyncAfter", "addToExpansionAfter"],
@@ -8901,6 +8900,7 @@ const skills = {
 		},
 	},
 	twhantian: {
+		audio: 2,
 		enable: "phaseUse",
 		locked: false,
 		usable: 1,
