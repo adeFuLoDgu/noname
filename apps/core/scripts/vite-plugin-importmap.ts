@@ -23,9 +23,9 @@ export default function vitePluginJIT(importMap: Record<string, string> = {}): P
 				try {
 					const resolved = require.resolve(importMap[key]);
 					if (process.env.IS_CLOUDFLARE_PAGES) {
-						resolvedImportMap[key] = normalizePath("/" + path.relative(root, resolved)).replace(/node_modules/g, "external");
+						resolvedImportMap[key] = normalizePath("/" + path.relative(root, resolved)).replace(/node_modules/g, "external"); // rename node_modules folder
 					} else if (process.env.IS_GITHUB_PAGES) {
-						resolvedImportMap[key] = normalizePath(process.env.VITE_BASE_PATH + "/" + path.relative(root, resolved))
+						resolvedImportMap[key] = normalizePath(process.env.VITE_BASE_PATH + "/" + path.relative(root, resolved));
 					} else {
 						resolvedImportMap[key] = normalizePath("/" + path.relative(root, resolved));
 					}
