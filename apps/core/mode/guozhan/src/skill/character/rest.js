@@ -20116,7 +20116,10 @@ export default {
 			order: 7,
 			result: {
 				target(player, target) {
-					return -get.damageEffect(target, player, player);
+					if (get.attitude(player, target) < 0 && get.damageEffect(target, player, player) > 0) {
+						return -target.hp;
+					}
+					return 0;
 				},
 			},
 		},

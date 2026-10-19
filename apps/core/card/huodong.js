@@ -965,7 +965,12 @@ export default {
 				useful: 0.5,
 				value: 5,
 				result: {
-					target: 1,
+					target(player, target) {
+						if (!player.getStorage("youfu_skill").includes(target)) {
+							return 1;
+						}
+						return 0;
+					},
 				},
 			},
 		},

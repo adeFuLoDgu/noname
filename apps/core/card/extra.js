@@ -1445,6 +1445,9 @@ export default {
 					});
 				}
 			},
+			ai: {
+				fireAttack: true,
+			},
 		},
 		zhuque_skill2: {
 			trigger: { player: "useCardAfter" },

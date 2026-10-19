@@ -1853,6 +1853,9 @@ export default {
 						}
 						return Math.max(max, -get.attitude(player, target) * value);
 					}, -Infinity);
+					if (get.attitude(player, target) < 0 && target.isDamaged()) {
+						return -1;
+					}
 					return discard + get.recoverEffect(target, player, player);
 				})
 				.setHiddenSkill("gz_jiubian_shenzhi")
@@ -2128,7 +2131,13 @@ export default {
 			const num = lib.skill.gz_jiubian_yicheng.getNum(target);
 			const result = await player
 				.choosePlayerCard({ target: target, prompt: `将${get.translation(target)}的${num}张牌扣置于其武将牌旁`, position: "he", selectButton: num })
-				.set("ai", button => get.buttonValue(button))
+				.set("ai", button => {
+					let val = get.buttonValue(button);
+					if (get.attitude(get.player(), get.owner(button.link)) > 0) {
+						return 0;
+					}
+					return val;
+				})
 				.setHiddenSkill(event.skill)
 				.set("logSkill", [event.skill, target])
 				.forResult();

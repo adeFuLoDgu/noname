@@ -11099,7 +11099,7 @@ const skills = {
 							.set("prompt2", '<div class="text center">若如此做，此阶段结束时，若你未于此阶段造成过伤害，则你对自己造成1点伤害</div>')
 							.set(
 								"choice",
-								get.cardPile(card => card.name === "sha" && player.hasUseTarget(card, false))
+								get.cardPile(card => card.name === "sha" && player.hasUseTarget(card, false) && player.hp > 2 && !player.hasSha())
 							)
 							.forResult();
 					} else {

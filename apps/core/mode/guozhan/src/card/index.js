@@ -355,6 +355,7 @@ export default {
 	huohuanyi_damage: {
 		equipSkill: true,
 		ai: {
+			fireAttack: true,
 			effect: {
 				target(card, player, target) {
 					if (card.name != "sha" || !target.countCards("h") || get.attitude(target, player) >= 0) {

@@ -804,7 +804,7 @@ export default {
 							for (const p of game.players) {
 								let gz_fengguo_effect_target = p.storage.gz_fengguo_effect;
 								if (gz_fengguo_effect_target) {
-									if (target === gz_fengguo_effect_target && get.tag(card, "recover")) {
+									if (target === gz_fengguo_effect_target && get.tag(card, "recover") && player !== target) {
 										return "zeroplayertarget";
 									}
 									if (target !== gz_fengguo_effect_target && target.isFriendOf(gz_fengguo_effect_target) && get.tag(card, "damage")) {

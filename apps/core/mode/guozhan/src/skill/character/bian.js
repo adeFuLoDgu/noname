@@ -545,7 +545,10 @@ export default {
 					if (get.attitude(player, target) <= 0) {
 						return 0;
 					}
-					return 6 - get.value(card);
+					if (player.countCards("h", ["tao", "jiu"]) > 0) {
+						return 6 - get.value(card);
+					}
+					return 0;
 				})
 				.forResult();
 		},

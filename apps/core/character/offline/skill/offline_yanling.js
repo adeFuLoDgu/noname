@@ -1095,10 +1095,11 @@ const skills = {
 					const acceptor = [];
 					game.broadcastAll(
 						(card, player) => {
-							_status.guhuoNode = card.copy("thrown", "infohidden");
 							if (window.decadeUI) {
+								_status.guhuoNode = card.copy("thrown", "infohidden");
 								_status.guhuoNode.style.background = "var(--cardback-url)";
 							} else {
+								_status.guhuoNode = card.copy("thrown");
 								if (lib.config.cardback_style !== "default") {
 									_status.guhuoNode.style.transitionProperty = "none";
 									ui.refresh(_status.guhuoNode);

@@ -1829,10 +1829,11 @@ const skills = {
 						.sortBySeat(_status.currentPhase);
 					game.broadcastAll(
 						function (card, player) {
-							_status.old_guhuoNode = card.copy("thrown", "infohidden");
 							if (window.decadeUI) {
+								_status.old_guhuoNode = card.copy("thrown", "infohidden");
 								_status.old_guhuoNode.style.background = "var(--cardback-url)";
 							} else {
+								_status.old_guhuoNode = card.copy("thrown");
 								if (lib.config.cardback_style != "default") {
 									_status.old_guhuoNode.style.transitionProperty = "none";
 									ui.refresh(_status.old_guhuoNode);

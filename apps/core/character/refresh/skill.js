@@ -15083,40 +15083,56 @@ const skills = {
 			player.addTempSkill("reluoshen_add");
 			event.cards ??= [];
 			while (true) {
-				const judgeEvent = player.judge(card => {
-					if (get.color(card) == "black") {
-						return 1.5;
-					}
-					return -1.5;
+				const judgeEvent = player.judge({
+					judge(card) {
+						if (get.color(card) == "black") {
+							return 1.5;
+						}
+						return -1.5;
+					},
+					judge2(result) {
+						return result.bool;
+					},
 				});
-				judgeEvent.judge2 = result => result.bool;
-				if (get.mode() != "guozhan" && !player.hasSkillTag("rejudge")) {
-					judgeEvent.set("callback", async event => {
-						if (event.judgeResult.color == "black" && get.position(event.card, true) == "o") {
-							await player.gain(event.card, "gain2").gaintag.add("reluoshen");
+				if (get.mode() !== "guozhan" && !player.hasSkillTag("rejudge")) {
+					judgeEvent.set("callback", async (event, trigger, player) => {
+						if (event.judgeResult.color === "black" && get.position(event.card, true) === "o") {
+							await player.gain({
+								cards: [event.card],
+								animate: "gain2",
+								gaintag: ["reluoshen"],
+							});
 						}
 					});
 				} else {
 					judgeEvent.set("callback", async event => {
-						if (event.judgeResult.color == "black") {
+						if (event.judgeResult.color === "black") {
 							event.getParent().orderingCards.remove(event.card);
 						}
 					});
 				}
-				let result;
-				result = await judgeEvent.forResult();
-				if (result?.bool && result?.card) {
-					event.cards.push(result.card);
-					result = await player.chooseBool("是否再次发动【洛神】？").set("frequentSkill", "luoshen").forResult();
-					if (!result?.bool) {
-						break;
-					}
-				} else {
+				const result = await judgeEvent.forResult();
+				if (!result || !result?.bool || !result.card) {
+					break;
+				}
+
+				event.cards.push(result.card);
+				const result2 = await player
+					.chooseBool({
+						prompt: "是否再次发动【洛神】？",
+					})
+					.set("frequentSkill", "reluoshen")
+					.forResult();
+				if (!result2?.bool) {
 					break;
 				}
 			}
 			if (event.cards.someInD()) {
-				await player.gain(event.cards.filterInD(), "gain2").gaintag.add("reluoshen");
+				await player.gain({
+					cards: event.cards.filterInD(),
+					animate: "gain2",
+					gaintag: ["reluoshen"],
+				});
 			}
 		},
 		subSkill: {
