@@ -3118,21 +3118,28 @@ export default {
 								choiceList: list,
 								prompt: get.prompt("shanrangzhaoshu", target),
 								ai: () => {
-									var give_me = "cancel2";
-									for (var i = 0; i < list.length; i++) {
-										if (list[i].indexOf("令") == 0) give_me = i; break;
-									}
-									var source_player = _status.event.player;
-									var target_player = _status.event.getParent().target;
-									var target_player_handcards = target_player.getCards("h");
-									var target_player_gain_history = target_player.getHistory("gain");
-									for (var i = 0; i < target_player_gain_history.length; i++) {
-										for (var j = 0; j < target_player_gain_history[i].cards.length; j++) {
-											var current_card = target_player_gain_history[i].cards[j];
-											if (target_player_handcards.includes(current_card) && current_card.name == "du") return "cancel2";
+									let give_me = "cancel2";
+									for (let i = 0; i < list.length; i++) {
+										if (list[i].indexOf("令") == 0) {
+											give_me = i;
+											break;
 										}
 									}
-									if (get.attitude(_status.event.player, _status.event.getParent().target) < 0) return give_me;
+									let source_player = _status.event.player;
+									let target_player = _status.event.getParent().target;
+									let target_player_handcards = target_player.getCards("h");
+									let target_player_gain_history = target_player.getHistory("gain");
+									for (let i = 0; i < target_player_gain_history.length; i++) {
+										for (let j = 0; j < target_player_gain_history[i].cards.length; j++) {
+											let current_card = target_player_gain_history[i].cards[j];
+											if (target_player_handcards.includes(current_card) && current_card.name == "du") {
+												return "cancel2";
+											}
+										}
+									}
+									if (get.attitude(_status.event.player, _status.event.getParent().target) < 0) {
+										return give_me;
+									}
 									return "cancel2";
 								},
 							})
