@@ -364,7 +364,7 @@ const skills = {
 				event.result = await player
 					.chooseBool({
 						prompt: get.prompt(event.skill),
-						prompt2: `对自己造成1点伤害并摸已损失体力值张牌`,
+						prompt2: `对自己造成1点伤害并摸已损失体力值+1张牌`,
 						ai() {
 							const player = get.player();
 							return get.damageEffect(player, player, player) + get.effect(player, { name: "draw" }, player, player) * num > 0;
@@ -16006,7 +16006,7 @@ const skills = {
 						var next = game.createEvent("twmouli_update");
 						event.next.remove(next);
 						event.getParent().after.push(next);
-						next.setContent(function () {
+						next.setContent(async (event, trigger, player) => {
 							game.updateRoundNumber();
 						});
 					},

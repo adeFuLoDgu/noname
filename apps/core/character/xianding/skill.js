@@ -5868,6 +5868,8 @@ const skills = {
 		keepSkill: true,
 		enable: "phaseUse",
 		usable: 1,
+		selectCard: -1,
+		filterCard: lib.filter.none,
 		filterTarget: true,
 		async content(event, trigger, player) {
 			const {
@@ -18178,8 +18180,8 @@ const skills = {
 				];
 			}
 			_status.postReconnect.dchuashang[1].add(type);
-			if (!lib.card[`dchuashang_${type}`]) {
-				lib.translate[`dchuashang_${type}`] = "华裳";
+			const cardId = `dchuashang_${type}`;
+			if (!lib.card[cardId]) {
 				const card = {
 					derivation: "cuilingyi",
 					fullskin: true,
@@ -18196,7 +18198,6 @@ const skills = {
 						return str;
 					},
 					async onLose(event, trigger, player) {
-						// 神秘结算
 						event.cards.forEach(card => {
 							card.fix();
 							ui.discardPile.appendChild(card);
@@ -18208,9 +18209,14 @@ const skills = {
 						}
 					},
 				};
-				lib.translate[`dchuashang_${type}_info`] = `原本是一张${get.translation(type)}牌。`;
-				lib.card[`dchuashang_${type}`] = card;
-				game.finishCard(`dchuashang_${type}`);
+				lib.translate[cardId] = "华裳·" + get.translation(type);
+				lib.translate[`${cardId}_info`] = `原本是一张${get.translation(type)}牌。`;
+				lib.card[cardId] = card;
+			}
+			if (!lib.card[cardId].ai?.basic?.value) {
+				lib.card[cardId].type = "equip";
+				game.finishCard(cardId);
+				lib.card[cardId].type = type;
 			}
 		},
 		video(player, info) {
@@ -26600,26 +26606,45 @@ const skills = {
 					async content(event, trigger, player) {
 						const [target] = event.targets;
 						const chosenNumber = get.info("dcsbtaozhou_backup").chosenNumber;
+						const att = get.attitude(target, player);
 						const { cards } = await target
 							.chooseToGive(`${get.translation(player)}对你发动了【讨州】`, "你可以交给其至多三张手牌", [1, 3], player)
 							.set("ai", card => {
-								if (get.event().att > 0) {
-									if (get.event().chosenNumber < ui.selected.cards.length + (get.event().getRand() < 0.5)) {
-										return 5.1 - get.value(card);
+								const { att, giveNumber } = get.event();
+								if (att > 0) {
+									if (giveNumber > ui.selected.cards.length + (get.event().getRand() < 0.5)) {
+										return 8 - get.value(card);
 									}
-									return 0;
+								} else if (ui.selected.cards.length < giveNumber) {
+									if (ui.selected.cards.length > 1) {
+										return 5.5 - get.value(card);
+									} else if (ui.selected.cards.length > 0) {
+										return 6.5 - get.value(card);
+									}
+									return 7.5 - get.value(card);
 								}
-								if (ui.selected.cards.length > 1) {
-									return -get.value(card);
-								}
-								if (ui.selected.cards.length > 0) {
-									return 3.6 - get.value(card);
-								}
-								return 4.6 - get.value(card);
+								return 0;
 							})
-							.set("att", get.attitude(target, player))
-							.set("chosenNumber", chosenNumber)
+							.set("att", att)
+							.set(
+								//设置给牌目标，不一定和实际给出牌数相等
+								"giveNumber",
+								(function () {
+									if (att > 0) {
+										return chosenNumber;
+									}
+									const loseHp = get.effect(target, { name: "losehp" }, target, target) >= 0,
+										loseCard = target.hasSkillTag("noe") || target.hasSkillTag("noh");
+									//若流失体力为非负收益，或者需要裸奔状态，则给1张赌摸牌的可能性
+									if (loseHp || loseCard) {
+										return 1;
+									}
+									//随机给1-2张牌
+									return Math.floor(event.getRand() * 2) + 1;
+								})()
+							)
 							.forResult();
+						game.log(player, "选择的数字是", chosenNumber);
 						const givenCount = (cards && cards.length) || 0;
 						const delta = Math.abs(givenCount - chosenNumber);
 						if (givenCount >= chosenNumber) {
@@ -26629,10 +26654,7 @@ const skills = {
 							target.addMark("dcsbtaozhou_debuff", delta, false);
 						}
 						if (delta >= 2) {
-							const sha = get.autoViewAs({ name: "sha" });
-							if (target.canUse(sha, player, false)) {
-								await target.addSkills("dcsbzijin");
-							}
+							await target.addSkills("dcsbzijin");
 						}
 						const roundNumberToRestore = game.roundNumber + chosenNumber;
 						player.tempBanSkill("dcsbtaozhou", "forever");

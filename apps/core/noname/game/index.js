@@ -8630,6 +8630,7 @@ ${e instanceof Error ? e.stack : String(e)}`);
 				}
 			},
 		]);
+		return next;
 	}
 	updateRoundNumber() {
 		game.broadcastAll(
@@ -9995,7 +9996,7 @@ ${e instanceof Error ? e.stack : String(e)}`);
 	triggerEnter(player) {
 		const next = game.createEvent("enterGame", false);
 		next.player = player;
-		next.setContent(() => {
+		next.setContent(async (event, trigger, player) => {
 			event.trigger("enterGame");
 		});
 		return next;
