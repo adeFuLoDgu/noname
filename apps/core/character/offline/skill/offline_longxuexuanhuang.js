@@ -1770,7 +1770,12 @@ const skills = {
 						return get.order({ name: "sha" }, player) + 0.1;
 					},
 					result: {
-						player: 1,
+						player(player) {
+							if (get.mode() === "identity" && player.isZhu2() && get.population("fan") === 0 && get.population("nei") > 0) {
+								return 0;
+							}
+							return 1;
+						},
 					},
 				},
 			},

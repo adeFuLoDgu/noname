@@ -4282,7 +4282,7 @@ export default {
 								if (get.population("zhong") + get.population("mingzhong") === 0) {
 									return -3;
 								}
-								if (to.hp >= 3 && !from.hasSkill("yimie")) {
+								if (to.hp >= 3 && !from.hasSkill("yimie") && !from.hasSkill("lxweisi_fuyue")) {
 									return no_fan_find_nei_target_effect;
 								}
 								if (to.ai.identity_mark === "zhong" && to.ai.shown < 0.95) {
@@ -4311,7 +4311,7 @@ export default {
 									return -3;
 								}
 								if (nei_mark_zhong_or_none) {
-									if (to.hp >= 3 && !from.hasSkill("yimie")) {
+									if (to.hp >= 3 && !from.hasSkill("yimie") && !from.hasSkill("lxweisi_fuyue")) {
 										return no_fan_find_nei_target_effect;
 									}
 									if (to.ai.identity_mark === "zhong" && to.ai.shown < 0.95) {
@@ -4354,7 +4354,7 @@ export default {
 								if (get.population("zhong") + get.population("mingzhong") === 0) {
 									return -1;
 								}
-								if (to.hp >= 3 && !from.hasSkill("yimie")) {
+								if (to.hp >= 3 && !from.hasSkill("yimie") && !from.hasSkill("lxweisi_fuyue")) {
 									return no_fan_find_nei_target_effect;
 								}
 								if (to.ai.identity_mark === "zhong" && to.ai.shown < 0.95) {
