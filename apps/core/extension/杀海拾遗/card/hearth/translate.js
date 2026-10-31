@@ -25,6 +25,7 @@ const translate = {
 	zhaomingdan_info: "观看一名其他角色的手牌，并弃置其区域内的一张牌，然后其与你各摸一张牌。",
 	jihuocard: "激活",
 	jihuocard_info: "摸一张牌，本回合手牌上限+2。",
+	hearth_cardsInfo: "<li>若要关闭此卡牌包，请直接关闭扩展“杀海拾遗”。",
 };
 
 export default translate;

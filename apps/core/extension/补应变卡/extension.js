@@ -30,6 +30,7 @@ let extensionPackage = {
 				skill: {
 				},
 				translate: {
+					add_deleted_yinbian_card_pile_cardsInfo: "<li>若要关闭此卡牌包，请直接关闭扩展“补应变卡”。",
 				},
 				list: [],
 			}

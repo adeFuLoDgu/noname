@@ -94,6 +94,7 @@ let extensionPackage = {
 					huyi: "虎翼",
 					huyi_skill: "虎翼",
 					huyi_info: "你使用【杀】对目标造成属性伤害时，你可以横置至多两名角色。",
+					boss_mode_card_pile_cardsInfo: "<li>若要关闭此卡牌包，请直接关闭扩展“挑战卡牌”。",
 				},
 				list:[],
 			}

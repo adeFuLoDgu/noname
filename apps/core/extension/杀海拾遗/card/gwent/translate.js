@@ -96,6 +96,7 @@ const translate = {
 	gw_shanbengshu_info: "出牌阶段对自己使用，随机弃置两件敌方角色场上的装备。",
 	gw_kunenfayin: "昆恩法印",
 	gw_kunenfayin_info: "出牌阶段对一名角色使用，目标防止所有非属性伤害，持续X个角色的回合（X为存活角色数且最多为5）。",
+	gwent_cardsInfo: "<li>若要关闭此卡牌包，请直接关闭扩展“杀海拾遗”。",
 };
 
 export default translate;

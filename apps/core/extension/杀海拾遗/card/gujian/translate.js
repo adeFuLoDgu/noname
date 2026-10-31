@@ -77,6 +77,7 @@ const translate = {
 	molicha_info: "你不能成为其他角色的黑色牌的目标，持续四回合。",
 	mapodoufu: "麻婆豆腐",
 	mapodoufu_info: "结束阶段，你弃置一名随机敌人的一张随机牌，持续两回合。",
+	gujian_cardsInfo: "<li>若要关闭此卡牌包，请直接关闭扩展“杀海拾遗”。",
 };
 
 export default translate;

@@ -24,6 +24,7 @@ const translate = {
 	changshezhen_info: "若你处于队列中，与你同一队列的所有角色摸一张牌，否则将与你逆时针距离最近的同势力角色移至你下家。",
 	// pozhenjue_info:'将所有角色的顺序随机重排。',
 	tianfuzhen_info: "所有大势力角色弃置一张牌。",
+	zhenfa_cardsInfo: "<li>若要关闭此卡牌包，请直接关闭扩展“杀海拾遗”。",
 };
 
 export default translate;

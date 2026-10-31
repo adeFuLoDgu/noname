@@ -49,6 +49,7 @@ const translate = {
 	mtg_lindixiliu_skill: "林地溪流",
 	mtg_lindixiliu_info: "从牌堆中摸一张红桃牌，然后弃置任意张红桃牌，每弃置一张牌，将一张延时锦囊牌置入一名随机敌方角色的判定区。地图效果：准备阶段，你可以弃置一张红桃牌，然后弃置判定区内的一张牌。",
 	mtg_lindixiliu_skill_info: "准备阶段，你可以弃置一张红桃牌，然后弃置判定区内的一张牌。",
+	mtg_cardsInfo: "<li>若要关闭此卡牌包，请直接关闭扩展“杀海拾遗”。",
 };
 
 export default translate;
