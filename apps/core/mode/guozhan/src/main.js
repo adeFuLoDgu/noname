@@ -339,6 +339,14 @@ export const start = async (event, trigger, player) => {
 			// if(game.players[i]==game.me){
 			// 	lib.translate[game.players[i].name]+='（你）';
 			// }
+			if (window.decadeUI) {
+				let cur = game.players[i];
+				if (!cur.node.seat) {
+					cur.node.seat = decadeUI.element.create('seat', cur);
+				}
+				cur.seat = cur.getSeatNum();
+				cur.node.seat.innerHTML = get.cnNumber(cur.seat, true);
+			}
 		}
 	});
 
