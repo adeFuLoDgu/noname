@@ -33123,6 +33123,10 @@ const skills = {
 							}
 							return !used.includes(number);
 						})
+						.set("ai", card => {
+							const number = get.number(card);
+							return number * 10 - get.value(card);
+						})
 						.set("forced", used.length === 0)
 						.forResult();
 					if (!result.bool) {
@@ -33137,25 +33141,83 @@ const skills = {
 				return selected;
 			};
 			if (hasExpansion) {
-				const control = await player.chooseControl("手牌或装备区的牌", "场上的“筑殿”牌").set("prompt", "筑殿：选择要处理的牌").forResult();
+				const control = await player.chooseControl("手牌或装备区的牌", "场上的“筑殿”牌")
+				.set("ai", function () {
+					const player = get.player();
+					const sorted_zhudian = player.getExpansions("zhudian").slice().sort((a, b) => get.number(b) - get.number(a));
+					if (sorted_zhudian.length) {
+						let previous = get.number(sorted_zhudian[0]);
+						for (let i = 1; i < sorted_zhudian.length; i++) {
+							const number = get.number(sorted_zhudian[i]);
+							if (previous - number !== 1) {
+								return "场上的“筑殿”牌";
+							}
+						}
+					}
+					return "手牌或装备区的牌";
+				})
+				.set("prompt", "筑殿：选择要处理的牌")
+				.forResult();
 				if (!control?.control) {
 					return;
 				}
 				fromExpansion = control.control === "场上的“筑殿”牌";
 			}
 			if (fromExpansion) {
-				const targetResult = await player.chooseTarget("筑殿：选择一名有“筑殿”牌的角色", (card, player, target) => target.getExpansions("zhudian").length > 0).forResult();
+				const targetResult = await player.chooseTarget("筑殿：选择一名有“筑殿”牌的角色", (card, player, target) => target.getExpansions("zhudian").length > 0)
+				.set("ai", target => {
+					const player = get.player();
+					if (player === target) {
+						return 10;
+					};
+					return 0;
+				})
+				.forResult();
 				if (!targetResult.bool) {
 					return;
 				}
 				origin = targetResult.targets[0];
 				const buttons = origin.getExpansions("zhudian").slice(0);
-				const result = await player.chooseButton(["筑殿：选择要处理的“筑殿”牌", buttons], [1, buttons.length]).forResult();
+				const result = await player.chooseButton(["筑殿：选择要处理的“筑殿”牌", buttons], [1, buttons.length])
+				.set("ai", button => {
+					const card = button.link;
+					const card_owner = get.owner(card);
+					const player = get.player();
+					if (card_owner === player) {
+						const sorted_zhudian = player.getExpansions("zhudian").slice().sort((a, b) => get.number(b) - get.number(a));
+						const exclude = [];
+						if (sorted_zhudian.length) {
+							let previous = 13;
+							if (get.number(sorted_zhudian[0]) === 13) {
+								exclude.push(sorted_zhudian[0]);
+							}
+							for (let i = 1; i < sorted_zhudian.length; i++) {
+								const number = get.number(sorted_zhudian[i]);
+								if (previous - number !== 1) {
+									break;
+								}
+								exclude.push(sorted_zhudian[i]);
+								previous = number;
+							}
+						}
+						if (exclude.includes(card)) {
+							return 0;
+						}
+						return get.number(card) * 10 - get.value(card);
+					}
+					return 0;
+				})
+				.forResult();
 				if (!result.bool) {
 					return;
 				}
 				cards = result.links.slice(0);
-				const control = await player.chooseControl("重铸", "置于武将牌上").set("prompt", "筑殿：如何处理这些牌").forResult();
+				const control = await player.chooseControl("重铸", "置于武将牌上")
+				.set("ai", function () {
+					return cards.every(card => get.number(card) < zhudianMinNumber(player)) ? "置于武将牌上" : "重铸";
+				})
+				.set("prompt", "筑殿：如何处理这些牌")
+				.forResult();
 				if (!control?.control) {
 					return;
 				}
@@ -33164,6 +33226,13 @@ const skills = {
 					const next = await player
 						.chooseTarget("筑殿：选择一名角色，将这些牌置于其武将牌上", (card, player, target) => {
 							return cards.every(card => get.number(card) < zhudianMinNumber(target));
+						})
+						.set("ai", target => {
+							const player = get.player();
+							if (target === player) {
+								return 10;
+							}
+							return 0;
 						})
 						.forResult();
 					if (!next.bool) {
@@ -33175,7 +33244,12 @@ const skills = {
 				const canPlace = game.hasPlayer(current => zhudianMinNumber(current) > 1 || zhudianMinNumber(current) === Infinity);
 				let action = "重铸";
 				if (canPlace) {
-					const control = await player.chooseControl("重铸", "置于武将牌上").set("prompt", "筑殿：如何处理这些牌").forResult();
+					const control = await player.chooseControl("重铸", "置于武将牌上")
+					.set("ai", function () {
+						return "置于武将牌上";
+					})
+					.set("prompt", "筑殿：如何处理这些牌")
+					.forResult();
 					if (!control?.control) {
 						return;
 					}
@@ -33193,6 +33267,13 @@ const skills = {
 								return false;
 							}
 							return player.countCards("he", card => get.number(card) < min) > 0;
+						})
+						.set("ai", target => {
+							const player = get.player();
+							if (target === player) {
+								return 10;
+							}
+							return 0;
 						})
 						.forResult();
 					if (!next.bool) {
@@ -33261,6 +33342,12 @@ const skills = {
 				return num + game.countPlayer(current => current.hasSkill("mb_luocai"));
 			},
 		},
+		ai: {
+			order: 6.9,
+			result: {
+				player: 1,
+			},
+		},
 	},
 	mb_luocai: {
 		audio: 2,
@@ -33284,6 +33371,12 @@ const skills = {
 					player.addTempSkill("mb_luocai_used", "roundStart");
 					await luocaiEffect(player);
 				},
+			},
+		},
+		ai: {
+			order: 10,
+			result: {
+				player: 1,
 			},
 		},
 	},

@@ -20754,7 +20754,7 @@ export default {
 				}
 				delete ui.gzQizhenButton;
 			}
-			if (!ui.gzQizhenFloatButton && ui.window) {
+			if (!ui.gzQizhenFloatButton && ui.window && !_status.connectMode) {
 				ui.gzQizhenFloatButton = ui.create.div("", ui.window);
 				ui.gzQizhenFloatButton.innerHTML = "奇珍";
 				ui.gzQizhenFloatButton.style.cssText = "position:absolute;z-index:999;padding:7px 12px;border:1px solid rgba(255,224,160,0.95);border-radius:4px;background:rgba(35,25,12,0.9);box-shadow:0 0 8px rgba(0,0,0,0.45);color:#ffe0a0;font-weight:bold;font-size:16px;line-height:1.1;text-shadow:0 1px 2px #000;pointer-events:auto;cursor:move;user-select:none;touch-action:none;";
