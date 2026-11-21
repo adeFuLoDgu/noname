@@ -80,7 +80,6 @@ export const start = async (event, trigger, player) => {
 		["heart", 3, "jingfanma", null, ["lianheng"]],
 		["heart", 6, "shan", null, ["lianheng"]],
 		["heart", 12, "huoshaolianying", null, ["lianheng"]],
-		["club", 2, "huxinjing", null, ["lianheng"]],
 		["club", 5, "sha", "thunder", ["lianheng"]],
 		["club", 11, "huoshaolianying", null, ["lianheng"]],
 		["diamond", 1, "xietianzi", null, ["lianheng"]],
