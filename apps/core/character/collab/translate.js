@@ -124,7 +124,7 @@ const translates = {
 	spduanzhi_info: "当你成为其他角色使用的牌的目标后，你可以弃置其至多两张牌，然后失去1点体力。",
 	spduyi: "毒医",
 	spduyi2: "毒医",
-	spduyi_info: "出牌阶段限一次，你可以亮出牌堆顶的一张牌并交给一名角色，若此牌为黑色，该角色不能使用或打出手牌，直到回到结束。",
+	spduyi_info: "出牌阶段限一次，你可以亮出牌堆顶的一张牌并交给一名角色，若此牌为黑色，该角色不能使用或打出手牌，直到本回合结束。",
 	sp_mushun: "SP穆顺",
 	sp_mushun_prefix: "SP",
 	libai: "李白",
@@ -543,9 +543,9 @@ const translates = {
 	tw_dm_zhangliang: "TW魔张梁",
 	tw_dm_zhangliang_prefix: "TW|魔",
 	twrenfang: "人方",
-	twrenfang_info: "锁定技，当一张你使用或打出的牌进入弃牌堆后，你获得1个“人方”标记，你每有1个/5个“人方”标记，你的手牌上限/出【杀】次数便+1。",
+	twrenfang_info: "锁定技，当一张你使用或打出的牌进入弃牌堆后，你获得1枚“人方”标记，你每有1枚/5枚“人方”标记，你的手牌上限/使用【杀】的次数上限便+1。",
 	twjuemie: "绝灭",
-	twjuemie_info: `出牌阶段限一次，你可移去36个“人方”标记，然后你可${get.poptip("rule_shifa")}：对X名角色（不足则所有）造成36点雷电伤害。`,
+	twjuemie_info: `出牌阶段限一次，你可移去36枚“人方”标记，然后你可${get.poptip("rule_shifa")}：对X名角色（不足则所有）造成36点雷电伤害。`,
 };
 
 export default translates;

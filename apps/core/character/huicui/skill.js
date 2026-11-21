@@ -3839,6 +3839,33 @@ const skills = {
 					return false;
 				}
 			},
+			aiValue(player, card, num) {
+				if (card.hasGaintag("dcjigu")) {
+					return 0;
+				}
+			},
+			aiUseful(player, card, num) {
+				if (card.hasGaintag("dcjigu")) {
+					return 0;
+				}
+			},
+		},
+		ai: {
+			effect: {
+				target(card, player, target, result2) {
+					if (get.type(card) !== "equip") {
+						return;
+					} else if (get.cardNameLength(card) === 3) {
+						return [-1, -10];
+					}
+					const attack = target.getEquipRange([card]);
+					if (attack && (game.hasPlayer(current => current !== player && get.attitude(target, current) < 0 && !current.inRange(target)) || target.hasSkill("dcsirui"))) {
+						return;
+					} else if (result2 > 0) {
+						return -1;
+					}
+				},
+			},
 		},
 		group: "dcjigu_temp",
 		subSkill: {
@@ -8675,7 +8702,7 @@ const skills = {
 				})
 				.set("sourcex", player)
 				.forResult();
-			if (result.bool) {
+			if (result?.bool) {
 				if (
 					player.hasHistory("damage", evt => {
 						return evt.card && evt.card.name == "sha" && evt.getParent(4) == event;
@@ -16778,7 +16805,7 @@ const skills = {
 						"idx",
 						(function () {
 							let att = get.sgn(get.attitude(target, player)),
-								use = get.effect(player, { name: "draw" }, player, target) * 1.5,
+								use = get.effect(player, { name: "wuzhong" }, player, target),
 								give = {},
 								discard = [];
 							target.countCards("h", i => {
@@ -16788,14 +16815,14 @@ const skills = {
 								give[suit] ??= 0;
 								give[suit] += get.value(i);
 								if (val > 1) {
-									use -= Math.sqrt(Math.abs(val));
+									use -= Math.sqrt(val);
 								}
 							});
 							discard.sort((a, b) => get.value(a) - get.value(b));
 							discard = discard.slice(0, Math.min(num, discard.length)).reduce((sum, card) => sum + get.value(card), 0);
 							give = att * Math.min(...Object.values(give));
-							const res = [use, give, -discard];
-							return res.indexOf(Math.max(...res));
+							const res = [-discard, give, use];
+							return 2 - res.indexOf(Math.max(...res));
 						})()
 					)
 					.forResult();

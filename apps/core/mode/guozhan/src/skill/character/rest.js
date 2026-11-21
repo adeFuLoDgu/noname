@@ -15232,7 +15232,7 @@ export default {
 		//priority:2,
 		audio: "botu",
 		filter(event, player) {
-			const history = player.getHistory("useCard");
+			const history = player.getHistory("useCard", evt => evt.isPhaseUsing(player));
 			const suits = [];
 			const types = [];
 			for (const item of history) {
@@ -19879,7 +19879,7 @@ export default {
 		enable: "phaseUse",
 		usable: 1,
 		getConfig(player, target) {
-      if (!guozhanZhenfaEnabled()) {
+			if (!guozhanZhenfaEnabled()) {
 				return false;
 			}
 			if (target === player || !target.isUnseen()) {

@@ -15706,7 +15706,7 @@ export class Player extends HTMLDivElement {
 					player.addSkill(skills);
 				}
 			}
-			game.addGlobalSkill("equipEnableSkill");
+			game.addGlobalSkill("_equipEnable");
 		}
 	}
 	$addVirtualJudge(VCard, cards) {
