@@ -75,10 +75,29 @@ export const start = async (event, trigger, player) => {
 		return;
 	}
 
-	const YingbianNames = new Set(lib.guozhanPile_yingbian.slice(0).map(card => card[2]));
-	const YingbianExtra = lib.guozhanPile.slice(0).filter(card => {
-		return !YingbianNames.has(card[2]);
-	});
+	const YingbianExtra = [
+		//势备
+		["heart", 3, "jingfanma", null, ["lianheng"]],
+		["heart", 6, "shan", null, ["lianheng"]],
+		["heart", 12, "huoshaolianying", null, ["lianheng"]],
+		["club", 2, "huxinjing", null, ["lianheng"]],
+		["club", 5, "sha", "thunder", ["lianheng"]],
+		["club", 11, "huoshaolianying", null, ["lianheng"]],
+		["diamond", 1, "xietianzi", null, ["lianheng"]],
+		["diamond", 3, "tao", null, ["lianheng"]],
+		["diamond", 4, "xietianzi", null, ["lianheng"]],
+		["diamond", 10, "diaohulishan", null, ["lianheng"]],
+
+		//怀旧
+		["spade", 2, "hanbing"],
+		["spade", 13, "dawan"],
+		["club", 1, "baiyin"],
+		["club", 5, "dilu"],
+		["diamond", 1, "zhuque"],
+		["heart", 7, "wuzhong"],
+		["heart", 8, "wuzhong"],
+		["spade", 2, "minguangkai"],
+	];
 
 	// 如果没有录像信息，则根据是否在联机模式进行不同的处理
 	if (_status.connectMode) {
