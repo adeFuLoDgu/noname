@@ -1515,6 +1515,7 @@ const skills = {
 			player.markAuto("lxweisi_mark", [`${event.name}_${skill}`]);
 			await event.trigger("gainJiuxi");
 		},
+		global: "lxweisi_lexuan_ai",
 		subSkill: {
 			achieve: {
 				audio: "jsrgweisi1.mp3",
@@ -1817,6 +1818,17 @@ const skills = {
 					trigger.targets.removeArray(targets);
 				},
 			},
+			lexuan_ai: {
+				ai: {
+					effect: {
+						target(card, player, target, current) {
+							if (game.hasPlayer(p => p.hasSkill("lxweisi_lexuan") && get.attitude(player, p) < 0) && get.tag(card, "multitarget")) {
+								return "zeroplayertarget";
+							}
+						},
+					},
+				}
+			}
 		},
 		lexuanCard(name) {
 			const info = lib.card[name];
