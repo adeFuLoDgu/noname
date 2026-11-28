@@ -2447,7 +2447,7 @@ export default {
 			async content(event, trigger, player) {
 				player
 					.chooseToUse(
-						get.prompt("luojing", trigger.player).replace(/发动/, "使用"),
+						`是否对${get.translation(trigger.player)}使用【${get.translation("luojing")}】？`,
 						(card, player) => {
 							if (get.name(card) !== "luojing") {
 								return false;
@@ -2485,7 +2485,7 @@ export default {
 			async content(event, trigger, player) {
 				player
 					.chooseToUse(
-						get.prompt("shengsi", trigger.player).replace(/发动/, "使用"),
+						`是否对${get.translation(trigger.player)}使用【${get.translation("shengsi")}】？`,
 						(card, player) => {
 							if (get.name(card) !== "shengsi") {
 								return false;
